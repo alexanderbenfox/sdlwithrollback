@@ -1,0 +1,6 @@
+Package: sdl2-ttf
+Version: 2.0.14-4
+Depends: sdl2, freetype
+Architecture: x64-windows
+Multi-Arch: same
+Description: A library for rendering TrueType fonts with SDL
