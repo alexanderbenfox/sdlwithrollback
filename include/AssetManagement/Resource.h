@@ -12,9 +12,15 @@ public:
   Resource(const std::string& filename);
   ~Resource() {}
 
+  void Load();
+  void Unload();
+
   T* Get() { return _resource.get(); }
+  bool IsLoaded() {return _loaded;}
 
 private:
+  bool _loaded;
+  std::string _pathToResource;
   std::shared_ptr<T> _resource;
 };
 

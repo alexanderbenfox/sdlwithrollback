@@ -1,4 +1,5 @@
 #include "../include/GameManagement.h"
+#include "../include/Timer.h"
 
 const int ScreenWidth = 600;
 const int ScreenHeight = 400;
@@ -41,7 +42,14 @@ void GameManager::Destroy()
 void GameManager::BeginGameLoop()
 {
   SDL_Event event;
-  int lastUpdateTimeMS = SDL_GetTicks();
+  Timer clock;
+  //start the timer
+  clock.Start();
+
+  //initialize the functions
+  auto input = std::bind(&GameManager::UpdateInput, this);
+  auto update = std::bind(&GameManager::Update, this, std::placeholders::_1);
+  auto draw = std::bind(&GameManager::Draw, this);
 
   for (;;)
   {
@@ -51,21 +59,19 @@ void GameManager::BeginGameLoop()
         return;
       }
     }
-
-    const int currTime = SDL_GetTicks();
-    int elapsedTimeMS = lastUpdateTimeMS - SDL_GetTicks();
-    // do update logic here
-    Update(elapsedTimeMS);
-    //
-    lastUpdateTimeMS = currTime;
-    // do draw logic here (after all logic is complete)
-    Draw();
+    clock.Update(input, update, draw);
   }
 }
 
 void GameManager::Update(int deltaTime_ms)
 {
+}
 
+void GameManager::UpdateInput()
+{
+  //update keys pressed here
+
+  //then process the keys pressed depending on the state
 }
 
 void GameManager::Draw()

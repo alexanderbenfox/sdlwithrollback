@@ -16,6 +16,8 @@ public:
 
   void LoadFile(const std::string& file);
 
+  Texture& GetTexture(const std::string& texture);
+
 private:
   ResourceManager();
 
@@ -49,6 +51,7 @@ private:
   GameManager() : _initialized(false) {}
   ~GameManager();
 
+  void ProcessInput();
   void Update(int deltaTime_ms);
   void Draw();
 
@@ -59,3 +62,11 @@ private:
   SDL_Renderer* _renderer;
   SDL_Window* _window;
 };
+
+class IGameState
+{
+public:
+  virtual IGameState();
+  virtual LoadAssets() = 0;
+  
+}
