@@ -9,8 +9,11 @@ template <typename T>
 class Resource
 {
 public:
-  Resource(const std::string& filename);
-  ~Resource() {}
+  Resource() : _loaded(false) {}
+  Resource(const std::string& filename) : _loaded(false)
+  {
+    _pathToResource = filename;
+  }
 
   void Load();
   void Unload();
@@ -22,10 +25,8 @@ private:
   bool _loaded;
   std::string _pathToResource;
   std::shared_ptr<T> _resource;
+
 };
 
-template <> Resource<SDL_Texture>::Resource(const std::string& filename);
-template <> Resource<TTF_Font>::Resource(const std::string& filename);
-
-typedef Resource<SDL_Texture> Texture;
-typedef Resource<TTF_Font> Font;
+//template <> void Resource<SDL_Texture>::Load();
+//template <> void Resource<TTF_Font>::Load();

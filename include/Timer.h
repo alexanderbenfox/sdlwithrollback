@@ -1,4 +1,6 @@
-typedef std::function<void(int)> UpdateFunction;
+#include <functional>
+
+typedef std::function<void(float)> UpdateFunction;
 typedef std::function<void()> FrameFunction;
 
 class Timer
@@ -6,41 +8,42 @@ class Timer
 public:
   Timer() : _frames(0.0f)
   {
-    _cpuClock.SetFPS();
+    _sdlClock.SetFPS();
   }
 
   void Start()
   {
-    _lastFrameTime(_cpuClock.now());
+    _lastFrameTime = _sdlClock.now();
     _sdlClock.Start();
   }
 
   void Update(
     FrameFunction& updateInput,
-    StateFunction& updateFunction,
+    UpdateFunction& updateFunction,
     FrameFunction& drawFunction)
   {
     _frames++;
 
-    uint32_t dt = _cpuClock.now() - _lastFrameTime;
-    _lastFrameTime = _cpuClock.now();
+    uint32_t dt = _sdlClock.now() - _lastFrameTime;
+    _lastFrameTime = _sdlClock.now();
 
-    _cpuClock.lag += dt;
+    _sdlClock.lag += dt;
 
     updateInput();
 
     if(fixedTimeStep)
     {
       //try to maintain 60 fps
-      while(_cpuClock.lag >= _cpuClock.timestep)
+      while(_sdlClock.lag >= _sdlClock.timestep)
       {
-        _cpuClock.lag -= _cpuClock.timestep;
-        updateFunction(_cpuClock.frametime);
+        _sdlClock.lag -= _sdlClock.timestep;
+        updateFunction(_sdlClock.frametime);
       }
     }
     else
     {
-      updateFunction(_dt);
+      float dtS = static_cast<float>(dt) / 1000.0f;
+      updateFunction(dtS);
     }
 
     drawFunction();
@@ -48,9 +51,9 @@ public:
     if(fixedTimeStep)
     {
       //cap framerate
-      if(_sdlClock.GetTicks() < _cpuClock.timestep)
+      if(_sdlClock.GetElapsedTicks() < _sdlClock.timestep)
       {
-        SDL_Delay(_cpuClock.timestep - _sdlClock.GetTicks());
+        SDL_Delay(_sdlClock.timestep - _sdlClock.GetElapsedTicks());
       }
     }
   }
@@ -63,18 +66,19 @@ private:
 
   struct IClock
   {
-    virtual IClock() = 0;
+    //virtual ~IClock() = 0;
     virtual void Start() = 0;
     virtual void Stop() = 0;
     virtual void Pause() = 0;
 
-    virtual int GetTicks() = 0;
-  }
+    virtual uint32_t GetElapsedTicks() const = 0;
+  };
 
   struct SDLClock : public IClock
   {
-    SDLClock() : startTicks(0), pausedTicks(0), paused(false), started(false) {}
-    int startTicks, pauseTicks;
+    SDLClock() : startTicks(0), pauseTicks(0), lag(0), paused(false), started(false) {}
+    uint32_t startTicks, pauseTicks;
+    uint32_t lag;
     bool paused, started;
 
     void Start() override
@@ -88,7 +92,7 @@ private:
       else if (paused)
       {
         paused = false;
-        startTicks = SDL_GetTicks() - pausedTicks;
+        startTicks = SDL_GetTicks() - pauseTicks;
         pauseTicks = 0;
       }
     }
@@ -108,7 +112,7 @@ private:
       }
     }
 
-    int GetTicks() override
+    uint32_t GetElapsedTicks() const override
     {
       if(started)
       {
@@ -118,20 +122,12 @@ private:
         else
         return SDL_GetTicks() - startTicks;
       }
+      return 0;
     }
-    return 0;
-  }
 
-  struct CPUClock
-  {
-    typedef std::chrono::milliseconds ms;
-    typedef std::chrono::nanoseconds ns;
-
-    uint32_t lag;
-    int fps;
-
-    int timestep = 1000/fps;
-    float frametime = 0.0075*(30.0/(float)fps);
+    uint32_t fps;
+    uint32_t timestep;
+    float frametime;
 
     static uint32_t now() noexcept
     {
@@ -140,14 +136,16 @@ private:
 
     void SetFPS()
     {
-      SDL_DisplayMode mode = {SDL_PIXELFORMAT_UNKNOWN, 0, 0, 0};
+      SDL_DisplayMode mode = { SDL_PIXELFORMAT_UNKNOWN, 0, 0, 0 };
       SDL_GetDisplayMode(0, 0, &mode);
       fps = mode.refresh_rate;
+      timestep = 1000 / fps;
+      frametime = 0.0075f*(30.0f / (float)fps);
     }
-  }
+  };
+
+
 
   SDLClock _sdlClock;
-  CPUClock _cpuClock;
 
-
-}
+};

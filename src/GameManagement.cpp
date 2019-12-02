@@ -1,5 +1,7 @@
-#include "../include/GameManagement.h"
-#include "../include/Timer.h"
+#include "GameManagement.h"
+#include "Timer.h"
+#include "Sprite.h"
+#include <iostream>
 
 const int ScreenWidth = 600;
 const int ScreenHeight = 400;
@@ -10,13 +12,64 @@ void ResourceManager::Initialize()
 {
   char* basePath = SDL_GetBasePath();
   if (basePath)
-    _dataPath = std::string(basePath);
-  else _dataPath = "./";
+    _resourcePath = std::string(basePath) + "..\\..\\..\\resources\\";
+  else _resourcePath = "./";
 }
 
-void ResourceManager::LoadFile(const std::string& file)
+Texture& ResourceManager::GetTexture(const std::string& file)
 {
+  if (_loadedTextures.find(file) == _loadedTextures.end())
+  {
+    _loadedTextures.insert(std::make_pair(file, Texture(_resourcePath + file)));
+  }
+  _loadedTextures[file].Load();
+  return _loadedTextures[file];
+}
 
+Resource<SDL_Surface>& ResourceManager::GetRawImage(const std::string& path)
+{
+  if (_loadedSurfaces.find(path) == _loadedSurfaces.end())
+  {
+    _loadedSurfaces.insert(std::make_pair(path, Resource<SDL_Surface>(path)));
+  }
+  _loadedSurfaces[path].Load();
+  return _loadedSurfaces[path];
+}
+
+ResourceManager::BlitOperation* ResourceManager::RegisterBlitOp()
+{
+  _registeredSprites.push_back(BlitOperation());
+  return &_registeredSprites.back();
+}
+
+void ResourceManager::BlitSprites()
+{
+  auto blit = [](BlitOperation* operation)
+  {
+    GameManager::Get().GetMainCamera()->ConvScreenSpace(operation);
+    if (GameManager::Get().GetMainCamera()->EntityInDisplay(operation))
+    {
+      int w, h;
+      auto srcTexture = operation->_textureResource->Get();
+      float rotation = 0;
+      //if(destRect->x >= _camera.x && destRect->x <=)
+      try
+      {
+        if (SDL_QueryTexture(operation->_textureResource->Get(), NULL, NULL, &w, &h) == 0)
+          SDL_RenderCopyEx(GameManager::Get().GetRenderer(), srcTexture, 
+            &operation->_textureRect, &operation->_displayRect, rotation, nullptr, operation->_flip);
+      }
+      catch (std::exception &e)
+      {
+        std::cout << "I guess this texture isn't valid??" << "\nCaught exception: " << e.what() << "\n";
+      }
+    }
+  };
+
+  for (auto& sprite : _registeredSprites)
+  {
+    blit(&sprite);
+  }
 }
 
 GameManager::~GameManager()
@@ -31,6 +84,21 @@ void GameManager::Initialize()
 
   SDL_CreateWindowAndRenderer(ScreenWidth, ScreenHeight, 0, &_window, &_renderer);
   SDL_SetWindowTitle(_window, Title);
+  
+  //create game entities
+
+  _gameEntities.push_back(Entity());
+  Entity& camera = _gameEntities.back();
+  camera.AddComponent<Camera>();
+  camera.GetComponent<Camera>()->Init(ScreenWidth, ScreenHeight);
+  _mainCamera = camera.GetComponent<Camera>();
+
+  _gameEntities.push_back(Entity());
+  Entity& sprite = _gameEntities.back();
+  sprite.AddComponent<Sprite>();
+  sprite.GetComponent<Sprite>()->Init("spritesheets\\idle.png");
+
+
 }
 
 void GameManager::Destroy()
@@ -47,9 +115,9 @@ void GameManager::BeginGameLoop()
   clock.Start();
 
   //initialize the functions
-  auto input = std::bind(&GameManager::UpdateInput, this);
-  auto update = std::bind(&GameManager::Update, this, std::placeholders::_1);
-  auto draw = std::bind(&GameManager::Draw, this);
+  FrameFunction input = std::bind(&GameManager::UpdateInput, this);
+  UpdateFunction update = std::bind(&GameManager::Update, this, std::placeholders::_1);
+  FrameFunction draw = std::bind(&GameManager::Draw, this);
 
   for (;;)
   {
@@ -63,8 +131,13 @@ void GameManager::BeginGameLoop()
   }
 }
 
-void GameManager::Update(int deltaTime_ms)
+void GameManager::Update(float deltaTime)
 {
+  for (auto& entity : _gameEntities)
+    entity.Update(deltaTime);
+
+  for (auto& entity : _gameEntities)
+    entity.PushToRenderer();
 }
 
 void GameManager::UpdateInput()
@@ -80,6 +153,7 @@ void GameManager::Draw()
   SDL_RenderClear(_renderer);
 
   // resource manager draw here?
+  ResourceManager::Get().BlitSprites();
 
   //present this frame
   SDL_RenderPresent(_renderer);
