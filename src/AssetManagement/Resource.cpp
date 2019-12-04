@@ -1,6 +1,8 @@
 #include "AssetManagement/Resource.h"
 #include "GameManagement.h"
 
+#include "SDL.h"
+
 template <typename T>
 void Resource<T>::Unload()
 {
@@ -12,11 +14,15 @@ template <> void Resource<SDL_Texture>::Load()
 {
   if (_loaded) return;
 
-  auto surface = ResourceManager::Get().GetRawImage(_pathToResource.c_str());
-  if (surface.IsLoaded())
+  //auto surface = ResourceManager::Get().GetRawImage(_pathToResource.c_str());
+  SDL_Surface* surface = IMG_Load(_pathToResource.c_str());
+  if (surface)
   {
-    _resource = std::shared_ptr<SDL_Texture>(SDL_CreateTextureFromSurface(GameManager::Get().GetRenderer(), surface.Get()), SDL_DestroyTexture);
+    SDL_Texture* tex = SDL_CreateTextureFromSurface(GameManager::Get().GetRenderer(), surface);
+    _resource = std::shared_ptr<SDL_Texture>(tex, SDL_DestroyTexture);
     if(_resource) _loaded = true;
+    SDL_FreeSurface(surface);
+    surface = NULL;
   }
 }
 

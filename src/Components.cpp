@@ -10,10 +10,7 @@ void Sprite::Init(const char* sheet)
 
   _sourceRect.x = 0;
   _sourceRect.y = 0;
-
-  auto sourceImage = ResourceManager::Get().GetRawImage(ResourceManager::Get().GetResourcePath() + sheet);
-  _sourceRect.w = sourceImage.Get()->w;
-  _sourceRect.h = sourceImage.Get()->h;
+  SDL_QueryTexture(_blitter->_textureResource->Get(), nullptr, nullptr, &_sourceRect.w, &_sourceRect.h);
 
   _blitter->_textureRect = _sourceRect;
 }

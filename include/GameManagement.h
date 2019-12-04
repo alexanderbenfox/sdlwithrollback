@@ -27,17 +27,14 @@ public:
     return rm;
   }
 
-  ~ResourceManager()
+  void Destroy()
   {
     _loadedTextures.clear();
-    _loadedSurfaces.clear();
   }
 
   void Initialize();
 
   Texture& GetTexture(const std::string& file);
-
-  Resource<SDL_Surface>& GetRawImage(const std::string& file);
 
   BlitOperation* RegisterBlitOp();
 
@@ -48,7 +45,6 @@ public:
 private:
   ResourceManager() {}
 
-  std::unordered_map<std::string, Resource<SDL_Surface>> _loadedSurfaces;
   std::unordered_map<std::string, Texture> _loadedTextures;
   std::unordered_map<std::string, Font> _font;
 

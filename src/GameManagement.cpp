@@ -26,16 +26,6 @@ Texture& ResourceManager::GetTexture(const std::string& file)
   return _loadedTextures[file];
 }
 
-Resource<SDL_Surface>& ResourceManager::GetRawImage(const std::string& path)
-{
-  if (_loadedSurfaces.find(path) == _loadedSurfaces.end())
-  {
-    _loadedSurfaces.insert(std::make_pair(path, Resource<SDL_Surface>(path)));
-  }
-  _loadedSurfaces[path].Load();
-  return _loadedSurfaces[path];
-}
-
 ResourceManager::BlitOperation* ResourceManager::RegisterBlitOp()
 {
   _registeredSprites.push_back(BlitOperation());
@@ -103,8 +93,13 @@ void GameManager::Initialize()
 
 void GameManager::Destroy()
 {
-  SDL_DestroyWindow(_window);
   SDL_DestroyRenderer(_renderer);
+  SDL_DestroyWindow(_window);
+
+  _renderer = nullptr;
+  _window = nullptr;
+
+  SDL_Quit();
 }
 
 void GameManager::BeginGameLoop()
@@ -127,6 +122,7 @@ void GameManager::BeginGameLoop()
         return;
       }
     }
+
     clock.Update(input, update, draw);
   }
 }

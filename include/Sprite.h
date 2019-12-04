@@ -3,6 +3,21 @@
 #include "../include/GameManagement.h"
 #include "../include/Entity.h"
 
+template <typename T = IComponent>
+class ComponentManager
+{
+public:
+  static ComponentManager<T>& Get()
+  {
+    static ComponentManager<T> manager;
+    return manager;
+  }
+private:
+  ComponentManager() {}
+  ComponentManager(const ComponentManager&) = delete;
+  ComponentManager<T> operator=(ComponentManager&) = delete;
+};
+
 class Sprite : public IComponent
 {
 public:
