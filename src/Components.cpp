@@ -18,7 +18,8 @@ void Sprite::Init(const char* sheet)
 void Sprite::PushToRenderer(const Transform& transform)
 {
   _blitter->_displayRect = { transform.position.x, transform.position.y,
-    (int)(static_cast<float>(_sourceRect.w) * transform.scale.x), (int)(static_cast<float>(_sourceRect.h) * transform.scale.y) };
+    (int)(static_cast<float>(_sourceRect.w) * transform.scale.x),
+    (int)(static_cast<float>(_sourceRect.h) * transform.scale.y) };
 }
 
 void Camera::Init(int w, int h)

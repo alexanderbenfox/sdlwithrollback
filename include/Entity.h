@@ -37,10 +37,15 @@ class IComponent
 {
 public:
   //virtual ~IComponent() = 0;
-
   virtual void Update(Transform& transform, float dt) = 0;
-  virtual void PushToRenderer(const Transform& transform) = 0;
+  
 };
+
+class IDrawable
+{
+public:
+  virtual void PushToRenderer(const Transform& transform) = 0;
+}
 
 //! Entity has componentsw
 class Entity
@@ -49,8 +54,6 @@ public:
   Entity() {}
 
   virtual void Update(float dt);
-
-  virtual void PushToRenderer();
 
   template <typename T = IComponent> 
   T* GetComponent();
