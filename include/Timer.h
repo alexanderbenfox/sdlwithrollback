@@ -1,7 +1,6 @@
 #include <functional>
 
 typedef std::function<void(float)> UpdateFunction;
-typedef std::function<void()> FrameFunction;
 
 class Timer
 {
@@ -17,10 +16,7 @@ public:
     _sdlClock.Start();
   }
 
-  void Update(
-    FrameFunction& updateInput,
-    UpdateFunction& updateFunction,
-    FrameFunction& drawFunction)
+  void Update(UpdateFunction& updateFunction)
   {
     _frames++;
 
@@ -29,7 +25,7 @@ public:
 
     _sdlClock.lag += dt;
 
-    updateInput();
+    //updateInput();
 
     if(fixedTimeStep)
     {
@@ -46,7 +42,7 @@ public:
       updateFunction(dtS);
     }
 
-    drawFunction();
+    //drawFunction();
 
     if(fixedTimeStep)
     {

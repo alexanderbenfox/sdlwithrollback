@@ -3,6 +3,26 @@
 //Analog joystick dead zone
 const int JOYSTICK_DEAD_ZONE = 8000;
 
+void operator|=(InputState& the, InputState other)
+{
+  the = (InputState)((unsigned char)the | (unsigned char)other);
+}
+
+void operator&=(InputState& the, InputState other)
+{
+  the = (InputState)((unsigned char)the & (unsigned char)other);
+}
+
+InputState operator&(InputState a, InputState b)
+{
+  return (InputState)((unsigned char)a & (unsigned char)b);
+}
+
+InputState operator~(InputState og)
+{
+  return (InputState)~((unsigned char)og);
+}
+
 KeyboardInputHandler::KeyboardInputHandler()
 {
   //assign direction buttons
@@ -12,9 +32,10 @@ KeyboardInputHandler::KeyboardInputHandler()
   _config[SDLK_d] = InputState::RIGHT;
 
   //assign the button events
-  _config[SDLK_i] = InputState::BTN1;
-  _config[SDLK_o] = InputState::BTN2;
-  _config[SDLK_p] = InputState::BTN3;
+  _config[SDLK_u] = InputState::BTN1;
+  _config[SDLK_i] = InputState::BTN2;
+  _config[SDLK_o] = InputState::BTN3;
+  _config[SDLK_p] = InputState::BTN4;
 }
 
 KeyboardInputHandler::~KeyboardInputHandler()
@@ -25,11 +46,12 @@ KeyboardInputHandler::~KeyboardInputHandler()
 ICommand* KeyboardInputHandler::HandleInput(SDL_Event* input)
 {
   InputState frameState = _lastFrameState;
+  ICommand* command = nullptr;
 
   _keyStates = SDL_GetKeyboardState(0);
   if (input)
   {
-    SDL_KeyboardEvent key = input->key;
+    SDL_Keycode key = input->key.keysym.sym;
     switch (input->type)
     {
     case SDL_KEYDOWN:
@@ -41,7 +63,18 @@ ICommand* KeyboardInputHandler::HandleInput(SDL_Event* input)
     }
   }
 
-  return new EmptyCommand;
+  if (HasState(frameState, InputState::UP))
+    command = new UpCommand;
+  else if (HasState(frameState, InputState::DOWN))
+    command = new DownCommand;
+  else if (HasState(frameState, InputState::RIGHT))
+    command = new RightCommand;
+  else if (HasState(frameState, InputState::LEFT))
+    command = new LeftCommand;
+  else command = new EmptyCommand;
+
+  _lastFrameState = frameState;
+  return command;
 }
 
 JoystickInputHandler::JoystickInputHandler()
@@ -52,6 +85,11 @@ JoystickInputHandler::JoystickInputHandler()
     SDL_JoystickEventState(SDL_ENABLE);
     _gameController = SDL_JoystickOpen(_joyStickID);
   }
+
+  _config[0] = InputState::BTN1;
+  _config[1] = InputState::BTN2;
+  _config[2] = InputState::BTN3;
+  _config[3] = InputState::BTN4;
 }
 
 JoystickInputHandler::~JoystickInputHandler()
@@ -69,7 +107,7 @@ ICommand* JoystickInputHandler::HandleInput(SDL_Event* input)
   InputState frameState = _lastFrameState;
 
   //reset movement state
-  frameState &= ~((InputState)(0x0e));
+  frameState &= ~((InputState)(0xf0));
 
   if (input)
   {

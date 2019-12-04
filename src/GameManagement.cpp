@@ -1,6 +1,9 @@
 #include "GameManagement.h"
 #include "Timer.h"
 #include "Sprite.h"
+#include "GameActor.h"
+
+#include "Input.h"
 #include <iostream>
 
 const int ScreenWidth = 600;
@@ -87,7 +90,8 @@ void GameManager::Initialize()
   Entity& sprite = _gameEntities.back();
   sprite.AddComponent<Sprite>();
   sprite.GetComponent<Sprite>()->Init("spritesheets\\idle.png");
-
+  sprite.AddComponent<GameActor>();
+  _player = sprite.GetComponent<GameActor>();
 
 }
 
@@ -110,9 +114,9 @@ void GameManager::BeginGameLoop()
   clock.Start();
 
   //initialize the functions
-  FrameFunction input = std::bind(&GameManager::UpdateInput, this);
+  //FrameFunction input = std::bind(&GameManager::UpdateInput, this);
   UpdateFunction update = std::bind(&GameManager::Update, this, std::placeholders::_1);
-  FrameFunction draw = std::bind(&GameManager::Draw, this);
+  //FrameFunction draw = std::bind(&GameManager::Draw, this);
 
   for (;;)
   {
@@ -123,24 +127,44 @@ void GameManager::BeginGameLoop()
       }
     }
 
-    clock.Update(input, update, draw);
+    UpdateInput(&event);
+    clock.Update(update);
+    Draw();
   }
+}
+
+GameManager::GameManager() : _initialized(false)
+{
+  _playerInput = std::unique_ptr<IInputHandler>(new KeyboardInputHandler());
 }
 
 void GameManager::Update(float deltaTime)
 {
-  for (auto& entity : _gameEntities)
+  /*for (auto& entity : _gameEntities)
     entity.Update(deltaTime);
 
   for (auto& entity : _gameEntities)
-    entity.PushToRenderer();
+    entity.PushToRenderer();*/
+
+  //Update characters
+  ComponentManager<GameActor>::Get().Update(deltaTime);
+  //Update sprites based on movement
+  ComponentManager<Sprite>::Get().Update(deltaTime);
+
 }
 
-void GameManager::UpdateInput()
+void GameManager::UpdateInput(SDL_Event* event)
 {
   //update keys pressed here
+  ICommand* command = _playerInput->HandleInput(event);
 
   //then process the keys pressed depending on the state
+  if (command)
+  {
+    command->Execute(_player);
+    command = nullptr;
+    delete command;
+  }
 }
 
 void GameManager::Draw()

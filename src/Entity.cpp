@@ -3,5 +3,5 @@
 void Entity::Update(float dt)
 {
   for (auto& component : _components)
-    component.second->Update(transform, dt);
+    component.second->Update(dt);
 }

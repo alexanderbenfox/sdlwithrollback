@@ -13,10 +13,16 @@ public:
     return manager;
   }
 
-  T* Create()
+  T* Create(Entity* owner)
   {
-    _components.push_back(T());
+    _components.push_back(T(owner));
     return &_components.back();
+  }
+
+  void Update(float dt)
+  {
+    for (auto& comp : _components)
+      comp.Update(dt);
   }
 
 private:
@@ -28,15 +34,14 @@ private:
   ComponentManager<T> operator=(ComponentManager&) = delete;
 };
 
-class Sprite : public IComponent, IDrawable
+class Sprite : public IComponent
 {
 public:
-  Sprite() : IComponent() {}
+  Sprite(Entity* owner) : IComponent(owner) {}
 
   void Init(const char* sheet);
 
-  virtual void Update(Transform& transform, float dt) override {}
-  virtual void PushToRenderer(const Transform& transform) override;
+  virtual void Update(float dt) override;
 
 protected:
   //! Source location on texture of sprite
@@ -55,12 +60,11 @@ static bool SDLRectOverlap(const SDL_Rect& a, const SDL_Rect& b)
 class Camera : public IComponent
 {
 public:
-  Camera() : IComponent() {}
-
+  Camera(Entity* entity) : IComponent(entity) {}
 
   void Init(int w, int h);
 
-  virtual void Update(Transform& transform, float dt) override;
+  virtual void Update(float dt) override;
 
   void ConvScreenSpace(ResourceManager::BlitOperation* entity);
 

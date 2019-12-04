@@ -15,8 +15,9 @@ void Sprite::Init(const char* sheet)
   _blitter->_textureRect = _sourceRect;
 }
 
-void Sprite::PushToRenderer(const Transform& transform)
+void Sprite::Update(float dt)
 {
+  Transform& transform = _owner->transform;
   _blitter->_displayRect = { transform.position.x, transform.position.y,
     (int)(static_cast<float>(_sourceRect.w) * transform.scale.x),
     (int)(static_cast<float>(_sourceRect.h) * transform.scale.y) };
@@ -30,10 +31,11 @@ void Camera::Init(int w, int h)
   _rect.h = h;
 }
 
-void Camera::Update(Transform& transform, float dt)
+void Camera::Update(float dt)
 {
-  _rect.x = transform.position.x;
-  _rect.y = transform.position.y;
+  _rect.x = _owner->transform.position.x;
+  _rect.y = _owner->transform.position.y;
+
 }
 
 void Camera::ConvScreenSpace(ResourceManager::BlitOperation* entity)

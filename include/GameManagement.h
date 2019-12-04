@@ -4,6 +4,9 @@
 #include "AssetManagement/Resource.h"
 #include "Entity.h"
 
+class IInputHandler;
+
+class GameActor;
 class Sprite;
 class Camera;
 
@@ -76,10 +79,10 @@ public:
   Camera* GetMainCamera() { return _mainCamera; }
 
 private:
-  GameManager() : _initialized(false) {}
+  GameManager();
   ~GameManager();
 
-  void UpdateInput();
+  void UpdateInput(SDL_Event* event);
   void Update(float deltaTime);
   void Draw();
 
@@ -88,10 +91,12 @@ private:
   SDL_Renderer* _renderer;
   SDL_Window* _window;
 
+  std::unique_ptr<IInputHandler> _playerInput;
 
   //______________________________________
   std::vector<Entity> _gameEntities;
 
+  GameActor* _player;
   Camera* _mainCamera;
 };
 

@@ -2,31 +2,92 @@
 #include "GameActor.h"
 #include <SDL2/SDL.h>
 
-enum class InputState : uint16_t
+enum class InputState : unsigned char
 {
   NONE = 0x00,
   UP = 0x01,
   DOWN = 0x02,
   RIGHT = 0x04,
   LEFT = 0x08,
-  BTN1 = 0x0f,
-  BTN2 = 0x11,
-  BTN3 = 0x12
+  BTN1 = 0x10,
+  BTN2 = 0x20,
+  BTN3 = 0x40,
+  BTN4 = 0x80
 };
+
+void operator|=(InputState& the, InputState other);
+
+void operator&=(InputState& the, InputState other);
+
+InputState operator&(InputState a, InputState b);
+
+InputState operator~(InputState og);
+
+static bool HasState(const InputState& state, InputState other)
+{
+  return (state & other) == other;
+}
+
+//=========================================================================
 
 class ICommand
 {
 public:
   virtual ~ICommand() {}
-  virtual void Execute(GameActor& actor) = 0;
+  virtual void Execute(GameActor* actor) = 0;
 };
 
 class EmptyCommand : public ICommand
 {
 public:
   EmptyCommand() = default;
-  virtual void Execute(GameActor& actor) override {}
+  virtual void Execute(GameActor* actor) override
+  {
+    actor->HandleMovementCommand(Vector2<int>(0, 0));
+  }
 };
+
+class UpCommand : public ICommand
+{
+public:
+  UpCommand() = default;
+  virtual void Execute(GameActor* actor) override
+  {
+    actor->HandleMovementCommand(Vector2<int>(0, -1));
+  }
+};
+
+class DownCommand : public ICommand
+{
+public:
+  DownCommand() = default;
+  virtual void Execute(GameActor* actor) override
+  {
+    actor->HandleMovementCommand(Vector2<int>(0, 1));
+  }
+};
+
+class LeftCommand : public ICommand
+{
+public:
+  LeftCommand() = default;
+  virtual void Execute(GameActor* actor) override
+  {
+    actor->HandleMovementCommand(Vector2<int>(-1, 0));
+  }
+};
+
+class RightCommand : public ICommand
+{
+public:
+  RightCommand() = default;
+  virtual void Execute(GameActor* actor) override
+  {
+    actor->HandleMovementCommand(Vector2<int>(1, 0));
+  }
+};
+
+//=========================================================================
 
 class IInputHandler
 {

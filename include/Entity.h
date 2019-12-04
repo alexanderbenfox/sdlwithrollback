@@ -22,8 +22,11 @@ Vector2<T> operator+(const Vector2<T>& lhs, const Vector2<T>& rhs) { return Vect
 template <typename T>
 Vector2<T> operator*(const Vector2<T>& lhs, T rhs) { return Vector2<T>(lhs.x * rhs, lhs.y * rhs); }
 
+template <typename T>
+Vector2<T> operator*(T lhs, const Vector2<T>& rhs) { return Vector2<T>(lhs * rhs.x, lhs * rhs.y); }
+
 template <typename T, typename U>
-Vector2<T> operator*(const Vector2<T>& lhs, U rhs) { return Vector2<T>(lhs.x * static_cast<T>(rhs), lhs.y * static_cast<T>(rhs)); }
+Vector2<T> operator*(const Vector2<T>& lhs, U rhs) { return Vector2<T>(static_cast<T>(static_cast<U>(lhs.x) * rhs), static_cast<T>(static_cast<U>(lhs.y) * rhs)); }
 
 struct Transform
 {
@@ -33,19 +36,18 @@ struct Transform
   Vector2<float> rotation;
 };
 
+class Entity;
+
 class IComponent
 {
 public:
+  IComponent(Entity* owner) : _owner(owner) {}
   //virtual ~IComponent() = 0;
-  virtual void Update(Transform& transform, float dt) = 0;
+  virtual void Update(float dt) {}// = 0;
+protected:
+  Entity* _owner;
   
 };
-
-class IDrawable
-{
-public:
-  virtual void PushToRenderer(const Transform& transform) = 0;
-}
 
 //! Entity has componentsw
 class Entity
@@ -67,14 +69,14 @@ public:
   Transform transform;
 
 protected:
-  std::unordered_map<std::type_index, std::shared_ptr<IComponent>> _components;
+  std::unordered_map<std::type_index, IComponent*> _components;
 };
 
 template <typename T>
 inline T* Entity::GetComponent()
 {
   if (_components.find(std::type_index(typeid(T))) != _components.end())
-    return static_cast<T*>(_components[std::type_index(typeid(T))].get());
+    return static_cast<T*>(_components[std::type_index(typeid(T))]);
   else return nullptr;
 }
 
@@ -83,7 +85,7 @@ inline void Entity::AddComponent()
 {
   if (_components.find(std::type_index(typeid(T))) == _components.end())
   {
-    _components.insert(std::make_pair(std::type_index(typeid(T)), new T()));
+    _components.insert(std::make_pair(std::type_index(typeid(T)), ComponentManager<T>::Get().Create(this)));
   }
 }
 
