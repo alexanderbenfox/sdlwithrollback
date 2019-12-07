@@ -29,16 +29,26 @@ Texture& ResourceManager::GetTexture(const std::string& file)
   return _loadedTextures[file];
 }
 
-ResourceManager::BlitOperation* ResourceManager::RegisterBlitOp()
+Vector2<int> ResourceManager::GetTextureWidthAndHeight(const std::string& file)
+{
+  int width;
+  int height;
+  SDL_QueryTexture(GetTexture(file).Get(), nullptr, nullptr, &width, &height);
+  return Vector2<int>(width, height);
+}
+
+void ResourceManager::RegisterBlitOp()
 {
   _registeredSprites.push_back(BlitOperation());
-  return &_registeredSprites.back();
+  _registeredSprites.back().valid = false;
 }
 
 void ResourceManager::BlitSprites()
 {
   auto blit = [](BlitOperation* operation)
   {
+    if (!operation->valid) return;
+
     GameManager::Get().GetMainCamera()->ConvScreenSpace(operation);
     if (GameManager::Get().GetMainCamera()->EntityInDisplay(operation))
     {
@@ -62,13 +72,15 @@ void ResourceManager::BlitSprites()
   for (auto& sprite : _registeredSprites)
   {
     blit(&sprite);
+    // deregister sprite from list
+    //sprite.valid = false;
   }
+
+  //reset available ops for next frame
+  opIndex = 0;
 }
 
-GameManager::~GameManager()
-{
-  TTF_Quit();
-}
+GameManager::~GameManager() {}
 
 void GameManager::Initialize()
 {
@@ -80,18 +92,37 @@ void GameManager::Initialize()
   
   //create game entities
 
-  _gameEntities.push_back(Entity());
-  Entity& camera = _gameEntities.back();
-  camera.AddComponent<Camera>();
-  camera.GetComponent<Camera>()->Init(ScreenWidth, ScreenHeight);
-  _mainCamera = camera.GetComponent<Camera>();
+  _gameEntities.push_back(std::make_shared<Entity>());
+  auto camera = _gameEntities.back();
+  camera->AddComponent<Camera>();
+  camera->GetComponent<Camera>()->Init(ScreenWidth, ScreenHeight);
+  _mainCamera = camera->GetComponent<Camera>();
 
-  _gameEntities.push_back(Entity());
-  Entity& sprite = _gameEntities.back();
-  sprite.AddComponent<Sprite>();
-  sprite.GetComponent<Sprite>()->Init("spritesheets\\idle.png");
-  sprite.AddComponent<GameActor>();
-  _player = sprite.GetComponent<GameActor>();
+
+  Vector2<int> textureSize = ResourceManager::Get().GetTextureWidthAndHeight("spritesheets\\ryu.png");
+
+  _gameEntities.push_back(std::make_shared<Entity>());
+  auto sprite = _gameEntities.back();
+  sprite->AddComponent<Sprite>();
+  sprite->GetComponent<Sprite>()->Init("spritesheets\\ryu.png");
+  sprite->AddComponent<Physics>();
+  sprite->AddComponent<GameActor>();
+  sprite->AddComponent<RectCollider>();
+  sprite->GetComponent<RectCollider>()->Init(Vector2<float>(0.0f, 0.0f), Vector2<float>(static_cast<float>(textureSize.x), static_cast<float>(textureSize.y)));
+  sprite->GetComponent<RectCollider>()->SetStatic(false);
+  _player = sprite->GetComponent<GameActor>();
+
+  _gameEntities.push_back(std::make_shared<Entity>());
+  auto staticBoy = _gameEntities.back();
+  staticBoy->AddComponent<Sprite>();
+  staticBoy->GetComponent<Sprite>()->Init("spritesheets\\ryu.png");
+  staticBoy->AddComponent<RectCollider>();
+  float startPosX = staticBoy->transform.position.x = 200.0f;
+  float startPosY = staticBoy->transform.position.y = 200.0f;
+
+  staticBoy->GetComponent<RectCollider>()->Init(Vector2<float>(startPosX, startPosY), Vector2<float>(startPosX + textureSize.x, startPosY + textureSize.y));
+  staticBoy->GetComponent<RectCollider>()->SetStatic(true);
+
 
 }
 
@@ -104,6 +135,11 @@ void GameManager::Destroy()
   _window = nullptr;
 
   SDL_Quit();
+  TTF_Quit();
+
+  _player.reset();
+  _mainCamera.reset();
+  _gameEntities.clear();
 }
 
 void GameManager::BeginGameLoop()
@@ -120,15 +156,24 @@ void GameManager::BeginGameLoop()
 
   for (;;)
   {
-    //get new key states
+    //! Check for quit
     if (SDL_PollEvent(&event)) {
       if (event.type == SDL_QUIT) {
         return;
       }
     }
 
+    //! Do pre-input set up stuff
+    for (auto sprite : ComponentManager<Sprite>::Get().All())
+      sprite->OnFrameBegin();
+
+    //! Collect inputs from controllers (this means AI controllers as well as Player controllers)
     UpdateInput(&event);
+
+    //! Update all components
     clock.Update(update);
+
+    //! Finally render the scene
     Draw();
   }
 }
@@ -148,7 +193,11 @@ void GameManager::Update(float deltaTime)
 
   //Update characters
   ComponentManager<GameActor>::Get().Update(deltaTime);
-  //Update sprites based on movement
+  //
+  ComponentManager<Physics>::Get().Update(deltaTime);
+  //
+  ComponentManager<RectCollider>::Get().Update(deltaTime);
+  //Update sprites last
   ComponentManager<Sprite>::Get().Update(deltaTime);
 
 }
@@ -161,7 +210,7 @@ void GameManager::UpdateInput(SDL_Event* event)
   //then process the keys pressed depending on the state
   if (command)
   {
-    command->Execute(_player);
+    command->Execute(_player.get());
     command = nullptr;
     delete command;
   }

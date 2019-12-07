@@ -3,35 +3,12 @@
 #include <typeindex>
 #include <memory>
 
-template <typename T>
-class Vector2
-{
-public:
-  Vector2<T>() : x(0), y(0) {}
-  Vector2<T>(T x, T y) : x(x), y(y) {}
-
-  T x;
-  T y;
-
-  void operator+=(const Vector2<T>& other) { x += other.x; y += other.y; }
-};
-
-template <typename T>
-Vector2<T> operator+(const Vector2<T>& lhs, const Vector2<T>& rhs) { return Vector2<T>(lhs.x + rhs.x, lhs.y + rhs.y); }
-
-template <typename T>
-Vector2<T> operator*(const Vector2<T>& lhs, T rhs) { return Vector2<T>(lhs.x * rhs, lhs.y * rhs); }
-
-template <typename T>
-Vector2<T> operator*(T lhs, const Vector2<T>& rhs) { return Vector2<T>(lhs * rhs.x, lhs * rhs.y); }
-
-template <typename T, typename U>
-Vector2<T> operator*(const Vector2<T>& lhs, U rhs) { return Vector2<T>(static_cast<T>(static_cast<U>(lhs.x) * rhs), static_cast<T>(static_cast<U>(lhs.y) * rhs)); }
+#include "Geometry.h"
 
 struct Transform
 {
-  Transform() : position(Vector2<int>(0, 0)), scale(Vector2<float>(1.0f, 1.0f)), rotation(Vector2<float>(0.0f, 0.0f)) {}
-  Vector2<int> position;
+  Transform() : position(Vector2<float>(0.0f, 0.0f)), scale(Vector2<float>(1.0f, 1.0f)), rotation(Vector2<float>(0.0f, 0.0f)) {}
+  Vector2<float> position;
   Vector2<float> scale;
   Vector2<float> rotation;
 };
@@ -41,12 +18,47 @@ class Entity;
 class IComponent
 {
 public:
-  IComponent(Entity* owner) : _owner(owner) {}
+  IComponent(std::shared_ptr<Entity> owner) : _owner(owner) {}
   //virtual ~IComponent() = 0;
   virtual void Update(float dt) {}// = 0;
+  virtual void OnFrameBegin() {}
+  virtual void OnFrameEnd() {}
 protected:
-  Entity* _owner;
+  std::shared_ptr<Entity> _owner;
   
+};
+
+template <typename T = IComponent>
+class ComponentManager
+{
+public:
+  static ComponentManager<T>& Get()
+  {
+    static ComponentManager<T> manager;
+    return manager;
+  }
+
+  std::shared_ptr<T> Create(std::shared_ptr<Entity> owner)
+  {
+    _components.push_back(std::make_shared<T>(owner));
+    return _components.back();
+  }
+
+  void Update(float dt)
+  {
+    for (auto comp : _components)
+      comp->Update(dt);
+  }
+
+  std::vector<std::shared_ptr<T>>& All() { return _components; }
+
+private:
+  //
+  std::vector<std::shared_ptr<T>> _components;
+  //
+  ComponentManager() {}
+  ComponentManager(const ComponentManager&) = delete;
+  ComponentManager<T> operator=(ComponentManager&) = delete;
 };
 
 //! Entity has componentsw
@@ -58,7 +70,7 @@ public:
   virtual void Update(float dt);
 
   template <typename T = IComponent> 
-  T* GetComponent();
+  std::shared_ptr<T> GetComponent();
 
   template <typename T = IComponent>
   void AddComponent();
@@ -69,15 +81,15 @@ public:
   Transform transform;
 
 protected:
-  std::unordered_map<std::type_index, IComponent*> _components;
+  std::unordered_map<std::type_index, std::shared_ptr<IComponent>> _components;
 };
 
 template <typename T>
-inline T* Entity::GetComponent()
+inline std::shared_ptr<T> Entity::GetComponent()
 {
   if (_components.find(std::type_index(typeid(T))) != _components.end())
-    return static_cast<T*>(_components[std::type_index(typeid(T))]);
-  else return nullptr;
+    return std::static_pointer_cast<T>(_components[std::type_index(typeid(T))]);
+  else return std::shared_ptr<T>(nullptr);
 }
 
 template <typename T>
@@ -85,7 +97,7 @@ inline void Entity::AddComponent()
 {
   if (_components.find(std::type_index(typeid(T))) == _components.end())
   {
-    _components.insert(std::make_pair(std::type_index(typeid(T)), ComponentManager<T>::Get().Create(this)));
+    _components.insert(std::make_pair(std::type_index(typeid(T)), ComponentManager<T>::Get().Create(std::shared_ptr<Entity>(this))));
   }
 }
 

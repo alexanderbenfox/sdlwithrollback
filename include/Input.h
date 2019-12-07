@@ -43,7 +43,7 @@ public:
   EmptyCommand() = default;
   virtual void Execute(GameActor* actor) override
   {
-    actor->HandleMovementCommand(Vector2<int>(0, 0));
+    actor->HandleMovementCommand(Vector2<float>(0, 0));
   }
 };
 
@@ -53,7 +53,7 @@ public:
   UpCommand() = default;
   virtual void Execute(GameActor* actor) override
   {
-    actor->HandleMovementCommand(Vector2<int>(0, -1));
+    actor->HandleMovementCommand(Vector2<float>(0, -1));
   }
 };
 
@@ -63,7 +63,7 @@ public:
   DownCommand() = default;
   virtual void Execute(GameActor* actor) override
   {
-    actor->HandleMovementCommand(Vector2<int>(0, 1));
+    actor->HandleMovementCommand(Vector2<float>(0, 1));
   }
 };
 
@@ -73,7 +73,7 @@ public:
   LeftCommand() = default;
   virtual void Execute(GameActor* actor) override
   {
-    actor->HandleMovementCommand(Vector2<int>(-1, 0));
+    actor->HandleMovementCommand(Vector2<float>(-1, 0));
   }
 };
 
@@ -83,7 +83,7 @@ public:
   RightCommand() = default;
   virtual void Execute(GameActor* actor) override
   {
-    actor->HandleMovementCommand(Vector2<int>(1, 0));
+    actor->HandleMovementCommand(Vector2<float>(1, 0));
   }
 };
 

@@ -18,6 +18,7 @@ class ResourceManager
 public:
   struct BlitOperation
   {
+    bool valid = false;
     SDL_Rect _textureRect;
     SDL_Rect _displayRect;
     Texture* _textureResource;
@@ -39,8 +40,13 @@ public:
 
   Texture& GetTexture(const std::string& file);
 
-  BlitOperation* RegisterBlitOp();
+  Vector2<int> GetTextureWidthAndHeight(const std::string& file);
 
+  BlitOperation* GetAvailableOp()
+  {
+    return &_registeredSprites[opIndex++];
+  }
+  void RegisterBlitOp();
   void BlitSprites();
 
   const std::string& GetResourcePath() { return _resourcePath; }
@@ -51,6 +57,8 @@ private:
   std::unordered_map<std::string, Texture> _loadedTextures;
   std::unordered_map<std::string, Font> _font;
 
+  int registeredSprites = 0;
+  int opIndex = 0;
   std::vector<BlitOperation> _registeredSprites;
 
   std::string _resourcePath;
@@ -76,7 +84,7 @@ public:
 
   SDL_Renderer* GetRenderer() { return _renderer; }
 
-  Camera* GetMainCamera() { return _mainCamera; }
+  Camera* GetMainCamera() { return _mainCamera.get(); }
 
 private:
   GameManager();
@@ -94,10 +102,10 @@ private:
   std::unique_ptr<IInputHandler> _playerInput;
 
   //______________________________________
-  std::vector<Entity> _gameEntities;
+  std::vector<std::shared_ptr<Entity>> _gameEntities;
+  std::shared_ptr<GameActor> _player;
+  std::shared_ptr<Camera> _mainCamera;
 
-  GameActor* _player;
-  Camera* _mainCamera;
 };
 
 class IGameState
