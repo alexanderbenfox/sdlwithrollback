@@ -37,24 +37,17 @@ protected:
 
 };
 
+//!
 class RectCollider : public ICollider<float>
 {
 public:
+  //!
   RectCollider(std::shared_ptr<Entity> entity) : ICollider(entity) {}
-
-  void Init(Vector2<float> beg, Vector2<float> end)
-  {
-    rect = Rect<float>(beg, end);
-  }
-
-  virtual void Update(float dt) override
-  {
-    if (!_isStatic)
-    {
-      rect = Rect<float>(_owner->transform.position,
-        Vector2<float>(_owner->transform.position.x + rect.Width(), _owner->transform.position.y + rect.Height()));
-    }
-  }
-
+  //!
+  void Init(Vector2<float> beg, Vector2<float> end);
+  //!
+  virtual void Update(float dt) override;
+  //!
   Rect<float> rect;
+
 };

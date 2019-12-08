@@ -1,5 +1,5 @@
 #pragma once
-#include "GameActor.h"
+#include "Components/GameActor.h"
 #include <SDL2/SDL.h>
 
 enum class InputState : unsigned char

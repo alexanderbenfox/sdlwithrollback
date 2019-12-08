@@ -1,7 +1,7 @@
 #include "GameManagement.h"
 #include "Timer.h"
-#include "Sprite.h"
-#include "GameActor.h"
+#include "Components/Sprite.h"
+#include "Components/GameActor.h"
 
 #include "Input.h"
 #include <iostream>
@@ -11,6 +11,7 @@ const int ScreenHeight = 400;
 
 const char* Title = "Game Title";
 
+//______________________________________________________________________________
 void ResourceManager::Initialize()
 {
   char* basePath = SDL_GetBasePath();
@@ -19,6 +20,7 @@ void ResourceManager::Initialize()
   else _resourcePath = "./";
 }
 
+//______________________________________________________________________________
 Texture& ResourceManager::GetTexture(const std::string& file)
 {
   if (_loadedTextures.find(file) == _loadedTextures.end())
@@ -29,6 +31,7 @@ Texture& ResourceManager::GetTexture(const std::string& file)
   return _loadedTextures[file];
 }
 
+//______________________________________________________________________________
 Vector2<int> ResourceManager::GetTextureWidthAndHeight(const std::string& file)
 {
   int width;
@@ -37,12 +40,14 @@ Vector2<int> ResourceManager::GetTextureWidthAndHeight(const std::string& file)
   return Vector2<int>(width, height);
 }
 
+//______________________________________________________________________________
 void ResourceManager::RegisterBlitOp()
 {
   _registeredSprites.push_back(BlitOperation());
   _registeredSprites.back().valid = false;
 }
 
+//______________________________________________________________________________
 void ResourceManager::BlitSprites()
 {
   auto blit = [](BlitOperation* operation)
@@ -80,8 +85,7 @@ void ResourceManager::BlitSprites()
   opIndex = 0;
 }
 
-GameManager::~GameManager() {}
-
+//______________________________________________________________________________
 void GameManager::Initialize()
 {
   SDL_Init(SDL_INIT_EVERYTHING);
@@ -92,16 +96,20 @@ void GameManager::Initialize()
   
   //create game entities
 
-  _gameEntities.push_back(std::make_shared<Entity>());
+  /*_gameEntities.push_back(std::make_shared<Entity>());
   auto camera = _gameEntities.back();
   camera->AddComponent<Camera>();
+  camera->GetComponent<Camera>()->Init(ScreenWidth, ScreenHeight);
+  _mainCamera = camera->GetComponent<Camera>();*/
+
+  auto camera = CreateEntity<Camera>();
   camera->GetComponent<Camera>()->Init(ScreenWidth, ScreenHeight);
   _mainCamera = camera->GetComponent<Camera>();
 
 
   Vector2<int> textureSize = ResourceManager::Get().GetTextureWidthAndHeight("spritesheets\\ryu.png");
 
-  _gameEntities.push_back(std::make_shared<Entity>());
+  /*_gameEntities.push_back(std::make_shared<Entity>());
   auto sprite = _gameEntities.back();
   sprite->AddComponent<Sprite>();
   sprite->GetComponent<Sprite>()->Init("spritesheets\\ryu.png");
@@ -110,22 +118,32 @@ void GameManager::Initialize()
   sprite->AddComponent<RectCollider>();
   sprite->GetComponent<RectCollider>()->Init(Vector2<float>(0.0f, 0.0f), Vector2<float>(static_cast<float>(textureSize.x), static_cast<float>(textureSize.y)));
   sprite->GetComponent<RectCollider>()->SetStatic(false);
+  _player = sprite->GetComponent<GameActor>();*/
+
+  auto sprite = CreateEntity<Sprite, Physics, GameActor, RectCollider>();
+  sprite->GetComponent<Sprite>()->Init("spritesheets\\ryu.png");
+  sprite->GetComponent<RectCollider>()->Init(Vector2<float>(0.0f, 0.0f), Vector2<float>(static_cast<float>(textureSize.x), static_cast<float>(textureSize.y)));
+  sprite->GetComponent<RectCollider>()->SetStatic(false);
   _player = sprite->GetComponent<GameActor>();
 
-  _gameEntities.push_back(std::make_shared<Entity>());
+  /*_gameEntities.push_back(std::make_shared<Entity>());
   auto staticBoy = _gameEntities.back();
   staticBoy->AddComponent<Sprite>();
   staticBoy->GetComponent<Sprite>()->Init("spritesheets\\ryu.png");
-  staticBoy->AddComponent<RectCollider>();
+  staticBoy->AddComponent<RectCollider>();*/
+  
+  auto staticBoy = CreateEntity<Sprite, RectCollider>();
   float startPosX = staticBoy->transform.position.x = 200.0f;
   float startPosY = staticBoy->transform.position.y = 200.0f;
 
+  staticBoy->GetComponent<Sprite>()->Init("spritesheets\\ryu.png");
   staticBoy->GetComponent<RectCollider>()->Init(Vector2<float>(startPosX, startPosY), Vector2<float>(startPosX + textureSize.x, startPosY + textureSize.y));
   staticBoy->GetComponent<RectCollider>()->SetStatic(true);
 
 
 }
 
+//______________________________________________________________________________
 void GameManager::Destroy()
 {
   SDL_DestroyRenderer(_renderer);
@@ -142,6 +160,7 @@ void GameManager::Destroy()
   _gameEntities.clear();
 }
 
+//______________________________________________________________________________
 void GameManager::BeginGameLoop()
 {
   SDL_Event event;
@@ -178,11 +197,16 @@ void GameManager::BeginGameLoop()
   }
 }
 
+//______________________________________________________________________________
 GameManager::GameManager() : _initialized(false)
 {
   _playerInput = std::unique_ptr<IInputHandler>(new KeyboardInputHandler());
 }
 
+//______________________________________________________________________________
+GameManager::~GameManager() {}
+
+//______________________________________________________________________________
 void GameManager::Update(float deltaTime)
 {
   /*for (auto& entity : _gameEntities)
@@ -202,6 +226,7 @@ void GameManager::Update(float deltaTime)
 
 }
 
+//______________________________________________________________________________
 void GameManager::UpdateInput(SDL_Event* event)
 {
   //update keys pressed here
@@ -216,6 +241,7 @@ void GameManager::UpdateInput(SDL_Event* event)
   }
 }
 
+//______________________________________________________________________________
 void GameManager::Draw()
 {
   //clear last frame graphics
