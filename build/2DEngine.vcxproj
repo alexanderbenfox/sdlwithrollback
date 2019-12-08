@@ -21,7 +21,7 @@
   <ItemGroup>
     <ClCompile Include="..\src\2DEngine.cpp" />
     <ClCompile Include="..\src\AssetManagement\Resource.cpp" />
-    <ClCompile Include="..\src\Components.cpp" />
+    <ClCompile Include="..\src\Components\Components.cpp" />
     <ClCompile Include="..\src\Entity.cpp" />
     <ClCompile Include="..\src\GameManagement.cpp" />
     <ClCompile Include="..\src\Geometry.cpp" />
@@ -29,13 +29,17 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\AssetManagement\Resource.h" />
-    <ClInclude Include="..\include\Collider.h" />
+    <ClInclude Include="..\include\Components\Camera.h" />
+    <ClInclude Include="..\include\Components\Collider.h" />
+    <ClInclude Include="..\include\Components\ComponentManager.h" />
+    <ClInclude Include="..\include\Components\GameActor.h" />
+    <ClInclude Include="..\include\Components\IComponent.h" />
+    <ClInclude Include="..\include\Components\Physics.h" />
+    <ClInclude Include="..\include\Components\Sprite.h" />
     <ClInclude Include="..\include\Entity.h" />
-    <ClInclude Include="..\include\GameActor.h" />
     <ClInclude Include="..\include\GameManagement.h" />
     <ClInclude Include="..\include\Geometry.h" />
     <ClInclude Include="..\include\Input.h" />
-    <ClInclude Include="..\include\Sprite.h" />
     <ClInclude Include="..\include\Timer.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

@@ -1,7 +1,11 @@
 #include "GameManagement.h"
 #include "Timer.h"
+
+#include "Components/Camera.h"
 #include "Components/Sprite.h"
 #include "Components/GameActor.h"
+#include "Components/Physics.h"
+#include "Components/Collider.h"
 
 #include "Input.h"
 #include <iostream>

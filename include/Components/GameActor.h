@@ -1,6 +1,6 @@
 #pragma once
 #include "IComponent.h"
-#include <cassert>
+#include "Geometry.h"
 
 //!
 class GameActor : public IComponent

@@ -1,9 +1,15 @@
 #include "AssetManagement/Resource.h"
+
 #include "Entity.h"
+#include "GameManagement.h"
+
 #include "Components/Sprite.h"
 #include "Components/Camera.h"
 #include "Components/Physics.h"
 #include "Components/Collider.h"
+#include "Components/GameActor.h"
+
+#include <cassert>
 
 //______________________________________________________________________________
 void Sprite::Init(const char* sheet)

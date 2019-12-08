@@ -3,6 +3,7 @@
 #include <unordered_map>
 #include "AssetManagement/Resource.h"
 #include "Entity.h"
+#include "Components/IComponent.h"
 
 class IInputHandler;
 
@@ -104,16 +105,24 @@ private:
 
   //______________________________________
 
-  template <template T = IComponent>
-  void AddComponentToEntity(Entity* entity) { entity->AddComponent<T>(); }
+  template <typename ...> struct ComponentInitList {};
 
-  template <typename... Args>
+  template <typename T = IComponent, typename ... Rest>
+  void AddComponentToEntity(Entity* entity, ComponentInitList<T, Rest...> )
+  {
+    entity->AddComponent<T>();
+
+    // recursively call this function on the rest of the types
+    AddComponentToEntity(entity, ComponentInitList<Rest...>());
+  }
+
+  template <typename ... Args>
   std::shared_ptr<Entity> CreateEntity()
   {
       //static constexpr unsigned nargs = sizeof...(Args);
       _gameEntities.push_back(std::make_shared<Entity>());
       auto newEntity = _gameEntities.back();
-      AddComponentToEntity<Args...>(newEntity).get();
+      AddComponentToEntity(newEntity.get(), ComponentInitList<Args...>());
       return newEntity;
   }
 

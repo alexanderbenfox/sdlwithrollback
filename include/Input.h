@@ -2,6 +2,8 @@
 #include "Components/GameActor.h"
 #include <SDL2/SDL.h>
 
+#include <unordered_map>
+
 enum class InputState : unsigned char
 {
   NONE = 0x00,
