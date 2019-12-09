@@ -3,26 +3,31 @@
 //Analog joystick dead zone
 const int JOYSTICK_DEAD_ZONE = 8000;
 
+//______________________________________________________________________________
 void operator|=(InputState& the, InputState other)
 {
   the = (InputState)((unsigned char)the | (unsigned char)other);
 }
 
+//______________________________________________________________________________
 void operator&=(InputState& the, InputState other)
 {
   the = (InputState)((unsigned char)the & (unsigned char)other);
 }
 
+//______________________________________________________________________________
 InputState operator&(InputState a, InputState b)
 {
   return (InputState)((unsigned char)a & (unsigned char)b);
 }
 
+//______________________________________________________________________________
 InputState operator~(InputState og)
 {
   return (InputState)~((unsigned char)og);
 }
 
+//______________________________________________________________________________
 KeyboardInputHandler::KeyboardInputHandler()
 {
   //assign direction buttons
@@ -38,11 +43,10 @@ KeyboardInputHandler::KeyboardInputHandler()
   _config[SDLK_p] = InputState::BTN4;
 }
 
-KeyboardInputHandler::~KeyboardInputHandler()
-{
+//______________________________________________________________________________
+KeyboardInputHandler::~KeyboardInputHandler() {}
 
-}
-
+//______________________________________________________________________________
 ICommand* KeyboardInputHandler::HandleInput(SDL_Event* input)
 {
   InputState frameState = _lastFrameState;
@@ -77,6 +81,7 @@ ICommand* KeyboardInputHandler::HandleInput(SDL_Event* input)
   return command;
 }
 
+//______________________________________________________________________________
 JoystickInputHandler::JoystickInputHandler()
 {
   if(SDL_NumJoysticks() < 1) {}
@@ -102,6 +107,7 @@ JoystickInputHandler::~JoystickInputHandler()
   }
 }
 
+//______________________________________________________________________________
 ICommand* JoystickInputHandler::HandleInput(SDL_Event* input)
 {
   InputState frameState = _lastFrameState;

@@ -1,9 +1,12 @@
 #pragma once
-#include "Components/GameActor.h"
 #include <SDL2/SDL.h>
-
 #include <unordered_map>
 
+#include "Command.h"
+
+class ICommand;
+
+//______________________________________________________________________________
 enum class InputState : unsigned char
 {
   NONE = 0x00,
@@ -17,114 +20,69 @@ enum class InputState : unsigned char
   BTN4 = 0x80
 };
 
+//______________________________________________________________________________
 void operator|=(InputState& the, InputState other);
-
+//______________________________________________________________________________
 void operator&=(InputState& the, InputState other);
-
+//______________________________________________________________________________
 InputState operator&(InputState a, InputState b);
-
+//______________________________________________________________________________
 InputState operator~(InputState og);
+//______________________________________________________________________________
+static bool HasState(const InputState& state, InputState other) { return (state & other) == other; }
 
-static bool HasState(const InputState& state, InputState other)
-{
-  return (state & other) == other;
-}
-
-//=========================================================================
-
-class ICommand
-{
-public:
-  virtual ~ICommand() {}
-  virtual void Execute(GameActor* actor) = 0;
-};
-
-class EmptyCommand : public ICommand
-{
-public:
-  EmptyCommand() = default;
-  virtual void Execute(GameActor* actor) override
-  {
-    actor->HandleMovementCommand(Vector2<float>(0, 0));
-  }
-};
-
-class UpCommand : public ICommand
-{
-public:
-  UpCommand() = default;
-  virtual void Execute(GameActor* actor) override
-  {
-    actor->HandleMovementCommand(Vector2<float>(0, -1));
-  }
-};
-
-class DownCommand : public ICommand
-{
-public:
-  DownCommand() = default;
-  virtual void Execute(GameActor* actor) override
-  {
-    actor->HandleMovementCommand(Vector2<float>(0, 1));
-  }
-};
-
-class LeftCommand : public ICommand
-{
-public:
-  LeftCommand() = default;
-  virtual void Execute(GameActor* actor) override
-  {
-    actor->HandleMovementCommand(Vector2<float>(-1, 0));
-  }
-};
-
-class RightCommand : public ICommand
-{
-public:
-  RightCommand() = default;
-  virtual void Execute(GameActor* actor) override
-  {
-    actor->HandleMovementCommand(Vector2<float>(1, 0));
-  }
-};
-
-//=========================================================================
-
+//______________________________________________________________________________
+//! Interface for input handlers
 class IInputHandler
 {
 public:
+  //! Gets the command based on the type of input received from the controller
   virtual ICommand* HandleInput(SDL_Event* input) = 0;
+
 protected:
+  //! Last state received by the input controller
   InputState _lastFrameState;
+
 };
 
+//______________________________________________________________________________
+//! Keyboard handler specification
 class KeyboardInputHandler : public IInputHandler
 {
 public:
+  //!
   KeyboardInputHandler();
+  //!
   ~KeyboardInputHandler();
+  //!
   virtual ICommand* HandleInput(SDL_Event* input) final;
 
 private:
+  //!
   const uint8_t* _keyStates = nullptr;
+  //!
   std::unordered_map<SDL_Keycode, InputState> _config;
 
 };
 
+//______________________________________________________________________________
+//!
 class JoystickInputHandler : public IInputHandler
 {
 public:
+  //!
   JoystickInputHandler();
+  //!
   ~JoystickInputHandler();
+  //!
   virtual ICommand* HandleInput(SDL_Event* input) final;
 
 private:
-  //
+  //!
   SDL_Joystick* _gameController = nullptr;
-  //
+  //!
   const int _joyStickID = 0;
-  //
+  //!
   std::unordered_map<uint8_t, InputState> _config;
   
 };

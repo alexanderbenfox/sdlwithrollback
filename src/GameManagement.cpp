@@ -126,7 +126,8 @@ void GameManager::Initialize()
 
   auto sprite = CreateEntity<Sprite, Physics, GameActor, RectCollider>();
   sprite->GetComponent<Sprite>()->Init("spritesheets\\ryu.png");
-  sprite->GetComponent<RectCollider>()->Init(Vector2<float>(0.0f, 0.0f), Vector2<float>(static_cast<float>(textureSize.x), static_cast<float>(textureSize.y)));
+  sprite->GetComponent<RectCollider>()->Init(Vector2<float>(0.0f, 0.0f),
+    Vector2<float>(static_cast<float>(textureSize.x), static_cast<float>(textureSize.y)));
   sprite->GetComponent<RectCollider>()->SetStatic(false);
   _player = sprite->GetComponent<GameActor>();
 
@@ -202,15 +203,6 @@ void GameManager::BeginGameLoop()
 }
 
 //______________________________________________________________________________
-GameManager::GameManager() : _initialized(false)
-{
-  _playerInput = std::unique_ptr<IInputHandler>(new KeyboardInputHandler());
-}
-
-//______________________________________________________________________________
-GameManager::~GameManager() {}
-
-//______________________________________________________________________________
 void GameManager::Update(float deltaTime)
 {
   /*for (auto& entity : _gameEntities)
@@ -256,4 +248,10 @@ void GameManager::Draw()
 
   //present this frame
   SDL_RenderPresent(_renderer);
+}
+
+//______________________________________________________________________________
+GameManager::GameManager() : _initialized(false)
+{
+  _playerInput = std::unique_ptr<IInputHandler>(new KeyboardInputHandler());
 }

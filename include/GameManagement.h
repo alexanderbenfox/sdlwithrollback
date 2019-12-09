@@ -8,12 +8,12 @@
 class IInputHandler;
 
 class GameActor;
-class Sprite;
 class Camera;
 
 typedef Resource<SDL_Texture> Texture;
 typedef Resource<TTF_Font> Font;
 
+//______________________________________________________________________________
 //! Manager of resources for textures, font, sounds, and drawing
 class ResourceManager
 {
@@ -48,8 +48,7 @@ public:
   const std::string& GetResourcePath() { return _resourcePath; }
 
 private:
-  //!
-  ResourceManager() {}
+  
   //! All loaded texture resources
   std::unordered_map<std::string, Texture> _loadedTextures;
   //! All loaded font resources
@@ -63,8 +62,14 @@ private:
   //! Relative source path for all of the resources
   std::string _resourcePath;
 
+  //!
+  ResourceManager() = default;
+  ResourceManager(const ResourceManager&) = delete;
+  ResourceManager operator=(ResourceManager&) = delete;
+
 };
 
+//______________________________________________________________________________
 //! Manager of all things related to whats happening in the game
 class GameManager
 {
@@ -85,9 +90,6 @@ public:
   Camera* GetMainCamera() { return _mainCamera.get(); }
 
 private:
-  //!
-  GameManager();
-  ~GameManager();
   //! Updates all components in specified order
   void Update(float deltaTime);
   //! Checks for input based on the event and IInputHandler. If an event is received, send it to the player controlled game actor
@@ -103,8 +105,7 @@ private:
   //! Player input listener
   std::unique_ptr<IInputHandler> _playerInput;
 
-  //______________________________________
-
+  //______________________________________________________________________________
   template <typename ...> struct ComponentInitList {};
 
   template <typename T = IComponent, typename ... Rest>
@@ -133,8 +134,16 @@ private:
   //! Camera used by rendering pipeline to view the scene
   std::shared_ptr<Camera> _mainCamera;
 
+  //______________________________________________________________________________
+  //!
+  GameManager();
+  GameManager(const GameManager&) = delete;
+  GameManager operator=(GameManager&) = delete;
+
 };
 
+//______________________________________________________________________________
+//!
 class IGameState
 {
 public:
