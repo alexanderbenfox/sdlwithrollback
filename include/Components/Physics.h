@@ -1,6 +1,8 @@
 #pragma once
 #include "Collider.h"
 
+const float Gravity = 100.0f;
+
 //!
 class Physics : public IComponent
 {

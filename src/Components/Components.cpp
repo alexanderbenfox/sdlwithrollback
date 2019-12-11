@@ -77,6 +77,11 @@ bool Camera::EntityInDisplay(const ResourceManager::BlitOperation* entity)
 //______________________________________________________________________________
 void Physics::Update(float dt)
 {
+  _acc = Vector2<float>(0, Gravity);
+  if (auto rCollider = _owner->GetComponent<RectCollider>())
+  {
+    if (rCollider->IsStatic()) _acc = Vector2<float>(0, 0);
+  }
   // Create the movement vector based on speed and acceleration of the object
   Vector2<float> movementVector = _vel * dt + _acc * (dt * dt / 2.0f);
   // Check collisions with other physics objects here and correct the movement vector based on those collisions
@@ -134,6 +139,6 @@ void GameActor::HandleMovementCommand(Vector2<float> movement)
   {
     auto vel = _baseSpeed * movement;
     assert(_owner->GetComponent<Physics>());
-    _owner->GetComponent<Physics>()->_vel = vel;
+    _owner->GetComponent<Physics>()->_vel.x = vel.x;
   }
 }

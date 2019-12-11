@@ -1,14 +1,16 @@
 #include "GameManagement.h"
 #include "Timer.h"
 
+#include "Input.h"
+#include <iostream>
+
+#include "ResourceManager.h"
+
 #include "Components/Camera.h"
 #include "Components/Sprite.h"
 #include "Components/GameActor.h"
 #include "Components/Physics.h"
 #include "Components/Collider.h"
-
-#include "Input.h"
-#include <iostream>
 
 const int ScreenWidth = 600;
 const int ScreenHeight = 400;
@@ -100,50 +102,33 @@ void GameManager::Initialize()
   
   //create game entities
 
-  /*_gameEntities.push_back(std::make_shared<Entity>());
-  auto camera = _gameEntities.back();
-  camera->AddComponent<Camera>();
-  camera->GetComponent<Camera>()->Init(ScreenWidth, ScreenHeight);
-  _mainCamera = camera->GetComponent<Camera>();*/
-
   auto camera = CreateEntity<Camera>();
   camera->GetComponent<Camera>()->Init(ScreenWidth, ScreenHeight);
   _mainCamera = camera->GetComponent<Camera>();
 
-
   Vector2<int> textureSize = ResourceManager::Get().GetTextureWidthAndHeight("spritesheets\\ryu.png");
 
-  /*_gameEntities.push_back(std::make_shared<Entity>());
-  auto sprite = _gameEntities.back();
-  sprite->AddComponent<Sprite>();
-  sprite->GetComponent<Sprite>()->Init("spritesheets\\ryu.png");
-  sprite->AddComponent<Physics>();
-  sprite->AddComponent<GameActor>();
-  sprite->AddComponent<RectCollider>();
-  sprite->GetComponent<RectCollider>()->Init(Vector2<float>(0.0f, 0.0f), Vector2<float>(static_cast<float>(textureSize.x), static_cast<float>(textureSize.y)));
-  sprite->GetComponent<RectCollider>()->SetStatic(false);
-  _player = sprite->GetComponent<GameActor>();*/
-
   auto sprite = CreateEntity<Sprite, Physics, GameActor, RectCollider>();
+
   sprite->GetComponent<Sprite>()->Init("spritesheets\\ryu.png");
   sprite->GetComponent<RectCollider>()->Init(Vector2<float>(0.0f, 0.0f),
     Vector2<float>(static_cast<float>(textureSize.x), static_cast<float>(textureSize.y)));
   sprite->GetComponent<RectCollider>()->SetStatic(false);
   _player = sprite->GetComponent<GameActor>();
-
-  /*_gameEntities.push_back(std::make_shared<Entity>());
-  auto staticBoy = _gameEntities.back();
-  staticBoy->AddComponent<Sprite>();
-  staticBoy->GetComponent<Sprite>()->Init("spritesheets\\ryu.png");
-  staticBoy->AddComponent<RectCollider>();*/
   
   auto staticBoy = CreateEntity<Sprite, RectCollider>();
   float startPosX = staticBoy->transform.position.x = 200.0f;
   float startPosY = staticBoy->transform.position.y = 200.0f;
-
   staticBoy->GetComponent<Sprite>()->Init("spritesheets\\ryu.png");
   staticBoy->GetComponent<RectCollider>()->Init(Vector2<float>(startPosX, startPosY), Vector2<float>(startPosX + textureSize.x, startPosY + textureSize.y));
   staticBoy->GetComponent<RectCollider>()->SetStatic(true);
+
+  auto bottomBorder = CreateEntity<Sprite, RectCollider>();
+  bottomBorder->transform.position.x = 0.0;
+  bottomBorder->transform.position.y = ScreenHeight;
+  bottomBorder->GetComponent<Sprite>()->Init("spritesheets\\ryu.png");
+  bottomBorder->GetComponent<RectCollider>()->Init(Vector2<float>(0, ScreenHeight), Vector2<float>(ScreenWidth, ScreenHeight + 50.0f));
+  bottomBorder->GetComponent<RectCollider>()->SetStatic(true);
 
 
 }

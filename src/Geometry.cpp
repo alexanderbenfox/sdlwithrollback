@@ -53,7 +53,10 @@ Vector2<T> Rect<T>::Overlap(const Rect<T>& other, Vector2<T> incidentVector)
 template <typename T>
 bool Rect<T>::Collides(const Rect<T>& other)
 {
-  return Collides(other.Beg()) || Collides(other.End()) || Collides(Vector2<float>(other.Beg().x, other.End().y)) || Collides(Vector2<float>(other.End().x, other.Beg().y));
+  return (_beg.x < other.End().x &&
+   _end.x > other.Beg().x &&
+    _beg.y < other.End().y &&
+    _end.y > other.Beg().y);
 }
 
 //______________________________________________________________________________

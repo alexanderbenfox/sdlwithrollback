@@ -3,7 +3,9 @@
 #include "SDL2/SDL.h"
 #include "SDL2_image/SDL_image.h"
 #include "SDL2/SDL_ttf.h"
+
 #include <string>
+#include <memory>
 
 template <typename T>
 class Resource

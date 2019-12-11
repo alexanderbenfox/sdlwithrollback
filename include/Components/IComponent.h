@@ -1,6 +1,8 @@
 #pragma once
 #include <memory>
 
+#include "ResourceManager.h"
+
 class Entity;
 
 class IComponent
