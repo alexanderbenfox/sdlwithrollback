@@ -34,29 +34,21 @@ void Rect<T>::Move(const Vector2<T>& vec)
 template <typename T>
 Vector2<T> Rect<T>::Overlap(const Rect<T>& other, Vector2<T> incidentVector)
 {
-  Vector2<T> overlap;
-  if (incidentVector.x > 0)
-    overlap.x = _end.x - other.Beg().x;
-  else
-    overlap.x = other.End().x - _beg.x;
-  if (incidentVector.y > 0)
-    overlap.y = _end.y - other.Beg().y;
-  else
-    overlap.y = other.End().y - _beg.y;
+  Rect<T> intersection = GetIntersectionRect(other);
 
-  auto unit = incidentVector.Unit();
-  overlap *= unit;
-  return overlap;
+  bool resolveOnX = intersection.Width() < intersection.Height();
+  if (resolveOnX)
+    return Vector2<T>(intersection.Width(), 0.0f);
+  else
+    return Vector2<T>(0.0f, intersection.Height());
 }
 
 //______________________________________________________________________________
 template <typename T>
 bool Rect<T>::Collides(const Rect<T>& other)
 {
-  return (_beg.x < other.End().x &&
-   _end.x > other.Beg().x &&
-    _beg.y < other.End().y &&
-    _end.y > other.Beg().y);
+  return !(_end.x < other.Beg().x || _end.y < other.Beg().y ||
+    _beg.x > other.End().x || _beg.y > other.End().y);
 }
 
 //______________________________________________________________________________
@@ -64,6 +56,19 @@ template <typename T>
 bool Rect<T>::Collides(const Vector2<T>& point)
 {
   return point.x <= _end.x && point.x >= _beg.x && point.y <= _end.y && point.y >= _beg.y;
+}
+
+//______________________________________________________________________________
+template <typename T>
+Rect<T> Rect<T>::GetIntersectionRect(const Rect<T>& other)
+{
+  float leftX = std::max(_beg.x, other.Beg().x);
+  float rightX = std::min(_end.x, other.End().x);
+  float topY = std::max(_beg.y, other.Beg().y);
+  float bottomY = std::min(_end.y, other.End().y);
+
+  Rect<T> intersection(leftX, topY, rightX, bottomY);
+  return intersection;
 }
 
 template class Vector2<float>;

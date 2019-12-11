@@ -136,7 +136,7 @@ private:
       SDL_GetDisplayMode(0, 0, &mode);
       fps = mode.refresh_rate;
       timestep = 1000 / fps;
-      frametime = 0.0075f*(30.0f / (float)fps);
+      frametime = 1.0f / (float)fps;//0.0075f*(30.0f / (float)fps);
     }
   };
 

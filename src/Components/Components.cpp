@@ -83,11 +83,13 @@ void Physics::Update(float dt)
     if (rCollider->IsStatic()) _acc = Vector2<float>(0, 0);
   }
   // Create the movement vector based on speed and acceleration of the object
-  Vector2<float> movementVector = _vel * dt + _acc * (dt * dt / 2.0f);
+  Vector2<float> movementVector = _vel * dt;
   // Check collisions with other physics objects here and correct the movement vector based on those collisions
-  movementVector += DoElasticCollisions(movementVector);
+  Vector2<float> collisionAdjustmentVector = DoElasticCollisions(movementVector);
+  // Convert adjustment vector to a velocity and change object's velocity based on the adjustment
+  _vel += (Vector2<float>(collisionAdjustmentVector.x / dt, collisionAdjustmentVector.y / dt));
   // Add the movement vector to the entity
-  _owner->transform.position += movementVector;
+  _owner->transform.position += _vel * dt;
   // Apply last frame of acceleration to the velocity
   _vel += _acc * dt;
 }
@@ -95,25 +97,41 @@ void Physics::Update(float dt)
 //______________________________________________________________________________
 Vector2<float> Physics::DoElasticCollisions(const Vector2<float>& movementVector)
 {
+  Vector2<float> fixVector(0, 0);
+
   auto myCollider = _owner->GetComponent<RectCollider>();
   if (myCollider && !myCollider->IsStatic())
   {
-    Rect<float> potentialRect = myCollider->rect;
-    potentialRect.Move(movementVector);
+    bool checkCollision = true;
 
-    for (auto collider : ComponentManager<RectCollider>::Get().All())
+    while (checkCollision)
     {
-      if (myCollider != collider)
+      checkCollision = false;
+
+      Rect<float> potentialRect = myCollider->rect;
+
+      potentialRect = Rect<float>(_owner->transform.position,
+        Vector2<float>(_owner->transform.position.x + potentialRect.Width(),
+          _owner->transform.position.y + potentialRect.Height()));
+
+      potentialRect.Move(movementVector + fixVector);
+
+      for (auto collider : ComponentManager<RectCollider>::Get().All())
       {
-        if (potentialRect.Collides(collider->rect))
+        if (myCollider != collider)
         {
-          //! return the reverse of the overlap to correct for the collision
-          return -1.01f * potentialRect.Overlap(collider->rect, movementVector);
+          if (potentialRect.Collides(collider->rect))
+          {
+            //! return the reverse of the overlap to correct for the collision
+            fixVector += (-1.01f * potentialRect.Overlap(collider->rect, movementVector));
+            // since the collision will move the object, we need to check those collisions as well
+            checkCollision = true;
+          }
         }
       }
     }
   }
-  return Vector2<float>(0.0f, 0.0f);
+  return fixVector;
 }
 
 //______________________________________________________________________________

@@ -1,4 +1,5 @@
 #pragma once
+#include <algorithm>
 
 //______________________________________________________________________________
 template <typename T>
@@ -47,6 +48,8 @@ public:
   Vector2<T> Overlap(const Rect<T>& other, Vector2<T> incidentVector);
   bool Collides(const Rect<T>& other);
   bool Collides(const Vector2<T>& other);
+
+  Rect<T> GetIntersectionRect(const Rect<T>& other);
 
   const Vector2<T>& Beg() const { return _beg; }
   const Vector2<T>& End() const { return _end; }
