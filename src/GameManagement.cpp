@@ -108,27 +108,28 @@ void GameManager::Initialize()
 
   Vector2<int> textureSize = ResourceManager::Get().GetTextureWidthAndHeight("spritesheets\\ryu.png");
 
-  auto sprite = CreateEntity<Sprite, Physics, GameActor, RectCollider>();
+  auto sprite = CreateEntity<Animator, Physics, GameActor, RectColliderD>();
 
-  sprite->GetComponent<Sprite>()->Init("spritesheets\\ryu.png");
-  sprite->GetComponent<RectCollider>()->Init(Vector2<float>(0.0f, 0.0f),
-    Vector2<float>(static_cast<float>(textureSize.x), static_cast<float>(textureSize.y)));
-  sprite->GetComponent<RectCollider>()->SetStatic(false);
+  sprite->GetComponent<Animator>()->Init(new Animation("spritesheets\\idle.png", 3, 4, 10));
+  sprite->GetComponent<RectColliderD>()->Init(Vector2<double>(0.0, 0.0),
+    Vector2<double>(static_cast<double>(textureSize.x), static_cast<double>(textureSize.y)));
+  sprite->GetComponent<RectColliderD>()->SetStatic(false);
   _player = sprite->GetComponent<GameActor>();
   
-  auto staticBoy = CreateEntity<Sprite, RectCollider>();
+  auto staticBoy = CreateEntity<Animator, RectColliderD>();
   float startPosX = staticBoy->transform.position.x = 200.0f;
   float startPosY = staticBoy->transform.position.y = 200.0f;
-  staticBoy->GetComponent<Sprite>()->Init("spritesheets\\ryu.png");
-  staticBoy->GetComponent<RectCollider>()->Init(Vector2<float>(startPosX, startPosY), Vector2<float>(startPosX + textureSize.x, startPosY + textureSize.y));
-  staticBoy->GetComponent<RectCollider>()->SetStatic(true);
 
-  auto bottomBorder = CreateEntity<Sprite, RectCollider>();
+  staticBoy->GetComponent<Animator>()->Init(new Animation("spritesheets\\idle.png", 3, 4, 10));
+  staticBoy->GetComponent<RectColliderD>()->Init(Vector2<double>(startPosX, startPosY), Vector2<double>(startPosX + textureSize.x, startPosY + textureSize.y));
+  staticBoy->GetComponent<RectColliderD>()->SetStatic(true);
+
+  auto bottomBorder = CreateEntity<Sprite, RectColliderD>();
   bottomBorder->transform.position.x = 0.0;
   bottomBorder->transform.position.y = ScreenHeight;
   bottomBorder->GetComponent<Sprite>()->Init("spritesheets\\ryu.png");
-  bottomBorder->GetComponent<RectCollider>()->Init(Vector2<float>(0, ScreenHeight), Vector2<float>(ScreenWidth, ScreenHeight + 50.0f));
-  bottomBorder->GetComponent<RectCollider>()->SetStatic(true);
+  bottomBorder->GetComponent<RectColliderD>()->Init(Vector2<double>(0, ScreenHeight), Vector2<double>(ScreenWidth, ScreenHeight + 50.0f));
+  bottomBorder->GetComponent<RectColliderD>()->SetStatic(true);
 
 
 }
@@ -175,6 +176,8 @@ void GameManager::BeginGameLoop()
     //! Do pre-input set up stuff
     for (auto sprite : ComponentManager<Sprite>::Get().All())
       sprite->OnFrameBegin();
+    for (auto animator : ComponentManager<Animator>::Get().All())
+      animator->OnFrameBegin();
 
     //! Collect inputs from controllers (this means AI controllers as well as Player controllers)
     UpdateInput(&event);
@@ -201,9 +204,11 @@ void GameManager::Update(float deltaTime)
   //
   ComponentManager<Physics>::Get().Update(deltaTime);
   //
-  ComponentManager<RectCollider>::Get().Update(deltaTime);
+  ComponentManager<RectColliderD>::Get().Update(deltaTime);
   //Update sprites last
   ComponentManager<Sprite>::Get().Update(deltaTime);
+  //
+  ComponentManager<Animator>::Get().Update(deltaTime);
 
 }
 

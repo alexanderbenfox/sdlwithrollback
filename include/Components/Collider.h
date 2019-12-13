@@ -9,7 +9,6 @@ public:
 
 };*/
 
-template <typename T>
 class ICollider : public IComponent
 {
 public:
@@ -38,16 +37,19 @@ protected:
 };
 
 //!
-class RectCollider : public ICollider<float>
+template <typename T>
+class RectCollider : public ICollider
 {
 public:
   //!
   RectCollider(std::shared_ptr<Entity> entity) : ICollider(entity) {}
   //!
-  void Init(Vector2<float> beg, Vector2<float> end);
+  void Init(Vector2<T> beg, Vector2<T> end);
   //!
   virtual void Update(float dt) override;
   //!
-  Rect<float> rect;
+  Rect<T> rect;
 
 };
+
+typedef RectCollider<double> RectColliderD;

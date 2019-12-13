@@ -5,6 +5,10 @@
 
 class Entity;
 
+// IDEA: Split up components into their data and functions that change that data
+// Based on reducers in redux??
+
+
 class IComponent
 {
 public:

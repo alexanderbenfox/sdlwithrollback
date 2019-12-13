@@ -16,12 +16,7 @@ void Sprite::Init(const char* sheet)
 {
   //adds new operation to the blitting list
   ResourceManager::Get().RegisterBlitOp();
-
-  _textureResource = &ResourceManager::Get().GetTexture(sheet);
-
-  _sourceRect.x = 0;
-  _sourceRect.y = 0;
-  SDL_QueryTexture(_textureResource->Get(), nullptr, nullptr, &_sourceRect.w, &_sourceRect.h);
+  _display = std::make_unique<Image>(sheet);
 }
 
 //______________________________________________________________________________
@@ -33,15 +28,7 @@ void Sprite::OnFrameBegin()
 //______________________________________________________________________________
 void Sprite::Update(float dt)
 {
-  _op->_textureRect = _sourceRect;
-  _op->_textureResource = _textureResource;
-
-  Transform& transform = _owner->transform;
-  _op->_displayRect = { static_cast<int>(std::floorf(transform.position.x)), static_cast<int>(std::floorf(transform.position.y)),
-    (int)(static_cast<float>(_sourceRect.w) * transform.scale.x),
-    (int)(static_cast<float>(_sourceRect.h) * transform.scale.y) };
-
-  _op->valid = true;
+  _display->SetOp(_owner->transform, _display->GetRectOnSrcText(), _op);
 }
 
 //______________________________________________________________________________
@@ -78,16 +65,22 @@ bool Camera::EntityInDisplay(const ResourceManager::BlitOperation* entity)
 void Physics::Update(float dt)
 {
   _acc = Vector2<float>(0, Gravity);
-  if (auto rCollider = _owner->GetComponent<RectCollider>())
+  if (auto rCollider = _owner->GetComponent<RectColliderD>())
   {
     if (rCollider->IsStatic()) _acc = Vector2<float>(0, 0);
   }
+
+
   // Create the movement vector based on speed and acceleration of the object
-  Vector2<float> movementVector = _vel * dt;
+  auto fix = [](float dt) { return (int)std::floorf(10000 * dt) / 10000.0; };
+
+  Vector2<double> movementVector = Vector2<double>(_vel.x * fix(dt), _vel.y * fix(dt));
   // Check collisions with other physics objects here and correct the movement vector based on those collisions
-  Vector2<float> collisionAdjustmentVector = DoElasticCollisions(movementVector);
+  Vector2<double> collisionAdjustmentVector = DoElasticCollisions(movementVector);
+
+  Vector2<float> caVelocity = (Vector2<float>((float)(collisionAdjustmentVector.x)/ fix(dt), (float)(collisionAdjustmentVector.y)/ fix(dt)));
   // Convert adjustment vector to a velocity and change object's velocity based on the adjustment
-  _vel += (Vector2<float>(collisionAdjustmentVector.x / dt, collisionAdjustmentVector.y / dt));
+  _vel += caVelocity;
   // Add the movement vector to the entity
   _owner->transform.position += _vel * dt;
   // Apply last frame of acceleration to the velocity
@@ -95,11 +88,13 @@ void Physics::Update(float dt)
 }
 
 //______________________________________________________________________________
-Vector2<float> Physics::DoElasticCollisions(const Vector2<float>& movementVector)
+Vector2<double> Physics::DoElasticCollisions(const Vector2<double>& movementVector)
 {
-  Vector2<float> fixVector(0, 0);
+  _lastCollisionSide = CollisionSide::NONE;
 
-  auto myCollider = _owner->GetComponent<RectCollider>();
+  Vector2<double> fixVector(0, 0);
+
+  auto myCollider = _owner->GetComponent<RectColliderD>();
   if (myCollider && !myCollider->IsStatic())
   {
     bool checkCollision = true;
@@ -108,22 +103,24 @@ Vector2<float> Physics::DoElasticCollisions(const Vector2<float>& movementVector
     {
       checkCollision = false;
 
-      Rect<float> potentialRect = myCollider->rect;
+      Rect<double> potentialRect = myCollider->rect;
 
-      potentialRect = Rect<float>(_owner->transform.position,
-        Vector2<float>(_owner->transform.position.x + potentialRect.Width(),
+      potentialRect = Rect<double>(Vector2<double>(_owner->transform.position.x, _owner->transform.position.y),
+        Vector2<double>(_owner->transform.position.x + potentialRect.Width(),
           _owner->transform.position.y + potentialRect.Height()));
 
       potentialRect.Move(movementVector + fixVector);
 
-      for (auto collider : ComponentManager<RectCollider>::Get().All())
+      for (auto collider : ComponentManager<RectColliderD>::Get().All())
       {
         if (myCollider != collider)
         {
           if (potentialRect.Collides(collider->rect))
           {
             //! return the reverse of the overlap to correct for the collision
-            fixVector += (-1.01f * potentialRect.Overlap(collider->rect, movementVector));
+            fixVector += (-1.0 * potentialRect.Overlap(collider->rect, movementVector));
+            //!
+            _lastCollisionSide = (CollisionSide)( (unsigned char)_lastCollisionSide | (unsigned char)(fixVector.x > 0 ? CollisionSide::LEFT : (fixVector.x < 0 ? CollisionSide::RIGHT : (fixVector.y < 0 ? CollisionSide::DOWN : (fixVector.y > 0 ? CollisionSide::UP : CollisionSide::NONE)))));
             // since the collision will move the object, we need to check those collisions as well
             checkCollision = true;
           }
@@ -135,18 +132,20 @@ Vector2<float> Physics::DoElasticCollisions(const Vector2<float>& movementVector
 }
 
 //______________________________________________________________________________
-void RectCollider::Init(Vector2<float> beg, Vector2<float> end)
+template <typename T>
+void RectCollider<T>::Init(Vector2<T> beg, Vector2<T> end)
 {
-  rect = Rect<float>(beg, end);
+  rect = Rect<T>(beg, end);
 }
 
 //______________________________________________________________________________
-void RectCollider::Update(float dt)
+template <typename T>
+void RectCollider<T>::Update(float dt)
 {
   if (!_isStatic)
   {
-    rect = Rect<float>(_owner->transform.position,
-      Vector2<float>(_owner->transform.position.x + rect.Width(), _owner->transform.position.y + rect.Height()));
+    rect = Rect<T>(Vector2<T>((T)_owner->transform.position.x, (T)_owner->transform.position.y),
+      Vector2<T>(_owner->transform.position.x + rect.Width(), _owner->transform.position.y + rect.Height()));
   }
 }
 
@@ -158,5 +157,12 @@ void GameActor::HandleMovementCommand(Vector2<float> movement)
     auto vel = _baseSpeed * movement;
     assert(_owner->GetComponent<Physics>());
     _owner->GetComponent<Physics>()->_vel.x = vel.x;
+
+    if (movement.y < 0 && ((unsigned char)_owner->GetComponent<Physics>()->GetLastCollisionSides() & (unsigned char)CollisionSide::DOWN) != 0)
+    {
+      _owner->GetComponent<Physics>()->_vel.y = (1.2f) * vel.y;
+    }
   }
 }
+
+template class RectCollider<double>;

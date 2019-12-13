@@ -18,8 +18,6 @@ public:
 
   void Update(UpdateFunction& updateFunction)
   {
-    _frames++;
-
     uint32_t dt = _sdlClock.now() - _lastFrameTime;
     _lastFrameTime = _sdlClock.now();
 
@@ -32,6 +30,7 @@ public:
       //try to maintain 60 fps
       while(_sdlClock.lag >= _sdlClock.timestep)
       {
+        _frames++;
         _sdlClock.lag -= _sdlClock.timestep;
         updateFunction(_sdlClock.frametime);
       }
