@@ -1,6 +1,27 @@
 #pragma once
 #include <algorithm>
 
+enum class CollisionSide : unsigned char
+{
+  NONE = 0x00,
+  UP = 0x01,
+  DOWN = 0x02,
+  RIGHT = 0x04,
+  LEFT = 0x08
+};
+
+//______________________________________________________________________________
+void operator|=(CollisionSide& the, CollisionSide other);
+//______________________________________________________________________________
+void operator&=(CollisionSide& the, CollisionSide other);
+//______________________________________________________________________________
+CollisionSide operator&(CollisionSide a, CollisionSide b);
+//______________________________________________________________________________
+CollisionSide operator~(CollisionSide og);
+//______________________________________________________________________________
+static bool HasState(const CollisionSide& state, CollisionSide other) { return (state & other) == other; }
+
+
 //______________________________________________________________________________
 template <typename T>
 class Vector2
@@ -27,6 +48,18 @@ template <typename T, typename U> Vector2<T> operator*(const Vector2<T>& lhs, U 
 
 //______________________________________________________________________________
 template <typename T>
+struct OverlapInfo
+{
+  Vector2<T> amount;
+  CollisionSide collisionSides;
+  int numCollisionSides;
+
+  //!
+  OverlapInfo() : amount(0.0, 0.0), collisionSides(CollisionSide::NONE), numCollisionSides(0) {}
+};
+
+//______________________________________________________________________________
+template <typename T>
 class Rect
 {
 public:
@@ -45,7 +78,7 @@ public:
   //template <typename U>
   //bool Collides(const U& other);
 
-  Vector2<T> Overlap(const Rect<T>& other, Vector2<T> incidentVector);
+  OverlapInfo<T> Overlap(const Rect<T>& other);
   bool Collides(const Rect<T>& other);
   bool Collides(const Vector2<T>& other);
 

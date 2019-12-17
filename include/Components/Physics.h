@@ -1,16 +1,7 @@
 #pragma once
 #include "Collider.h"
 
-const float Gravity = 300.0f;
-
-enum class CollisionSide : unsigned char
-{
-  NONE = 0x00,
-  UP = 0x01,
-  DOWN = 0x02,
-  RIGHT = 0x04,
-  LEFT = 0x08
-};
+const float Gravity = 1000.0f;
 
 //!
 class Physics : public IComponent

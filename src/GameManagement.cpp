@@ -110,19 +110,30 @@ void GameManager::Initialize()
 
   auto sprite = CreateEntity<Animator, Physics, GameActor, RectColliderD>();
 
-  sprite->GetComponent<Animator>()->Init(new Animation("spritesheets\\idle.png", 3, 4, 10));
+  sprite->GetComponent<Animator>()->Init();
+  sprite->GetComponent<Animator>()->RegisterAnimation("Idle", "spritesheets\\idle_and_walking.png", 6, 6, 0, 10);
+  sprite->GetComponent<Animator>()->RegisterAnimation("WalkF", "spritesheets\\idle_and_walking.png", 6, 6, 10, 12);
+  sprite->GetComponent<Animator>()->RegisterAnimation("WalkB", "spritesheets\\idle_and_walking.png", 6, 6, 22, 11);
+
+  sprite->GetComponent<Animator>()->RegisterAnimation("Jumping", "spritesheets\\idle_walking_jab_jump_crouch.png", 8, 10, 41, 19);
+  sprite->GetComponent<Animator>()->RegisterAnimation("Falling", "spritesheets\\idle_walking_jab_jump_crouch.png", 8, 10, 60, 13);
+
+  sprite->GetComponent<Animator>()->Play("Idle", true);
+
   sprite->GetComponent<RectColliderD>()->Init(Vector2<double>(0.0, 0.0),
     Vector2<double>(static_cast<double>(textureSize.x), static_cast<double>(textureSize.y)));
   sprite->GetComponent<RectColliderD>()->SetStatic(false);
   _player = sprite->GetComponent<GameActor>();
   
-  auto staticBoy = CreateEntity<Animator, RectColliderD>();
+  /*auto staticBoy = CreateEntity<Animator, RectColliderD>();
   float startPosX = staticBoy->transform.position.x = 200.0f;
   float startPosY = staticBoy->transform.position.y = 200.0f;
 
-  staticBoy->GetComponent<Animator>()->Init(new Animation("spritesheets\\idle.png", 3, 4, 10));
+  staticBoy->GetComponent<Animator>()->Init();
+  staticBoy->GetComponent<Animator>()->RegisterAnimation("Idle", "spritesheets\\idle.png", 3, 4, 0, 10);
+  staticBoy->GetComponent<Animator>()->Play("Idle", true);
   staticBoy->GetComponent<RectColliderD>()->Init(Vector2<double>(startPosX, startPosY), Vector2<double>(startPosX + textureSize.x, startPosY + textureSize.y));
-  staticBoy->GetComponent<RectColliderD>()->SetStatic(true);
+  staticBoy->GetComponent<RectColliderD>()->SetStatic(true);*/
 
   auto bottomBorder = CreateEntity<Sprite, RectColliderD>();
   bottomBorder->transform.position.x = 0.0;

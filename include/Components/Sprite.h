@@ -2,6 +2,8 @@
 #include "AssetManagement/Resource.h"
 #include "IComponent.h"
 
+#include <functional>
+
 const float animation_fps = 24.0f;
 
 class IDisplayable
@@ -45,7 +47,7 @@ protected:
 class Animation : public Image
 {
 public:
-  Animation(const char* sheet, int rows, int columns, int frames) : _rows(rows), _columns(columns), _frames(frames), Image(sheet) {}
+  Animation(const char* sheet, int rows, int columns, int startIndexOnSheet, int frames) : _rows(rows), _columns(columns), _startIdx(startIndexOnSheet), _frames(frames), Image(sheet) {}
 
   SDL_Rect GetFrameSrcRect(int frame)
   {
@@ -53,8 +55,8 @@ public:
     if (frame >= _frames || frame < 0)
       return { 0, 0, 0, 0 };
 
-    int x = frame % _columns;
-    int y = frame / _columns;
+    int x = (_startIdx + frame) % _columns;
+    int y = (_startIdx + frame) / _columns;
 
     int fWidth = _sourceRect.w / _columns;
     int fHeight = _sourceRect.h / _rows;
@@ -82,7 +84,7 @@ public:
 
 protected:
   //!
-  int _rows, _columns, _frames;
+  int _rows, _columns, _frames, _startIdx;
 
 };
 
@@ -109,12 +111,19 @@ protected:
 class Animator : public IComponent
 {
 public:
-  Animator(std::shared_ptr<Entity> owner) : _playing(false), _accumulatedTime(0.0f), _frame(0), IComponent(owner) {}
+  Animator(std::shared_ptr<Entity> owner) : _playing(false), _accumulatedTime(0.0f), _frame(0), _nextFrameOp([](int) { return 0; }), IComponent(owner) {}
 
-  void Init(Animation* anim)
+  void Init()
   {
     ResourceManager::Get().RegisterBlitOp();
-    _display = std::unique_ptr<Animation>(anim);
+  }
+
+  void RegisterAnimation(const std::string& name, const char* sheet, int rows, int columns, int startIndexOnSheet, int frames)
+  {
+    if (_animations.find(name) == _animations.end())
+    {
+      _animations.insert(std::make_pair(name, Animation(sheet, rows, columns, startIndexOnSheet, frames)));
+    }
   }
 
   virtual void OnFrameBegin() override
@@ -124,33 +133,87 @@ public:
 
   virtual void Update(float dt) override
   {
-    _accumulatedTime += dt;
-    if (_accumulatedTime >= _secPerFrame)
+    // if playing, do advance time and update frame
+    if (_playing)
     {
-      int framesToAdv = (int)std::floorf(_accumulatedTime / _secPerFrame);
-      
-      // loop animation
-      _frame = (_frame + framesToAdv) % _display->GetFrameCount();
+      _accumulatedTime += dt;
+      if (_accumulatedTime >= _secPerFrame)
+      {
+        int framesToAdv = (int)std::floorf(_accumulatedTime / _secPerFrame);
 
-      // 
-      _accumulatedTime -= (framesToAdv * _secPerFrame);
+        // get next frame off of the type of anim it is
+        _frame = _nextFrameOp(framesToAdv);
+
+        // 
+        _accumulatedTime -= (framesToAdv * _secPerFrame);
+      }
     }
-    _display->SetOp(_owner->transform, _display->GetFrameSrcRect(_frame), _op);
+
+    _currentAnimation->second.SetOp(_owner->transform, _currentAnimation->second.GetFrameSrcRect(_frame), _op);
+  }
+
+  void Play(const std::string& name, bool isLooped)
+  {
+    // dont play again if we are already playing it
+    if (_playing && name == _currentAnimationName) return;
+
+    if (_animations.find(name) != _animations.end())
+    {
+      _currentAnimationName = name;
+      _currentAnimation = _animations.find(name);
+      _playing = true;
+
+      // reset all parameters
+      _accumulatedTime = 0;
+      _frame = 0;
+
+      if (isLooped)
+        _nextFrameOp = [this](int i) { return _loopAnimGetNextFrame(i); };
+      else
+        _nextFrameOp = [this](int i) { return _onceAnimGetNextFrame(i); };
+    }
   }
 
 protected:
   //!
   const float _secPerFrame = 1.0f / animation_fps;
   //!
-  std::unique_ptr<Animation> _display;
+  std::unordered_map<std::string, Animation> _animations;
   //! Blitter op used on this frame
   ResourceManager::BlitOperation* _op;
 
   //!
   bool _playing;
+
+
   //!
   float _accumulatedTime;
   //!
   int _frame;
+
+  //!
+  std::string _currentAnimationName;
+  std::unordered_map<std::string, Animation>::iterator _currentAnimation;
+  //
+  std::function<int(int)> _nextFrameOp;
+
+  //
+  std::function<int(int)> _loopAnimGetNextFrame = [this](int framesToAdv) { return (_frame + framesToAdv) % _currentAnimation->second.GetFrameCount(); };
+  //
+  std::function<int(int)> _onceAnimGetNextFrame = [this](int framesToAdv)
+  {
+    if ((_frame + framesToAdv) > _currentAnimation->second.GetFrameCount())
+    {
+      for (auto& func : _onAnimCompleteCallbacks)
+        func(&_currentAnimation->second);
+
+      //stop playing and dont advance any frames
+      _playing = false;
+      return _frame;
+    }
+    return _frame + framesToAdv;
+  };
+
+  std::vector<std::function<void(Animation*)>> _onAnimCompleteCallbacks;
 
 };

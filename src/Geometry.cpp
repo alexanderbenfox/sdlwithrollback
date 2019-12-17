@@ -1,6 +1,32 @@
 #include "Geometry.h"
 #include <cmath>
 
+
+//______________________________________________________________________________
+void operator|=(CollisionSide& the, CollisionSide other)
+{
+  the = (CollisionSide)((unsigned char)the | (unsigned char)other);
+}
+
+//______________________________________________________________________________
+void operator&=(CollisionSide& the, CollisionSide other)
+{
+  the = (CollisionSide)((unsigned char)the & (unsigned char)other);
+}
+
+//______________________________________________________________________________
+CollisionSide operator&(CollisionSide a, CollisionSide b)
+{
+  return (CollisionSide)((unsigned char)a & (unsigned char)b);
+}
+
+//______________________________________________________________________________
+CollisionSide operator~(CollisionSide og)
+{
+  return (CollisionSide)~((unsigned char)og);
+}
+
+
 //______________________________________________________________________________
 template <typename T>
 Vector2<T> Vector2<T>::Unit()
@@ -32,15 +58,47 @@ void Rect<T>::Move(const Vector2<T>& vec)
 
 //______________________________________________________________________________
 template <typename T>
-Vector2<T> Rect<T>::Overlap(const Rect<T>& other, Vector2<T> incidentVector)
+OverlapInfo<T> Rect<T>::Overlap(const Rect<T>& other)
 {
   Rect<T> intersection = GetIntersectionRect(other);
+  // if the intersection left == this rectangle's left, then this is entering that rect from the left side
+  // if the intersection bottom == this rectangle's bottom, then entering from above
+  // return the vector of perterbation through the other rect
+  OverlapInfo<T> info;
+  info.collisionSides = CollisionSide::NONE;
+  info.numCollisionSides = 0;
 
-  bool resolveOnX = intersection.Width() < intersection.Height();
-  if (resolveOnX)
-    return Vector2<T>(intersection.Beg().x == _beg.x ? -intersection.Width() : intersection.Width(), 0.0f);
-  else
-    return Vector2<T>(0.0f, intersection.End().y == _end.y ? intersection.Height() : -intersection.Height());
+  if (!(intersection.Beg().x == _beg.x && intersection.End().x == _end.x))
+  {
+    if (intersection.Beg().x == _beg.x)
+    {
+      info.collisionSides |= CollisionSide::LEFT;
+      info.numCollisionSides++;
+    }
+    else if (intersection.End().x == _end.x)
+    {
+      info.collisionSides |= CollisionSide::RIGHT;
+      info.numCollisionSides++;
+    }
+  }
+  if (!(intersection.Beg().y == _beg.y && intersection.End().y == _end.y))
+  {
+    if (intersection.End().y == _end.y)
+    {
+      info.collisionSides |= CollisionSide::DOWN;
+      info.numCollisionSides++;
+    }
+    else if (intersection.Beg().y == _beg.y)
+    {
+      info.collisionSides |= CollisionSide::UP;
+      info.numCollisionSides++;
+    }
+  }
+
+  info.amount = Vector2<T>(intersection.Beg().x == _beg.x ? -intersection.Width() : intersection.Width(),
+    intersection.End().y == _end.y ? intersection.Height() : -intersection.Height());
+
+  return info;
 }
 
 //______________________________________________________________________________
