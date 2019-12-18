@@ -8,6 +8,7 @@
 #include "Components/Physics.h"
 #include "Components/Collider.h"
 #include "Components/GameActor.h"
+#include "Components/ActionController.h"
 
 #include <cassert>
 
@@ -79,7 +80,7 @@ void Physics::Update(float dt)
   // Check collisions with other physics objects here and correct the movement vector based on those collisions
   Vector2<double> collisionAdjustmentVector = DoElasticCollisions(movementVector);
 
-  Vector2<float> caVelocity = (Vector2<float>((float)(collisionAdjustmentVector.x) / fix(dt), (float)(collisionAdjustmentVector.y) / fix(dt)));
+  Vector2<float> caVelocity = (Vector2<float>((float)(collisionAdjustmentVector.x) / (float)fix(dt), (float)(collisionAdjustmentVector.y) / (float)fix(dt)));
   // Convert adjustment vector to a velocity and change object's velocity based on the adjustment
   _vel += caVelocity;
   // Add the movement vector to the entityd
@@ -186,6 +187,14 @@ void RectCollider<T>::Update(float dt)
 
 void GameActor::Update(float dt)
 {
+  // action controller should take over state control
+  if (auto action = _owner->GetComponent<ActionController>())
+  {
+    if (_owner->GetComponent<ActionController>()->IsPerformingAction())
+      return;
+  }
+
+
   if (auto physics = _owner->GetComponent<Physics>())
   {
     auto collisions = physics->GetLastCollisionSides();
@@ -233,17 +242,92 @@ void GameActor::Update(float dt)
 //______________________________________________________________________________
 void GameActor::HandleMovementCommand(Vector2<float> movement)
 {
+  // make sure i can even act this frame
+  // what are those things? am i in Hit Stun, Block Stun, Attack Animation (non cancellable), Attack Animation (cancellable, but not at the right time to cancel) 
+
+  if (auto actionController = _owner->GetComponent<ActionController>())
+  {
+    bool handled = actionController->HandleInput(InputState::NONE);
+
+    if (handled)
+      return;
+  }
+
   if(_controllableState)
   {
     auto vel = _baseSpeed * movement;
     assert(_owner->GetComponent<Physics>());
     _owner->GetComponent<Physics>()->_vel.x = vel.x;
 
-    if (movement.y < 0 && ((unsigned char)_owner->GetComponent<Physics>()->GetLastCollisionSides() & (unsigned char)CollisionSide::DOWN) != 0)
+    if (movement.y < 0 && HasState(_owner->GetComponent<Physics>()->GetLastCollisionSides(), CollisionSide::DOWN))
     {
       _owner->GetComponent<Physics>()->_vel.y = (1.5f) * vel.y;
     }
   }
 }
+
+//______________________________________________________________________________
+void GameActor::HandleJabButtonCommand()
+{
+  if (auto actionController = _owner->GetComponent<ActionController>())
+  {
+    bool handled = actionController->HandleInput(InputState::BTN1);
+
+    if (handled)
+      return;
+  }
+
+  if (_controllableState && _owner->GetComponent<ActionController>())
+  {
+    _owner->GetComponent<ActionController>()->StartAnimatedAction("Jab");
+  }
+}
+
+//______________________________________________________________________________
+void ActionController::Update(float dt)
+{
+  for (auto& action : _currentActions)
+  {
+    action->OnUpdate(_owner.get());
+  }
+}
+
+//______________________________________________________________________________
+void ActionController::OnFrameEnd()
+{
+  for (int i = 0; i < _actionsFinished.size(); i++)
+  {
+    auto action = std::find(_currentActions.begin(), _currentActions.end(), _actionsFinished[i]);
+    if (action != _currentActions.end())
+    {
+      delete *action;
+      _currentActions.erase(action);
+    }
+  }
+  _actionsFinished.clear();
+}
+
+//______________________________________________________________________________
+void ActionController::OnActionComplete(IAction* action)
+{
+  _actionsFinished.push_back(action);
+}
+
+//______________________________________________________________________________
+bool ActionController::HandleInput(InputState bttn)
+{
+  // cant handle the input if there isn't an action
+  if (_currentActions.empty()) return false;
+
+  return _currentActions[0]->HandleInput(bttn, _owner.get());
+}
+
+//______________________________________________________________________________
+void ActionController::StartAnimatedAction(const std::string& animName)
+{
+  AnimatedAction* action = new AnimatedAction(animName, _owner.get());
+  _currentActions.push_back(action);
+}
+
 
 template class RectCollider<double>;

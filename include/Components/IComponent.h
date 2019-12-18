@@ -3,6 +3,8 @@
 
 #include "ResourceManager.h"
 
+const float animation_fps = 24.0f;
+
 class Entity;
 
 // IDEA: Split up components into their data and functions that change that data

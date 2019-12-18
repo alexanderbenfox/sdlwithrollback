@@ -4,8 +4,6 @@
 
 #include <functional>
 
-const float animation_fps = 24.0f;
-
 class IDisplayable
 {
 public:
@@ -174,6 +172,18 @@ public:
     }
   }
 
+  Animation* GetAnimationByName(const std::string& name)
+  {
+    return &_animations.find(name)->second;
+  }
+
+  const Animation* GetCurrentlyPlaying()
+  {
+    return &_currentAnimation->second;
+  }
+
+  int GetShowingFrame() const { return _frame; }
+
 protected:
   //!
   const float _secPerFrame = 1.0f / animation_fps;
@@ -202,7 +212,7 @@ protected:
   //
   std::function<int(int)> _onceAnimGetNextFrame = [this](int framesToAdv)
   {
-    if ((_frame + framesToAdv) > _currentAnimation->second.GetFrameCount())
+    if ((_frame + framesToAdv) >= _currentAnimation->second.GetFrameCount())
     {
       for (auto& func : _onAnimCompleteCallbacks)
         func(&_currentAnimation->second);

@@ -11,6 +11,7 @@
 #include "Components/GameActor.h"
 #include "Components/Physics.h"
 #include "Components/Collider.h"
+#include "Components/ActionController.h"
 
 const int ScreenWidth = 600;
 const int ScreenHeight = 400;
@@ -108,7 +109,7 @@ void GameManager::Initialize()
 
   Vector2<int> textureSize = ResourceManager::Get().GetTextureWidthAndHeight("spritesheets\\ryu.png");
 
-  auto sprite = CreateEntity<Animator, Physics, GameActor, RectColliderD>();
+  auto sprite = CreateEntity<Animator, Physics, GameActor, RectColliderD, ActionController>();
 
   sprite->GetComponent<Animator>()->Init();
   sprite->GetComponent<Animator>()->RegisterAnimation("Idle", "spritesheets\\idle_and_walking.png", 6, 6, 0, 10);
@@ -117,6 +118,8 @@ void GameManager::Initialize()
 
   sprite->GetComponent<Animator>()->RegisterAnimation("Jumping", "spritesheets\\idle_walking_jab_jump_crouch.png", 8, 10, 41, 19);
   sprite->GetComponent<Animator>()->RegisterAnimation("Falling", "spritesheets\\idle_walking_jab_jump_crouch.png", 8, 10, 60, 13);
+
+  sprite->GetComponent<Animator>()->RegisterAnimation("Jab", "spritesheets\\idle_walking_jab_jump_crouch.png", 8, 10, 33, 8);
 
   sprite->GetComponent<Animator>()->Play("Idle", true);
 
@@ -198,6 +201,10 @@ void GameManager::BeginGameLoop()
 
     //! Finally render the scene
     Draw();
+
+    //! Do pre-input set up stuff
+    for (auto actor : ComponentManager<ActionController>::Get().All())
+      actor->OnFrameEnd();
   }
 }
 
@@ -212,6 +219,8 @@ void GameManager::Update(float deltaTime)
 
   //Update characters
   ComponentManager<GameActor>::Get().Update(deltaTime);
+  //
+  ComponentManager<ActionController>::Get().Update(deltaTime);
   //
   ComponentManager<Physics>::Get().Update(deltaTime);
   //

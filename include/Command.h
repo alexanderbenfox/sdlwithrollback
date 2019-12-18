@@ -63,3 +63,14 @@ public:
     actor->HandleMovementCommand(Vector2<float>(1, 0));
   }
 };
+
+//______________________________________________________________________________
+class JabCommand : public ICommand
+{
+public:
+  JabCommand() = default;
+  virtual void Execute(GameActor* actor) override
+  {
+    actor->HandleJabButtonCommand();
+  }
+};

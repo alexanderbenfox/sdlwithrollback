@@ -75,6 +75,8 @@ ICommand* KeyboardInputHandler::HandleInput(SDL_Event* input)
     command = new RightCommand;
   else if (HasState(frameState, InputState::LEFT))
     command = new LeftCommand;
+  else if (HasState(frameState, InputState::BTN1))
+    command = new JabCommand;
   else command = new EmptyCommand;
 
   _lastFrameState = frameState;

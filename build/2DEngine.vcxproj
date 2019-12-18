@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\2DEngine.cpp" />
+    <ClCompile Include="..\src\Actions.cpp" />
     <ClCompile Include="..\src\AssetManagement\Resource.cpp" />
     <ClCompile Include="..\src\Components\Components.cpp" />
     <ClCompile Include="..\src\Entity.cpp" />
@@ -28,7 +29,10 @@
     <ClCompile Include="..\src\Input.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\include\Actions.h" />
     <ClInclude Include="..\include\AssetManagement\Resource.h" />
+    <ClInclude Include="..\include\Command.h" />
+    <ClInclude Include="..\include\Components\ActionController.h" />
     <ClInclude Include="..\include\Components\Camera.h" />
     <ClInclude Include="..\include\Components\Collider.h" />
     <ClInclude Include="..\include\Components\ComponentManager.h" />

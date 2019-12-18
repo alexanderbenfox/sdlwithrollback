@@ -1,4 +1,5 @@
 #pragma once
+
 #include "IComponent.h"
 #include "Geometry.h"
 
@@ -24,6 +25,8 @@ public:
   virtual void Update(float dt) override;
   //!
   virtual void HandleMovementCommand(Vector2<float> movement);
+  //!
+  virtual void HandleJabButtonCommand();
 
 protected:
   //!
