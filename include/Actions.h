@@ -19,6 +19,8 @@ public:
   virtual bool HandleInput(InputState bttn, Entity* actor) = 0;
   //! Some actions might have a different rate of change than others
   virtual float GetUpdateRate() = 0;
+  //!
+  virtual void OnActionComplete(Entity* actor) = 0;
 };
 
 struct AnimationInfo
@@ -44,8 +46,32 @@ public:
 
   virtual float GetUpdateRate() override { return animation_fps; }
 
+  //!
+  virtual void OnActionComplete(Entity* actor) override {}
+
 protected:
   std::string _animation;
 
+
+};
+
+class JumpCancellable : public AnimatedAction
+{
+public:
+  JumpCancellable(const std::string& animation, Entity* actor) : AnimatedAction(animation, actor) {}
+
+  virtual bool HandleInput(InputState bttn, Entity* actor) override;
+};
+
+class StateModifierAction : public AnimatedAction
+{
+public:
+  //!
+  StateModifierAction(const std::string& animation, Entity* actor, StanceState state) : _state(state), AnimatedAction(animation, actor) {}
+  //!
+  virtual void OnActionComplete(Entity* actor) override;
+private:
+  //!
+  StanceState _state;
 
 };

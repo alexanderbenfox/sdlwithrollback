@@ -4,9 +4,9 @@
 #include "Geometry.h"
 
 //all of the possible states for animation??
-enum class AerialState
+enum class StanceState
 {
-  GROUNDED, JUMPING, FALLING
+  CROUCHING, STANDING, JUMPING, FALLING
 };
 
 enum class MovingState
@@ -26,7 +26,13 @@ public:
   //!
   virtual void HandleMovementCommand(Vector2<float> movement);
   //!
-  virtual void HandleJabButtonCommand();
+  virtual void HandleLightButtonCommand();
+  //!
+  virtual void HandleStrongButtonCommand();
+  //!
+  virtual void HandleHeavyButtonCommand();
+
+  void SetStance(StanceState state) { _stance = state; }
 
 protected:
   //!
@@ -35,6 +41,6 @@ protected:
   bool _controllableState;
 
   //!
-  AerialState _aerial;
+  StanceState _stance;
   MovingState _moving;
 };

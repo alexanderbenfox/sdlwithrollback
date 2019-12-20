@@ -31,6 +31,8 @@ public:
   void BeginGameLoop();
   //! Returns a pointer to the SDL_Renderer object held by the game manager
   SDL_Renderer* GetRenderer() { return _renderer; }
+  //!
+  SDL_Window* GetWindow() { return _window; }
   //! Gets the camera used by the rendering pipeline to cull game entities
   Camera* GetMainCamera() { return _mainCamera.get(); }
 

@@ -119,7 +119,15 @@ void GameManager::Initialize()
   sprite->GetComponent<Animator>()->RegisterAnimation("Jumping", "spritesheets\\idle_walking_jab_jump_crouch.png", 8, 10, 41, 19);
   sprite->GetComponent<Animator>()->RegisterAnimation("Falling", "spritesheets\\idle_walking_jab_jump_crouch.png", 8, 10, 60, 13);
 
-  sprite->GetComponent<Animator>()->RegisterAnimation("Jab", "spritesheets\\idle_walking_jab_jump_crouch.png", 8, 10, 33, 8);
+  sprite->GetComponent<Animator>()->RegisterAnimation("Crouching", "spritesheets\\crouching.png", 4, 5, 0, 4);
+  sprite->GetComponent<Animator>()->RegisterAnimation("Crouch", "spritesheets\\crouching.png", 4, 5, 12, 5);
+
+  sprite->GetComponent<Animator>()->RegisterAnimation("CL", "spritesheets\\grounded_attacks.png", 8, 10, 9, 7);
+  sprite->GetComponent<Animator>()->RegisterAnimation("CS", "spritesheets\\grounded_attacks.png", 8, 10, 16, 11);
+  sprite->GetComponent<Animator>()->RegisterAnimation("CH", "spritesheets\\grounded_attacks.png", 8, 10, 28, 12);
+  sprite->GetComponent<Animator>()->RegisterAnimation("SL", "spritesheets\\grounded_attacks.png", 8, 10, 40, 6);
+  sprite->GetComponent<Animator>()->RegisterAnimation("SS", "spritesheets\\grounded_attacks.png", 8, 10, 46, 9);
+  sprite->GetComponent<Animator>()->RegisterAnimation("SH", "spritesheets\\grounded_attacks.png", 8, 10, 55, 13);
 
   sprite->GetComponent<Animator>()->Play("Idle", true);
 
@@ -236,14 +244,17 @@ void GameManager::Update(float deltaTime)
 void GameManager::UpdateInput(SDL_Event* event)
 {
   //update keys pressed here
-  ICommand* command = _playerInput->HandleInput(event);
+  std::vector<ICommand*> commandList = _playerInput->HandleInput(event);
 
-  //then process the keys pressed depending on the state
-  if (command)
+  for (auto command : commandList)
   {
-    command->Execute(_player.get());
-    command = nullptr;
-    delete command;
+    //then process the keys pressed depending on the state
+    if (command)
+    {
+      command->Execute(_player.get());
+      command = nullptr;
+      delete command;
+    }
   }
 }
 

@@ -14,13 +14,36 @@ template <> void Resource<SDL_Texture>::Load()
 {
   if (_loaded) return;
 
+  Uint32 windowFormat = SDL_GetWindowPixelFormat(GameManager::Get().GetWindow());
+
   //auto surface = ResourceManager::Get().GetRawImage(_pathToResource.c_str());
   SDL_Surface* surface = IMG_Load(_pathToResource.c_str());
   if (surface)
   {
-    SDL_Texture* tex = SDL_CreateTextureFromSurface(GameManager::Get().GetRenderer(), surface);
-    _resource = std::shared_ptr<SDL_Texture>(tex, SDL_DestroyTexture);
-    if(_resource) _loaded = true;
+    SDL_Surface* unformattedSurface = surface;
+    surface = SDL_ConvertSurfaceFormat(surface, windowFormat, 0);
+    SDL_FreeSurface(unformattedSurface);
+    unformattedSurface = NULL;
+  }
+  if (surface)
+  {
+    SDL_Texture* texture = SDL_CreateTexture(GameManager::Get().GetRenderer(), windowFormat, SDL_TEXTUREACCESS_STREAMING, surface->w, surface->h);
+
+    void* pixels;
+     // Fill out information for the texture
+    SDL_LockTexture(texture, NULL, &pixels, &_info.mPitch);
+    // copy loaded pixels so they can be used again
+    memcpy(pixels, surface->pixels, surface->pitch * surface->h);
+    // Unlock texture so it can update
+    SDL_UnlockTexture(texture);
+    pixels = nullptr;
+
+    _info.mHeight = surface->h;
+    _info.mWidth = surface->w;
+
+    _resource = std::shared_ptr<SDL_Texture>(texture, SDL_DestroyTexture);
+    if (_resource) _loaded = true;
+
     SDL_FreeSurface(surface);
     surface = NULL;
   }

@@ -37,7 +37,7 @@ class IInputHandler
 {
 public:
   //! Gets the command based on the type of input received from the controller
-  virtual ICommand* HandleInput(SDL_Event* input) = 0;
+  virtual std::vector<ICommand*> HandleInput(SDL_Event* input) = 0;
 
 protected:
   //! Last state received by the input controller
@@ -55,7 +55,7 @@ public:
   //!
   ~KeyboardInputHandler();
   //!
-  virtual ICommand* HandleInput(SDL_Event* input) final;
+  virtual std::vector<ICommand*> HandleInput(SDL_Event* input) final;
 
 private:
   //!
@@ -75,7 +75,7 @@ public:
   //!
   ~JoystickInputHandler();
   //!
-  virtual ICommand* HandleInput(SDL_Event* input) final;
+  virtual std::vector<ICommand*> HandleInput(SDL_Event* input) final;
 
 private:
   //!

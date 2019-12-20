@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClCompile Include="..\src\2DEngine.cpp" />
     <ClCompile Include="..\src\Actions.cpp" />
+    <ClCompile Include="..\src\Animator.cpp" />
     <ClCompile Include="..\src\AssetManagement\Resource.cpp" />
     <ClCompile Include="..\src\Components\Components.cpp" />
     <ClCompile Include="..\src\Entity.cpp" />

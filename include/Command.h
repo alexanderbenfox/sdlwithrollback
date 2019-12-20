@@ -65,12 +65,34 @@ public:
 };
 
 //______________________________________________________________________________
-class JabCommand : public ICommand
+class LightButtonCommand : public ICommand
 {
 public:
-  JabCommand() = default;
+  LightButtonCommand() = default;
   virtual void Execute(GameActor* actor) override
   {
-    actor->HandleJabButtonCommand();
+    actor->HandleLightButtonCommand();
+  }
+};
+
+//______________________________________________________________________________
+class StrongButtonCommand : public ICommand
+{
+public:
+  StrongButtonCommand() = default;
+  virtual void Execute(GameActor* actor) override
+  {
+    actor->HandleStrongButtonCommand();
+  }
+};
+
+//______________________________________________________________________________
+class HeavyButtonCommand : public ICommand
+{
+public:
+  HeavyButtonCommand() = default;
+  virtual void Execute(GameActor* actor) override
+  {
+    actor->HandleHeavyButtonCommand();
   }
 };

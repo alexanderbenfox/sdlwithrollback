@@ -47,10 +47,10 @@ KeyboardInputHandler::KeyboardInputHandler()
 KeyboardInputHandler::~KeyboardInputHandler() {}
 
 //______________________________________________________________________________
-ICommand* KeyboardInputHandler::HandleInput(SDL_Event* input)
+std::vector<ICommand*> KeyboardInputHandler::HandleInput(SDL_Event* input)
 {
   InputState frameState = _lastFrameState;
-  ICommand* command = nullptr;
+  std::vector<ICommand*> command;
 
   _keyStates = SDL_GetKeyboardState(0);
   if (input)
@@ -67,17 +67,27 @@ ICommand* KeyboardInputHandler::HandleInput(SDL_Event* input)
     }
   }
 
-  if (HasState(frameState, InputState::UP))
-    command = new UpCommand;
-  else if (HasState(frameState, InputState::DOWN))
-    command = new DownCommand;
-  else if (HasState(frameState, InputState::RIGHT))
-    command = new RightCommand;
-  else if (HasState(frameState, InputState::LEFT))
-    command = new LeftCommand;
-  else if (HasState(frameState, InputState::BTN1))
-    command = new JabCommand;
-  else command = new EmptyCommand;
+  if (frameState == InputState::NONE)
+  {
+    command.push_back(new EmptyCommand);
+  }
+  else
+  {
+    if (HasState(frameState, InputState::UP))
+      command.push_back(new UpCommand);
+    if (HasState(frameState, InputState::DOWN))
+      command.push_back(new DownCommand);
+    if (HasState(frameState, InputState::RIGHT))
+      command.push_back(new RightCommand);
+    if (HasState(frameState, InputState::LEFT))
+      command.push_back(new LeftCommand);
+    if (HasState(frameState, InputState::BTN1))
+      command.push_back(new LightButtonCommand);
+    if (HasState(frameState, InputState::BTN2))
+      command.push_back(new StrongButtonCommand);
+    if (HasState(frameState, InputState::BTN3))
+      command.push_back(new HeavyButtonCommand);
+  }
 
   _lastFrameState = frameState;
   return command;
@@ -110,7 +120,7 @@ JoystickInputHandler::~JoystickInputHandler()
 }
 
 //______________________________________________________________________________
-ICommand* JoystickInputHandler::HandleInput(SDL_Event* input)
+std::vector<ICommand*> JoystickInputHandler::HandleInput(SDL_Event* input)
 {
   InputState frameState = _lastFrameState;
 
@@ -164,5 +174,5 @@ ICommand* JoystickInputHandler::HandleInput(SDL_Event* input)
       break;
     }
   }
-  return new EmptyCommand;
+  return { new EmptyCommand };
 }

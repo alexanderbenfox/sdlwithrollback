@@ -2,6 +2,8 @@
 #include "IComponent.h"
 #include "Actions.h"
 
+#include <set>
+
 class ActionController : public IComponent, public IActionListener
 {
 public:
@@ -19,14 +21,19 @@ public:
 
   bool HandleInput(InputState bttn);
 
-  void StartAnimatedAction(const std::string& animName);
+  void StartAnimatedAction(const std::string& animName, bool isJC = false);
+
+  void StartStateTransitionAction(const std::string& animName, StanceState state)
+  {
+    _currentActions.insert(new StateModifierAction(animName, _owner.get(), state));
+  }
 
   bool IsPerformingAction() const { return !_currentActions.empty(); }
 
 private:
   //!
-  std::vector<IAction*> _currentActions;
+  std::set<IAction*> _currentActions;
   //!
-  std::vector<IAction*> _actionsFinished;
+  std::set<IAction*> _actionsFinished;
 
 };

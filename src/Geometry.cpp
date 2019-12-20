@@ -131,5 +131,6 @@ Rect<T> Rect<T>::GetIntersectionRect(const Rect<T>& other)
 
 template class Vector2<float>;
 template class Vector2<double>;
+template class Vector2<int>;
 template class Rect<float>;
 template class Rect<double>;

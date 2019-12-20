@@ -8,6 +8,16 @@
 #include <memory>
 
 template <typename T>
+struct ResourceTraits {};
+
+template <> struct ResourceTraits<SDL_Texture>
+{
+  int mPitch;
+  int mWidth;
+  int mHeight;
+};
+
+template <typename T>
 class Resource
 {
 public:
@@ -23,10 +33,13 @@ public:
   T* Get() { return _resource.get(); }
   bool IsLoaded() {return _loaded;}
 
+  ResourceTraits<T>& GetResourceInformation() { return _info; }
+
 private:
   bool _loaded;
   std::string _pathToResource;
   std::shared_ptr<T> _resource;
+  ResourceTraits<T> _info;
 
 };
 
