@@ -13,8 +13,10 @@ public:
 class IAction
 {
 public:
-  //!
+  //! 
   virtual void OnUpdate(Entity* actor) = 0;
+  //!
+  virtual void OnNewFrame(Entity* actor) = 0;
   //! return true if the input is handled only by the action
   virtual bool HandleInput(InputState bttn, Entity* actor) = 0;
   //! Some actions might have a different rate of change than others
@@ -41,6 +43,8 @@ public:
   AnimatedAction(const std::string& animation, Entity* actor);
 
   virtual void OnUpdate(Entity* actor) override;
+
+  virtual void OnNewFrame(Entity* actor) override {}
 
   virtual bool HandleInput(InputState bttn, Entity* actor) override;
 
@@ -75,3 +79,31 @@ private:
   StanceState _state;
 
 };
+
+class OnHitAction : public AnimatedAction
+{
+public:
+  OnHitAction(Entity* actor, Vector2<float> instVeclocity, int frames) : _frames(0), _totalFrames(frames), AnimatedAction("OnHit", actor)
+  {
+    if(auto gActor = actor->GetComponent<GameActor>())
+    {
+      gActor->ApplyVelocity(instVeclocity);
+    }
+  }
+
+  virtual void OnUpdate(Entity* actor) override {}
+
+  virtual void OnNewFrame(Entity* actor) override
+  {
+    _frames++;
+    if(_frames >= _totalFrames)
+    {
+      OnActionComplete(actor);
+      if (auto ac = actor->GetComponent<ActionController>())
+        ac->OnActionComplete(this);
+    }
+  }
+
+private:
+  int _frames, _totalFrames;
+}

@@ -3,24 +3,12 @@
 #include "IComponent.h"
 #include "Geometry.h"
 
-//all of the possible states for animation??
-enum class StanceState
-{
-  CROUCHING, STANDING, JUMPING, FALLING
-};
-
-enum class MovingState
-{
-  FORWARD, BACKWARD, IDLE
-};
-
 //!
 class GameActor : public IComponent
 {
 public:
   //!
-  GameActor(std::shared_ptr<Entity> entity) :
-    _controllableState(true), IComponent(entity) {}
+  GameActor(std::shared_ptr<Entity> entity) : _controllableState(true), IComponent(entity) {}
   //!
   virtual void Update(float dt) override;
   //!

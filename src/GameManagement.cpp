@@ -210,7 +210,7 @@ void GameManager::BeginGameLoop()
     //! Finally render the scene
     Draw();
 
-    //! Do pre-input set up stuff
+    //! Do post-frame resolution stuff
     for (auto actor : ComponentManager<ActionController>::Get().All())
       actor->OnFrameEnd();
   }
@@ -219,25 +219,19 @@ void GameManager::BeginGameLoop()
 //______________________________________________________________________________
 void GameManager::Update(float deltaTime)
 {
-  /*for (auto& entity : _gameEntities)
-    entity.Update(deltaTime);
-
-  for (auto& entity : _gameEntities)
-    entity.PushToRenderer();*/
-
-  //Update characters
+  // update acting units' state machine
   ComponentManager<GameActor>::Get().Update(deltaTime);
-  //
+  // update actions next
   ComponentManager<ActionController>::Get().Update(deltaTime);
-  //
+  // resolve collisions
   ComponentManager<Physics>::Get().Update(deltaTime);
-  //
+  // update the location of the colliders
   ComponentManager<RectColliderD>::Get().Update(deltaTime);
-  //Update sprites last
-  ComponentManager<Sprite>::Get().Update(deltaTime);
-  //
-  ComponentManager<Animator>::Get().Update(deltaTime);
 
+  // update rendered components last
+  ComponentManager<Sprite>::Get().Update(deltaTime);
+  // update animation state
+  ComponentManager<Animator>::Get().Update(deltaTime);
 }
 
 //______________________________________________________________________________
