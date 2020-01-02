@@ -13,6 +13,8 @@
 #include "Components/Collider.h"
 #include "Components/ActionController.h"
 
+#include "Utils.h"
+
 const int ScreenWidth = 600;
 const int ScreenHeight = 400;
 
@@ -23,27 +25,45 @@ void ResourceManager::Initialize()
 {
   char* basePath = SDL_GetBasePath();
   if (basePath)
+#ifdef _WIN32
     _resourcePath = std::string(basePath) + "..\\..\\..\\resources\\";
+#else
+    _resourcePath = std::string(basePath) + "resources/";
+#endif
   else _resourcePath = "./";
 }
 
 //______________________________________________________________________________
 Texture& ResourceManager::GetTexture(const std::string& file)
 {
-  if (_loadedTextures.find(file) == _loadedTextures.end())
+  auto fileToLoad = file;
+#ifndef _WIN32
+  auto split = StringUtils::Split(file, '\\');
+  if(split.size() > 1)
+    fileToLoad = StringUtils::Connect(split.begin(), split.end(), '/');
+#endif
+
+  if (_loadedTextures.find(fileToLoad) == _loadedTextures.end())
   {
-    _loadedTextures.insert(std::make_pair(file, Texture(_resourcePath + file)));
+    _loadedTextures.insert(std::make_pair(fileToLoad, Texture(_resourcePath + file)));
   }
-  _loadedTextures[file].Load();
-  return _loadedTextures[file];
+  _loadedTextures[fileToLoad].Load();
+  return _loadedTextures[fileToLoad];
 }
 
 //______________________________________________________________________________
 Vector2<int> ResourceManager::GetTextureWidthAndHeight(const std::string& file)
 {
+  auto fileToQuery = file;
+#ifndef _WIN32
+  auto split = StringUtils::Split(file, '\\');
+  if(split.size() > 1)
+    fileToQuery = StringUtils::Connect(split.begin(), split.end(), '/');
+#endif
+
   int width;
   int height;
-  SDL_QueryTexture(GetTexture(file).Get(), nullptr, nullptr, &width, &height);
+  SDL_QueryTexture(GetTexture(fileToQuery).Get(), nullptr, nullptr, &width, &height);
   return Vector2<int>(width, height);
 }
 
@@ -98,8 +118,11 @@ void GameManager::Initialize()
   SDL_Init(SDL_INIT_EVERYTHING);
   TTF_Init();
 
-  SDL_CreateWindowAndRenderer(ScreenWidth, ScreenHeight, 0, &_window, &_renderer);
-  SDL_SetWindowTitle(_window, Title);
+  _window = SDL_CreateWindow(Title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+    ScreenWidth, ScreenHeight,
+    SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
+
+  _renderer = SDL_CreateRenderer(_window, -1, SDL_RENDERER_ACCELERATED);
   
   //create game entities
 

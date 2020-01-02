@@ -8,7 +8,7 @@
 Animation::Animation(const char* sheet, int rows, int columns, int startIndexOnSheet, int frames) : _rows(rows), _columns(columns), _startIdx(startIndexOnSheet), _frames(frames), Image(sheet)
 {
   _frameSize = Vector2<int>(_sourceRect.w / _columns, _sourceRect.h / _rows);
-  _referencePx = FindReferencePixel(sheet);
+  _referencePx = Vector2<int>(0,0);//FindReferencePixel(sheet);
 }
 
 SDL_Rect Animation::GetFrameSrcRect(int frame)
@@ -68,6 +68,7 @@ Vector2<int> Animation::FindReferencePixel(const char* sheet)
       }
     }
   }
+
   SDL_UnlockTexture(t.Get());
   return Vector2<int>(0, 0);
 }
