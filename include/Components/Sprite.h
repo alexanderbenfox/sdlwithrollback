@@ -7,6 +7,7 @@
 class IDisplayable
 {
 public:
+  virtual ~IDisplayable() {}
   virtual SDL_Rect GetRectOnSrcText() = 0;
   virtual void SetOp(const Transform& transform, SDL_Rect rectOnTex, Vector2<int> offset, ResourceManager::BlitOperation* op) = 0;
 };

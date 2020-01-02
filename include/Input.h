@@ -2,8 +2,6 @@
 #include <SDL2/SDL.h>
 #include <unordered_map>
 
-#include "Command.h"
-
 class ICommand;
 
 //______________________________________________________________________________
@@ -36,8 +34,9 @@ static bool HasState(const InputState& state, InputState other) { return (state 
 class IInputHandler
 {
 public:
+  virtual ~IInputHandler() {}
   //! Gets the command based on the type of input received from the controller
-  virtual std::vector<ICommand*> HandleInput(SDL_Event* input) = 0;
+  virtual ICommand* HandleInput(SDL_Event* input) = 0;
 
 protected:
   //! Last state received by the input controller
@@ -55,7 +54,7 @@ public:
   //!
   ~KeyboardInputHandler();
   //!
-  virtual std::vector<ICommand*> HandleInput(SDL_Event* input) final;
+  virtual ICommand* HandleInput(SDL_Event* input) final;
 
 private:
   //!
@@ -75,7 +74,7 @@ public:
   //!
   ~JoystickInputHandler();
   //!
-  virtual std::vector<ICommand*> HandleInput(SDL_Event* input) final;
+  virtual ICommand* HandleInput(SDL_Event* input) final;
 
 private:
   //!

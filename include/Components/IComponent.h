@@ -3,7 +3,11 @@
 
 #include "ResourceManager.h"
 
-const float animation_fps = 24.0f;
+
+const float avg_animation_fps = 24.0f;
+const float third_strike_fps = 16.0f;
+
+const float animation_fps = third_strike_fps;
 
 class Entity;
 
@@ -15,8 +19,8 @@ class IComponent
 {
 public:
   IComponent(std::shared_ptr<Entity> owner) : _owner(owner) {}
-  //virtual ~IComponent() = 0;
-  //template<typename... Args> virtual void Init(Args... params) {}
+  //!
+  virtual ~IComponent() {}
   //!
   virtual void Update(float dt) {}// = 0;
   //!

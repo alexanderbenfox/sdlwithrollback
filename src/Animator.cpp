@@ -30,7 +30,7 @@ void Animation::SetOp(const Transform& transform, SDL_Rect rectOnTex, Vector2<in
   int fHeight = _sourceRect.h / _rows;
 
   op->_displayRect = {
-    static_cast<int>(std::floorf(transform.position.x - offset.x)), static_cast<int>(std::floorf(transform.position.y - offset.y)),
+    static_cast<int>(std::floorf(transform.position.x - offset.x * transform.scale.x)), static_cast<int>(std::floorf(transform.position.y - offset.y * transform.scale.y)),
     (int)(static_cast<float>(fWidth) * transform.scale.x),
     (int)(static_cast<float>(fHeight) * transform.scale.y) };
 
@@ -143,6 +143,8 @@ void Animator::Play(const std::string& name, bool isLooped)
 
 Animation* Animator::GetAnimationByName(const std::string& name)
 {
+  if (_animations.find(name) == _animations.end())
+    return nullptr;
   return &_animations.find(name)->second;
 }
 

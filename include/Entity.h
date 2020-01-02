@@ -5,6 +5,17 @@
 
 #include "Geometry.h"
 #include "Components/ComponentManager.h"
+#include "Utils.h"
+
+static int EntityID = 0;
+
+class IDebuggable
+{
+public:
+  virtual ~IDebuggable() {}
+  virtual void ParseCommand(const std::string& command) = 0;
+  virtual std::string GetIdentifier() = 0;
+};
 
 //______________________________________________________________________________
 //!
@@ -18,11 +29,11 @@ struct Transform
 
 //______________________________________________________________________________
 //! Entity is the root of the component tree containing all of the positional information for the game object
-class Entity
+class Entity : public IDebuggable
 {
 public:
-  //!
-  Entity() = default;
+  //! Increment creation id counter
+  Entity() : _creationId(EntityID++) {}
   //! Updates all components attached to the entity
   virtual void Update(float dt);
   //! Retrieves the components of type specified or nullptr if there is no component of that type present
@@ -37,10 +48,18 @@ public:
 
   //! Transform attached to the object defining the position, scale, and rotation of the object
   Transform transform;
+  //!
+  virtual void ParseCommand(const std::string& command) override;
+  //!
+  virtual std::string GetIdentifier() override;
+
+  void SetScale(Vector2<float> scale);
 
 protected:
   //! Pointers to all components attached to the object. The component objects exist in their respective manager singleton objects
   std::unordered_map<std::type_index, std::shared_ptr<IComponent>> _components;
+  //!
+  int _creationId;
 
 };
 

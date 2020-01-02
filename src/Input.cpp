@@ -1,4 +1,12 @@
 #include "Input.h"
+#include "Command.h"
+#include "Components/GameActor.h"
+
+//______________________________________________________________________________
+void InGameCommand::Execute(GameActor* actor)
+{
+  actor->HandleInput(_input);
+}
 
 //Analog joystick dead zone
 const int JOYSTICK_DEAD_ZONE = 8000;
@@ -47,10 +55,9 @@ KeyboardInputHandler::KeyboardInputHandler()
 KeyboardInputHandler::~KeyboardInputHandler() {}
 
 //______________________________________________________________________________
-std::vector<ICommand*> KeyboardInputHandler::HandleInput(SDL_Event* input)
+ICommand* KeyboardInputHandler::HandleInput(SDL_Event* input)
 {
   InputState frameState = _lastFrameState;
-  std::vector<ICommand*> command;
 
   _keyStates = SDL_GetKeyboardState(0);
   if (input)
@@ -67,30 +74,8 @@ std::vector<ICommand*> KeyboardInputHandler::HandleInput(SDL_Event* input)
     }
   }
 
-  if (frameState == InputState::NONE)
-  {
-    command.push_back(new EmptyCommand);
-  }
-  else
-  {
-    if (HasState(frameState, InputState::UP))
-      command.push_back(new UpCommand);
-    if (HasState(frameState, InputState::DOWN))
-      command.push_back(new DownCommand);
-    if (HasState(frameState, InputState::RIGHT))
-      command.push_back(new RightCommand);
-    if (HasState(frameState, InputState::LEFT))
-      command.push_back(new LeftCommand);
-    if (HasState(frameState, InputState::BTN1))
-      command.push_back(new LightButtonCommand);
-    if (HasState(frameState, InputState::BTN2))
-      command.push_back(new StrongButtonCommand);
-    if (HasState(frameState, InputState::BTN3))
-      command.push_back(new HeavyButtonCommand);
-  }
-
   _lastFrameState = frameState;
-  return command;
+  return new InGameCommand(frameState);
 }
 
 //______________________________________________________________________________
@@ -120,7 +105,7 @@ JoystickInputHandler::~JoystickInputHandler()
 }
 
 //______________________________________________________________________________
-std::vector<ICommand*> JoystickInputHandler::HandleInput(SDL_Event* input)
+ICommand* JoystickInputHandler::HandleInput(SDL_Event* input)
 {
   InputState frameState = _lastFrameState;
 
@@ -174,5 +159,5 @@ std::vector<ICommand*> JoystickInputHandler::HandleInput(SDL_Event* input)
       break;
     }
   }
-  return { new EmptyCommand };
+  return new InGameCommand(frameState);
 }

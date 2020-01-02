@@ -1,34 +1,51 @@
 #pragma once
-
 #include "IComponent.h"
-#include "Geometry.h"
+#include "Actions.h"
 
-//!
-class GameActor : public IComponent
+#include <set>
+
+class GameActor : public IComponent, public IActionListener
 {
 public:
   //!
-  GameActor(std::shared_ptr<Entity> entity) : _controllableState(true), IComponent(entity) {}
+  GameActor(std::shared_ptr<Entity> owner);
   //!
   virtual void Update(float dt) override;
   //!
-  virtual void HandleMovementCommand(Vector2<float> movement);
+  virtual void OnFrameBegin() override {}
+  //! Finishes all of the completed actions in the queue
+  virtual void OnFrameEnd() override;
+  //! 
+  virtual void OnActionComplete(IAction* action) override;
   //!
-  virtual void HandleLightButtonCommand();
+  void HandleInput(InputState input);
   //!
-  virtual void HandleStrongButtonCommand();
+  /*void StartAnimatedAction(const std::string& animName, bool isJC = false);
   //!
-  virtual void HandleHeavyButtonCommand();
+  void StartStateTransitionAction(const std::string& animName, StanceState state)
+  {
+    _currentActions.insert(new StateModifierAction(animName, _owner.get(), state));
+  }*/
 
-  void SetStance(StanceState state) { _stance = state; }
+  void BeginNewAction(IAction* action)
+  {
+    if (_currentAction != nullptr)
+      delete _currentAction;
+    _currentAction = action;
+  }
 
-protected:
+  bool IsPerformingAction() const { return _currentAction != nullptr; }
+
+private:
   //!
-  const float _baseSpeed = 300.0f;
+  IAction* _currentAction;
   //!
-  bool _controllableState;
+  std::set<IAction*> _actionsFinished;
 
   //!
-  StanceState _stance;
-  MovingState _moving;
+  InputState _lastInput;
+  CollisionSide _lastCollision;
+  bool _newState;
+
+
 };
