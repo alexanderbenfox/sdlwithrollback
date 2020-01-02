@@ -3,6 +3,7 @@
 #include "IComponent.h"
 
 #include <functional>
+#include <cmath>
 
 class IDisplayable
 {
@@ -28,9 +29,10 @@ public:
     op->_textureResource = &ResourceManager::Get().GetTexture(_src);
 
     op->_displayRect = {
-      static_cast<int>(std::floorf(transform.position.x - offset.x)), static_cast<int>(std::floorf(transform.position.y - offset.y)),
-      (int)(static_cast<float>(_sourceRect.w) * transform.scale.x),
-      (int)(static_cast<float>(_sourceRect.h) * transform.scale.y) };
+      .x = static_cast<int>(std::floor(transform.position.x - offset.x)),
+      .y = static_cast<int>(std::floor(transform.position.y - offset.y)),
+      .w = (int)(static_cast<float>(_sourceRect.w) * transform.scale.x),
+      .h = (int)(static_cast<float>(_sourceRect.h) * transform.scale.y) };
 
     op->valid = true;
   }

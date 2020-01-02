@@ -1,7 +1,7 @@
 #include "AssetManagement/Resource.h"
 #include "GameManagement.h"
 
-#include "SDL.h"
+#include <SDL2/SDL.h>
 
 template <typename T>
 void Resource<T>::Unload()

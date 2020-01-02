@@ -79,31 +79,3 @@ private:
   StanceState _state;
 
 };
-
-class OnHitAction : public AnimatedAction
-{
-public:
-  OnHitAction(Entity* actor, Vector2<float> instVeclocity, int frames) : _frames(0), _totalFrames(frames), AnimatedAction("OnHit", actor)
-  {
-    if(auto gActor = actor->GetComponent<GameActor>())
-    {
-      gActor->ApplyVelocity(instVeclocity);
-    }
-  }
-
-  virtual void OnUpdate(Entity* actor) override {}
-
-  virtual void OnNewFrame(Entity* actor) override
-  {
-    _frames++;
-    if(_frames >= _totalFrames)
-    {
-      OnActionComplete(actor);
-      if (auto ac = actor->GetComponent<ActionController>())
-        ac->OnActionComplete(this);
-    }
-  }
-
-private:
-  int _frames, _totalFrames;
-}

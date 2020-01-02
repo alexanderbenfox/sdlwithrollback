@@ -3,6 +3,16 @@
 #include "IComponent.h"
 #include "Geometry.h"
 
+enum class StanceState
+{
+  CROUCHING, STANDING, JUMPING, FALLING
+};
+
+enum class MovingState
+{
+  FORWARD, BACKWARD, IDLE
+};
+
 //!
 class GameActor : public IComponent
 {

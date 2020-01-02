@@ -86,7 +86,7 @@ public:
 
 //______________________________________________________________________________
 template <typename T, typename ... Rest>
-inline static auto GameManager::AddComponentToEntity(Entity* entity) -> std::enable_if_t<!std::is_void<T>::value>
+inline auto GameManager::AddComponentToEntity(Entity* entity) -> std::enable_if_t<!std::is_void<T>::value>
 {
   // recursive control path enders
   if (!all_base_of<IComponent, T, Rest...>() || std::is_same_v<T, IComponent>)

@@ -1,6 +1,8 @@
 #include "Entity.h"
 #include "Components/Sprite.h"
 
+#include <math.h>
+
 #include "GameManagement.h"
 
 Animation::Animation(const char* sheet, int rows, int columns, int startIndexOnSheet, int frames) : _rows(rows), _columns(columns), _startIdx(startIndexOnSheet), _frames(frames), Image(sheet)
@@ -30,7 +32,7 @@ void Animation::SetOp(const Transform& transform, SDL_Rect rectOnTex, Vector2<in
   int fHeight = _sourceRect.h / _rows;
 
   op->_displayRect = {
-    static_cast<int>(std::floorf(transform.position.x - offset.x)), static_cast<int>(std::floorf(transform.position.y - offset.y)),
+    static_cast<int>(std::floor(transform.position.x - offset.x)), static_cast<int>(std::floor(transform.position.y - offset.y)),
     (int)(static_cast<float>(fWidth) * transform.scale.x),
     (int)(static_cast<float>(fHeight) * transform.scale.y) };
 
@@ -102,7 +104,7 @@ void Animator::Update(float dt)
     _accumulatedTime += dt;
     if (_accumulatedTime >= _secPerFrame)
     {
-      int framesToAdv = (int)std::floorf(_accumulatedTime / _secPerFrame);
+      int framesToAdv = (int)std::floor(_accumulatedTime / _secPerFrame);
 
       // get next frame off of the type of anim it is
       _frame = _nextFrameOp(framesToAdv);
