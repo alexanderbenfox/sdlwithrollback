@@ -1,5 +1,6 @@
 #pragma once
-#include "Components/GameActor.h"
+#include "Input.h"
+class GameActor;
 
 //______________________________________________________________________________
 class ICommand
@@ -10,89 +11,11 @@ public:
 };
 
 //______________________________________________________________________________
-class EmptyCommand : public ICommand
+class InGameCommand : public ICommand
 {
 public:
-  EmptyCommand() = default;
-  virtual void Execute(GameActor* actor) override
-  {
-    actor->HandleMovementCommand(Vector2<float>(0, 0));
-  }
-};
-
-//______________________________________________________________________________
-class UpCommand : public ICommand
-{
-public:
-  UpCommand() = default;
-  virtual void Execute(GameActor* actor) override
-  {
-    actor->HandleMovementCommand(Vector2<float>(0, -1));
-  }
-};
-
-//______________________________________________________________________________
-class DownCommand : public ICommand
-{
-public:
-  DownCommand() = default;
-  virtual void Execute(GameActor* actor) override
-  {
-    actor->HandleMovementCommand(Vector2<float>(0, 1));
-  }
-};
-
-//______________________________________________________________________________
-class LeftCommand : public ICommand
-{
-public:
-  LeftCommand() = default;
-  virtual void Execute(GameActor* actor) override
-  {
-    actor->HandleMovementCommand(Vector2<float>(-1, 0));
-  }
-};
-
-//______________________________________________________________________________
-class RightCommand : public ICommand
-{
-public:
-  RightCommand() = default;
-  virtual void Execute(GameActor* actor) override
-  {
-    actor->HandleMovementCommand(Vector2<float>(1, 0));
-  }
-};
-
-//______________________________________________________________________________
-class LightButtonCommand : public ICommand
-{
-public:
-  LightButtonCommand() = default;
-  virtual void Execute(GameActor* actor) override
-  {
-    actor->HandleLightButtonCommand();
-  }
-};
-
-//______________________________________________________________________________
-class StrongButtonCommand : public ICommand
-{
-public:
-  StrongButtonCommand() = default;
-  virtual void Execute(GameActor* actor) override
-  {
-    actor->HandleStrongButtonCommand();
-  }
-};
-
-//______________________________________________________________________________
-class HeavyButtonCommand : public ICommand
-{
-public:
-  HeavyButtonCommand() = default;
-  virtual void Execute(GameActor* actor) override
-  {
-    actor->HandleHeavyButtonCommand();
-  }
+  InGameCommand(InputState input) : _input(input) {}
+  virtual void Execute(GameActor* actor) override;
+private:
+  InputState _input;
 };

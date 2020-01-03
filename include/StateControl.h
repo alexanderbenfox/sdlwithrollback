@@ -1,3 +1,5 @@
+#include "Actions.h"
+
 //all of the possible states for animation??
 enum class StanceState
 {

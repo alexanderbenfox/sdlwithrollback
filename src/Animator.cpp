@@ -8,7 +8,7 @@
 Animation::Animation(const char* sheet, int rows, int columns, int startIndexOnSheet, int frames) : _rows(rows), _columns(columns), _startIdx(startIndexOnSheet), _frames(frames), Image(sheet)
 {
   _frameSize = Vector2<int>(_sourceRect.w / _columns, _sourceRect.h / _rows);
-  _referencePx = Vector2<int>(0,0);//FindReferencePixel(sheet);
+  _referencePx = FindReferencePixel(sheet);
 }
 
 SDL_Rect Animation::GetFrameSrcRect(int frame)
@@ -20,21 +20,22 @@ SDL_Rect Animation::GetFrameSrcRect(int frame)
   int x = (_startIdx + frame) % _columns;
   int y = (_startIdx + frame) / _columns;
 
-  return { x * _frameSize.x, y * _frameSize.y, _frameSize.x, _frameSize.y };
+  return OpSysConv::CreateSDLRect(x * _frameSize.x, y * _frameSize.y, _frameSize.x, _frameSize.y );
 }
 
 void Animation::SetOp(const Transform& transform, SDL_Rect rectOnTex, Vector2<int> offset, ResourceManager::BlitOperation* op)
 {
   op->_textureRect = rectOnTex;
-  op->_textureResource = &ResourceManager::Get().GetTexture(_src);
+  op->_textureResource = &_texture;
 
   int fWidth = _sourceRect.w / _columns;
   int fHeight = _sourceRect.h / _rows;
 
-  op->_displayRect = {
-    static_cast<int>(std::floor(transform.position.x - offset.x)), static_cast<int>(std::floor(transform.position.y - offset.y)),
+  op->_displayRect = OpSysConv::CreateSDLRect(
+    static_cast<int>(std::floor(transform.position.x - offset.x * transform.scale.x)),
+    static_cast<int>(std::floor(transform.position.y - offset.y * transform.scale.y)),
     (int)(static_cast<float>(fWidth) * transform.scale.x),
-    (int)(static_cast<float>(fHeight) * transform.scale.y) };
+    (int)(static_cast<float>(fHeight) * transform.scale.y));
 
   op->valid = true;
 }
@@ -146,6 +147,8 @@ void Animator::Play(const std::string& name, bool isLooped)
 
 Animation* Animator::GetAnimationByName(const std::string& name)
 {
+  if (_animations.find(name) == _animations.end())
+    return nullptr;
   return &_animations.find(name)->second;
 }
 

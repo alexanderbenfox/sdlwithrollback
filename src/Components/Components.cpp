@@ -8,7 +8,6 @@
 #include "Components/Physics.h"
 #include "Components/Collider.h"
 #include "Components/GameActor.h"
-#include "Components/ActionController.h"
 
 #include <cassert>
 
@@ -65,7 +64,7 @@ bool Camera::EntityInDisplay(const ResourceManager::BlitOperation* entity)
 //______________________________________________________________________________
 void Physics::Update(float dt)
 {
-  _acc = Vector2<float>(0, Gravity);
+  _acc = Vector2<float>(0, UniversalPhysicsSettings::Get().Gravity);
   if (auto rCollider = _owner->GetComponent<RectColliderD>())
   {
     if (rCollider->IsStatic()) _acc = Vector2<float>(0, 0);
@@ -186,208 +185,62 @@ void RectCollider<T>::Update(float dt)
 }
 
 //______________________________________________________________________________
+GameActor::GameActor(std::shared_ptr<Entity> owner) : _currentAction(nullptr), _newState(true), _lastInput(InputState::UP), _lastCollision(CollisionSide::UP), IComponent(owner)
+{
+  BeginNewAction(new LoopedAction<StanceState::STANDING, ActionState::NONE>("Idle", owner.get()));
+}
+
+//______________________________________________________________________________
 void GameActor::Update(float dt)
 {
-  // action controller should take over state control
-  if (auto action = _owner->GetComponent<ActionController>())
+  _currentAction->OnUpdate(_owner.get());
+}
+
+//______________________________________________________________________________
+void GameActor::OnFrameEnd()
+{
+  // complete actions
+  /*for (auto finished : _actionsFinished)
   {
-    if (_owner->GetComponent<ActionController>()->IsPerformingAction())
+    if (finished == _currentAction)
+    {
+      delete _currentAction;
+      _currentAction = nullptr;
+    }
+  }
+  _actionsFinished.clear();*/
+}
+
+//______________________________________________________________________________
+void GameActor::OnActionComplete(IAction* action)
+{
+  //_actionsFinished.insert(action);
+  _newState = true;
+}
+
+//______________________________________________________________________________
+void GameActor::HandleInput(InputState input)
+{
+  if (auto phys = _owner->GetComponent<Physics>())
+  {
+    if (!_newState && input == _lastInput && phys->GetLastCollisionSides() == _lastCollision)
       return;
-  }
 
+    _newState = false;
+    auto latestSides = phys->GetLastCollisionSides();
 
-  if (auto physics = _owner->GetComponent<Physics>())
-  {
-    auto collisions = physics->GetLastCollisionSides();
-    if (!HasState(collisions, CollisionSide::DOWN) && physics->_vel.y != 0)
+    IAction* prevAction = _currentAction;//(*_currentActions.begin());
+    IAction* nextAction = _currentAction->HandleInput(input, latestSides, _owner.get());//(*_currentActions.begin())->HandleInput(_lastInput, _lastCollision, _owner.get());
+
+    if (nextAction && (nextAction != prevAction))
     {
-      if (physics->_vel.y > 0)
-        _stance = StanceState::FALLING;
-      else
-        _stance = StanceState::JUMPING;
-    }
+      _lastInput = input;
+      _lastCollision = latestSides;
 
-    if (physics->_vel.x > 0)
-      _moving = MovingState::FORWARD;
-    else if (physics->_vel.x < 0)
-      _moving = MovingState::BACKWARD;
-    else
-      _moving = MovingState::IDLE;
-  }
-
-
-  if (auto animator = _owner->GetComponent<Animator>())
-  {
-    if (_stance != StanceState::STANDING)
-    {
-      if(_stance == StanceState::CROUCHING)
-        animator->Play("Crouch", true);
-      else if (_stance == StanceState::JUMPING)
-        animator->Play("Jumping", false);
-      else
-        animator->Play("Falling", false);
-    }
-    else
-    {
-      if (_moving == MovingState::FORWARD)
-        animator->Play("WalkF", true);
-      else if (_moving == MovingState::BACKWARD)
-        animator->Play("WalkB", true);
-      else
-      {
-        animator->Play("Idle", true);
-      }
+      OnActionComplete(prevAction);
+      BeginNewAction(nextAction);
     }
   }
-
-}
-
-//______________________________________________________________________________
-void GameActor::HandleMovementCommand(Vector2<float> movement)
-{
-  // make sure i can even act this frame
-  // what are those things? am i in Hit Stun, Block Stun, Attack Animation (non cancellable), Attack Animation (cancellable, but not at the right time to cancel) 
-
-  if (auto actionController = _owner->GetComponent<ActionController>())
-  {
-    InputState checkState = movement.y < 0 ? InputState::UP : InputState::NONE;
-    bool handled = actionController->HandleInput(checkState);
-
-    if (handled)
-      return;
-  }
-
-  if(_controllableState)
-  {
-    auto vel = _baseSpeed * movement;
-    assert(_owner->GetComponent<Physics>());
-    _owner->GetComponent<Physics>()->_vel.x = vel.x;
-
-    if (movement.y < 0 && HasState(_owner->GetComponent<Physics>()->GetLastCollisionSides(), CollisionSide::DOWN))
-    {
-      _owner->GetComponent<Physics>()->_vel.y = (1.5f) * vel.y;
-    }
-    else if (movement.y > 0 && HasState(_owner->GetComponent<Physics>()->GetLastCollisionSides(), CollisionSide::DOWN) && _stance != StanceState::CROUCHING)
-    {
-      _owner->GetComponent<ActionController>()->StartStateTransitionAction("Crouching", StanceState::CROUCHING);
-    }
-    else if (movement.y <= 0)
-    {
-      _stance = StanceState::STANDING;
-    }
-  }
-}
-
-//______________________________________________________________________________
-void GameActor::HandleLightButtonCommand()
-{
-  if (auto actionController = _owner->GetComponent<ActionController>())
-  {
-    bool handled = actionController->HandleInput(InputState::BTN1);
-
-    if (handled)
-      return;
-  }
-
-  if (_controllableState && _owner->GetComponent<ActionController>())
-  {
-    if (_stance == StanceState::CROUCHING)
-      _owner->GetComponent<ActionController>()->StartAnimatedAction("CL");
-    else
-      _owner->GetComponent<ActionController>()->StartAnimatedAction("SL");
-  }
-}
-
-//______________________________________________________________________________
-void GameActor::HandleStrongButtonCommand()
-{
-  if (auto actionController = _owner->GetComponent<ActionController>())
-  {
-    bool handled = actionController->HandleInput(InputState::BTN2);
-
-    if (handled)
-      return;
-  }
-
-  if (_controllableState && _owner->GetComponent<ActionController>())
-  {
-    if(_stance == StanceState::CROUCHING)
-      _owner->GetComponent<ActionController>()->StartAnimatedAction("CS");
-    else
-      _owner->GetComponent<ActionController>()->StartAnimatedAction("SS");
-  }
-}
-
-
-//______________________________________________________________________________
-void GameActor::HandleHeavyButtonCommand()
-{
-  if (auto actionController = _owner->GetComponent<ActionController>())
-  {
-    bool handled = actionController->HandleInput(InputState::BTN3);
-
-    if (handled)
-      return;
-  }
-
-  if (_controllableState && _owner->GetComponent<ActionController>())
-  {
-    if (_stance == StanceState::CROUCHING)
-      _owner->GetComponent<ActionController>()->StartAnimatedAction("CH", true);
-    else
-      _owner->GetComponent<ActionController>()->StartAnimatedAction("SH");
-  }
-}
-
-//______________________________________________________________________________
-void ActionController::Update(float dt)
-{
-  for (auto& action : _currentActions)
-  {
-    action->OnUpdate(_owner.get());
-  }
-}
-
-//______________________________________________________________________________
-void ActionController::OnFrameEnd()
-{
-  for (auto finished : _actionsFinished)
-  {
-    auto action = _currentActions.find(finished);
-    if (action != _currentActions.end())
-    {
-      delete *action;
-      _currentActions.erase(action);
-    }
-  }
-  _actionsFinished.clear();
-}
-
-//______________________________________________________________________________
-void ActionController::OnActionComplete(IAction* action)
-{
-  _actionsFinished.insert(action);
-}
-
-//______________________________________________________________________________
-bool ActionController::HandleInput(InputState bttn)
-{
-  // cant handle the input if there isn't an action
-  if (_currentActions.empty()) return false;
-
-  return (*_currentActions.begin())->HandleInput(bttn, _owner.get());
-}
-
-//______________________________________________________________________________
-void ActionController::StartAnimatedAction(const std::string& animName, bool isJC)
-{
-  AnimatedAction* action;
-  if (!isJC)
-    action = new AnimatedAction(animName, _owner.get());
-  else
-    action = new JumpCancellable(animName, _owner.get());
-
-  _currentActions.insert(action);
 }
 
 

@@ -39,6 +39,8 @@ public:
   Vector2<T> Unit();
   T Dot(const Vector2<T>& other);
   T Magnitude();
+
+  static Vector2<T> Zero(){ return Vector2<T>(static_cast<T>(0), static_cast<T>(0)); }
 };
 
 template <typename T> Vector2<T> operator+(const Vector2<T>& lhs, const Vector2<T>& rhs);

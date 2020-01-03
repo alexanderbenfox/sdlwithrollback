@@ -8,6 +8,7 @@
 class IDisplayable
 {
 public:
+  virtual ~IDisplayable() {}
   virtual SDL_Rect GetRectOnSrcText() = 0;
   virtual void SetOp(const Transform& transform, SDL_Rect rectOnTex, Vector2<int> offset, ResourceManager::BlitOperation* op) = 0;
 };
@@ -15,7 +16,7 @@ public:
 class Image : public IDisplayable
 {
 public:
-  Image(const char* src) : _src(src)
+  Image(const char* src) : _texture(ResourceManager::Get().GetTexture(src))
   {
     auto size = ResourceManager::Get().GetTextureWidthAndHeight(src);
     _sourceRect = { 0, 0, size.x, size.y };
@@ -26,19 +27,20 @@ public:
   virtual void SetOp(const Transform& transform, SDL_Rect rectOnTex, Vector2<int> offset, ResourceManager::BlitOperation* op) override
   {
     op->_textureRect = rectOnTex;
-    op->_textureResource = &ResourceManager::Get().GetTexture(_src);
+    op->_textureResource = &_texture;
 
-    op->_displayRect = {
-      .x = static_cast<int>(std::floor(transform.position.x - offset.x)),
-      .y = static_cast<int>(std::floor(transform.position.y - offset.y)),
-      .w = (int)(static_cast<float>(_sourceRect.w) * transform.scale.x),
-      .h = (int)(static_cast<float>(_sourceRect.h) * transform.scale.y) };
+    op->_displayRect = OpSysConv::CreateSDLRect(
+      static_cast<int>(std::floor(transform.position.x - offset.x)),
+      static_cast<int>(std::floor(transform.position.y - offset.y)),
+      (int)(static_cast<float>(_sourceRect.w) * transform.scale.x),
+      (int)(static_cast<float>(_sourceRect.h) * transform.scale.y));
 
     op->valid = true;
   }
 
 protected:
-  std::string _src;
+  //std::string _src;
+  Texture& _texture;
   //! Source location on texture of sprite
   SDL_Rect _sourceRect;
 

@@ -5,6 +5,8 @@
 
 #include "Components/IComponent.h"
 
+#include <mutex>
+
 class GameActor;
 class Camera;
 
@@ -51,6 +53,9 @@ private:
   SDL_Window* _window;
   //! Player input listener
   std::unique_ptr<IInputHandler> _playerInput;
+
+  //!
+  std::mutex _debugMutex;
 
   //______________________________________________________________________________
 

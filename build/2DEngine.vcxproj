@@ -33,7 +33,6 @@
     <ClInclude Include="..\include\Actions.h" />
     <ClInclude Include="..\include\AssetManagement\Resource.h" />
     <ClInclude Include="..\include\Command.h" />
-    <ClInclude Include="..\include\Components\ActionController.h" />
     <ClInclude Include="..\include\Components\Camera.h" />
     <ClInclude Include="..\include\Components\Collider.h" />
     <ClInclude Include="..\include\Components\ComponentManager.h" />
@@ -46,7 +45,9 @@
     <ClInclude Include="..\include\Geometry.h" />
     <ClInclude Include="..\include\Input.h" />
     <ClInclude Include="..\include\ResourceManager.h" />
+    <ClInclude Include="..\include\StateControl.h" />
     <ClInclude Include="..\include\Timer.h" />
+    <ClInclude Include="..\include\Utils.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

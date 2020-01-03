@@ -11,12 +11,20 @@
 #include "Components/GameActor.h"
 #include "Components/Physics.h"
 #include "Components/Collider.h"
-#include "Components/ActionController.h"
 
-#include "Utils.h"
+#include "Command.h"
 
-const int ScreenWidth = 600;
-const int ScreenHeight = 400;
+#ifdef _DEBUG
+//used for debugger
+#include <thread>
+#include <iostream>
+#endif
+
+const int m_nativeWidth = 600;
+const int m_nativeHeight = 400;
+
+static double widthToScreenWidth = 1.0;
+static double heightToScreenHeight = 1.0f;
 
 const char* Title = "Game Title";
 
@@ -37,6 +45,7 @@ void ResourceManager::Initialize()
 Texture& ResourceManager::GetTexture(const std::string& file)
 {
   auto fileToLoad = file;
+
 #ifndef _WIN32
   auto split = StringUtils::Split(file, '\\');
   if(split.size() > 1)
@@ -87,12 +96,14 @@ void ResourceManager::BlitSprites()
       int w, h;
       auto srcTexture = operation->_textureResource->Get();
       float rotation = 0;
-      //if(destRect->x >= _camera.x && destRect->x <=)
+      
       try
       {
         if (SDL_QueryTexture(operation->_textureResource->Get(), NULL, NULL, &w, &h) == 0)
-          SDL_RenderCopyEx(GameManager::Get().GetRenderer(), srcTexture, 
+        {
+          SDL_RenderCopyEx(GameManager::Get().GetRenderer(), srcTexture,
             &operation->_textureRect, &operation->_displayRect, rotation, nullptr, operation->_flip);
+        }
       }
       catch (std::exception &e)
       {
@@ -118,21 +129,24 @@ void GameManager::Initialize()
   SDL_Init(SDL_INIT_EVERYTHING);
   TTF_Init();
 
+  //SDL_CreateWindowAndRenderer(ScreenWidth, ScreenHeight, 0, &_window, &_renderer);
   _window = SDL_CreateWindow(Title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-    ScreenWidth, ScreenHeight,
+    m_nativeWidth, m_nativeHeight,
     SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
 
   _renderer = SDL_CreateRenderer(_window, -1, SDL_RENDERER_ACCELERATED);
+
+  //SDL_SetWindowTitle(_window, Title);
   
   //create game entities
 
   auto camera = CreateEntity<Camera>();
-  camera->GetComponent<Camera>()->Init(ScreenWidth, ScreenHeight);
+  camera->GetComponent<Camera>()->Init(m_nativeWidth, m_nativeHeight);
   _mainCamera = camera->GetComponent<Camera>();
 
   Vector2<int> textureSize = ResourceManager::Get().GetTextureWidthAndHeight("spritesheets\\ryu.png");
 
-  auto sprite = CreateEntity<Animator, Physics, GameActor, RectColliderD, ActionController>();
+  auto sprite = CreateEntity<Animator, Physics, GameActor, RectColliderD>();
 
   sprite->GetComponent<Animator>()->Init();
   sprite->GetComponent<Animator>()->RegisterAnimation("Idle", "spritesheets\\idle_and_walking.png", 6, 6, 0, 10);
@@ -145,12 +159,15 @@ void GameManager::Initialize()
   sprite->GetComponent<Animator>()->RegisterAnimation("Crouching", "spritesheets\\crouching.png", 4, 5, 0, 4);
   sprite->GetComponent<Animator>()->RegisterAnimation("Crouch", "spritesheets\\crouching.png", 4, 5, 12, 5);
 
-  sprite->GetComponent<Animator>()->RegisterAnimation("CL", "spritesheets\\grounded_attacks.png", 8, 10, 9, 7);
-  sprite->GetComponent<Animator>()->RegisterAnimation("CS", "spritesheets\\grounded_attacks.png", 8, 10, 16, 11);
-  sprite->GetComponent<Animator>()->RegisterAnimation("CH", "spritesheets\\grounded_attacks.png", 8, 10, 28, 12);
-  sprite->GetComponent<Animator>()->RegisterAnimation("SL", "spritesheets\\grounded_attacks.png", 8, 10, 40, 6);
-  sprite->GetComponent<Animator>()->RegisterAnimation("SS", "spritesheets\\grounded_attacks.png", 8, 10, 46, 9);
-  sprite->GetComponent<Animator>()->RegisterAnimation("SH", "spritesheets\\grounded_attacks.png", 8, 10, 55, 13);
+  sprite->GetComponent<Animator>()->RegisterAnimation("CrouchingLight", "spritesheets\\grounded_attacks.png", 8, 10, 9, 7);
+  sprite->GetComponent<Animator>()->RegisterAnimation("CrouchingMedium", "spritesheets\\grounded_attacks.png", 8, 10, 16, 11);
+  sprite->GetComponent<Animator>()->RegisterAnimation("CrouchingHeavy", "spritesheets\\grounded_attacks.png", 8, 10, 27, 11);
+  sprite->GetComponent<Animator>()->RegisterAnimation("StandingLight", "spritesheets\\grounded_attacks.png", 8, 10, 40, 6);
+  sprite->GetComponent<Animator>()->RegisterAnimation("StandingMedium", "spritesheets\\grounded_attacks.png", 8, 10, 46, 9);
+  sprite->GetComponent<Animator>()->RegisterAnimation("StandingHeavy", "spritesheets\\grounded_attacks.png", 8, 10, 55, 13);
+  sprite->GetComponent<Animator>()->RegisterAnimation("JumpingLight", "spritesheets\\jlp.png", 4, 4, 0, 14);
+  sprite->GetComponent<Animator>()->RegisterAnimation("JumpingMedium", "spritesheets\\jlp.png", 4, 4, 0, 14);
+  sprite->GetComponent<Animator>()->RegisterAnimation("JumpingHeavy", "spritesheets\\jlp.png", 4, 4, 0, 14);
 
   sprite->GetComponent<Animator>()->Play("Idle", true);
 
@@ -158,6 +175,8 @@ void GameManager::Initialize()
     Vector2<double>(static_cast<double>(textureSize.x), static_cast<double>(textureSize.y)));
   sprite->GetComponent<RectColliderD>()->SetStatic(false);
   _player = sprite->GetComponent<GameActor>();
+
+  sprite->SetScale(Vector2<float>(1.4f, 1.7f));
   
   /*auto staticBoy = CreateEntity<Animator, RectColliderD>();
   float startPosX = staticBoy->transform.position.x = 200.0f;
@@ -171,9 +190,9 @@ void GameManager::Initialize()
 
   auto bottomBorder = CreateEntity<Sprite, RectColliderD>();
   bottomBorder->transform.position.x = 0.0;
-  bottomBorder->transform.position.y = ScreenHeight;
+  bottomBorder->transform.position.y = m_nativeHeight - 40;
   bottomBorder->GetComponent<Sprite>()->Init("spritesheets\\ryu.png");
-  bottomBorder->GetComponent<RectColliderD>()->Init(Vector2<double>(0, ScreenHeight), Vector2<double>(ScreenWidth, ScreenHeight + 50.0f));
+  bottomBorder->GetComponent<RectColliderD>()->Init(Vector2<double>(0, m_nativeHeight - 40), Vector2<double>(m_nativeWidth, m_nativeHeight + 5000.0f));
   bottomBorder->GetComponent<RectColliderD>()->SetStatic(true);
 
 
@@ -209,12 +228,56 @@ void GameManager::BeginGameLoop()
   UpdateFunction update = std::bind(&GameManager::Update, this, std::placeholders::_1);
   //FrameFunction draw = std::bind(&GameManager::Draw, this);
 
+  bool programRunning = true;
+#ifdef _DEBUG
+  std::thread debugger([this, &programRunning]()
+  {
+    while(programRunning)
+    {
+      std::cout << "Example: 'entity0 transform set scale x 0.5'" << "\n";
+      std::string command;
+      std::getline(std::cin, command);
+
+      auto split = StringUtils::Split(command, ' ');
+      if (split.size() <= 1) continue;
+      auto id = split[0];
+
+      for (auto& entity : _gameEntities)
+      {
+        if (entity->GetIdentifier() == id)
+        {
+          std::lock_guard lock(_debugMutex);
+          entity->ParseCommand(StringUtils::Connect(split.begin() + 1, split.end(), ' '));
+          break;
+        }
+      }
+
+      if (UniversalPhysicsSettings::Get().GetIdentifier() == id)
+      {
+        UniversalPhysicsSettings::Get().ParseCommand(StringUtils::Connect(split.begin() + 1, split.end(), ' '));
+      }
+    }
+
+  });
+#endif
+
   for (;;)
   {
     //! Check for quit
     if (SDL_PollEvent(&event)) {
-      if (event.type == SDL_QUIT) {
+      if (event.type == SDL_QUIT)
+      {
         return;
+      }
+      if (event.type == SDL_WINDOWEVENT)
+      {
+        if (event.window.event == SDL_WINDOWEVENT_RESIZED)
+        {
+          Vector2<int> newWindowSize(event.window.data1, event.window.data2);
+          widthToScreenWidth = static_cast<double>(newWindowSize.x) / static_cast<double>(m_nativeWidth);
+          heightToScreenHeight = static_cast<double>(newWindowSize.y) / static_cast<double>(m_nativeHeight);
+          SDL_RenderSetScale(_renderer, static_cast<float>(widthToScreenWidth), static_cast<float>(heightToScreenHeight));
+        }
       }
     }
 
@@ -224,9 +287,11 @@ void GameManager::BeginGameLoop()
     for (auto animator : ComponentManager<Animator>::Get().All())
       animator->OnFrameBegin();
 
+
     //! Collect inputs from controllers (this means AI controllers as well as Player controllers)
     UpdateInput(&event);
 
+    std::lock_guard lock(_debugMutex);
     //! Update all components
     clock.Update(update);
 
@@ -234,9 +299,11 @@ void GameManager::BeginGameLoop()
     Draw();
 
     //! Do post-frame resolution stuff
-    for (auto actor : ComponentManager<ActionController>::Get().All())
+    for (auto actor : ComponentManager<GameActor>::Get().All())
       actor->OnFrameEnd();
   }
+
+  programRunning = false;
 }
 
 //______________________________________________________________________________
@@ -244,8 +311,6 @@ void GameManager::Update(float deltaTime)
 {
   // update acting units' state machine
   ComponentManager<GameActor>::Get().Update(deltaTime);
-  // update actions next
-  ComponentManager<ActionController>::Get().Update(deltaTime);
   // resolve collisions
   ComponentManager<Physics>::Get().Update(deltaTime);
   // update the location of the colliders
@@ -261,18 +326,10 @@ void GameManager::Update(float deltaTime)
 void GameManager::UpdateInput(SDL_Event* event)
 {
   //update keys pressed here
-  std::vector<ICommand*> commandList = _playerInput->HandleInput(event);
+  auto command = std::unique_ptr<ICommand>(_playerInput->HandleInput(event));
 
-  for (auto command : commandList)
-  {
-    //then process the keys pressed depending on the state
-    if (command)
-    {
-      command->Execute(_player.get());
-      command = nullptr;
-      delete command;
-    }
-  }
+  if (command)
+    command->Execute(_player.get());
 }
 
 //______________________________________________________________________________

@@ -39,3 +39,15 @@ namespace StringUtils
     return ss.str();
   }
 }
+
+namespace OpSysConv
+{
+  static SDL_Rect CreateSDLRect(const int& x, const int& y, const int& width, const int& height)
+  {
+#ifdef _WIN32
+    return SDL_Rect{ x, y, width, height };
+#else
+    return SDL_Rect{ .x = x,.y = y,.w = width,.h = height };
+#endif
+  }
+}
