@@ -42,18 +42,40 @@ void Animation::SetOp(const Transform& transform, SDL_Rect rectOnTex, Vector2<in
 
 Vector2<int> Animation::FindReferencePixel(const char* sheet)
 { 
-  // get the value of a transparent pixel (assume the first top left is transparent)
-  Uint32* upixels = (Uint32*)_texture.GetInfo().pixels.get();
-  unsigned char* px = (unsigned char*)upixels;
+  struct SDLTextureInfo
+  {
+    SDLTextureInfo(SDL_Texture* texture) : texture(texture)
+    {
+      SDL_LockTexture(texture, nullptr, &pixels, &pitch);
+    }
+    ~SDLTextureInfo()
+    {
+      SDL_UnlockTexture(texture);
+    }
+
+    void* pixels;
+    int pitch;
+    SDL_Texture* texture;
+  };
+ 
+  // Get the window format
   Uint32 windowFormat = SDL_GetWindowPixelFormat(GameManager::Get().GetWindow());
   std::shared_ptr<SDL_PixelFormat> format = std::shared_ptr<SDL_PixelFormat>(SDL_AllocFormat(windowFormat), SDL_FreeFormat);
+
+  // Get the pixel data
+  auto textureInfo = SDLTextureInfo(_texture.Get());
+  unsigned char* px = (unsigned char*)textureInfo.pixels;
+  Uint32* upixels = (Uint32*)textureInfo.pixels;
+  Uint32 transparent = SDL_MapRGBA(format.get(), px[0], px[1], px[2], 0x00);
+
   for (int y = 0; y < _frameSize.y; y++)
   {
     for (int x = 0; x < _frameSize.x; x++)
     {
+      Uint32 pixel = upixels[_sourceRect.w * y + x];
       Uint8 r, g, b, a;
-      SDL_GetRGBA(upixels[_sourceRect.w * y + x], format.get(), &r, &g, &b, &a);
-      if (a == 0xFF)
+      SDL_GetRGBA(pixel, format.get(), &r, &g, &b, &a);
+      if(pixel != transparent)
         return Vector2<int>(x, y);
     }
   }

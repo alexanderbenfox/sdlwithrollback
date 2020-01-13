@@ -129,4 +129,6 @@ template <> IAction* LoopedAction<StanceState::CROUCHING, ActionState::NONE>::Ha
 
 template <> void LoopedAction<StanceState::JUMPING, ActionState::NONE>::OnUpdate(Entity* actor);
 
-//template LoopedAction<StanceState::STANDING, ActionState::NONE>;
+#ifdef _WIN32
+template LoopedAction<StanceState::STANDING, ActionState::NONE>;
+#endif
