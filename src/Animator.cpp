@@ -63,19 +63,29 @@ Vector2<int> Animation::FindReferencePixel(const char* sheet)
   std::shared_ptr<SDL_PixelFormat> format = std::shared_ptr<SDL_PixelFormat>(SDL_AllocFormat(windowFormat), SDL_FreeFormat);
 
   // Get the pixel data
+  Uint32* upixels;
+
+#ifdef _WIN32
   auto textureInfo = SDLTextureInfo(_texture.Get());
   unsigned char* px = (unsigned char*)textureInfo.pixels;
-  Uint32* upixels = (Uint32*)textureInfo.pixels;
+  upixels = (Uint32*)textureInfo.pixels;
   Uint32 transparent = SDL_MapRGBA(format.get(), px[0], px[1], px[2], 0x00);
+#else
+  upixels = (Uint32*)_texture.GetInfo().pixels.get();
+#endif
 
   for (int y = 0; y < _frameSize.y; y++)
   {
     for (int x = 0; x < _frameSize.x; x++)
     {
       Uint32 pixel = upixels[_sourceRect.w * y + x];
+#ifdef _WIN32
+      if(pixel != transparent)
+#else
       Uint8 r, g, b, a;
       SDL_GetRGBA(pixel, format.get(), &r, &g, &b, &a);
-      if(pixel != transparent)
+      if(a == 0xFF)
+#endif
         return Vector2<int>(x, y);
     }
   }
