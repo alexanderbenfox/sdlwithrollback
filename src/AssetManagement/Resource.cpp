@@ -1,7 +1,9 @@
 #include "AssetManagement/Resource.h"
 #include "GameManagement.h"
 
-#include "SDL.h"
+#include <SDL2/SDL.h>
+
+#include <iostream>
 
 template <typename T>
 void Resource<T>::Unload()
@@ -22,6 +24,12 @@ template <> void Resource<SDL_Texture>::Load()
   {
     SDL_Surface* unformattedSurface = surface;
     surface = SDL_ConvertSurfaceFormat(surface, windowFormat, 0);
+    // Set blend mode for alpha blending
+    if (SDL_SetSurfaceBlendMode(surface, SDL_BLENDMODE_BLEND) != 0)
+    {
+      std::cout << "Setting Blend Mode failed: " << SDL_GetError() << "\n";
+      return;
+    }
     SDL_FreeSurface(unformattedSurface);
     unformattedSurface = NULL;
   }
@@ -32,8 +40,15 @@ template <> void Resource<SDL_Texture>::Load()
     void* pixels;
      // Fill out information for the texture
     SDL_LockTexture(texture, NULL, &pixels, &_info.mPitch);
-    // copy loaded pixels so they can be used again
-    memcpy(pixels, surface->pixels, surface->pitch * surface->h);
+    // copy pixels from old surface to new surface
+    std::memcpy(pixels, surface->pixels, surface->pitch * surface->h);
+
+#ifndef _WIN32
+    //for some reason, i havent been able to lock/unlock textures on mac without wiping them
+    _info.pixels = std::unique_ptr<unsigned char>(new unsigned char[surface->pitch * surface->h]);
+    std::memcpy(_info.pixels.get(), surface->pixels, surface->pitch * surface->h);
+#endif
+
     // Unlock texture so it can update
     SDL_UnlockTexture(texture);
     pixels = nullptr;

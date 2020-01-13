@@ -1,0 +1,52 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "type": "shell",
+      "label": "Build with clang",
+      "command": "clang++",
+      "args": [
+        "-std=c++1z",
+        "-stdlib=libc++",
+        "-Iinclude",
+        "-I/usr/local/include",
+        "src/*.cpp",
+        "src/Components/*.cpp",
+        "src/AssetManagement/*.cpp",
+        "-L/usr/local/lib",
+        "-Fbuild/external/sdl2_mac_libs",
+        "-Wl,-rpath,$(PWD)/build/external/sdl2_mac_libs",
+        "-framework",
+        "SDL2",
+        "-framework",
+        "SDL2_image",
+        "-framework",
+        "SDL2_ttf",
+        "-o",
+        "game.out",
+        "--debug"
+      ],
+      "problemMatcher": [
+        "$gcc"
+      ],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    },
+    {
+      "type": "shell",
+      "label": "clang++ build active file",
+      "command": "/usr/bin/clang++",
+      "args": [
+        "-g",
+        "${file}",
+        "-o",
+        "${fileDirname}/${fileBasenameNoExtension}"
+      ],
+      "options": {
+        "cwd": "/usr/bin"
+      }
+    }
+  ]
+}

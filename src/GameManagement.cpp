@@ -33,27 +33,46 @@ void ResourceManager::Initialize()
 {
   char* basePath = SDL_GetBasePath();
   if (basePath)
+#ifdef _WIN32
     _resourcePath = std::string(basePath) + "..\\..\\..\\resources\\";
+#else
+    _resourcePath = std::string(basePath) + "resources/";
+#endif
   else _resourcePath = "./";
 }
 
 //______________________________________________________________________________
 Texture& ResourceManager::GetTexture(const std::string& file)
 {
-  if (_loadedTextures.find(file) == _loadedTextures.end())
+  auto fileToLoad = file;
+
+#ifndef _WIN32
+  auto split = StringUtils::Split(file, '\\');
+  if(split.size() > 1)
+    fileToLoad = StringUtils::Connect(split.begin(), split.end(), '/');
+#endif
+
+  if (_loadedTextures.find(fileToLoad) == _loadedTextures.end())
   {
-    _loadedTextures.insert(std::make_pair(file, Texture(_resourcePath + file)));
+    _loadedTextures.insert(std::make_pair(fileToLoad, Texture(_resourcePath + fileToLoad)));
   }
-  _loadedTextures[file].Load();
-  return _loadedTextures[file];
+  _loadedTextures[fileToLoad].Load();
+  return _loadedTextures[fileToLoad];
 }
 
 //______________________________________________________________________________
 Vector2<int> ResourceManager::GetTextureWidthAndHeight(const std::string& file)
 {
+  auto fileToQuery = file;
+#ifndef _WIN32
+  auto split = StringUtils::Split(file, '\\');
+  if(split.size() > 1)
+    fileToQuery = StringUtils::Connect(split.begin(), split.end(), '/');
+#endif
+
   int width;
   int height;
-  SDL_QueryTexture(GetTexture(file).Get(), nullptr, nullptr, &width, &height);
+  SDL_QueryTexture(GetTexture(fileToQuery).Get(), nullptr, nullptr, &width, &height);
   return Vector2<int>(width, height);
 }
 
@@ -272,7 +291,7 @@ void GameManager::BeginGameLoop()
     //! Collect inputs from controllers (this means AI controllers as well as Player controllers)
     UpdateInput(&event);
 
-    std::lock_guard lock(_debugMutex);
+    std::lock_guard<std::mutex> lock(_debugMutex);
     //! Update all components
     clock.Update(update);
 

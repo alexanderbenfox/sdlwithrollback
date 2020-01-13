@@ -5,7 +5,7 @@ typedef std::function<void(float)> UpdateFunction;
 class Timer
 {
 public:
-  Timer() : _frames(0.0f)
+  Timer() : _frames(0.0f), fixedTimeStep(true)
   {
     _sdlClock.SetFPS();
   }

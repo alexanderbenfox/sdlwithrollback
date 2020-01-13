@@ -1,8 +1,8 @@
 #pragma once
 
-#include "SDL2/SDL.h"
-#include "SDL2_image/SDL_image.h"
-#include "SDL2/SDL_ttf.h"
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
+#include <SDL2/SDL_ttf.h>
 
 #include <string>
 #include <memory>
@@ -15,6 +15,7 @@ template <> struct ResourceTraits<SDL_Texture>
   int mPitch;
   int mWidth;
   int mHeight;
+  std::unique_ptr<unsigned char> pixels;
 };
 
 template <typename T>
@@ -33,7 +34,7 @@ public:
   T* Get() { return _resource.get(); }
   bool IsLoaded() {return _loaded;}
 
-  ResourceTraits<T>& GetResourceInformation() { return _info; }
+  ResourceTraits<T>& GetInfo() { return _info; }
 
 private:
   bool _loaded;

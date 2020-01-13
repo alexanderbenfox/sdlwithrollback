@@ -43,8 +43,8 @@ void Camera::Init(int w, int h)
 //______________________________________________________________________________
 void Camera::Update(float dt)
 {
-  _rect.x = static_cast<int>(std::floorf(_owner->transform.position.x));
-  _rect.y = static_cast<int>(std::floorf(_owner->transform.position.y));
+  _rect.x = static_cast<int>(std::floor(_owner->transform.position.x));
+  _rect.y = static_cast<int>(std::floor(_owner->transform.position.y));
 
 }
 
@@ -73,7 +73,7 @@ void Physics::Update(float dt)
   _vel += _acc * dt;
 
   // Create the movement vector based on speed and acceleration of the object
-  auto fix = [](float dt) { return (int)std::floorf(10000 * dt) / 10000.0; };
+  auto fix = [](float dt) { return (int)std::floor(10000 * dt) / 10000.0; };
 
   Vector2<double> movementVector = Vector2<double>(_vel.x * fix(dt), _vel.y * fix(dt));
   // Check collisions with other physics objects here and correct the movement vector based on those collisions
