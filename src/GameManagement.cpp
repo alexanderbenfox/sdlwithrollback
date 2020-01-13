@@ -54,7 +54,7 @@ Texture& ResourceManager::GetTexture(const std::string& file)
 
   if (_loadedTextures.find(fileToLoad) == _loadedTextures.end())
   {
-    _loadedTextures.insert(std::make_pair(fileToLoad, Texture(_resourcePath + file)));
+    _loadedTextures.insert(std::make_pair(fileToLoad, Texture(_resourcePath + fileToLoad)));
   }
   _loadedTextures[fileToLoad].Load();
   return _loadedTextures[fileToLoad];
@@ -291,7 +291,7 @@ void GameManager::BeginGameLoop()
     //! Collect inputs from controllers (this means AI controllers as well as Player controllers)
     UpdateInput(&event);
 
-    std::lock_guard lock(_debugMutex);
+    std::lock_guard<std::mutex> lock(_debugMutex);
     //! Update all components
     clock.Update(update);
 

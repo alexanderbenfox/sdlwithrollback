@@ -10,6 +10,9 @@ public:
     return instance;
   }
 
+  float Gravity = 2700.0f;
+  float JumpVelocity = 920.0f;
+
   virtual void ParseCommand(const std::string& command) override
   {
     auto split = StringUtils::Split(command, ' ');
@@ -26,10 +29,7 @@ public:
     }
   }
 
-  virtual std::string GetIdentifier() { return "physics"; }
-
-  float Gravity = 2700.0f;
-  float JumpVelocity = 920.0f;
+  virtual std::string GetIdentifier() override { return "physics"; }
 
 private:
   UniversalPhysicsSettings() = default;

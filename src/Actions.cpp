@@ -88,6 +88,12 @@ void StateLockedAnimatedAction<Stance, Action>::OnUpdate(Entity* actor)
 }
 
 //______________________________________________________________________________
+template <> IAction* StateLockedAnimatedAction<StanceState::CROUCHING, ActionState::NONE>::OnActionComplete(Entity* actor)
+{
+  return new LoopedAction<StanceState::CROUCHING, ActionState::NONE>("Crouch", actor);
+}
+
+//______________________________________________________________________________
 template <> IAction* LoopedAction<StanceState::STANDING, ActionState::NONE>::HandleInput(InputState input, CollisionSide collision, Entity* actor)
 {
   if (collision == CollisionSide::NONE)

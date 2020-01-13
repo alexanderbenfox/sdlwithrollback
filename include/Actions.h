@@ -57,9 +57,9 @@ public:
   //!
   AnimatedAction(const std::string& animation, Entity* actor, Vector2<float> instVeclocity);
   //!
-  virtual void OnUpdate(Entity* actor) = 0;
+  virtual void OnUpdate(Entity* actor) override = 0;
   //!
-  virtual IAction* HandleInput(InputState bttn, CollisionSide collision, Entity* actor) = 0;
+  virtual IAction* HandleInput(InputState bttn, CollisionSide collision, Entity* actor) override = 0;
   //!
   virtual IAction* OnActionComplete(Entity* actor) override { return nullptr; }
   //!
@@ -103,13 +103,10 @@ public:
   virtual IAction* OnActionComplete(Entity* actor) override { return new LoopedAction<Stance, ActionState::NONE>(Stance == StanceState::STANDING ? "Idle" : Stance == StanceState::CROUCHING ? "Crouch" : "Jumping", actor); }
   //!
   virtual IAction* HandleInput(InputState bttn, CollisionSide collision, Entity* actor) override;
-
+  
 };
 
-template <> IAction* StateLockedAnimatedAction<StanceState::CROUCHING, ActionState::NONE>::OnActionComplete(Entity* actor)
-{
-  return new LoopedAction<StanceState::CROUCHING, ActionState::NONE>("Crouch", actor);
-}
+template <> IAction* StateLockedAnimatedAction<StanceState::CROUCHING, ActionState::NONE>::OnActionComplete(Entity* actor);
 
 template <> IAction* LoopedAction<StanceState::STANDING, ActionState::NONE>::HandleInput(InputState input, CollisionSide collision, Entity* actor);
 
@@ -132,4 +129,4 @@ template <> IAction* LoopedAction<StanceState::CROUCHING, ActionState::NONE>::Ha
 
 template <> void LoopedAction<StanceState::JUMPING, ActionState::NONE>::OnUpdate(Entity* actor);
 
-template LoopedAction<StanceState::STANDING, ActionState::NONE>;
+//template LoopedAction<StanceState::STANDING, ActionState::NONE>;

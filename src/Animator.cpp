@@ -41,36 +41,22 @@ void Animation::SetOp(const Transform& transform, SDL_Rect rectOnTex, Vector2<in
 }
 
 Vector2<int> Animation::FindReferencePixel(const char* sheet)
-{
-  //detect the lowest pixel
-  Texture& t = ResourceManager::Get().GetTexture(sheet);
-  // make sure you know the transparent pixels
-  SDL_SetTextureBlendMode(t.Get(), SDL_BLENDMODE_BLEND);
-
-  int pitch;
-  void* pixels;
-  SDL_LockTexture(t.Get(), nullptr, &pixels, &pitch);
-  Uint32* upixels = (Uint32*)pixels;
-
+{ 
   // get the value of a transparent pixel (assume the first top left is transparent)
+  Uint32* upixels = (Uint32*)_texture.GetInfo().pixels.get();
   unsigned char* px = (unsigned char*)upixels;
-  Uint32 transparent = SDL_MapRGBA(SDL_GetWindowSurface(GameManager::Get().GetWindow())->format, px[0], px[1], px[2], 0x00);
-
+  Uint32 windowFormat = SDL_GetWindowPixelFormat(GameManager::Get().GetWindow());
+  std::shared_ptr<SDL_PixelFormat> format = std::shared_ptr<SDL_PixelFormat>(SDL_AllocFormat(windowFormat), SDL_FreeFormat);
   for (int y = 0; y < _frameSize.y; y++)
   {
     for (int x = 0; x < _frameSize.x; x++)
     {
-      Uint32 rgba = upixels[_sourceRect.w * y + x];
-      //unsigned char alpha = ((unsigned char*)&rgba)[3];
-      if (rgba != transparent)
-      {
-        SDL_UnlockTexture(t.Get());
+      Uint8 r, g, b, a;
+      SDL_GetRGBA(upixels[_sourceRect.w * y + x], format.get(), &r, &g, &b, &a);
+      if (a == 0xFF)
         return Vector2<int>(x, y);
-      }
     }
   }
-
-  SDL_UnlockTexture(t.Get());
   return Vector2<int>(0, 0);
 }
 
@@ -135,7 +121,8 @@ void Animator::Play(const std::string& name, bool isLooped)
     _frame = 0;
 
     // set offset by aligning top left non-transparent pixels of each texture
-    _basisOffset = Vector2<int>(_currentAnimation->second.GetRefPxLocation().x - _basisRefPx.x,
+    _basisOffset = Vector2<int>(
+      _currentAnimation->second.GetRefPxLocation().x - _basisRefPx.x,
       _currentAnimation->second.GetRefPxLocation().y - _basisRefPx.y);
 
     if (isLooped)

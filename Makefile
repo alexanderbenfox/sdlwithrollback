@@ -12,7 +12,8 @@ LIBRARY_PATHS = -L/usr/local/lib
 
 #COMPILER_FLAGS specifies the additional compilation options we're using
 # -w suppresses all warnings
-COMPILER_FLAGS = -w
+# -g adds debugging symbols
+COMPILER_FLAGS = -w -g
 
 #FRAMEWORK_PATHS
 FRAMEWORK_PATHS = -Fbuild/external/sdl2_mac_libs -Wl,-rpath,$(PWD)/build/external/sdl2_mac_libs
