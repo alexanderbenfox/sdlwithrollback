@@ -1,5 +1,6 @@
 #pragma once
 #include <algorithm>
+#include <iostream>
 
 enum class CollisionSide : unsigned char
 {
@@ -39,6 +40,20 @@ public:
   Vector2<T> Unit();
   T Dot(const Vector2<T>& other);
   T Magnitude();
+
+  friend std::ostream& operator<<(std::ostream& os, const Vector2& vec)
+  {
+    os << vec.x;
+    os << vec.y;
+    return os;
+  }
+
+  friend std::istream& operator>>(std::istream& is, Vector2& vec)
+  {
+    is >> vec.x;
+    is >> vec.y ;
+    return is;
+  }
 
   static Vector2<T> Zero(){ return Vector2<T>(static_cast<T>(0), static_cast<T>(0)); }
 };
@@ -88,6 +103,21 @@ public:
 
   const Vector2<T>& Beg() const { return _beg; }
   const Vector2<T>& End() const { return _end; }
+
+  friend std::ostream& operator<<(std::ostream& os, const Rect& rect)
+  {
+    os << rect._beg;
+    os << rect._end;
+    return os;
+  }
+
+  friend std::istream& operator>>(std::istream& is, Rect& rect)
+  {
+    is >> rect._beg;
+    is >> rect._end;
+    return is;
+  }
+
 
 private:
   Vector2<T> _beg;

@@ -76,7 +76,7 @@ protected:
 class Sprite : public IComponent
 {
 public:
-  Sprite(std::shared_ptr<Entity> owner) : IComponent(owner) {}
+  Sprite(std::shared_ptr<Entity> owner) : _op(nullptr), IComponent(owner) {}
 
   void Init(const char* sheet);
 
@@ -114,6 +114,9 @@ public:
 
   int GetShowingFrame() const { return _frame; }
 
+  friend std::ostream& operator<<(std::ostream& os, const Animator& animator);
+  friend std::istream& operator>>(std::istream& is, Animator& animator);
+
 protected:
   //!
   const float _secPerFrame = 1.0f / animation_fps;
@@ -122,24 +125,23 @@ protected:
   //! Blitter op used on this frame
   ResourceManager::BlitOperation* _op;
 
+  // STATE VARIABLES
   //!
   bool _playing;
-
-
   //!
   float _accumulatedTime;
   //!
   int _frame;
   //!
-  Vector2<int> _basisOffset;
-  //!
-  Vector2<int> _basisRefPx;
-
-  //!
   std::string _currentAnimationName;
   //!
   std::unordered_map<std::string, Animation>::iterator _currentAnimation;
-  //
+  
+  //!
+  Vector2<int> _basisOffset;
+  //!
+  Vector2<int> _basisRefPx;
+  //!
   std::function<int(int)> _nextFrameOp;
   //
   std::function<int(int)> _loopAnimGetNextFrame = [this](int framesToAdv) { return (_frame + framesToAdv) % _currentAnimation->second.GetFrameCount(); };

@@ -50,6 +50,17 @@ public:
   //!
   Rect<T> rect;
 
+  friend std::ostream& operator<<(std::ostream& os, const RectCollider& collider)
+  {
+    os << collider.rect;
+    return os;
+  }
+
+  friend std::istream& operator>>(std::istream& is, RectCollider& collider)
+  {
+    is >> collider.rect;
+    return is;
+  }
 };
 
 typedef RectCollider<double> RectColliderD;

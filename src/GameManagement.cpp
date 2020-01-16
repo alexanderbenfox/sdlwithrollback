@@ -1,7 +1,6 @@
 #include "GameManagement.h"
 #include "Timer.h"
 
-#include "Input.h"
 #include <iostream>
 
 #include "ResourceManager.h"
@@ -19,9 +18,6 @@
 #include <thread>
 #include <iostream>
 #endif
-
-const int m_nativeWidth = 600;
-const int m_nativeHeight = 400;
 
 static double widthToScreenWidth = 1.0;
 static double heightToScreenHeight = 1.0f;
@@ -129,64 +125,11 @@ void GameManager::Initialize()
   SDL_Init(SDL_INIT_EVERYTHING);
   TTF_Init();
 
-  //SDL_CreateWindowAndRenderer(ScreenWidth, ScreenHeight, 0, &_window, &_renderer);
   _window = SDL_CreateWindow(Title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
     m_nativeWidth, m_nativeHeight,
     SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
 
   _renderer = SDL_CreateRenderer(_window, -1, SDL_RENDERER_ACCELERATED);
-
-  //SDL_SetWindowTitle(_window, Title);
-  
-  //create game entities
-
-  auto camera = CreateEntity<Camera>();
-  camera->GetComponent<Camera>()->Init(m_nativeWidth, m_nativeHeight);
-  _mainCamera = camera->GetComponent<Camera>();
-
-  Vector2<int> textureSize = ResourceManager::Get().GetTextureWidthAndHeight("spritesheets\\ryu.png");
-
-  auto sprite = CreateEntity<Animator, Physics, GameActor, RectColliderD>();
-
-  sprite->GetComponent<Animator>()->Init();
-  sprite->GetComponent<Animator>()->RegisterAnimation("Idle", "spritesheets\\idle_and_walking.png", 6, 6, 0, 10);
-  sprite->GetComponent<Animator>()->RegisterAnimation("WalkF", "spritesheets\\idle_and_walking.png", 6, 6, 10, 12);
-  sprite->GetComponent<Animator>()->RegisterAnimation("WalkB", "spritesheets\\idle_and_walking.png", 6, 6, 22, 11);
-
-  sprite->GetComponent<Animator>()->RegisterAnimation("Jumping", "spritesheets\\idle_walking_jab_jump_crouch.png", 8, 10, 41, 19);
-  sprite->GetComponent<Animator>()->RegisterAnimation("Falling", "spritesheets\\idle_walking_jab_jump_crouch.png", 8, 10, 60, 13);
-
-  sprite->GetComponent<Animator>()->RegisterAnimation("Crouching", "spritesheets\\crouching.png", 4, 5, 0, 4);
-  sprite->GetComponent<Animator>()->RegisterAnimation("Crouch", "spritesheets\\crouching.png", 4, 5, 12, 5);
-
-  sprite->GetComponent<Animator>()->RegisterAnimation("CrouchingLight", "spritesheets\\grounded_attacks.png", 8, 10, 9, 7);
-  sprite->GetComponent<Animator>()->RegisterAnimation("CrouchingMedium", "spritesheets\\grounded_attacks.png", 8, 10, 16, 11);
-  sprite->GetComponent<Animator>()->RegisterAnimation("CrouchingHeavy", "spritesheets\\grounded_attacks.png", 8, 10, 27, 11);
-  sprite->GetComponent<Animator>()->RegisterAnimation("StandingLight", "spritesheets\\grounded_attacks.png", 8, 10, 40, 6);
-  sprite->GetComponent<Animator>()->RegisterAnimation("StandingMedium", "spritesheets\\grounded_attacks.png", 8, 10, 46, 9);
-  sprite->GetComponent<Animator>()->RegisterAnimation("StandingHeavy", "spritesheets\\grounded_attacks.png", 8, 10, 55, 13);
-  sprite->GetComponent<Animator>()->RegisterAnimation("JumpingLight", "spritesheets\\jlp.png", 4, 4, 0, 14);
-  sprite->GetComponent<Animator>()->RegisterAnimation("JumpingMedium", "spritesheets\\jlp.png", 4, 4, 0, 14);
-  sprite->GetComponent<Animator>()->RegisterAnimation("JumpingHeavy", "spritesheets\\jlp.png", 4, 4, 0, 14);
-
-  sprite->GetComponent<Animator>()->Play("Idle", true);
-
-  sprite->GetComponent<RectColliderD>()->Init(Vector2<double>(0.0, 0.0),
-    Vector2<double>(static_cast<double>(textureSize.x), static_cast<double>(textureSize.y)));
-  sprite->GetComponent<RectColliderD>()->SetStatic(false);
-  _player = sprite->GetComponent<GameActor>();
-
-  sprite->SetScale(Vector2<float>(1.4f, 1.7f));
-  
-  /*auto staticBoy = CreateEntity<Animator, RectColliderD>();
-  float startPosX = staticBoy->transform.position.x = 200.0f;
-  float startPosY = staticBoy->transform.position.y = 200.0f;
-
-  staticBoy->GetComponent<Animator>()->Init();
-  staticBoy->GetComponent<Animator>()->RegisterAnimation("Idle", "spritesheets\\idle.png", 3, 4, 0, 10);
-  staticBoy->GetComponent<Animator>()->Play("Idle", true);
-  staticBoy->GetComponent<RectColliderD>()->Init(Vector2<double>(startPosX, startPosY), Vector2<double>(startPosX + textureSize.x, startPosY + textureSize.y));
-  staticBoy->GetComponent<RectColliderD>()->SetStatic(true);*/
 
   auto bottomBorder = CreateEntity<Sprite, RectColliderD>();
   bottomBorder->transform.position.x = 0.0;
@@ -196,6 +139,14 @@ void GameManager::Initialize()
   bottomBorder->GetComponent<RectColliderD>()->SetStatic(true);
 
 
+  KeyboardInputHandler* kb1 = new KeyboardInputHandler();
+  KeyboardInputHandler* kb2 = new KeyboardInputHandler();
+  kb2->SetKey(SDLK_UP, InputState::UP);
+  kb2->SetKey(SDLK_DOWN, InputState::DOWN);
+  kb2->SetKey(SDLK_RIGHT, InputState::RIGHT);
+  kb2->SetKey(SDLK_LEFT, InputState::LEFT);
+
+  _gameState = std::unique_ptr<IGameState>(new LocalMatch(kb1, kb2));
 }
 
 //______________________________________________________________________________
@@ -210,15 +161,12 @@ void GameManager::Destroy()
   SDL_Quit();
   TTF_Quit();
 
-  _player.reset();
-  _mainCamera.reset();
   _gameEntities.clear();
 }
 
 //______________________________________________________________________________
 void GameManager::BeginGameLoop()
 {
-  SDL_Event event;
   Timer clock;
   //start the timer
   clock.Start();
@@ -229,10 +177,102 @@ void GameManager::BeginGameLoop()
   //FrameFunction draw = std::bind(&GameManager::Draw, this);
 
   bool programRunning = true;
-#ifdef _DEBUG
-  std::thread debugger([this, &programRunning]()
+  std::thread debuggerThread;
+  RunScripter(debuggerThread, programRunning);
+
+  for (;;)
   {
-    while(programRunning)
+    //! Do pre-input set up stuff
+    for (auto sprite : ComponentManager<Sprite>::Get().All())
+      sprite->OnFrameBegin();
+    for (auto animator : ComponentManager<Animator>::Get().All())
+      animator->OnFrameBegin();
+
+
+    //! Collect inputs from controllers (this means AI controllers as well as Player controllers)
+    UpdateInput();
+
+    std::lock_guard<std::mutex> lock(_debugMutex);
+    //! Update all components
+    clock.Update(update);
+
+    //! Finally render the scene
+    Draw();
+
+    //! Do post-frame resolution stuff
+    for (auto actor : ComponentManager<GameActor>::Get().All())
+      actor->OnFrameEnd();
+  }
+
+  programRunning = false;
+}
+
+//______________________________________________________________________________
+Camera* GameManager::GetMainCamera()
+{
+  return _gameState->GetCamera();
+}
+
+//______________________________________________________________________________
+void GameManager::Update(float deltaTime)
+{
+  // update acting units' state machine
+  ComponentManager<GameActor>::Get().Update(deltaTime);
+  // resolve collisions
+  ComponentManager<Physics>::Get().Update(deltaTime);
+  // update the location of the colliders
+  ComponentManager<RectColliderD>::Get().Update(deltaTime);
+
+  // update rendered components last
+  ComponentManager<Sprite>::Get().Update(deltaTime);
+  // update animation state
+  ComponentManager<Animator>::Get().Update(deltaTime);
+}
+
+//______________________________________________________________________________
+void GameManager::UpdateInput()
+{
+  // Process local input first
+  //! Check for quit
+  if (SDL_PollEvent(&_localInput)) {
+    if (_localInput.type == SDL_QUIT)
+    {
+      return;
+    }
+    if (_localInput.type == SDL_WINDOWEVENT)
+    {
+      if (_localInput.window.event == SDL_WINDOWEVENT_RESIZED)
+      {
+        Vector2<int> newWindowSize(_localInput.window.data1, _localInput.window.data2);
+        widthToScreenWidth = static_cast<double>(newWindowSize.x) / static_cast<double>(m_nativeWidth);
+        heightToScreenHeight = static_cast<double>(newWindowSize.y) / static_cast<double>(m_nativeHeight);
+        SDL_RenderSetScale(_renderer, static_cast<float>(widthToScreenWidth), static_cast<float>(heightToScreenHeight));
+      }
+    }
+  }
+  _gameState->ProcessInputs(&_localInput);
+}
+
+//______________________________________________________________________________
+void GameManager::Draw()
+{
+  //clear last frame graphics
+  SDL_RenderClear(_renderer);
+
+  // resource manager draw here?
+  ResourceManager::Get().BlitSprites();
+
+  //present this frame
+  SDL_RenderPresent(_renderer);
+}
+
+//______________________________________________________________________________
+void GameManager::RunScripter(std::thread& t, bool& programRunning)
+{
+#ifdef _DEBUG
+  t = std::thread([this, &programRunning]()
+  {
+    while (programRunning)
     {
       std::cout << "Example: 'entity0 transform set scale x 0.5'" << "\n";
       std::string command;
@@ -257,96 +297,9 @@ void GameManager::BeginGameLoop()
         UniversalPhysicsSettings::Get().ParseCommand(StringUtils::Connect(split.begin() + 1, split.end(), ' '));
       }
     }
-
   });
 #endif
-
-  for (;;)
-  {
-    //! Check for quit
-    if (SDL_PollEvent(&event)) {
-      if (event.type == SDL_QUIT)
-      {
-        return;
-      }
-      if (event.type == SDL_WINDOWEVENT)
-      {
-        if (event.window.event == SDL_WINDOWEVENT_RESIZED)
-        {
-          Vector2<int> newWindowSize(event.window.data1, event.window.data2);
-          widthToScreenWidth = static_cast<double>(newWindowSize.x) / static_cast<double>(m_nativeWidth);
-          heightToScreenHeight = static_cast<double>(newWindowSize.y) / static_cast<double>(m_nativeHeight);
-          SDL_RenderSetScale(_renderer, static_cast<float>(widthToScreenWidth), static_cast<float>(heightToScreenHeight));
-        }
-      }
-    }
-
-    //! Do pre-input set up stuff
-    for (auto sprite : ComponentManager<Sprite>::Get().All())
-      sprite->OnFrameBegin();
-    for (auto animator : ComponentManager<Animator>::Get().All())
-      animator->OnFrameBegin();
-
-
-    //! Collect inputs from controllers (this means AI controllers as well as Player controllers)
-    UpdateInput(&event);
-
-    std::lock_guard<std::mutex> lock(_debugMutex);
-    //! Update all components
-    clock.Update(update);
-
-    //! Finally render the scene
-    Draw();
-
-    //! Do post-frame resolution stuff
-    for (auto actor : ComponentManager<GameActor>::Get().All())
-      actor->OnFrameEnd();
-  }
-
-  programRunning = false;
 }
 
 //______________________________________________________________________________
-void GameManager::Update(float deltaTime)
-{
-  // update acting units' state machine
-  ComponentManager<GameActor>::Get().Update(deltaTime);
-  // resolve collisions
-  ComponentManager<Physics>::Get().Update(deltaTime);
-  // update the location of the colliders
-  ComponentManager<RectColliderD>::Get().Update(deltaTime);
-
-  // update rendered components last
-  ComponentManager<Sprite>::Get().Update(deltaTime);
-  // update animation state
-  ComponentManager<Animator>::Get().Update(deltaTime);
-}
-
-//______________________________________________________________________________
-void GameManager::UpdateInput(SDL_Event* event)
-{
-  //update keys pressed here
-  auto command = std::unique_ptr<ICommand>(_playerInput->HandleInput(event));
-
-  if (command)
-    command->Execute(_player.get());
-}
-
-//______________________________________________________________________________
-void GameManager::Draw()
-{
-  //clear last frame graphics
-  SDL_RenderClear(_renderer);
-
-  // resource manager draw here?
-  ResourceManager::Get().BlitSprites();
-
-  //present this frame
-  SDL_RenderPresent(_renderer);
-}
-
-//______________________________________________________________________________
-GameManager::GameManager() : _initialized(false)
-{
-  _playerInput = std::unique_ptr<IInputHandler>(new KeyboardInputHandler());
-}
+GameManager::GameManager() : _initialized(false) {}

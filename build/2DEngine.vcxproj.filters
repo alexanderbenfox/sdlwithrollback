@@ -25,6 +25,12 @@
     <Filter Include="Source Files\Components">
       <UniqueIdentifier>{412609cc-e69d-4609-9a12-8fc422c0fa72}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\GameState">
+      <UniqueIdentifier>{f063e62c-d3be-4c16-a13d-55541016b33e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\GameState">
+      <UniqueIdentifier>{13870320-bc90-48d8-94ab-09362b8bc983}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\2DEngine.cpp">
@@ -53,6 +59,12 @@
     </ClCompile>
     <ClCompile Include="..\src\Animator.cpp">
       <Filter>Source Files\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\GameState\GameState.cpp">
+      <Filter>Source Files\GameState</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\GameState\GGPOGameState.cpp">
+      <Filter>Source Files\GameState</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -109,6 +121,12 @@
     </ClInclude>
     <ClInclude Include="..\include\Utils.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\GameState\GameState.h">
+      <Filter>Header Files\GameState</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\GameState\GGPOGameState.h">
+      <Filter>Header Files\GameState</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

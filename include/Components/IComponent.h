@@ -3,6 +3,8 @@
 
 #include "ResourceManager.h"
 
+#include <iostream>
+
 
 const float avg_animation_fps = 24.0f;
 const float third_strike_fps = 16.0f;
@@ -27,7 +29,7 @@ public:
   virtual void OnFrameBegin() {}
   //!
   virtual void OnFrameEnd() {}
-  //!
+
 protected:
   std::shared_ptr<Entity> _owner;
   

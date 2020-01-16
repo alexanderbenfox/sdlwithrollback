@@ -30,9 +30,9 @@ InputState operator&(InputState a, InputState b)
 }
 
 //______________________________________________________________________________
-InputState operator~(InputState og)
+InputState operator~(InputState const& other)
 {
-  return (InputState)~((unsigned char)og);
+  return (InputState)~((unsigned char)other);
 }
 
 //______________________________________________________________________________
@@ -69,7 +69,7 @@ ICommand* KeyboardInputHandler::HandleInput(SDL_Event* input)
       frameState |= _config[key];
       break;
     case SDL_KEYUP:
-      frameState &= (~_config[key]);
+      frameState &= (~(InputState)_config[key]);
       break;
     }
   }
@@ -154,7 +154,7 @@ ICommand* JoystickInputHandler::HandleInput(SDL_Event* input)
     case SDL_JOYBUTTONUP:
       if(input->jbutton.which == _joyStickID)
       {
-        frameState &= (~_config[input->jbutton.button]);
+        frameState &= (~(InputState)_config[input->jbutton.button]);
       }
       break;
     }

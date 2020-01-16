@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -26,6 +26,8 @@
     <ClCompile Include="..\src\Components\Components.cpp" />
     <ClCompile Include="..\src\Entity.cpp" />
     <ClCompile Include="..\src\GameManagement.cpp" />
+    <ClCompile Include="..\src\GameState\GameState.cpp" />
+    <ClCompile Include="..\src\GameState\GGPOGameState.cpp" />
     <ClCompile Include="..\src\Geometry.cpp" />
     <ClCompile Include="..\src\Input.cpp" />
   </ItemGroup>
@@ -42,6 +44,8 @@
     <ClInclude Include="..\include\Components\Sprite.h" />
     <ClInclude Include="..\include\Entity.h" />
     <ClInclude Include="..\include\GameManagement.h" />
+    <ClInclude Include="..\include\GameState\GameState.h" />
+    <ClInclude Include="..\include\GameState\GGPOGameState.h" />
     <ClInclude Include="..\include\Geometry.h" />
     <ClInclude Include="..\include\Input.h" />
     <ClInclude Include="..\include\ResourceManager.h" />
@@ -73,7 +77,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
@@ -142,7 +146,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\include;external\sdl2-ttf_x64-windows\include;external\sdl2-image_x64-windows\include;external\sdl2_x64-windows\include\SDL2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>external\include;..\include;external\sdl2-ttf_x64-windows\include;external\sdl2-image_x64-windows\include;external\sdl2_x64-windows\include\SDL2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
@@ -186,7 +190,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\include;external\sdl2-ttf_x64-windows\include;external\sdl2-image_x64-windows\include;external\sdl2_x64-windows\include\SDL2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>external\include;..\include;external\sdl2-ttf_x64-windows\include;external\sdl2-image_x64-windows\include;external\sdl2_x64-windows\include\SDL2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>

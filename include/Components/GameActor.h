@@ -36,6 +36,10 @@ public:
 
   bool IsPerformingAction() const { return _currentAction != nullptr; }
 
+  friend std::ostream& operator<<(std::ostream& os, const GameActor& actor);
+  friend std::istream& operator>>(std::istream& is, GameActor& actor);
+
+
 private:
   //!
   IAction* _currentAction;

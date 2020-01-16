@@ -243,5 +243,67 @@ void GameActor::HandleInput(InputState input)
   }
 }
 
+std::ostream& operator<<(std::ostream& os, const GameActor& actor)
+{
+  // need to figure out how to get the "_currentAction" into a serializable state...
+  os << (unsigned char)actor._lastInput;
+  os << (unsigned char)actor._lastCollision;
+  os << actor._newState;
+  return os;
+}
+
+std::istream& operator>>(std::istream& is, GameActor& actor)
+{
+  unsigned char lastInput, lastCollision;
+  is >> lastInput;
+  is >> lastCollision;
+  is >> actor._newState;
+
+  actor._lastInput = (InputState)lastInput;
+  actor._lastCollision = (CollisionSide)lastCollision;
+  return is;
+}
+
+std::ostream& operator<<(std::ostream& os, const Physics& phys)
+{
+  os << phys._vel;
+  os << phys._acc;
+  return os;
+}
+
+std::istream& operator>>(std::istream& is, Physics& phys)
+{
+  is >> phys._vel;
+  is >> phys._acc;
+  return is;
+}
+
+std::ostream& operator<<(std::ostream& os, const Animator& animator)
+{
+  os << animator._playing;
+  os << animator._accumulatedTime;
+  os << animator._frame;
+  os << animator._currentAnimationName;
+  return os;
+}
+
+std::istream& operator>>(std::istream& is, Animator& animator)
+{
+  is >> animator._playing;
+  is >> animator._accumulatedTime;
+  is >> animator._frame;
+  is >> animator._currentAnimationName;
+  animator._currentAnimation = animator._animations.find(animator._currentAnimationName);
+
+  animator._basisOffset = Vector2<int>(
+    animator._currentAnimation->second.GetRefPxLocation().x - animator._basisRefPx.x,
+    animator._currentAnimation->second.GetRefPxLocation().y - animator._basisRefPx.y);
+
+  return is;
+}
+
+
+
+
 
 template class RectCollider<double>;

@@ -56,6 +56,9 @@ public:
 
   const Vector2<float>& GetVelocity() { return _vel; }
 
+  friend std::ostream& operator<<(std::ostream& os, const Physics& phys);
+  friend std::istream& operator>>(std::istream& is, Physics& phys);
+
 private:
   CollisionSide _lastCollisionSide;
   //!

@@ -1,6 +1,7 @@
 #pragma once
 #include <SDL2/SDL.h>
 #include <unordered_map>
+#include "Utils.h"
 
 class ICommand;
 
@@ -25,7 +26,7 @@ void operator&=(InputState& the, InputState other);
 //______________________________________________________________________________
 InputState operator&(InputState a, InputState b);
 //______________________________________________________________________________
-InputState operator~(InputState og);
+InputState operator~(InputState const& other);
 //______________________________________________________________________________
 static bool HasState(const InputState& state, InputState other) { return (state & other) == other; }
 
@@ -55,12 +56,17 @@ public:
   ~KeyboardInputHandler();
   //!
   virtual ICommand* HandleInput(SDL_Event* input) final;
+  //!
+  virtual void SetKey(SDL_Keycode keyCode, InputState action)
+  {
+    _config[keyCode] = action;
+  }
 
 private:
   //!
   const uint8_t* _keyStates = nullptr;
   //!
-  std::unordered_map<SDL_Keycode, InputState> _config;
+  ConfigMap<SDL_Keycode, InputState> _config;
 
 };
 
@@ -82,6 +88,6 @@ private:
   //!
   const int _joyStickID = 0;
   //!
-  std::unordered_map<uint8_t, InputState> _config;
+  ConfigMap<uint8_t, InputState> _config;
   
 };

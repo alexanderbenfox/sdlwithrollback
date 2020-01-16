@@ -25,6 +25,9 @@ struct Transform
   Vector2<float> position;
   Vector2<float> scale;
   Vector2<float> rotation;
+
+  friend std::ostream& operator<<(std::ostream& os, const Transform& transform);
+  friend std::istream& operator>>(std::istream& is, Transform& transform);
 };
 
 //______________________________________________________________________________
