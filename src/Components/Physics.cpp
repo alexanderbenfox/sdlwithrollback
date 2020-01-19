@@ -177,3 +177,6 @@ template <> void ComponentManager<Physics>::PostUpdate()
     }
   }
 }
+
+template void ComponentManager<Physics>::PostUpdate();
+template void ComponentManager<Physics>::PreUpdate();

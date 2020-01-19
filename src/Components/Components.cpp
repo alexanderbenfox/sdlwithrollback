@@ -205,8 +205,4 @@ std::istream& operator>>(std::istream& is, Animator& animator)
   return is;
 }
 
-
-
-
-
 template class RectCollider<double>;
