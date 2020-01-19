@@ -29,6 +29,10 @@ public:
   virtual void OnFrameBegin() {}
   //!
   virtual void OnFrameEnd() {}
+  //!
+  virtual void PreUpdate() {}
+  //!
+  virtual void PostUpdate() {}
 
 protected:
   std::shared_ptr<Entity> _owner;

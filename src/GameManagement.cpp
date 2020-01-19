@@ -130,6 +130,7 @@ void GameManager::Initialize()
     SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
 
   _renderer = SDL_CreateRenderer(_window, -1, SDL_RENDERER_ACCELERATED);
+  SDL_SetRenderDrawBlendMode(_renderer, SDL_BLENDMODE_BLEND);
 
   auto bottomBorder = CreateEntity<Sprite, RectColliderD>();
   bottomBorder->transform.position.x = 0.0;
@@ -137,7 +138,6 @@ void GameManager::Initialize()
   bottomBorder->GetComponent<Sprite>()->Init("spritesheets\\ryu.png");
   bottomBorder->GetComponent<RectColliderD>()->Init(Vector2<double>(0, m_nativeHeight - 40), Vector2<double>(m_nativeWidth, m_nativeHeight + 5000.0f));
   bottomBorder->GetComponent<RectColliderD>()->SetStatic(true);
-
 
   KeyboardInputHandler* kb1 = new KeyboardInputHandler();
   KeyboardInputHandler* kb2 = new KeyboardInputHandler();
@@ -188,7 +188,6 @@ void GameManager::BeginGameLoop()
     for (auto animator : ComponentManager<Animator>::Get().All())
       animator->OnFrameBegin();
 
-
     //! Collect inputs from controllers (this means AI controllers as well as Player controllers)
     UpdateInput();
 
@@ -216,6 +215,9 @@ Camera* GameManager::GetMainCamera()
 //______________________________________________________________________________
 void GameManager::Update(float deltaTime)
 {
+  //====PREUPDATE=====//
+  ComponentManager<Physics>::Get().PreUpdate();
+
   // update acting units' state machine
   ComponentManager<GameActor>::Get().Update(deltaTime);
   // resolve collisions
@@ -227,6 +229,11 @@ void GameManager::Update(float deltaTime)
   ComponentManager<Sprite>::Get().Update(deltaTime);
   // update animation state
   ComponentManager<Animator>::Get().Update(deltaTime);
+
+  //====POSTUPDATE=====//
+  ComponentManager<Physics>::Get().PostUpdate();
+  // update the location of the colliders (again)
+  ComponentManager<RectColliderD>::Get().Update(deltaTime);
 }
 
 //______________________________________________________________________________

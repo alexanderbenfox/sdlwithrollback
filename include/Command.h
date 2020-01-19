@@ -18,7 +18,7 @@ class InGameCommand : public ICommand
 public:
   InGameCommand(InputState input) : _input(input) {}
   virtual void Execute(GameActor* actor) override;
-  virtual InputState GetInput() { return _input; }
+  virtual InputState GetInput() override { return _input; }
 private:
   InputState _input;
 };

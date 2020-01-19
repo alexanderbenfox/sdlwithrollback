@@ -15,15 +15,14 @@ void Resource<T>::Unload()
 template <> void Resource<SDL_Texture>::Load()
 {
   if (_loaded) return;
-
+  
   Uint32 windowFormat = SDL_GetWindowPixelFormat(GameManager::Get().GetWindow());
-
-  //auto surface = ResourceManager::Get().GetRawImage(_pathToResource.c_str());
   SDL_Surface* surface = IMG_Load(_pathToResource.c_str());
   if (surface)
   {
     SDL_Surface* unformattedSurface = surface;
     surface = SDL_ConvertSurfaceFormat(surface, windowFormat, 0);
+    SDL_SetSurfaceAlphaMod(surface, 0);
     // Set blend mode for alpha blending
     if (SDL_SetSurfaceBlendMode(surface, SDL_BLENDMODE_BLEND) != 0)
     {
@@ -36,7 +35,7 @@ template <> void Resource<SDL_Texture>::Load()
   if (surface)
   {
     SDL_Texture* texture = SDL_CreateTexture(GameManager::Get().GetRenderer(), windowFormat, SDL_TEXTUREACCESS_STREAMING, surface->w, surface->h);
-
+    SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
     void* pixels;
      // Fill out information for the texture
     SDL_LockTexture(texture, NULL, &pixels, &_info.mPitch);

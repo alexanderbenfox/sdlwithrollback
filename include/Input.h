@@ -2,7 +2,6 @@
 #include <SDL2/SDL.h>
 #include <unordered_map>
 #include "Utils.h"
-#include <GGPO/ggponet.h>
 
 class ICommand;
 
@@ -37,6 +36,8 @@ template <class InputSource>
 class IInputHandler
 {
 public:
+  IInputHandler() : _lastFrameState(InputState::NONE) {}
+  //! Destructor
   virtual ~IInputHandler() {}
   //! Gets the command based on the type of input received from the controller
   virtual InputState HandleInput(InputSource* input) = 0;
@@ -94,6 +95,9 @@ private:
   
 };
 
+#ifdef _WIN32
+#include <GGPO/ggponet.h>
+
 struct GGPOInput
 {
   GGPOSession* session;
@@ -107,9 +111,11 @@ class GGPOInputHandler : public IInputHandler<GGPOInput>
 {
 public:
   //!
-  GGPOInputHandler() {}
+  GGPOInputHandler() : IInputHandler() {}
   //!
   ~GGPOInputHandler() {}
   //!
   virtual InputState HandleInput(GGPOInput* input) final;
 };
+
+#endif

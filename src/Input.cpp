@@ -1,7 +1,6 @@
 #include "Input.h"
 #include "Command.h"
 #include "Components/GameActor.h"
-#include "GGPO/ggponet.h"
 
 //______________________________________________________________________________
 void InGameCommand::Execute(GameActor* actor)
@@ -37,7 +36,7 @@ InputState operator~(InputState const& other)
 }
 
 //______________________________________________________________________________
-KeyboardInputHandler::KeyboardInputHandler()
+KeyboardInputHandler::KeyboardInputHandler() : IInputHandler()
 {
   //assign direction buttons
   _config[SDLK_w] = InputState::UP;
@@ -80,7 +79,7 @@ InputState KeyboardInputHandler::HandleInput(SDL_Event* input)
 }
 
 //______________________________________________________________________________
-JoystickInputHandler::JoystickInputHandler()
+JoystickInputHandler::JoystickInputHandler() : IInputHandler()
 {
   if(SDL_NumJoysticks() < 1) {}
   else
@@ -163,6 +162,7 @@ InputState JoystickInputHandler::HandleInput(SDL_Event* input)
   return frameState;
 }
 
+#ifdef _WIN32
 //______________________________________________________________________________
 InputState GGPOInputHandler::HandleInput(GGPOInput* input)
 {
@@ -182,3 +182,4 @@ InputState GGPOInputHandler::HandleInput(GGPOInput* input)
   return InputState::NONE;
 
 }
+#endif

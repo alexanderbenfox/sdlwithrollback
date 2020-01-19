@@ -46,6 +46,8 @@ public:
   //!
   void Init(Vector2<T> beg, Vector2<T> end);
   //!
+  void MoveUnit(Vector2<T> movement);
+  //!
   virtual void Update(float dt) override;
   //!
   Rect<T> rect;

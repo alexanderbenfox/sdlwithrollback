@@ -33,6 +33,7 @@ std::istream& operator>>(std::istream& is, LocalPlayer& player)
   return is;
 }
 
+#ifdef _WIN32
 void NetworkPlayer::ExecuteInput(ICommand* command)
 {
   if (command)
@@ -58,3 +59,4 @@ std::istream& operator>>(std::istream& is, NetworkPlayer& player)
   is >> *player.actor->GetComponent<RectColliderD>();
   return is;
 }
+#endif

@@ -48,15 +48,18 @@ LocalPlayer EntityCreation::CreateLocalPlayer(IInputHandler<SDL_Event>* input, f
   player->GetComponent<Animator>()->Play("Idle", true);
 
   player->GetComponent<RectColliderD>()->Init(Vector2<double>(xOffset, 0.0),
-    Vector2<double>(static_cast<double>(textureSize.x), static_cast<double>(textureSize.y)));
+    Vector2<double>(xOffset + static_cast<double>(textureSize.x), static_cast<double>(textureSize.y)));
   player->GetComponent<RectColliderD>()->SetStatic(false);
 
   player->SetScale(Vector2<float>(1.4f, 1.7f));
   player->transform.position.x = xOffset;
 
+  player->GetComponent<RectColliderD>()->Update(0);
+
   return LocalPlayer(input, player);
 }
 
+#ifdef _WIN32
 NetworkPlayer EntityCreation::CreateNetworkPlayer(IInputHandler<GGPOInput>* input, float xOffset)
 {
   Vector2<int> textureSize = ResourceManager::Get().GetTextureWidthAndHeight("spritesheets\\ryu.png");
@@ -95,6 +98,7 @@ NetworkPlayer EntityCreation::CreateNetworkPlayer(IInputHandler<GGPOInput>* inpu
 
   return NetworkPlayer(input, player);
 }
+#endif
 
 std::shared_ptr<Camera> EntityCreation::CreateCamera()
 {

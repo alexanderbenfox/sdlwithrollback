@@ -17,10 +17,34 @@ public:
     return _components.back();
   }
 
+  void OnFrameBegin()
+  {
+    for(auto comp : _components)
+      comp->OnFrameBegin();
+  }
+
+  void PreUpdate()
+  {
+    for (auto comp : _components)
+      comp->PreUpdate();
+  }
+
   void Update(float dt)
   {
     for (auto comp : _components)
       comp->Update(dt);
+  }
+
+  void PostUpdate()
+  {
+    for (auto comp : _components)
+      comp->PostUpdate();
+  }
+
+  void OnFrameEnd()
+  {
+    for (auto comp : _components)
+      comp->OnFrameEnd();
   }
 
   std::vector<std::shared_ptr<T>>& All() { return _components; }
@@ -33,3 +57,4 @@ private:
   ComponentManager(const ComponentManager&) = delete;
   ComponentManager<T> operator=(ComponentManager&) = delete;
 };
+

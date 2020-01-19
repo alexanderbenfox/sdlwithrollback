@@ -62,115 +62,18 @@ bool Camera::EntityInDisplay(const ResourceManager::BlitOperation* entity)
 }
 
 //______________________________________________________________________________
-void Physics::Update(float dt)
-{
-  _acc = Vector2<float>(0, UniversalPhysicsSettings::Get().Gravity);
-  if (auto rCollider = _owner->GetComponent<RectColliderD>())
-  {
-    if (rCollider->IsStatic()) _acc = Vector2<float>(0, 0);
-  }
-  // Apply last frame of acceleration to the velocity
-  _vel += _acc * dt;
-
-  // Create the movement vector based on speed and acceleration of the object
-  auto fix = [](float dt) { return (int)std::floor(10000 * dt) / 10000.0; };
-
-  Vector2<double> movementVector = Vector2<double>(_vel.x * fix(dt), _vel.y * fix(dt));
-  // Check collisions with other physics objects here and correct the movement vector based on those collisions
-  Vector2<double> collisionAdjustmentVector = DoElasticCollisions(movementVector);
-
-  Vector2<float> caVelocity = (Vector2<float>((float)(collisionAdjustmentVector.x) / (float)fix(dt), (float)(collisionAdjustmentVector.y) / (float)fix(dt)));
-  // Convert adjustment vector to a velocity and change object's velocity based on the adjustment
-  _vel += caVelocity;
-  // Add the movement vector to the entityd
-  _owner->transform.position += _vel * dt;
-
-}
-
-//______________________________________________________________________________
-Vector2<double> Physics::DoElasticCollisions(const Vector2<double>& movementVector)
-{
-  auto CreateResolveCollisionVector = [this, &movementVector](OverlapInfo<double> overlap)
-  {
-    Vector2<double> resolutionVector(0.0, 0.0);
-    //! Do each individually
-    if ((overlap.collisionSides & CollisionSide::LEFT) != CollisionSide::NONE ||
-      (overlap.collisionSides & CollisionSide::RIGHT) != CollisionSide::NONE)
-    {
-      resolutionVector.x = -overlap.amount.x;
-    }
-    if ((overlap.collisionSides & CollisionSide::UP) != CollisionSide::NONE ||
-      (overlap.collisionSides & CollisionSide::DOWN) != CollisionSide::NONE)
-    {
-      resolutionVector.y = -overlap.amount.y;
-    }
-
-    // in the case that we're hitting a corner, only correct by the value that has the greater amount of overlap
-    if (overlap.numCollisionSides > 1)
-    {
-      if (std::abs(overlap.amount.x) > std::abs(overlap.amount.y))
-      {
-        resolutionVector.x = 0;
-      }
-      else
-      {
-        resolutionVector.y = 0;
-      }
-
-      // if movement isnt in the same "direction" as the movement vector, dont adjust in that direction
-      if ((overlap.amount.x > 0 && movementVector.x <= 0) || (overlap.amount.x < 0 && movementVector.x >= 0))
-      {
-        resolutionVector.x = 0;
-      }
-      if ((overlap.amount.y > 0 && movementVector.y < 0) || (overlap.amount.y < 0 && movementVector.y > 0))
-      {
-        resolutionVector.y = 0;
-      }
-    }
-
-    return resolutionVector;
-  };
-
-  OverlapInfo<double> correction;
-
-  auto myCollider = _owner->GetComponent<RectColliderD>();
-  if (myCollider && !myCollider->IsStatic())
-  {
-    Rect<double> potentialRect = myCollider->rect;
-
-    potentialRect = Rect<double>(Vector2<double>(_owner->transform.position.x, _owner->transform.position.y),
-      Vector2<double>(_owner->transform.position.x + potentialRect.Width(),
-        _owner->transform.position.y + potentialRect.Height()));
-
-    potentialRect.Move(movementVector + correction.amount);
-
-    for (auto collider : ComponentManager<RectColliderD>::Get().All())
-    {
-      if (collider->IsStatic() && myCollider != collider)
-      {
-        if (potentialRect.Collides(collider->rect))
-        {
-          //! return the reverse of the overlap to correct for the collision
-          auto overlap = potentialRect.Overlap(collider->rect);
-          
-          //!
-          //correction.numCollisionSides += overlap.numCollisionSides;
-          correction.collisionSides |= overlap.collisionSides;
-          correction.amount += CreateResolveCollisionVector(overlap);
-        }
-      }
-    }
-  }
-
-  _lastCollisionSide = correction.collisionSides;
-  return correction.amount;
-}
-
-//______________________________________________________________________________
 template <typename T>
 void RectCollider<T>::Init(Vector2<T> beg, Vector2<T> end)
 {
   rect = Rect<T>(beg, end);
+}
+
+//______________________________________________________________________________
+template <typename T>
+void RectCollider<T>::MoveUnit(Vector2<T> movement)
+{
+  _owner->transform.position += Vector2<float>(static_cast<float>(movement.x), static_cast<float>(movement.y));
+  Update(0);
 }
 
 //______________________________________________________________________________
@@ -185,7 +88,7 @@ void RectCollider<T>::Update(float dt)
 }
 
 //______________________________________________________________________________
-GameActor::GameActor(std::shared_ptr<Entity> owner) : _currentAction(nullptr), _newState(true), _lastInput(InputState::UP), _lastCollision(CollisionSide::UP), IComponent(owner)
+GameActor::GameActor(std::shared_ptr<Entity> owner) : _currentAction(nullptr), _newState(true), _lastInput(InputState::NONE), _lastCollision(CollisionSide::NONE), IComponent(owner)
 {
   BeginNewAction(new LoopedAction<StanceState::STANDING, ActionState::NONE>("Idle", owner.get()));
 }

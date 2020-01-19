@@ -36,6 +36,15 @@ private:
 
 };
 
+struct DynamicCollision
+{
+  std::shared_ptr<RectColliderD> collider;
+  std::shared_ptr<RectColliderD> collided;
+  Vector2<double> movement;
+};
+
+static std::vector<DynamicCollision> dynamicCollisionsThisFrame;
+
 //!
 class Physics : public IComponent
 {
@@ -46,6 +55,9 @@ public:
   virtual void Update(float dt) override;
   //!
   Vector2<double> DoElasticCollisions(const Vector2<double>& movementVector);
+
+  //!
+  static Vector2<double> CreateResolveCollisionVector(OverlapInfo<double> overlap, const Vector2<double>& movementVector);
 
   CollisionSide GetLastCollisionSides() { return _lastCollisionSide; }
 
@@ -67,3 +79,6 @@ private:
   Vector2<float> _acc;
 
 };
+
+template <> void ComponentManager<Physics>::PreUpdate();
+template <> void ComponentManager<Physics>::PostUpdate();

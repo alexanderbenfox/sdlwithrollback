@@ -18,6 +18,7 @@ struct LocalPlayer
   friend std::istream& operator>>(std::istream& is, LocalPlayer& player);
 };
 
+#ifdef _WIN32
 struct NetworkPlayer
 {
   NetworkPlayer(IInputHandler<GGPOInput>* input, std::shared_ptr<Entity> actor) : input(std::unique_ptr<IInputHandler<GGPOInput>>(input)), actor(actor) {}
@@ -31,3 +32,4 @@ struct NetworkPlayer
   friend std::ostream& operator<<(std::ostream& os, const NetworkPlayer& player);
   friend std::istream& operator>>(std::istream& is, NetworkPlayer& player);
 };
+#endif

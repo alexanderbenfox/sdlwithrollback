@@ -4,6 +4,7 @@
 #include "Entity.h"
 #include "Components/IComponent.h"
 
+#include <thread>
 #include <mutex>
 
 class Camera;

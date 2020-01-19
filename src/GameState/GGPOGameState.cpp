@@ -1,3 +1,5 @@
+#ifdef _WIN32
+
 #include "GameState/GGPOGameState.h"
 #include "Entity.h"
 #include "Components/GameActor.h"
@@ -75,3 +77,5 @@ void GGPOMatch::FreeBuffer(void* buffer) {}
 bool GGPOMatch::AdvanceFrame(int flags) { return true; }
 
 bool GGPOMatch::OnEvent(GGPOEvent* info) { return true; }
+
+#endif

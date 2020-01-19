@@ -20,7 +20,9 @@ class EntityCreation
 {
 public:
   static LocalPlayer CreateLocalPlayer(IInputHandler<SDL_Event>* input, float xOffset);
+  #ifdef _WIN32
   static NetworkPlayer CreateNetworkPlayer(IInputHandler<GGPOInput>* input, float xOffset);
+  #endif
   static std::shared_ptr<Camera> CreateCamera();
 };
 
@@ -80,8 +82,5 @@ public:
 protected:
   //! 
   LocalPlayer _player1, _player2;
-
-
-  
 
 };

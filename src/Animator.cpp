@@ -73,7 +73,6 @@ Vector2<int> Animation::FindReferencePixel(const char* sheet)
 #else
   upixels = (Uint32*)_texture.GetInfo().pixels.get();
 #endif
-
   for (int y = 0; y < _frameSize.y; y++)
   {
     for (int x = 0; x < _frameSize.x; x++)
