@@ -66,6 +66,9 @@
     <ClCompile Include="..\src\GameState\GGPOGameState.cpp">
       <Filter>Source Files\GameState</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\GameState\Player.cpp">
+      <Filter>Source Files\GameState</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\AssetManagement\Resource.h">
@@ -126,6 +129,9 @@
       <Filter>Header Files\GameState</Filter>
     </ClInclude>
     <ClInclude Include="..\include\GameState\GGPOGameState.h">
+      <Filter>Header Files\GameState</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\GameState\Player.h">
       <Filter>Header Files\GameState</Filter>
     </ClInclude>
   </ItemGroup>

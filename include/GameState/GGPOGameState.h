@@ -1,14 +1,13 @@
 #ifdef _WIN32
 #include "GameState.h"
-#include <GGPO/ggponet.h>
 #include <functional>
 
 #include "Command.h"
 
-class GGPOMatch : public LocalMatch
+class GGPOMatch : public MatchBase
 {
 public:
-  GGPOMatch(IInputHandler* localHandler, const std::string& remoteAddress, unsigned short port);
+  GGPOMatch(IInputHandler<SDL_Event>* localHandler, const std::string& remoteAddress, unsigned short port);
 
   virtual void ProcessInputs(SDL_Event* localInput) override;
   
@@ -75,6 +74,9 @@ protected:
 
   GGPOPlayer _ggpoP1, _ggpoP2;
   GGPOPlayerHandle _handles[2];
+
+  LocalPlayer _player1;
+  NetworkPlayer _player2;
 };
 
 #endif

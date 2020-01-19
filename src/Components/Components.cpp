@@ -146,7 +146,7 @@ Vector2<double> Physics::DoElasticCollisions(const Vector2<double>& movementVect
 
     for (auto collider : ComponentManager<RectColliderD>::Get().All())
     {
-      if (myCollider != collider)
+      if (collider->IsStatic() && myCollider != collider)
       {
         if (potentialRect.Collides(collider->rect))
         {

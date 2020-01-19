@@ -2,6 +2,7 @@
 #include <SDL2/SDL.h>
 #include <unordered_map>
 #include "Utils.h"
+#include <GGPO/ggponet.h>
 
 class ICommand;
 
@@ -32,12 +33,13 @@ static bool HasState(const InputState& state, InputState other) { return (state 
 
 //______________________________________________________________________________
 //! Interface for input handlers
+template <class InputSource>
 class IInputHandler
 {
 public:
   virtual ~IInputHandler() {}
   //! Gets the command based on the type of input received from the controller
-  virtual ICommand* HandleInput(SDL_Event* input) = 0;
+  virtual InputState HandleInput(InputSource* input) = 0;
 
 protected:
   //! Last state received by the input controller
@@ -47,7 +49,7 @@ protected:
 
 //______________________________________________________________________________
 //! Keyboard handler specification
-class KeyboardInputHandler : public IInputHandler
+class KeyboardInputHandler : public IInputHandler<SDL_Event>
 {
 public:
   //!
@@ -55,7 +57,7 @@ public:
   //!
   ~KeyboardInputHandler();
   //!
-  virtual ICommand* HandleInput(SDL_Event* input) final;
+  virtual InputState HandleInput(SDL_Event* input) final;
   //!
   virtual void SetKey(SDL_Keycode keyCode, InputState action)
   {
@@ -72,7 +74,7 @@ private:
 
 //______________________________________________________________________________
 //!
-class JoystickInputHandler : public IInputHandler
+class JoystickInputHandler : public IInputHandler<SDL_Event>
 {
 public:
   //!
@@ -80,7 +82,7 @@ public:
   //!
   ~JoystickInputHandler();
   //!
-  virtual ICommand* HandleInput(SDL_Event* input) final;
+  virtual InputState HandleInput(SDL_Event* input) final;
 
 private:
   //!
@@ -90,4 +92,24 @@ private:
   //!
   ConfigMap<uint8_t, InputState> _config;
   
+};
+
+struct GGPOInput
+{
+  GGPOSession* session;
+  InputState** inputs;
+  GGPOPlayerHandle** handles;
+};
+
+//______________________________________________________________________________
+//!
+class GGPOInputHandler : public IInputHandler<GGPOInput>
+{
+public:
+  //!
+  GGPOInputHandler() {}
+  //!
+  ~GGPOInputHandler() {}
+  //!
+  virtual InputState HandleInput(GGPOInput* input) final;
 };

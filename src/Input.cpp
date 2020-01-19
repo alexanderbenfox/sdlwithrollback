@@ -1,6 +1,7 @@
 #include "Input.h"
 #include "Command.h"
 #include "Components/GameActor.h"
+#include "GGPO/ggponet.h"
 
 //______________________________________________________________________________
 void InGameCommand::Execute(GameActor* actor)
@@ -55,7 +56,7 @@ KeyboardInputHandler::KeyboardInputHandler()
 KeyboardInputHandler::~KeyboardInputHandler() {}
 
 //______________________________________________________________________________
-ICommand* KeyboardInputHandler::HandleInput(SDL_Event* input)
+InputState KeyboardInputHandler::HandleInput(SDL_Event* input)
 {
   InputState frameState = _lastFrameState;
 
@@ -75,7 +76,7 @@ ICommand* KeyboardInputHandler::HandleInput(SDL_Event* input)
   }
 
   _lastFrameState = frameState;
-  return new InGameCommand(frameState);
+  return frameState;
 }
 
 //______________________________________________________________________________
@@ -105,7 +106,7 @@ JoystickInputHandler::~JoystickInputHandler()
 }
 
 //______________________________________________________________________________
-ICommand* JoystickInputHandler::HandleInput(SDL_Event* input)
+InputState JoystickInputHandler::HandleInput(SDL_Event* input)
 {
   InputState frameState = _lastFrameState;
 
@@ -159,5 +160,25 @@ ICommand* JoystickInputHandler::HandleInput(SDL_Event* input)
       break;
     }
   }
-  return new InGameCommand(frameState);
+  return frameState;
+}
+
+//______________________________________________________________________________
+InputState GGPOInputHandler::HandleInput(GGPOInput* input)
+{
+  // notify ggpo of local player's inputs
+  GGPOErrorCode result = ggpo_add_local_input(input->session, (*input->handles)[0], &(*input->inputs)[0], sizeof((*input->inputs)[0]));
+
+  // synchronize inputs
+  if (GGPO_SUCCEEDED(result))
+  {
+    int disconnectFlags;
+    result = ggpo_synchronize_input(input->session, (*input->inputs), sizeof(*input->inputs), &disconnectFlags);
+    if (GGPO_SUCCEEDED(result))
+    {
+      return (*input->inputs)[1];
+    }
+  }
+  return InputState::NONE;
+
 }

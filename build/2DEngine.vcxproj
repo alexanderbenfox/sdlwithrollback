@@ -28,6 +28,7 @@
     <ClCompile Include="..\src\GameManagement.cpp" />
     <ClCompile Include="..\src\GameState\GameState.cpp" />
     <ClCompile Include="..\src\GameState\GGPOGameState.cpp" />
+    <ClCompile Include="..\src\GameState\Player.cpp" />
     <ClCompile Include="..\src\Geometry.cpp" />
     <ClCompile Include="..\src\Input.cpp" />
   </ItemGroup>
@@ -46,6 +47,7 @@
     <ClInclude Include="..\include\GameManagement.h" />
     <ClInclude Include="..\include\GameState\GameState.h" />
     <ClInclude Include="..\include\GameState\GGPOGameState.h" />
+    <ClInclude Include="..\include\GameState\Player.h" />
     <ClInclude Include="..\include\Geometry.h" />
     <ClInclude Include="..\include\Input.h" />
     <ClInclude Include="..\include\ResourceManager.h" />

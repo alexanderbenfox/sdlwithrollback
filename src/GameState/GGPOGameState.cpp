@@ -1,6 +1,11 @@
 #include "GameState/GGPOGameState.h"
+#include "Entity.h"
+#include "Components/GameActor.h"
 
-GGPOMatch::GGPOMatch(IInputHandler* localHandler, const std::string& remoteAddress, unsigned short port) : LocalMatch(localHandler, nullptr)
+GGPOMatch::GGPOMatch(IInputHandler<SDL_Event>* localHandler, const std::string& remoteAddress, unsigned short port) :
+  _player1(EntityCreation::CreateLocalPlayer(localHandler, 0)),
+  _player2(EntityCreation::CreateNetworkPlayer(static_cast<IInputHandler<GGPOInput>*>(new GGPOInputHandler), 150)),
+  MatchBase()
 {
   StartGGPOSession();
 
@@ -13,39 +18,28 @@ GGPOMatch::GGPOMatch(IInputHandler* localHandler, const std::string& remoteAddre
 
   GGPOErrorCode result = ggpo_add_player(ggpo, &_ggpoP1, &_handles[0]);
   result = ggpo_add_player(ggpo, &_ggpoP2, &_handles[1]);
-
-  CreateCamera();
 }
 
 void GGPOMatch::ProcessInputs(SDL_Event* localInput)
 {
-  InputState playerInputs[2];
-  auto command = _player1.input->HandleInput(localInput);
-  playerInputs[0] = command->GetInput();
+  InputState input[2];
+  input[0] = _player1.input->HandleInput(localInput);
 
-  // notify ggpo of local player's inputs
-  GGPOErrorCode result = ggpo_add_local_input(ggpo, _handles[0], &playerInputs[0], sizeof(playerInputs[0]));
+  GGPOInput inputPkg;
+  inputPkg.session = ggpo;
+  inputPkg.inputs = (InputState**)&input;
+  inputPkg.handles = (GGPOPlayerHandle**)&_handles;
 
-  // synchronize inputs
-  if (GGPO_SUCCEEDED(result))
-  {
-    int disconnectFlags;
-    result = ggpo_synchronize_input(ggpo, playerInputs, sizeof(playerInputs), &disconnectFlags);
-    if (GGPO_SUCCEEDED(result))
-    {
-      // total success, we can now update our players
-      // advance game state?
-      ICommand* p1Command = new InGameCommand(playerInputs[0]);
-      ICommand* p2Command = new InGameCommand(playerInputs[1]);
+  _player2.input->HandleInput(&inputPkg);
 
-      _player1.ExecuteInput(p1Command);
-      _player2.ExecuteInput(p2Command);
+  ICommand* p1Command = new InGameCommand(input[0]);
+  ICommand* p2Command = new InGameCommand(input[1]);
 
-      delete p1Command;
-      delete p2Command;
-    }
-  }
+  _player1.ExecuteInput(p1Command);
+  _player2.ExecuteInput(p2Command);
 
+  delete p1Command;
+  delete p2Command;
 }
 
 
