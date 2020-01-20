@@ -10,7 +10,7 @@ class IDisplayable
 public:
   virtual ~IDisplayable() {}
   virtual SDL_Rect GetRectOnSrcText() = 0;
-  virtual void SetOp(const Transform& transform, SDL_Rect rectOnTex, Vector2<int> offset, ResourceManager::BlitOperation* op) = 0;
+  virtual void SetOp(const Transform& transform, SDL_Rect rectOnTex, Vector2<int> offset, bool flip, ResourceManager::BlitOperation* op) = 0;
 };
 
 class Image : public IDisplayable
@@ -24,7 +24,7 @@ public:
 
   virtual SDL_Rect GetRectOnSrcText() override { return _sourceRect; }
 
-  virtual void SetOp(const Transform& transform, SDL_Rect rectOnTex, Vector2<int> offset, ResourceManager::BlitOperation* op) override
+  virtual void SetOp(const Transform& transform, SDL_Rect rectOnTex, Vector2<int> offset, bool flip, ResourceManager::BlitOperation* op) override
   {
     op->_textureRect = rectOnTex;
     op->_textureResource = &_texture;
@@ -34,6 +34,8 @@ public:
       static_cast<int>(std::floor(transform.position.y - offset.y)),
       (int)(static_cast<float>(_sourceRect.w) * transform.scale.x),
       (int)(static_cast<float>(_sourceRect.h) * transform.scale.y));
+
+    op->_flip = flip ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
 
     op->valid = true;
   }
@@ -53,7 +55,7 @@ public:
 
   SDL_Rect GetFrameSrcRect(int frame);
 
-  virtual void SetOp(const Transform& transform, SDL_Rect rectOnTex, Vector2<int> offset, ResourceManager::BlitOperation* op) override;
+  virtual void SetOp(const Transform& transform, SDL_Rect rectOnTex, Vector2<int> offset, bool flip, ResourceManager::BlitOperation* op) override;
 
   const int GetFrameCount() { return _frames; }
 

@@ -23,7 +23,7 @@ SDL_Rect Animation::GetFrameSrcRect(int frame)
   return OpSysConv::CreateSDLRect(x * _frameSize.x, y * _frameSize.y, _frameSize.x, _frameSize.y );
 }
 
-void Animation::SetOp(const Transform& transform, SDL_Rect rectOnTex, Vector2<int> offset, ResourceManager::BlitOperation* op)
+void Animation::SetOp(const Transform& transform, SDL_Rect rectOnTex, Vector2<int> offset, bool flip, ResourceManager::BlitOperation* op)
 {
   op->_textureRect = rectOnTex;
   op->_textureResource = &_texture;
@@ -36,6 +36,8 @@ void Animation::SetOp(const Transform& transform, SDL_Rect rectOnTex, Vector2<in
     static_cast<int>(std::floor(transform.position.y - offset.y * transform.scale.y)),
     (int)(static_cast<float>(fWidth) * transform.scale.x),
     (int)(static_cast<float>(fHeight) * transform.scale.y));
+
+  op->_flip = flip ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
 
   op->valid = true;
 }
@@ -132,8 +134,8 @@ void Animator::Update(float dt)
       _accumulatedTime -= (framesToAdv * _secPerFrame);
     }
   }
-
-  _currentAnimation->second.SetOp(_owner->transform, _currentAnimation->second.GetFrameSrcRect(_frame), _basisOffset, _op);
+  bool flipped = _owner->GetComponent<PlayerData>()->flipped;
+  _currentAnimation->second.SetOp(_owner->transform, _currentAnimation->second.GetFrameSrcRect(_frame), _basisOffset, flipped, _op);
 }
 
 void Animator::Play(const std::string& name, bool isLooped)

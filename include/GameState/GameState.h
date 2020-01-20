@@ -38,6 +38,8 @@ public:
   virtual void SaveGameState(ByteBuffer<char>& data) = 0;
   virtual void LoadGameState(ByteBuffer<char>& data) = 0;
 
+  virtual void CheckDirections() = 0;
+
   virtual Camera* GetCamera() = 0;
 };
 
@@ -77,8 +79,8 @@ public:
     is >> _player2;
   }
 
-
-
+  virtual void CheckDirections() override;
+  
 protected:
   //! 
   LocalPlayer _player1, _player2;

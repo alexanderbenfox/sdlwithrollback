@@ -35,6 +35,7 @@ public:
   virtual void PostUpdate() {}
 
 protected:
+  //!
   std::shared_ptr<Entity> _owner;
   
 };

@@ -15,9 +15,13 @@ void Resource<T>::Unload()
 template <> void Resource<SDL_Texture>::Load()
 {
   if (_loaded) return;
-  
-  //Uint32 windowFormat = SDL_GetWindowPixelFormat(GameManager::Get().GetWindow());
+
+#ifndef _WIN32
+  Uint32 windowFormat = SDL_GetWindowPixelFormat(GameManager::Get().GetWindow());
+#else
   Uint32 windowFormat = SDL_PIXELFORMAT_RGBA8888;
+#endif
+
   SDL_Surface* surface = IMG_Load(_pathToResource.c_str());
   if (surface)
   {

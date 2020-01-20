@@ -13,6 +13,11 @@ void LocalPlayer::ExecuteInput(ICommand* command)
     command->Execute(actor->GetComponent<GameActor>().get());
 }
 
+float LocalPlayer::GetCenterX()
+{
+  return actor->transform.position.x + static_cast<float>(actor->GetComponent<RectColliderD>()->rect.Width() / 2.0);
+}
+
 std::ostream& operator<<(std::ostream& os, const LocalPlayer& player)
 {
   os << player.actor->transform;

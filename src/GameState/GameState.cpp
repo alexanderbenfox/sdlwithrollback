@@ -54,6 +54,9 @@ LocalPlayer EntityCreation::CreateLocalPlayer(IInputHandler<SDL_Event>* input, f
   player->SetScale(Vector2<float>(1.4f, 1.7f));
   player->transform.position.x = xOffset;
 
+  player->AddComponent<PlayerData>();
+  player->GetComponent<PlayerData>()->flipped = xOffset != 0;
+
   player->GetComponent<RectColliderD>()->Update(0);
 
   return LocalPlayer(input, player);
@@ -105,4 +108,18 @@ std::shared_ptr<Camera> EntityCreation::CreateCamera()
   auto camera = GameManager::Get().CreateEntity<Camera>();
   camera->GetComponent<Camera>()->Init(m_nativeWidth, m_nativeHeight);
   return camera->GetComponent<Camera>();
+}
+
+void LocalMatch::CheckDirections()
+{
+  if(_player1.GetCenterX() > _player2.GetCenterX())
+  {
+    _player1.actor->GetComponent<PlayerData>()->flipped = true;
+    _player2.actor->GetComponent<PlayerData>()->flipped = false;
+  }
+  else
+  {
+    _player1.actor->GetComponent<PlayerData>()->flipped = false;
+    _player2.actor->GetComponent<PlayerData>()->flipped = true;
+  }
 }

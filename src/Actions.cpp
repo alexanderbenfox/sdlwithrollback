@@ -1,5 +1,6 @@
 #include "Actions.h"
 #include "Entity.h"
+#include "GameState/Player.h"
 
 #include "Components/Sprite.h"
 #include "Components/Physics.h"
@@ -141,10 +142,14 @@ template <> IAction* LoopedAction<StanceState::STANDING, ActionState::NONE>::Han
   {
     return new StateLockedAnimatedAction<StanceState::CROUCHING, ActionState::NONE>("Crouching", actor);
   }
+
+  std::string walkAnimLeft = actor->GetComponent<PlayerData>()->flipped ? "WalkF" : "WalkB";
+  std::string walkAnimRight = actor->GetComponent<PlayerData>()->flipped ? "WalkB" : "WalkF";
+
   if (HasState(input, InputState::LEFT))
-    return new LoopedAction<StanceState::STANDING, ActionState::NONE>("WalkB", actor, Vector2<float>(-0.5f * _baseSpeed, 0));
+    return new LoopedAction<StanceState::STANDING, ActionState::NONE>(walkAnimLeft, actor, Vector2<float>(-0.5f * _baseSpeed, 0));
   else if (HasState(input, InputState::RIGHT))
-    return new LoopedAction<StanceState::STANDING, ActionState::NONE>("WalkF", actor, Vector2<float>(0.5f * _baseSpeed, 0));
+    return new LoopedAction<StanceState::STANDING, ActionState::NONE>(walkAnimRight, actor, Vector2<float>(0.5f * _baseSpeed, 0));
 
   // Stopped
   return new LoopedAction<StanceState::STANDING, ActionState::NONE>("Idle", actor, Vector2<float>::Zero());
@@ -229,10 +234,13 @@ template <> IAction* LoopedAction<StanceState::CROUCHING, ActionState::NONE>::Ha
     return new LoopedAction<StanceState::CROUCHING, ActionState::NONE>("Crouch", actor, Vector2<float>(0.0, 0.0));
   }
 
+  std::string walkAnimLeft = actor->GetComponent<PlayerData>()->flipped ? "WalkF" : "WalkB";
+  std::string walkAnimRight = actor->GetComponent<PlayerData>()->flipped ? "WalkB" : "WalkF";
+
   if (HasState(input, InputState::LEFT))
-    return new LoopedAction<StanceState::STANDING, ActionState::NONE>("WalkB", actor, Vector2<float>(-0.5f * _baseSpeed, 0));
+    return new LoopedAction<StanceState::STANDING, ActionState::NONE>(walkAnimLeft, actor, Vector2<float>(-0.5f * _baseSpeed, 0));
   else if (HasState(input, InputState::RIGHT))
-    return new LoopedAction<StanceState::STANDING, ActionState::NONE>("WalkF", actor, Vector2<float>(0.5f * _baseSpeed, 0));
+    return new LoopedAction<StanceState::STANDING, ActionState::NONE>(walkAnimRight, actor, Vector2<float>(0.5f * _baseSpeed, 0));
 
   // state hasn't changed
   return new LoopedAction<StanceState::STANDING, ActionState::NONE>("Idle", actor, Vector2<float>(0.0, 0.0));

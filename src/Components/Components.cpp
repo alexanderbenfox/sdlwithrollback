@@ -28,7 +28,12 @@ void Sprite::OnFrameBegin()
 //______________________________________________________________________________
 void Sprite::Update(float dt)
 {
-  _display->SetOp(_owner->transform, _display->GetRectOnSrcText(), Vector2<int>(0, 0), _op);
+  bool flipped = false;
+  if(auto pd = _owner->GetComponent<PlayerData>())
+  {
+    flipped = pd->flipped;
+  }
+  _display->SetOp(_owner->transform, _display->GetRectOnSrcText(), Vector2<int>(0, 0), flipped, _op);
 }
 
 //______________________________________________________________________________
