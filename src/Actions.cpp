@@ -14,25 +14,25 @@ template <> IAction* GetAttacksFromNeutral<StanceState::STANDING>(const InputSta
   if (HasState(rawInput, InputState::BTN1))
   {
     if (HasState(rawInput, InputState::DOWN))
-      return new StateLockedAnimatedAction<StanceState::CROUCHING, ActionState::LIGHT>("CrouchingLight", facingRight);
+      return new GroundedStaticAttack<StanceState::CROUCHING, ActionState::LIGHT>("CrouchingLight", facingRight);
     else
-      return new StateLockedAnimatedAction<StanceState::STANDING, ActionState::LIGHT>("StandingLight", facingRight);
+      return new GroundedStaticAttack<StanceState::STANDING, ActionState::LIGHT>("StandingLight", facingRight);
   }
 
   else if (HasState(rawInput, InputState::BTN2))
   {
     if (HasState(rawInput, InputState::DOWN))
-      return new StateLockedAnimatedAction<StanceState::CROUCHING, ActionState::MEDIUM>("CrouchingMedium", facingRight);
+      return new GroundedStaticAttack<StanceState::CROUCHING, ActionState::MEDIUM>("CrouchingMedium", facingRight);
     else
-      return new StateLockedAnimatedAction<StanceState::STANDING, ActionState::MEDIUM>("StandingMedium", facingRight);
+      return new GroundedStaticAttack<StanceState::STANDING, ActionState::MEDIUM>("StandingMedium", facingRight);
   }
 
   else if (HasState(rawInput, InputState::BTN3))
   {
     if (HasState(rawInput, InputState::DOWN))
-      return new StateLockedAnimatedAction<StanceState::CROUCHING, ActionState::HEAVY>("CrouchingHeavy", facingRight);
+      return new GroundedStaticAttack<StanceState::CROUCHING, ActionState::HEAVY>("CrouchingHeavy", facingRight);
     else
-      return new StateLockedAnimatedAction<StanceState::STANDING, ActionState::HEAVY>("StandingHeavy", facingRight);
+      return new GroundedStaticAttack<StanceState::STANDING, ActionState::HEAVY>("StandingHeavy", facingRight);
   }
   return nullptr;
 }
@@ -82,9 +82,11 @@ void AnimatedAction<Stance, Action>::Enact(Entity* actor)
         ac->OnActionComplete(this);
     }
   }
-  if (auto mover = actor->GetComponent<Physics>())
+
+  if (_movementType)
   {
-    mover->ApplyVelocity(_velocity);
+    if (auto mover = actor->GetComponent<Physics>())
+      mover->ApplyVelocity(_velocity);
   }
 }
 
@@ -199,6 +201,14 @@ StateLockedAnimatedAction<Stance, Action>::StateLockedAnimatedAction(const std::
 {
   this->_loopedAnimation = false;
 }
+
+//______________________________________________________________________________
+template <StanceState Stance, ActionState Action>
+StateLockedAnimatedAction<Stance, Action>::StateLockedAnimatedAction(const std::string& animation, bool facingRight, Vector2<float> actionMovement) : AnimatedAction<Stance, Action>(animation, facingRight, actionMovement)
+{
+  this->_loopedAnimation = false;
+}
+
 //______________________________________________________________________________
 template <StanceState Stance, ActionState Action>
 IAction* StateLockedAnimatedAction<Stance, Action>::GetFollowUpAction()

@@ -9,19 +9,19 @@
 void LocalMatch::ProcessRawInputs(SDL_Event* localInput)
 {
   InputState rawInput = _player1.input->HandleInput(localInput);
-  GameContext contexts = GetActiveContext(_player1);
+  GameContext contexts = GetActiveContext(&_player1);
   _player1.actor->GetComponent<GameActor>()->EvaluateInputContext(rawInput, contexts);
   
   rawInput = _player2.input->HandleInput(localInput);
-  contexts = GetActiveContext(_player2);
+  contexts = GetActiveContext(&_player2);
   _player2.actor->GetComponent<GameActor>()->EvaluateInputContext(rawInput, contexts);
 }
 
-GameContext LocalMatch::GetActiveContext(const LocalPlayer& player)
+GameContext LocalMatch::GetActiveContext(Player* player)
 {
   GameContext context;
 
-  if (auto phys = player.actor->GetComponent<Physics>())
+  if (auto phys = player->actor->GetComponent<Physics>())
   {
     context.collision = phys->GetLastCollisionSides();
   }
@@ -30,8 +30,8 @@ GameContext LocalMatch::GetActiveContext(const LocalPlayer& player)
     context.collision = CollisionSide::NONE;
   }
 
-  LocalPlayer& otherPlayer = &player == &_player1 ? _player2 : _player1;
-  context.onLeftSide = player.GetCenterX() < otherPlayer.GetCenterX();
+  LocalPlayer& otherPlayer = player == &_player1 ? _player2 : _player1;
+  context.onLeftSide = player->GetCenterX() < otherPlayer.GetCenterX();
 
   return context;
 }
@@ -105,7 +105,7 @@ NetworkPlayer EntityCreation::CreateNetworkPlayer(IInputHandler<GGPOInput>* inpu
   player->GetComponent<Animator>()->RegisterAnimation("JumpingMedium", "spritesheets\\jlp.png", 4, 4, 0, 14);
   player->GetComponent<Animator>()->RegisterAnimation("JumpingHeavy", "spritesheets\\jlp.png", 4, 4, 0, 14);
 
-  player->GetComponent<Animator>()->Play("Idle", true);
+  player->GetComponent<Animator>()->Play("Idle", true, xOffset != 0);
 
   player->GetComponent<RectColliderD>()->Init(Vector2<double>(xOffset, 0.0),
     Vector2<double>(static_cast<double>(textureSize.x), static_cast<double>(textureSize.y)));

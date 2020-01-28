@@ -34,14 +34,11 @@ void GGPOMatch::ProcessRawInputs(SDL_Event* localInput)
 
   _player2.input->HandleInput(&inputPkg);
 
-  ICommand* p1Command = new InGameCommand(input[0]);
-  ICommand* p2Command = new InGameCommand(input[1]);
+  GameContext p1Context = GetActiveContext(&_player1);
+  _player1.actor->GetComponent<GameActor>()->EvaluateInputContext(input[0], p1Context);
 
-  _player1.ExecuteInput(p1Command);
-  _player2.ExecuteInput(p2Command);
-
-  delete p1Command;
-  delete p2Command;
+  GameContext p2Context = GetActiveContext(&_player2);
+  _player2.actor->GetComponent<GameActor>()->EvaluateInputContext(input[1], p2Context);
 }
 
 

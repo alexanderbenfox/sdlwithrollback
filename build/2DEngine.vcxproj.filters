@@ -57,9 +57,6 @@
     <ClCompile Include="..\src\Actions.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\Animator.cpp">
-      <Filter>Source Files\Components</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\GameState\GameState.cpp">
       <Filter>Source Files\GameState</Filter>
     </ClCompile>
@@ -70,6 +67,9 @@
       <Filter>Source Files\GameState</Filter>
     </ClCompile>
     <ClCompile Include="..\src\Components\Physics.cpp">
+      <Filter>Source Files\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Components\Animator.cpp">
       <Filter>Source Files\Components</Filter>
     </ClCompile>
   </ItemGroup>
@@ -119,9 +119,6 @@
     <ClInclude Include="..\include\Actions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\Command.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\StateControl.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -136,6 +133,12 @@
     </ClInclude>
     <ClInclude Include="..\include\GameState\Player.h">
       <Filter>Header Files\GameState</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Components\Animator.h">
+      <Filter>Header Files\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\ListenerInterfaces.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

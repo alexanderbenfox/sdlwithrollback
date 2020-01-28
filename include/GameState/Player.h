@@ -5,32 +5,31 @@
 class Entity;
 class ICommand;
 
-struct LocalPlayer
+struct Player
 {
-  LocalPlayer(IInputHandler<SDL_Event>* input, std::shared_ptr<Entity> actor) : input(std::unique_ptr<IInputHandler<SDL_Event>>(input)), actor(actor) {}
-  //! Player input listener
-  std::unique_ptr<IInputHandler<SDL_Event>> input;
+  Player(std::shared_ptr<Entity> actor) : actor(actor) {}
   //! Currently controller object
   std::shared_ptr<Entity> actor;
   //!
-  float GetCenterX() const;
+  virtual float GetCenterX() const;
 
-  friend std::ostream& operator<<(std::ostream& os, const LocalPlayer& player);
-  friend std::istream& operator>>(std::istream& is, LocalPlayer& player);
+  friend std::ostream& operator<<(std::ostream& os, const Player& player);
+  friend std::istream& operator>>(std::istream& is, Player& player);
+};
+
+struct LocalPlayer : public Player
+{
+  LocalPlayer(IInputHandler<SDL_Event>* input, std::shared_ptr<Entity> actor) : input(std::unique_ptr<IInputHandler<SDL_Event>>(input)), Player(actor) {}
+  //! Player input listener
+  std::unique_ptr<IInputHandler<SDL_Event>> input;
+ 
 };
 
 #ifdef _WIN32
-struct NetworkPlayer
+struct NetworkPlayer : public Player
 {
-  NetworkPlayer(IInputHandler<GGPOInput>* input, std::shared_ptr<Entity> actor) : input(std::unique_ptr<IInputHandler<GGPOInput>>(input)), actor(actor) {}
+  NetworkPlayer(IInputHandler<GGPOInput>* input, std::shared_ptr<Entity> actor) : input(std::unique_ptr<IInputHandler<GGPOInput>>(input)), Player(actor) {}
   //! Player input listener
   std::unique_ptr<IInputHandler<GGPOInput>> input;
-  //! Currently controller object
-  std::shared_ptr<Entity> actor;
-  //!
-  void ExecuteInput(ICommand* command);
-
-  friend std::ostream& operator<<(std::ostream& os, const NetworkPlayer& player);
-  friend std::istream& operator>>(std::istream& is, NetworkPlayer& player);
 };
 #endif

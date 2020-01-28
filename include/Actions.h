@@ -69,10 +69,10 @@ class AnimatedAction : public IAction, public IAnimatorListener
 public:
   //!
   AnimatedAction(const std::string& animation, bool facingRight) :
-    _loopedAnimation(true), _animation(animation), _facingRight(facingRight), _velocity(0, 0) {}
+    _loopedAnimation(true), _animation(animation), _facingRight(facingRight), _movementType(false) {}
   //!
   AnimatedAction(const std::string& animation, bool facingRight, Vector2<float> instVelocity) :
-    _loopedAnimation(true), _animation(animation), _facingRight(facingRight), _velocity(instVelocity) {}
+    _loopedAnimation(true), _animation(animation), _facingRight(facingRight), _velocity(instVelocity), _movementType(true) {}
   
   //!
   virtual void Enact(Entity* actor) override;
@@ -96,6 +96,9 @@ protected:
   bool _facingRight;
   //!
   Vector2<float> _velocity;
+
+  //!
+  bool _movementType;
 
 };
 
@@ -123,10 +126,21 @@ public:
   //!
   StateLockedAnimatedAction(const std::string& animation, bool facingRight);
   //!
+  StateLockedAnimatedAction(const std::string& animation, bool facingRight, Vector2<float> actionMovement);
+  //!
   virtual IAction* HandleInput(const InputState& rawInput, const GameContext& context) override;
   //!
   virtual IAction* GetFollowUpAction() override;
   
+};
+
+template <StanceState Stance, ActionState Action>
+class GroundedStaticAttack : public StateLockedAnimatedAction<Stance, Action>
+{
+public:
+  //!
+  GroundedStaticAttack(const std::string& animation, bool facingRight) : StateLockedAnimatedAction<Stance, Action>(animation, facingRight, Vector2<float>(0, 0)) {}
+
 };
 
 template <> IAction* LoopedAction<StanceState::STANDING, ActionState::NONE>::HandleInput(const InputState& rawInput, const GameContext& context);

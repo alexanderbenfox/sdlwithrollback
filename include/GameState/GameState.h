@@ -36,7 +36,7 @@ public:
   //virtual void LoadAssets() = 0;
   virtual void ProcessRawInputs(SDL_Event* localInput) = 0;
   //gets active context for the player
-  virtual GameContext GetActiveContext(const LocalPlayer& player) = 0;
+  virtual GameContext GetActiveContext(Player* player) = 0;
 
   virtual void SaveGameState(ByteBuffer<char>& data) = 0;
   virtual void LoadGameState(ByteBuffer<char>& data) = 0;
@@ -67,7 +67,7 @@ public:
 
   virtual void ProcessRawInputs(SDL_Event* localInput) override;
 
-  virtual GameContext GetActiveContext(const LocalPlayer& player) override;
+  virtual GameContext GetActiveContext(Player* player) override;
 
   virtual void SaveGameState(ByteBuffer<char>& data) override
   {
