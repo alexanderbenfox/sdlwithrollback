@@ -2,14 +2,12 @@
 #include "GameState.h"
 #include <functional>
 
-#include "Command.h"
-
 class GGPOMatch : public MatchBase
 {
 public:
   GGPOMatch(IInputHandler<SDL_Event>* localHandler, const std::string& remoteAddress, unsigned short port);
 
-  virtual void ProcessInputs(SDL_Event* localInput) override;
+  virtual void ProcessRawInputs(SDL_Event* localInput) override;
   
 
   void StartGGPOSession();

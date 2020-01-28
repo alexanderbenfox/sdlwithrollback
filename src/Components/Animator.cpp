@@ -1,9 +1,11 @@
 #include "Entity.h"
-#include "Components/Sprite.h"
+#include "Components/Animator.h"
 
 #include <math.h>
 
 #include "GameManagement.h"
+
+#include "Components/Collider.h"
 
 Animation::Animation(const char* sheet, int rows, int columns, int startIndexOnSheet, int frames) : _rows(rows), _columns(columns), _startIdx(startIndexOnSheet), _frames(frames), Image(sheet)
 {
@@ -93,7 +95,8 @@ Vector2<int> Animation::FindReferencePixel(const char* sheet)
   return Vector2<int>(0, 0);
 }
 
-Animator::Animator(std::shared_ptr<Entity> owner) : _playing(false), _accumulatedTime(0.0f), _frame(0), _nextFrameOp([](int) { return 0; }), IComponent(owner) {}
+Animator::Animator(std::shared_ptr<Entity> owner) : 
+  _playing(false), _looping(false), _accumulatedTime(0.0f), _frame(0), _nextFrameOp([](int) { return 0; }), _horizontalFlip(false), IComponent(owner) {}
 
 void Animator::Init()
 {
@@ -108,6 +111,7 @@ void Animator::RegisterAnimation(const std::string& name, const char* sheet, int
     if (_animations.size() == 1)
     {
       _basisRefPx = _animations.find(name)->second.GetRefPxLocation();
+      _basisRefSize = _animations.find(name)->second.GetFrameWH();
     }
   }
 }
@@ -132,16 +136,22 @@ void Animator::Update(float dt)
 
       // 
       _accumulatedTime -= (framesToAdv * _secPerFrame);
+
+      // when the animation is complete, do the listener callback
+      if(_listener)
+      {
+        if(!_looping && _frame == (_currentAnimation->second.GetFrameCount() - 1))
+          _listener->OnAnimationComplete(_currentAnimationName);
+      }
     }
   }
-  bool flipped = _owner->GetComponent<PlayerData>()->flipped;
-  _currentAnimation->second.SetOp(_owner->transform, _currentAnimation->second.GetFrameSrcRect(_frame), _basisOffset, flipped, _op);
+  _currentAnimation->second.SetOp(_owner->transform, _currentAnimation->second.GetFrameSrcRect(_frame), _basisOffset, _horizontalFlip, _op);
 }
 
-void Animator::Play(const std::string& name, bool isLooped)
+void Animator::Play(const std::string& name, bool isLooped, bool horizontalFlip)
 {
   // dont play again if we are already playing it
-  if (_playing && name == _currentAnimationName) return;
+  if (_playing && (name == _currentAnimationName && _horizontalFlip == horizontalFlip)) return;
 
   if (_animations.find(name) != _animations.end())
   {
@@ -158,21 +168,19 @@ void Animator::Play(const std::string& name, bool isLooped)
       _currentAnimation->second.GetRefPxLocation().x - _basisRefPx.x,
       _currentAnimation->second.GetRefPxLocation().y - _basisRefPx.y);
 
+    _horizontalFlip = horizontalFlip;
+    if(_horizontalFlip)
+    {
+      // create the offset for flipped
+      const int entityWidth = static_cast<int>(_owner->GetComponent<RectColliderD>()->rect.Width() * (1.0f / _owner->transform.scale.x));
+      const Vector2<int> frameSize = _currentAnimation->second.GetFrameWH();
+      _basisOffset = Vector2<int>(frameSize.x - entityWidth - _basisOffset.x, _basisOffset.y);
+    }
+
+    _looping = isLooped;
     if (isLooped)
       _nextFrameOp = [this](int i) { return _loopAnimGetNextFrame(i); };
     else
       _nextFrameOp = [this](int i) { return _onceAnimGetNextFrame(i); };
   }
-}
-
-Animation* Animator::GetAnimationByName(const std::string& name)
-{
-  if (_animations.find(name) == _animations.end())
-    return nullptr;
-  return &_animations.find(name)->second;
-}
-
-const Animation* Animator::GetCurrentlyPlaying()
-{
-  return &_currentAnimation->second;
 }

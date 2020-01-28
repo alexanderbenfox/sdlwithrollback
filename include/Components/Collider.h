@@ -33,6 +33,7 @@ public:
 protected:
   std::vector<std::function<void(ICollider*)>> _onCollisionCallbacks;
   bool _isStatic;
+  bool _debug;
 
 };
 
@@ -49,6 +50,8 @@ public:
   void MoveUnit(Vector2<T> movement);
   //!
   virtual void Update(float dt) override;
+  //!
+  virtual void Draw() override;
   //!
   Rect<T> rect;
 

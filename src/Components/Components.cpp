@@ -3,7 +3,7 @@
 #include "Entity.h"
 #include "GameManagement.h"
 
-#include "Components/Sprite.h"
+#include "Components/Animator.h"
 #include "Components/Camera.h"
 #include "Components/Physics.h"
 #include "Components/Collider.h"
@@ -12,11 +12,12 @@
 #include <cassert>
 
 //______________________________________________________________________________
-void Sprite::Init(const char* sheet)
+void Sprite::Init(const char* sheet, bool horizontalFlip)
 {
   //adds new operation to the blitting list
   ResourceManager::Get().RegisterBlitOp();
   _display = std::make_unique<Image>(sheet);
+  _horizontalFlip = horizontalFlip;
 }
 
 //______________________________________________________________________________
@@ -28,12 +29,7 @@ void Sprite::OnFrameBegin()
 //______________________________________________________________________________
 void Sprite::Update(float dt)
 {
-  bool flipped = false;
-  if(auto pd = _owner->GetComponent<PlayerData>())
-  {
-    flipped = pd->flipped;
-  }
-  _display->SetOp(_owner->transform, _display->GetRectOnSrcText(), Vector2<int>(0, 0), flipped, _op);
+  _display->SetOp(_owner->transform, _display->GetRectOnSrcText(), Vector2<int>(0, 0), _horizontalFlip, _op);
 }
 
 //______________________________________________________________________________
@@ -50,7 +46,6 @@ void Camera::Update(float dt)
 {
   _rect.x = static_cast<int>(std::floor(_owner->transform.position.x));
   _rect.y = static_cast<int>(std::floor(_owner->transform.position.y));
-
 }
 
 //______________________________________________________________________________
@@ -93,7 +88,31 @@ void RectCollider<T>::Update(float dt)
 }
 
 //______________________________________________________________________________
-GameActor::GameActor(std::shared_ptr<Entity> owner) : _currentAction(nullptr), _newState(true), _lastInput(InputState::NONE), _lastCollision(CollisionSide::NONE), IComponent(owner)
+template <typename T>
+void RectCollider<T>::Draw()
+{
+  SDL_SetRenderDrawColor(GameManager::Get().GetRenderer(), 255, 255, 255, SDL_ALPHA_OPAQUE);
+
+  int xBeg = static_cast<int>(std::floor(rect.Beg().x));
+  int yBeg = static_cast<int>(std::floor(rect.Beg().y));
+  int xEnd = static_cast<int>(std::ceil(rect.End().x));
+  int yEnd = static_cast<int>(std::ceil(rect.End().y));
+
+  SDL_Point points[5] = 
+  {
+    {xBeg, yBeg},
+    {xBeg, yEnd},
+    {xEnd, yEnd},
+    {xEnd, yBeg},
+    {xBeg, yBeg}
+  };
+
+  SDL_RenderDrawLines(GameManager::Get().GetRenderer(), points, 5);
+  SDL_SetRenderDrawColor(GameManager::Get().GetRenderer(), 0, 0, 0, SDL_ALPHA_OPAQUE);
+}
+
+//______________________________________________________________________________
+GameActor::GameActor(std::shared_ptr<Entity> owner) : _currentAction(nullptr), _newState(true), _lastInput(InputState::NONE), IComponent(owner)
 {
   BeginNewAction(new LoopedAction<StanceState::STANDING, ActionState::NONE>("Idle", owner.get()));
 }
@@ -101,7 +120,6 @@ GameActor::GameActor(std::shared_ptr<Entity> owner) : _currentAction(nullptr), _
 //______________________________________________________________________________
 void GameActor::Update(float dt)
 {
-  _currentAction->OnUpdate(_owner.get());
 }
 
 //______________________________________________________________________________
@@ -122,32 +140,45 @@ void GameActor::OnFrameEnd()
 //______________________________________________________________________________
 void GameActor::OnActionComplete(IAction* action)
 {
-  //_actionsFinished.insert(action);
-  _newState = true;
+  IAction* nextAction = action->GetFollowUpAction();
+  if (nextAction == action)
+    return;
+  if(nextAction)
+    BeginNewAction(nextAction);
 }
 
 //______________________________________________________________________________
-void GameActor::HandleInput(InputState input)
+void GameActor::BeginNewAction(IAction* action)
 {
-  if (auto phys = _owner->GetComponent<Physics>())
+  if (_currentAction != nullptr)
+    delete _currentAction;
+  
+  _newState = true;
+  _currentAction = action;
+
+  _currentAction->ChangeListener(this);
+  _currentAction->Enact(_owner.get());
+}
+
+//______________________________________________________________________________
+void GameActor::EvaluateInputContext(InputState input, const GameContext& context)
+{
+  if (!_newState && input == _lastInput && context == _lastContext)
+    return;
+
+  _newState = false;
+
+  IAction* prevAction = _currentAction;
+  IAction* nextAction = _currentAction->HandleInput(input, context);
+
+  if (nextAction && (nextAction != prevAction))
   {
-    if (!_newState && input == _lastInput && phys->GetLastCollisionSides() == _lastCollision)
-      return;
+    // update last context
+    _lastInput = input;
+    _lastContext = context;
 
-    _newState = false;
-    auto latestSides = phys->GetLastCollisionSides();
-
-    IAction* prevAction = _currentAction;//(*_currentActions.begin());
-    IAction* nextAction = _currentAction->HandleInput(input, latestSides, _owner.get());//(*_currentActions.begin())->HandleInput(_lastInput, _lastCollision, _owner.get());
-
-    if (nextAction && (nextAction != prevAction))
-    {
-      _lastInput = input;
-      _lastCollision = latestSides;
-
-      OnActionComplete(prevAction);
-      BeginNewAction(nextAction);
-    }
+    //OnActionComplete(prevAction);
+    BeginNewAction(nextAction);
   }
 }
 
@@ -155,20 +186,20 @@ std::ostream& operator<<(std::ostream& os, const GameActor& actor)
 {
   // need to figure out how to get the "_currentAction" into a serializable state...
   os << (unsigned char)actor._lastInput;
-  os << (unsigned char)actor._lastCollision;
+  //os << (unsigned char)actor._lastContext;
   os << actor._newState;
   return os;
 }
 
 std::istream& operator>>(std::istream& is, GameActor& actor)
 {
-  unsigned char lastInput, lastCollision;
+  unsigned char lastInput, lastContext;
   is >> lastInput;
-  is >> lastCollision;
+  is >> lastContext;
   is >> actor._newState;
 
   actor._lastInput = (InputState)lastInput;
-  actor._lastCollision = (CollisionSide)lastCollision;
+  //actor._lastContext = (GameContext)lastContext;
   return is;
 }
 

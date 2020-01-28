@@ -1,19 +1,12 @@
 #include "GameState/Player.h"
 
-#include "Command.h"
 #include "Entity.h"
 #include "Components/GameActor.h"
-#include "Components/Sprite.h"
+#include "Components/Animator.h"
 #include "Components/Physics.h"
 #include "Components/Collider.h"
 
-void LocalPlayer::ExecuteInput(ICommand* command)
-{
-  if (command)
-    command->Execute(actor->GetComponent<GameActor>().get());
-}
-
-float LocalPlayer::GetCenterX()
+float LocalPlayer::GetCenterX() const
 {
   return actor->transform.position.x + static_cast<float>(actor->GetComponent<RectColliderD>()->rect.Width() / 2.0);
 }

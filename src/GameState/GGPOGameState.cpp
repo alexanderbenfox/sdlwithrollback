@@ -22,7 +22,7 @@ GGPOMatch::GGPOMatch(IInputHandler<SDL_Event>* localHandler, const std::string& 
   result = ggpo_add_player(ggpo, &_ggpoP2, &_handles[1]);
 }
 
-void GGPOMatch::ProcessInputs(SDL_Event* localInput)
+void GGPOMatch::ProcessRawInputs(SDL_Event* localInput)
 {
   InputState input[2];
   input[0] = _player1.input->HandleInput(localInput);

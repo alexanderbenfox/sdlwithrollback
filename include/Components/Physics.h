@@ -11,7 +11,7 @@ public:
   }
 
   float Gravity = 2700.0f;
-  float JumpVelocity = 920.0f;
+  float JumpVelocity = 1200.0f;
 
   virtual void ParseCommand(const std::string& command) override
   {

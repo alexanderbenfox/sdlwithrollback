@@ -33,6 +33,8 @@ public:
   virtual void PreUpdate() {}
   //!
   virtual void PostUpdate() {}
+  //!
+  virtual void Draw() {}
 
 protected:
   //!

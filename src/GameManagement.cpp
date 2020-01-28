@@ -6,12 +6,10 @@
 #include "ResourceManager.h"
 
 #include "Components/Camera.h"
-#include "Components/Sprite.h"
+#include "Components/Animator.h"
 #include "Components/GameActor.h"
 #include "Components/Physics.h"
 #include "Components/Collider.h"
-
-#include "Command.h"
 
 #ifdef _DEBUG
 //used for debugger
@@ -135,7 +133,7 @@ void GameManager::Initialize()
   auto bottomBorder = CreateEntity<Sprite, RectColliderD>();
   bottomBorder->transform.position.x = 0.0;
   bottomBorder->transform.position.y = m_nativeHeight - 40;
-  bottomBorder->GetComponent<Sprite>()->Init("spritesheets\\ryu.png");
+  bottomBorder->GetComponent<Sprite>()->Init("spritesheets\\ryu.png", false);
   bottomBorder->GetComponent<RectColliderD>()->Init(Vector2<double>(0, m_nativeHeight - 40), Vector2<double>(m_nativeWidth, m_nativeHeight + 5000.0f));
   bottomBorder->GetComponent<RectColliderD>()->SetStatic(true);
 
@@ -257,7 +255,7 @@ void GameManager::UpdateInput()
       }
     }
   }
-  _gameState->ProcessInputs(&_localInput);
+  _gameState->ProcessRawInputs(&_localInput);
 }
 
 //______________________________________________________________________________
@@ -268,6 +266,9 @@ void GameManager::Draw()
 
   // resource manager draw here?
   ResourceManager::Get().BlitSprites();
+
+  // draw debug rects
+  ComponentManager<RectColliderD>::Get().Draw();
 
   //present this frame
   SDL_RenderPresent(_renderer);

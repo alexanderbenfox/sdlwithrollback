@@ -1,12 +1,5 @@
 #include "Input.h"
-#include "Command.h"
 #include "Components/GameActor.h"
-
-//______________________________________________________________________________
-void InGameCommand::Execute(GameActor* actor)
-{
-  actor->HandleInput(_input);
-}
 
 //Analog joystick dead zone
 const int JOYSTICK_DEAD_ZONE = 8000;

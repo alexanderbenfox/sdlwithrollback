@@ -2,6 +2,7 @@
 #include "Input.h"
 #include <memory>
 #include "Player.h"
+#include "Actions.h"
 
 class Entity;
 class Camera;
@@ -33,12 +34,12 @@ class IGameState
 public:
   virtual ~IGameState() {}
   //virtual void LoadAssets() = 0;
-  virtual void ProcessInputs(SDL_Event* localInput) = 0;
+  virtual void ProcessRawInputs(SDL_Event* localInput) = 0;
+  //gets active context for the player
+  virtual GameContext GetActiveContext(const LocalPlayer& player) = 0;
 
   virtual void SaveGameState(ByteBuffer<char>& data) = 0;
   virtual void LoadGameState(ByteBuffer<char>& data) = 0;
-
-  virtual void CheckDirections() = 0;
 
   virtual Camera* GetCamera() = 0;
 };
@@ -64,7 +65,9 @@ public:
     MatchBase()
   {}
 
-  virtual void ProcessInputs(SDL_Event* localInput) override;
+  virtual void ProcessRawInputs(SDL_Event* localInput) override;
+
+  virtual GameContext GetActiveContext(const LocalPlayer& player) override;
 
   virtual void SaveGameState(ByteBuffer<char>& data) override
   {
@@ -78,8 +81,6 @@ public:
     is >> _player1;
     is >> _player2;
   }
-
-  virtual void CheckDirections() override;
   
 protected:
   //! 

@@ -178,5 +178,7 @@ template <> void ComponentManager<Physics>::PostUpdate()
   }
 }
 
+#ifdef _WIN32
 template void ComponentManager<Physics>::PostUpdate();
 template void ComponentManager<Physics>::PreUpdate();
+#endif

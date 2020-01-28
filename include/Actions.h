@@ -1,41 +1,52 @@
 #pragma once
 #include "Components/IComponent.h"
 #include "Input.h"
+#include "ListenerInterfaces.h"
 
-class IAction;
-
-class IActionListener
+//! Inteface for a context of the world that may affect character state
+class GameContext
 {
 public:
-  virtual void OnActionComplete(IAction*) = 0;
+  GameContext() {}
+  ~GameContext() {}
+
+  bool operator==(const GameContext& other) const
+  {
+    return collision == other.collision && onLeftSide == other.onLeftSide && movement == other.movement;
+  }
+
+  Vector2<float> movement;
+  CollisionSide collision;
+  bool onLeftSide;
 };
 
 class IAction
 {
 public:
   virtual ~IAction() {}
-  //! 
-  virtual void OnUpdate(Entity* actor) = 0;
-  //!
-  virtual void OnNewFrame(Entity* actor) = 0;
+
+  //! Begin action
+  virtual void Enact(Entity* actor) = 0;
   //! return true if the input is handled only by the action
-  virtual IAction* HandleInput(InputState bttn, CollisionSide collision, Entity* actor) = 0;
-  //! Some actions might have a different rate of change than others
-  virtual float GetUpdateRate() = 0;
+  virtual IAction* HandleInput(const InputState& rawInput, const GameContext& context) = 0;
   //!
-  virtual IAction* OnActionComplete(Entity* actor) = 0;
-};
+  virtual IAction* GetFollowUpAction() = 0;
 
-struct AnimationInfo
-{
-  // for spawning hit boxes?
-  Vector2<int> hitBoxFrames;
-  std::vector<Rect<int>> hitBoxes;
+  virtual void ChangeListener(IActionListener* listener)
+  {
+    _listener = listener;
+  }
 
-  // for movement?
-  // which frames is there movement on
-  Vector2<int> movementFrames;
-  Vector2<float> velocities;
+protected:
+  //!
+  IActionListener* _listener;
+    //!
+  virtual void OnActionComplete()
+  {
+    if(_listener)
+      _listener->OnActionComplete(this);
+  }
+
 };
 
 //all of the possible states for animation??
@@ -49,27 +60,42 @@ enum class ActionState
   NONE, BLOCKSTUN, HITSTUN, DASHING, LIGHT, MEDIUM, HEAVY
 };
 
+// partial specialization
+template <StanceState Stance> IAction* GetAttacksFromNeutral(const InputState& rawInput, bool facingRight);
+
 template <StanceState Stance, ActionState Action>
-class AnimatedAction : public IAction
+class AnimatedAction : public IAction, public IAnimatorListener
 {
 public:
-  AnimatedAction(const std::string& animation, Entity* actor);
   //!
-  AnimatedAction(const std::string& animation, Entity* actor, Vector2<float> instVeclocity);
+  AnimatedAction(const std::string& animation, bool facingRight) :
+    _loopedAnimation(true), _animation(animation), _facingRight(facingRight), _velocity(0, 0) {}
   //!
-  virtual void OnUpdate(Entity* actor) override = 0;
+  AnimatedAction(const std::string& animation, bool facingRight, Vector2<float> instVelocity) :
+    _loopedAnimation(true), _animation(animation), _facingRight(facingRight), _velocity(instVelocity) {}
+  
   //!
-  virtual IAction* HandleInput(InputState bttn, CollisionSide collision, Entity* actor) override = 0;
+  virtual void Enact(Entity* actor) override;
   //!
-  virtual IAction* OnActionComplete(Entity* actor) override { return nullptr; }
-  //!
-  virtual void OnNewFrame(Entity* actor) override {}
-  //!
-  virtual float GetUpdateRate() override { return animation_fps; }
+  virtual IAction* HandleInput(const InputState& rawInput, const GameContext& context) override = 0;
+
+  virtual IAction* GetFollowUpAction() override {return nullptr;}
+
+  virtual void OnAnimationComplete(const std::string& completedAnimation) override
+  {
+    if(_animation == completedAnimation)
+      OnActionComplete();
+  }
 
 protected:
   //!
   std::string _animation;
+  //!
+  bool _loopedAnimation;
+  //!
+  bool _facingRight;
+  //!
+  Vector2<float> _velocity;
 
 };
 
@@ -77,17 +103,16 @@ template <StanceState Stance, ActionState Action>
 class LoopedAction : public AnimatedAction<Stance, Action>
 {
 public:
-  LoopedAction(const std::string& animation, Entity* actor) : AnimatedAction<Stance, Action>(animation, actor) {}
+  LoopedAction(const std::string& animation, bool facingRight) :
+    AnimatedAction<Stance, Action>(animation, facingRight) {}
   //!
-  LoopedAction(const std::string& animation, Entity* actor, Vector2<float> instVeclocity) : AnimatedAction<Stance, Action>(animation, actor, instVeclocity) {}
-  //!
-  virtual void OnUpdate(Entity* actor) override {}
-  //!
-  virtual IAction* HandleInput(InputState bttn, CollisionSide collision, Entity* actor) override { return nullptr; }
+  LoopedAction(const std::string& animation, bool facingRight, Vector2<float> instVeclocity) :
+    AnimatedAction<Stance, Action>(animation, facingRight, instVeclocity) {}
 
-protected:
+  //__________________OVERRIDES________________________________
+
   //!
-  std::string _animation;
+  virtual IAction* HandleInput(const InputState& rawInput, const GameContext& context) override { return nullptr; }
 
 };
 
@@ -96,38 +121,34 @@ class StateLockedAnimatedAction : public AnimatedAction<Stance, Action>
 {
 public:
   //!
-  StateLockedAnimatedAction(const std::string& animation, Entity* actor);
+  StateLockedAnimatedAction(const std::string& animation, bool facingRight);
   //!
-  virtual void OnUpdate(Entity* actor) override;
+  virtual IAction* HandleInput(const InputState& rawInput, const GameContext& context) override;
   //!
-  virtual IAction* OnActionComplete(Entity* actor) override { return new LoopedAction<Stance, ActionState::NONE>(Stance == StanceState::STANDING ? "Idle" : Stance == StanceState::CROUCHING ? "Crouch" : "Jumping", actor); }
-  //!
-  virtual IAction* HandleInput(InputState bttn, CollisionSide collision, Entity* actor) override;
+  virtual IAction* GetFollowUpAction() override;
   
 };
 
-template <> IAction* StateLockedAnimatedAction<StanceState::CROUCHING, ActionState::NONE>::OnActionComplete(Entity* actor);
+template <> IAction* LoopedAction<StanceState::STANDING, ActionState::NONE>::HandleInput(const InputState& rawInput, const GameContext& context);
 
-template <> IAction* LoopedAction<StanceState::STANDING, ActionState::NONE>::HandleInput(InputState input, CollisionSide collision, Entity* actor);
+template <> IAction* LoopedAction<StanceState::JUMPING, ActionState::NONE>::HandleInput(const InputState& rawInput, const GameContext& context);
 
-template <> IAction* LoopedAction<StanceState::JUMPING, ActionState::NONE>::HandleInput(InputState input, CollisionSide collision, Entity* actor);
+template <> IAction* LoopedAction<StanceState::CROUCHING, ActionState::NONE>::HandleInput(const InputState& rawInput, const GameContext& context);
+
+template <> IAction* StateLockedAnimatedAction<StanceState::CROUCHING, ActionState::NONE>::GetFollowUpAction();
 
 template <StanceState State, ActionState Action>
-inline IAction* StateLockedAnimatedAction<State, Action>::HandleInput(InputState input, CollisionSide collision, Entity* actor)
+inline IAction* StateLockedAnimatedAction<State, Action>::HandleInput(const InputState& rawInput, const GameContext& context)
 {
   if (State == StanceState::JUMPING)
   {
-    if (HasState(collision, CollisionSide::DOWN))
+    if (HasState(context.collision, CollisionSide::DOWN))
     {
-      return OnActionComplete(actor);
+      return GetFollowUpAction();
     }
   }
   return nullptr;
 }
-
-template <> IAction* LoopedAction<StanceState::CROUCHING, ActionState::NONE>::HandleInput(InputState input, CollisionSide collision, Entity* actor);
-
-template <> void LoopedAction<StanceState::JUMPING, ActionState::NONE>::OnUpdate(Entity* actor);
 
 #ifdef _WIN32
 template LoopedAction<StanceState::STANDING, ActionState::NONE>;

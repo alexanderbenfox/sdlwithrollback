@@ -5,15 +5,6 @@
 class Entity;
 class ICommand;
 
-class PlayerData : public IComponent
-{
-public:
-  //!
-  PlayerData(std::shared_ptr<Entity> entity) : flipped(false), IComponent(entity) {}
-  //!
-  bool flipped;
-};
-
 struct LocalPlayer
 {
   LocalPlayer(IInputHandler<SDL_Event>* input, std::shared_ptr<Entity> actor) : input(std::unique_ptr<IInputHandler<SDL_Event>>(input)), actor(actor) {}
@@ -22,9 +13,7 @@ struct LocalPlayer
   //! Currently controller object
   std::shared_ptr<Entity> actor;
   //!
-  void ExecuteInput(ICommand* command);
-  //!
-  float GetCenterX();
+  float GetCenterX() const;
 
   friend std::ostream& operator<<(std::ostream& os, const LocalPlayer& player);
   friend std::istream& operator>>(std::istream& is, LocalPlayer& player);

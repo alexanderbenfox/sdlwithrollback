@@ -4,6 +4,8 @@
 
 #include <set>
 
+#include "ListenerInterfaces.h"
+
 class GameActor : public IComponent, public IActionListener
 {
 public:
@@ -18,7 +20,9 @@ public:
   //! 
   virtual void OnActionComplete(IAction* action) override;
   //!
-  void HandleInput(InputState input);
+  void BeginNewAction(IAction* action);
+  //!
+  void EvaluateInputContext(InputState input, const GameContext& context);
   //!
   /*void StartAnimatedAction(const std::string& animName, bool isJC = false);
   //!
@@ -26,13 +30,6 @@ public:
   {
     _currentActions.insert(new StateModifierAction(animName, _owner.get(), state));
   }*/
-
-  void BeginNewAction(IAction* action)
-  {
-    if (_currentAction != nullptr)
-      delete _currentAction;
-    _currentAction = action;
-  }
 
   bool IsPerformingAction() const { return _currentAction != nullptr; }
 
@@ -48,7 +45,8 @@ private:
 
   //!
   InputState _lastInput;
-  CollisionSide _lastCollision;
+  //!
+  GameContext _lastContext;
   bool _newState;
 
 

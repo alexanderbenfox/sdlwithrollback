@@ -47,6 +47,12 @@ public:
       comp->OnFrameEnd();
   }
 
+  void Draw()
+  {
+    for (auto comp : _components)
+      comp->Draw();
+  }
+
   std::vector<std::shared_ptr<T>>& All() { return _components; }
 
 private:

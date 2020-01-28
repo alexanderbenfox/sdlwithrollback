@@ -1,21 +1,39 @@
 #include "GameState/GameState.h"
-#include "Command.h"
 
 #include "GameManagement.h"
-#include "Components/Sprite.h"
+#include "Components/Animator.h"
 #include "Components/GameActor.h"
 #include "Components/Physics.h"
 #include "Components/Camera.h"
 
-void LocalMatch::ProcessInputs(SDL_Event* localInput)
+void LocalMatch::ProcessRawInputs(SDL_Event* localInput)
 {
-  //update keys pressed here
-  auto command_P1 = std::unique_ptr<ICommand>(new InGameCommand(_player1.input->HandleInput(localInput)));
-  auto command_P2 = std::unique_ptr<ICommand>(new InGameCommand(_player2.input->HandleInput(localInput)));
+  InputState rawInput = _player1.input->HandleInput(localInput);
+  GameContext contexts = GetActiveContext(_player1);
+  _player1.actor->GetComponent<GameActor>()->EvaluateInputContext(rawInput, contexts);
+  
+  rawInput = _player2.input->HandleInput(localInput);
+  contexts = GetActiveContext(_player2);
+  _player2.actor->GetComponent<GameActor>()->EvaluateInputContext(rawInput, contexts);
+}
 
-  // advance game state?
-  _player1.ExecuteInput(command_P1.get());
-  _player2.ExecuteInput(command_P2.get());
+GameContext LocalMatch::GetActiveContext(const LocalPlayer& player)
+{
+  GameContext context;
+
+  if (auto phys = player.actor->GetComponent<Physics>())
+  {
+    context.collision = phys->GetLastCollisionSides();
+  }
+  else
+  {
+    context.collision = CollisionSide::NONE;
+  }
+
+  LocalPlayer& otherPlayer = &player == &_player1 ? _player2 : _player1;
+  context.onLeftSide = player.GetCenterX() < otherPlayer.GetCenterX();
+
+  return context;
 }
 
 LocalPlayer EntityCreation::CreateLocalPlayer(IInputHandler<SDL_Event>* input, float xOffset)
@@ -45,7 +63,7 @@ LocalPlayer EntityCreation::CreateLocalPlayer(IInputHandler<SDL_Event>* input, f
   player->GetComponent<Animator>()->RegisterAnimation("JumpingMedium", "spritesheets\\jlp.png", 4, 4, 0, 14);
   player->GetComponent<Animator>()->RegisterAnimation("JumpingHeavy", "spritesheets\\jlp.png", 4, 4, 0, 14);
 
-  player->GetComponent<Animator>()->Play("Idle", true);
+  player->GetComponent<Animator>()->Play("Idle", true, xOffset != 0);
 
   player->GetComponent<RectColliderD>()->Init(Vector2<double>(xOffset, 0.0),
     Vector2<double>(xOffset + static_cast<double>(textureSize.x), static_cast<double>(textureSize.y)));
@@ -53,9 +71,6 @@ LocalPlayer EntityCreation::CreateLocalPlayer(IInputHandler<SDL_Event>* input, f
 
   player->SetScale(Vector2<float>(1.4f, 1.7f));
   player->transform.position.x = xOffset;
-
-  player->AddComponent<PlayerData>();
-  player->GetComponent<PlayerData>()->flipped = xOffset != 0;
 
   player->GetComponent<RectColliderD>()->Update(0);
 
@@ -108,18 +123,4 @@ std::shared_ptr<Camera> EntityCreation::CreateCamera()
   auto camera = GameManager::Get().CreateEntity<Camera>();
   camera->GetComponent<Camera>()->Init(m_nativeWidth, m_nativeHeight);
   return camera->GetComponent<Camera>();
-}
-
-void LocalMatch::CheckDirections()
-{
-  if(_player1.GetCenterX() > _player2.GetCenterX())
-  {
-    _player1.actor->GetComponent<PlayerData>()->flipped = true;
-    _player2.actor->GetComponent<PlayerData>()->flipped = false;
-  }
-  else
-  {
-    _player1.actor->GetComponent<PlayerData>()->flipped = false;
-    _player2.actor->GetComponent<PlayerData>()->flipped = true;
-  }
 }
