@@ -137,6 +137,20 @@ void GameManager::Initialize()
   bottomBorder->GetComponent<RectColliderD>()->Init(Vector2<double>(0, m_nativeHeight - 40), Vector2<double>(m_nativeWidth, m_nativeHeight + 5000.0f));
   bottomBorder->GetComponent<RectColliderD>()->SetStatic(true);
 
+  auto leftBorder = CreateEntity<Sprite, RectColliderD>();
+  leftBorder->transform.position.x = -200;
+  leftBorder->transform.position.y = 0;
+  leftBorder->GetComponent<Sprite>()->Init("spritesheets\\ryu.png", false);
+  leftBorder->GetComponent<RectColliderD>()->Init(Vector2<double>(-200, 0), Vector2<double>(0, m_nativeHeight));
+  leftBorder->GetComponent<RectColliderD>()->SetStatic(true);
+
+  auto rightBorder = CreateEntity<Sprite, RectColliderD>();
+  rightBorder->transform.position.x = m_nativeWidth;
+  rightBorder->transform.position.y = 0;
+  rightBorder->GetComponent<Sprite>()->Init("spritesheets\\ryu.png", false);
+  rightBorder->GetComponent<RectColliderD>()->Init(Vector2<double>(m_nativeWidth, 0), Vector2<double>(m_nativeWidth + 200, m_nativeHeight));
+  rightBorder->GetComponent<RectColliderD>()->SetStatic(true);
+
   KeyboardInputHandler* kb1 = new KeyboardInputHandler();
   KeyboardInputHandler* kb2 = new KeyboardInputHandler();
   kb2->SetKey(SDLK_UP, InputState::UP);
