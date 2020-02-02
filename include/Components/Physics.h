@@ -50,7 +50,13 @@ class Physics : public IComponent
 {
 public:
   //!
-  Physics(std::shared_ptr<Entity> entity) : IComponent(entity) {}
+  Physics(std::shared_ptr<Entity> entity) : _useGravity(false), IComponent(entity) {}
+  //!
+  void Init(bool useGravity)
+  {
+    _useGravity = useGravity;
+    _addedAccel = UniversalPhysicsSettings::Get().Gravity;
+  }
   //!
   virtual void Update(float dt) override;
   //!
@@ -77,6 +83,10 @@ private:
   Vector2<float> _vel;
   //!
   Vector2<float> _acc;
+  //!
+  float _addedAccel;
+  //!
+  bool _useGravity;
 
 };
 

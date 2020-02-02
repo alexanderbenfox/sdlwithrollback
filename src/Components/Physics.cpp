@@ -3,13 +3,8 @@
 //______________________________________________________________________________
 void Physics::Update(float dt)
 {
-  _acc = Vector2<float>(0, UniversalPhysicsSettings::Get().Gravity);
-  if (auto rCollider = _owner->GetComponent<RectColliderD>())
-  {
-    if (rCollider->IsStatic()) _acc = Vector2<float>(0, 0);
-  }
   // Apply last frame of acceleration to the velocity
-  _vel += _acc * dt;
+  _vel += (_acc + Vector2<float>(0, _addedAccel)) * dt;
 
   // Create the movement vector based on speed and acceleration of the object
   auto fix = [](float dt) { return (int)std::floor(10000 * dt) / 10000.0; };
@@ -160,8 +155,8 @@ template <> void ComponentManager<Physics>::PostUpdate()
       //check if they are still colliding
       if(collider->rect.Collides(collided->rect))
       {
-        auto pushAmount_collided = GetPushAmount(collider, collided, dynamicCollisionsThisFrame[i].movement, -0.5);
-        auto pushAmount_collider = GetPushAmount(collided, collider, dynamicCollisionsThisFrame[twoWayCollisionIndex].movement, -0.5);
+        auto pushAmount_collided = GetPushAmount(collider, collided, dynamicCollisionsThisFrame[i].movement, -0.25);
+        auto pushAmount_collider = GetPushAmount(collided, collider, dynamicCollisionsThisFrame[twoWayCollisionIndex].movement, -0.25);
 
         collided->MoveUnit(pushAmount_collided);
         collider->MoveUnit(pushAmount_collider);
