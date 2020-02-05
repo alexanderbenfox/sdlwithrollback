@@ -1,4 +1,5 @@
 #include "Entity.h"
+#include "Components/Transform.h"
 #include "Components/Collider.h"
 
 std::ostream& operator<<(std::ostream& os, const Transform& transform)
@@ -35,6 +36,7 @@ void Entity::ParseCommand(const std::string& command)
   std::string parameter = split[2];
   std::string subparameter = split[3];
   std::string value = split[4];
+  Transform& transform = *GetComponent<Transform>();
 
   if (component == "transform")
   {
@@ -79,6 +81,7 @@ std::string Entity::GetIdentifier()
 
 void Entity::SetScale(Vector2<float> scale)
 {
+  Transform& transform = *GetComponent<Transform>();
   if (auto collider = GetComponent<RectColliderD>())
   {
     double addedWidth = collider->rect.Width() * (scale.x - transform.scale.x) / 2.0;

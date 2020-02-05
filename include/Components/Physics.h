@@ -65,19 +65,19 @@ public:
   //!
   static Vector2<double> CreateResolveCollisionVector(OverlapInfo<double> overlap, const Vector2<double>& movementVector);
 
-  CollisionSide GetLastCollisionSides() { return _lastCollisionSide; }
+  //CollisionSide GetLastCollisionSides() { return _lastCollisionSide; }
 
-  void ApplyVelocity(Vector2<float> vel) { _vel = vel; }
+  //void ApplyVelocity(Vector2<float> vel) { _vel = vel; }
 
-  void ChangeXVelocity(float x) { _vel.x = x; }
-  void ChangeYVelocity(float y) { _vel.y = y; }
+  //void ChangeXVelocity(float x) { _vel.x = x; }
+  //void ChangeYVelocity(float y) { _vel.y = y; }
 
-  const Vector2<float>& GetVelocity() { return _vel; }
+  //const Vector2<float>& GetVelocity() { return _vel; }
 
   friend std::ostream& operator<<(std::ostream& os, const Physics& phys);
   friend std::istream& operator>>(std::istream& is, Physics& phys);
 
-private:
+//private:
   CollisionSide _lastCollisionSide;
   //!
   Vector2<float> _vel;
@@ -90,5 +90,7 @@ private:
 
 };
 
-template <> void ComponentManager<Physics>::PreUpdate();
-template <> void ComponentManager<Physics>::PostUpdate();
+template <> struct ComponentTraits<Physics>
+{
+  static const uint64_t GetSignature() { return 1 << 2;}
+};

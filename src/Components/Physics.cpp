@@ -1,4 +1,5 @@
 #include "Components/Physics.h"
+#include "Components/Transform.h"
 
 //______________________________________________________________________________
 void Physics::Update(float dt)
@@ -18,7 +19,8 @@ void Physics::Update(float dt)
   _vel += caVelocity;
 
   // Add the movement vector to the entityd
-  _owner->transform.position += _vel * dt;
+  //_owner->transform.position += _vel * dt;
+  _owner->GetComponent<Transform>()->position += _vel * dt;
 
 }
 
@@ -32,9 +34,9 @@ Vector2<double> Physics::DoElasticCollisions(const Vector2<double>& movementVect
   {
     Rect<double> potentialRect = myCollider->rect;
 
-    potentialRect = Rect<double>(Vector2<double>(_owner->transform.position.x, _owner->transform.position.y),
-      Vector2<double>(_owner->transform.position.x + potentialRect.Width(),
-        _owner->transform.position.y + potentialRect.Height()));
+    //potentialRect = Rect<double>(Vector2<double>(_owner->transform.position.x, _owner->transform.position.y),
+    //  Vector2<double>(_owner->transform.position.x + potentialRect.Width(),
+    //    _owner->transform.position.y + potentialRect.Height()));
 
     potentialRect.Move(movementVector + correction.amount);
 

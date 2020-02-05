@@ -29,7 +29,7 @@ void Sprite::OnFrameBegin()
 //______________________________________________________________________________
 void Sprite::Update(float dt)
 {
-  _display->SetOp(_owner->transform, _display->GetRectOnSrcText(), Vector2<int>(0, 0), _horizontalFlip, _op);
+  _display->SetOp(*_owner->GetComponent<Transform>(), _display->GetRectOnSrcText(), Vector2<int>(0, 0), _horizontalFlip, _op);
 }
 
 //______________________________________________________________________________
@@ -44,8 +44,8 @@ void Camera::Init(int w, int h)
 //______________________________________________________________________________
 void Camera::Update(float dt)
 {
-  _rect.x = static_cast<int>(std::floor(_owner->transform.position.x));
-  _rect.y = static_cast<int>(std::floor(_owner->transform.position.y));
+  _rect.x = static_cast<int>(std::floor(_owner->GetComponent<Transform>()->position.x));
+  _rect.y = static_cast<int>(std::floor(_owner->GetComponent<Transform>()->position.y));
 }
 
 //______________________________________________________________________________
@@ -72,7 +72,7 @@ void RectCollider<T>::Init(Vector2<T> beg, Vector2<T> end)
 template <typename T>
 void RectCollider<T>::MoveUnit(Vector2<T> movement)
 {
-  _owner->transform.position += Vector2<float>(static_cast<float>(movement.x), static_cast<float>(movement.y));
+  _owner->GetComponent<Transform>()->position += Vector2<float>(static_cast<float>(movement.x), static_cast<float>(movement.y));
   Update(0);
 }
 
@@ -82,8 +82,9 @@ void RectCollider<T>::Update(float dt)
 {
   if (!_isStatic)
   {
-    rect = Rect<T>(Vector2<T>((T)_owner->transform.position.x, (T)_owner->transform.position.y),
-      Vector2<T>(_owner->transform.position.x + rect.Width(), _owner->transform.position.y + rect.Height()));
+    Transform& transform = *_owner->GetComponent<Transform>();
+    rect = Rect<T>(Vector2<T>((T)transform.position.x, (T)transform.position.y),
+      Vector2<T>(transform.position.x + rect.Width(), transform.position.y + rect.Height()));
   }
 }
 

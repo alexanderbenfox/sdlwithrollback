@@ -23,7 +23,7 @@ GameContext LocalMatch::GetActiveContext(Player* player)
 
   if (auto phys = player->actor->GetComponent<Physics>())
   {
-    context.collision = phys->GetLastCollisionSides();
+    context.collision = phys->_lastCollisionSide;
   }
   else
   {
@@ -40,7 +40,7 @@ LocalPlayer EntityCreation::CreateLocalPlayer(IInputHandler<SDL_Event>* input, f
 {
   Vector2<int> textureSize = ResourceManager::Get().GetTextureWidthAndHeight("spritesheets\\ryu.png");
 
-  auto player = GameManager::Get().CreateEntity<Animator, Physics, GameActor, RectColliderD>();
+  auto player = GameManager::Get().CreateEntity<Transform, Animator, Physics, GameActor, RectColliderD>();
 
   player->GetComponent<Physics>()->Init(true);
 
@@ -72,7 +72,7 @@ LocalPlayer EntityCreation::CreateLocalPlayer(IInputHandler<SDL_Event>* input, f
   player->GetComponent<RectColliderD>()->SetStatic(false);
 
   player->SetScale(Vector2<float>(1.4f, 1.7f));
-  player->transform.position.x = xOffset;
+  player->GetComponent<Transform>()->position.x = xOffset;
 
   player->GetComponent<RectColliderD>()->Update(0);
 

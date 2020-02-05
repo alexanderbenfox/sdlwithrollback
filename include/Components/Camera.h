@@ -27,3 +27,8 @@ private:
   //!
   SDL_Rect _rect;
 };
+
+template <> struct ComponentTraits<Camera>
+{
+  static const uint64_t GetSignature() { return 1 << 5;}
+};

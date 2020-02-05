@@ -1,6 +1,7 @@
 #pragma once
 #include "AssetManagement/Resource.h"
 #include "IComponent.h"
+#include "Transform.h"
 
 #include <functional>
 #include <cmath>
@@ -67,4 +68,9 @@ protected:
   //!
   bool _horizontalFlip;
 
+};
+
+template <> struct ComponentTraits<Sprite>
+{
+  static const uint64_t GetSignature() { return 1 << 1;}
 };

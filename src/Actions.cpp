@@ -86,7 +86,8 @@ void AnimatedAction<Stance, Action>::Enact(Entity* actor)
   if (_movementType)
   {
     if (auto mover = actor->GetComponent<Physics>())
-      mover->ApplyVelocity(_velocity);
+      mover->_vel = _velocity;
+      //mover->ApplyVelocity(_velocity);
   }
 }
 

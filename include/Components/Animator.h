@@ -110,3 +110,8 @@ protected:
   std::vector<std::function<void(Animation*)>> _onAnimCompleteCallbacks;
 
 };
+
+template <> struct ComponentTraits<Animator>
+{
+  static const uint64_t GetSignature() { return 1 << 5;}
+};

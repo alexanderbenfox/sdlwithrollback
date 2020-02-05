@@ -145,7 +145,7 @@ void Animator::Update(float dt)
       }
     }
   }
-  _currentAnimation->second.SetOp(_owner->transform, _currentAnimation->second.GetFrameSrcRect(_frame), _basisOffset, _horizontalFlip, _op);
+  _currentAnimation->second.SetOp(*_owner->GetComponent<Transform>(), _currentAnimation->second.GetFrameSrcRect(_frame), _basisOffset, _horizontalFlip, _op);
 }
 
 void Animator::Play(const std::string& name, bool isLooped, bool horizontalFlip)
@@ -172,7 +172,7 @@ void Animator::Play(const std::string& name, bool isLooped, bool horizontalFlip)
     if(_horizontalFlip)
     {
       // create the offset for flipped
-      const int entityWidth = static_cast<int>(_owner->GetComponent<RectColliderD>()->rect.Width() * (1.0f / _owner->transform.scale.x));
+      const int entityWidth = static_cast<int>(_owner->GetComponent<RectColliderD>()->rect.Width() * (1.0f / _owner->GetComponent<Transform>()->scale.x));
       const Vector2<int> frameSize = _currentAnimation->second.GetFrameWH();
       _basisOffset = Vector2<int>(frameSize.x - entityWidth - _basisOffset.x, _basisOffset.y);
     }

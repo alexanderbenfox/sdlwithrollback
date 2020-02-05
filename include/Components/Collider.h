@@ -69,3 +69,8 @@ public:
 };
 
 typedef RectCollider<double> RectColliderD;
+
+template <> struct ComponentTraits<RectColliderD>
+{
+  static const uint64_t GetSignature() { return 1 << 4;}
+};

@@ -37,7 +37,13 @@ public:
   virtual void Draw() {}
 
 protected:
-  //!
+  //! 
   std::shared_ptr<Entity> _owner;
   
+};
+
+template <typename T>
+struct ComponentTraits
+{
+  static const uint64_t GetSignature();
 };

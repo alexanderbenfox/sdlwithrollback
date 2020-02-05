@@ -11,6 +11,8 @@
 #include "Components/Physics.h"
 #include "Components/Collider.h"
 
+#include "Systems/Physics.h"
+
 #ifdef _DEBUG
 //used for debugger
 #include <thread>
@@ -130,23 +132,23 @@ void GameManager::Initialize()
   _renderer = SDL_CreateRenderer(_window, -1, SDL_RENDERER_ACCELERATED);
   SDL_SetRenderDrawBlendMode(_renderer, SDL_BLENDMODE_BLEND);
 
-  auto bottomBorder = CreateEntity<Sprite, RectColliderD>();
-  bottomBorder->transform.position.x = 0.0;
-  bottomBorder->transform.position.y = m_nativeHeight - 40;
+  auto bottomBorder = CreateEntity<Transform, Sprite, RectColliderD>();
+  bottomBorder->GetComponent<Transform>()->position.x = 0.0;
+  bottomBorder->GetComponent<Transform>()->position.y = m_nativeHeight - 40;
   bottomBorder->GetComponent<Sprite>()->Init("spritesheets\\ryu.png", false);
   bottomBorder->GetComponent<RectColliderD>()->Init(Vector2<double>(0, m_nativeHeight - 40), Vector2<double>(m_nativeWidth, m_nativeHeight + 5000.0f));
   bottomBorder->GetComponent<RectColliderD>()->SetStatic(true);
 
-  auto leftBorder = CreateEntity<Sprite, RectColliderD>();
-  leftBorder->transform.position.x = -200;
-  leftBorder->transform.position.y = 0;
+  auto leftBorder = CreateEntity<Transform, Sprite, RectColliderD>();
+  leftBorder->GetComponent<Transform>()->position.x = -200;
+  leftBorder->GetComponent<Transform>()->position.y = 0;
   leftBorder->GetComponent<Sprite>()->Init("spritesheets\\ryu.png", false);
   leftBorder->GetComponent<RectColliderD>()->Init(Vector2<double>(-200, 0), Vector2<double>(0, m_nativeHeight));
   leftBorder->GetComponent<RectColliderD>()->SetStatic(true);
 
-  auto rightBorder = CreateEntity<Sprite, RectColliderD>();
-  rightBorder->transform.position.x = m_nativeWidth;
-  rightBorder->transform.position.y = 0;
+  auto rightBorder = CreateEntity<Transform, Sprite, RectColliderD>();
+  rightBorder->GetComponent<Transform>()->position.x = m_nativeWidth;
+  rightBorder->GetComponent<Transform>()->position.y = 0;
   rightBorder->GetComponent<Sprite>()->Init("spritesheets\\ryu.png", false);
   rightBorder->GetComponent<RectColliderD>()->Init(Vector2<double>(m_nativeWidth, 0), Vector2<double>(m_nativeWidth + 200, m_nativeHeight));
   rightBorder->GetComponent<RectColliderD>()->SetStatic(true);
@@ -228,12 +230,13 @@ Camera* GameManager::GetMainCamera()
 void GameManager::Update(float deltaTime)
 {
   //====PREUPDATE=====//
-  ComponentManager<Physics>::Get().PreUpdate();
+  //ComponentManager<Physics>::Get().PreUpdate();
 
   // update acting units' state machine
   ComponentManager<GameActor>::Get().Update(deltaTime);
   // resolve collisions
-  ComponentManager<Physics>::Get().Update(deltaTime);
+  //ComponentManager<Physics>::Get().Update(deltaTime);
+  PhysicsSystem::DoTick(deltaTime);
   // update the location of the colliders
   ComponentManager<RectColliderD>::Get().Update(deltaTime);
 
@@ -243,7 +246,7 @@ void GameManager::Update(float deltaTime)
   ComponentManager<Animator>::Get().Update(deltaTime);
 
   //====POSTUPDATE=====//
-  ComponentManager<Physics>::Get().PostUpdate();
+  //ComponentManager<Physics>::Get().PostUpdate();
   // update the location of the colliders (again)
   ComponentManager<RectColliderD>::Get().Update(deltaTime);
 }
