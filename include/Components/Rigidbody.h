@@ -36,21 +36,12 @@ private:
 
 };
 
-struct DynamicCollision
-{
-  std::shared_ptr<RectColliderD> collider;
-  std::shared_ptr<RectColliderD> collided;
-  Vector2<double> movement;
-};
-
-static std::vector<DynamicCollision> dynamicCollisionsThisFrame;
-
 //!
-class Physics : public IComponent
+class Rigidbody : public IComponent
 {
 public:
   //!
-  Physics(std::shared_ptr<Entity> entity) : _useGravity(false), IComponent(entity) {}
+  Rigidbody(std::shared_ptr<Entity> entity) : _useGravity(false), IComponent(entity) {}
   //!
   void Init(bool useGravity)
   {
@@ -58,26 +49,8 @@ public:
     _addedAccel = UniversalPhysicsSettings::Get().Gravity;
   }
   //!
-  virtual void Update(float dt) override;
-  //!
-  Vector2<double> DoElasticCollisions(const Vector2<double>& movementVector);
+  virtual void Update(float dt) override {}
 
-  //!
-  static Vector2<double> CreateResolveCollisionVector(OverlapInfo<double> overlap, const Vector2<double>& movementVector);
-
-  //CollisionSide GetLastCollisionSides() { return _lastCollisionSide; }
-
-  //void ApplyVelocity(Vector2<float> vel) { _vel = vel; }
-
-  //void ChangeXVelocity(float x) { _vel.x = x; }
-  //void ChangeYVelocity(float y) { _vel.y = y; }
-
-  //const Vector2<float>& GetVelocity() { return _vel; }
-
-  friend std::ostream& operator<<(std::ostream& os, const Physics& phys);
-  friend std::istream& operator>>(std::istream& is, Physics& phys);
-
-//private:
   CollisionSide _lastCollisionSide;
   //!
   Vector2<float> _vel;
@@ -88,9 +61,12 @@ public:
   //!
   bool _useGravity;
 
+  friend std::ostream& operator<<(std::ostream& os, const Rigidbody& rb);
+  friend std::istream& operator>>(std::istream& is, Rigidbody& rb);
+
 };
 
-template <> struct ComponentTraits<Physics>
+template <> struct ComponentTraits<Rigidbody>
 {
   static const uint64_t GetSignature() { return 1 << 2;}
 };

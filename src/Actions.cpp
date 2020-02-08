@@ -3,7 +3,7 @@
 #include "GameState/Player.h"
 
 #include "Components/Animator.h"
-#include "Components/Physics.h"
+#include "Components/Rigidbody.h"
 #include "Components/GameActor.h"
 
 const float _baseSpeed = 300.0f * 1.5f;
@@ -85,7 +85,7 @@ void AnimatedAction<Stance, Action>::Enact(Entity* actor)
 
   if (_movementType)
   {
-    if (auto mover = actor->GetComponent<Physics>())
+    if (auto mover = actor->GetComponent<Rigidbody>())
       mover->_vel = _velocity;
       //mover->ApplyVelocity(_velocity);
   }

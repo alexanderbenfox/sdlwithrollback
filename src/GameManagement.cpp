@@ -8,7 +8,7 @@
 #include "Components/Camera.h"
 #include "Components/Animator.h"
 #include "Components/GameActor.h"
-#include "Components/Physics.h"
+#include "Components/Rigidbody.h"
 #include "Components/Collider.h"
 
 #include "Systems/Physics.h"
@@ -196,18 +196,15 @@ void GameManager::BeginGameLoop()
 
   for (;;)
   {
-    //! Do pre-input set up stuff
-    for (auto sprite : ComponentManager<Sprite>::Get().All())
-      sprite->OnFrameBegin();
-    for (auto animator : ComponentManager<Animator>::Get().All())
-      animator->OnFrameBegin();
-
     //! Collect inputs from controllers (this means AI controllers as well as Player controllers)
     UpdateInput();
 
     std::lock_guard<std::mutex> lock(_debugMutex);
     //! Update all components
     clock.Update(update);
+
+    // do once per frame system calls
+    DrawSystem::PostUpdate();
 
     //! Finally render the scene
     Draw();
@@ -241,14 +238,15 @@ void GameManager::Update(float deltaTime)
   ComponentManager<RectColliderD>::Get().Update(deltaTime);
 
   // update rendered components last
-  ComponentManager<Sprite>::Get().Update(deltaTime);
+  //ComponentManager<Sprite>::Get().Update(deltaTime);
   // update animation state
-  ComponentManager<Animator>::Get().Update(deltaTime);
+  //ComponentManager<Animator>::Get().Update(deltaTime);
+  DrawSystem::DoTick(deltaTime);
 
   //====POSTUPDATE=====//
   //ComponentManager<Physics>::Get().PostUpdate();
   // update the location of the colliders (again)
-  ComponentManager<RectColliderD>::Get().Update(deltaTime);
+  //ComponentManager<RectColliderD>::Get().Update(deltaTime);
 }
 
 //______________________________________________________________________________

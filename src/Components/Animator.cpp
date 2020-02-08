@@ -96,11 +96,9 @@ Vector2<int> Animation::FindReferencePixel(const char* sheet)
 }
 
 Animator::Animator(std::shared_ptr<Entity> owner) : 
-  _playing(false), _looping(false), _accumulatedTime(0.0f), _frame(0), _nextFrameOp([](int) { return 0; }), _horizontalFlip(false), IComponent(owner) {}
-
-void Animator::Init()
+  _playing(false), _looping(false), _accumulatedTime(0.0f), _frame(0), _nextFrameOp([](int) { return 0; }), Sprite(owner)
 {
-  ResourceManager::Get().RegisterBlitOp();
+  
 }
 
 void Animator::RegisterAnimation(const std::string& name, const char* sheet, int rows, int columns, int startIndexOnSheet, int frames)
@@ -116,12 +114,7 @@ void Animator::RegisterAnimation(const std::string& name, const char* sheet, int
   }
 }
 
-void Animator::OnFrameBegin()
-{
-  _op = ResourceManager::Get().GetAvailableOp();
-}
-
-void Animator::Update(float dt)
+void Animator::Advance(float dt)
 {
   // if playing, do advance time and update frame
   if (_playing)
@@ -145,7 +138,6 @@ void Animator::Update(float dt)
       }
     }
   }
-  _currentAnimation->second.SetOp(*_owner->GetComponent<Transform>(), _currentAnimation->second.GetFrameSrcRect(_frame), _basisOffset, _horizontalFlip, _op);
 }
 
 void Animator::Play(const std::string& name, bool isLooped, bool horizontalFlip)

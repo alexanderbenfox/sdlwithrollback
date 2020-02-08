@@ -3,7 +3,7 @@
 #include "GameManagement.h"
 #include "Components/Animator.h"
 #include "Components/GameActor.h"
-#include "Components/Physics.h"
+#include "Components/Rigidbody.h"
 #include "Components/Camera.h"
 
 void LocalMatch::ProcessRawInputs(SDL_Event* localInput)
@@ -21,9 +21,9 @@ GameContext LocalMatch::GetActiveContext(Player* player)
 {
   GameContext context;
 
-  if (auto phys = player->actor->GetComponent<Physics>())
+  if (auto rb = player->actor->GetComponent<Rigidbody>())
   {
-    context.collision = phys->_lastCollisionSide;
+    context.collision = rb->_lastCollisionSide;
   }
   else
   {
@@ -40,11 +40,10 @@ LocalPlayer EntityCreation::CreateLocalPlayer(IInputHandler<SDL_Event>* input, f
 {
   Vector2<int> textureSize = ResourceManager::Get().GetTextureWidthAndHeight("spritesheets\\ryu.png");
 
-  auto player = GameManager::Get().CreateEntity<Transform, Animator, Physics, GameActor, RectColliderD>();
+  auto player = GameManager::Get().CreateEntity<Transform, Animator, Rigidbody, GameActor, RectColliderD>();
 
-  player->GetComponent<Physics>()->Init(true);
+  player->GetComponent<Rigidbody>()->Init(true);
 
-  player->GetComponent<Animator>()->Init();
   player->GetComponent<Animator>()->RegisterAnimation("Idle", "spritesheets\\idle_and_walking.png", 6, 6, 0, 10);
   player->GetComponent<Animator>()->RegisterAnimation("WalkF", "spritesheets\\idle_and_walking.png", 6, 6, 10, 12);
   player->GetComponent<Animator>()->RegisterAnimation("WalkB", "spritesheets\\idle_and_walking.png", 6, 6, 22, 11);
@@ -68,7 +67,7 @@ LocalPlayer EntityCreation::CreateLocalPlayer(IInputHandler<SDL_Event>* input, f
   player->GetComponent<Animator>()->Play("Idle", true, xOffset != 0);
 
   player->GetComponent<RectColliderD>()->Init(Vector2<double>(xOffset, 0.0),
-    Vector2<double>(xOffset + static_cast<double>(textureSize.x), static_cast<double>(textureSize.y)));
+    Vector2<double>(xOffset + static_cast<double>(textureSize.x)*.75, static_cast<double>(textureSize.y)));
   player->GetComponent<RectColliderD>()->SetStatic(false);
 
   player->SetScale(Vector2<float>(1.4f, 1.7f));

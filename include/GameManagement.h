@@ -5,6 +5,7 @@
 #include "Components/IComponent.h"
 
 #include "Systems/Physics.h"
+#include "Systems/DrawSystem.h"
 
 #include <thread>
 #include <mutex>
@@ -118,5 +119,7 @@ inline std::shared_ptr<Entity> GameManager::CreateEntity()
   AddComponentToEntity<Args...>(newEntity.get());
     // this is just a test... will be moved later
   PhysicsSystem::Check(newEntity.get());
+  DrawSystem::Check(newEntity.get());
+
   return newEntity;
 }

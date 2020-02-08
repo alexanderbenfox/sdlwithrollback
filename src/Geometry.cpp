@@ -9,6 +9,12 @@ void operator|=(CollisionSide& the, CollisionSide other)
 }
 
 //______________________________________________________________________________
+CollisionSide operator|(CollisionSide a, CollisionSide b)
+{
+  return (CollisionSide)((unsigned char)a | (unsigned char)b);
+}
+
+//______________________________________________________________________________
 void operator&=(CollisionSide& the, CollisionSide other)
 {
   the = (CollisionSide)((unsigned char)the & (unsigned char)other);

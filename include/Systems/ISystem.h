@@ -39,6 +39,8 @@ template <typename ... T>
 class ISystem
 {
 public:
+  //static void DoTick(float dt) {}
+
   static void Check(Entity* entity)
   {
     if(Sig::MatchesSignature(entity))

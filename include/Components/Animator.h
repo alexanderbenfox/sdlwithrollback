@@ -1,3 +1,4 @@
+#pragma once
 #include "Components/Sprite.h"
 #include "ListenerInterfaces.h"
 
@@ -30,19 +31,22 @@ protected:
 
 };
 
-class Animator : public IComponent
+class Animator : public Sprite
 {
 public:
   Animator(std::shared_ptr<Entity> owner);
 
-  void Init();
-
   void RegisterAnimation(const std::string& name, const char* sheet, int rows, int columns, int startIndexOnSheet, int frames);
 
-  virtual void OnFrameBegin() override;
+  virtual IDisplayable* GetDisplayable() override { return &_currentAnimation->second; }
+  virtual SDL_Rect GetSourceRect() override
+  {
+    return _currentAnimation->second.GetFrameSrcRect(_frame);
+  }
+  virtual void Advance(float dt) override;
+  virtual Vector2<int> GetDisplayOffset() const override {return _basisOffset;}
 
-  virtual void Update(float dt) override;
-
+  // Setter function
   void Play(const std::string& name, bool isLooped, bool horizontalFlip);
 
   void ChangeListener(IAnimatorListener* listener) { _listener = listener; }
@@ -63,8 +67,6 @@ protected:
   const float _secPerFrame = 1.0f / animation_fps;
   //!
   std::unordered_map<std::string, Animation> _animations;
-  //! Blitter op used on this frame
-  ResourceManager::BlitOperation* _op;
 
   // STATE VARIABLES
   //!
@@ -86,8 +88,7 @@ protected:
   Vector2<int> _basisRefPx;
   //!
   Vector2<int> _basisRefSize;
-  //!
-  bool _horizontalFlip;
+
   //!
   std::function<int(int)> _nextFrameOp;
   //
@@ -113,5 +114,6 @@ protected:
 
 template <> struct ComponentTraits<Animator>
 {
-  static const uint64_t GetSignature() { return 1 << 5;}
+  static const uint64_t GetSignature() { return 1 << 6;}
+  //static const uint64_t GetSignature() { return ComponentTraits<Sprite>::GetSignature(); }
 };

@@ -14,6 +14,8 @@ enum class CollisionSide : unsigned char
 //______________________________________________________________________________
 void operator|=(CollisionSide& the, CollisionSide other);
 //______________________________________________________________________________
+CollisionSide operator|(CollisionSide a, CollisionSide b);
+//______________________________________________________________________________
 void operator&=(CollisionSide& the, CollisionSide other);
 //______________________________________________________________________________
 CollisionSide operator&(CollisionSide a, CollisionSide b);
@@ -21,6 +23,8 @@ CollisionSide operator&(CollisionSide a, CollisionSide b);
 CollisionSide operator~(CollisionSide og);
 //______________________________________________________________________________
 static bool HasState(const CollisionSide& state, CollisionSide other) { return (state & other) == other; }
+//! Returns true if states share at least 1 common
+static bool HasUnion(const CollisionSide& state, CollisionSide other) { return (state & other) != CollisionSide::NONE; }
 
 
 //______________________________________________________________________________

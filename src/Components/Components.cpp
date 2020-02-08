@@ -5,7 +5,6 @@
 
 #include "Components/Animator.h"
 #include "Components/Camera.h"
-#include "Components/Physics.h"
 #include "Components/Collider.h"
 #include "Components/GameActor.h"
 
@@ -15,21 +14,8 @@
 void Sprite::Init(const char* sheet, bool horizontalFlip)
 {
   //adds new operation to the blitting list
-  ResourceManager::Get().RegisterBlitOp();
   _display = std::make_unique<Image>(sheet);
   _horizontalFlip = horizontalFlip;
-}
-
-//______________________________________________________________________________
-void Sprite::OnFrameBegin()
-{
-  _op = ResourceManager::Get().GetAvailableOp();
-}
-
-//______________________________________________________________________________
-void Sprite::Update(float dt)
-{
-  _display->SetOp(*_owner->GetComponent<Transform>(), _display->GetRectOnSrcText(), Vector2<int>(0, 0), _horizontalFlip, _op);
 }
 
 //______________________________________________________________________________
@@ -204,14 +190,14 @@ std::istream& operator>>(std::istream& is, GameActor& actor)
   return is;
 }
 
-std::ostream& operator<<(std::ostream& os, const Physics& phys)
+std::ostream& operator<<(std::ostream& os, const Rigidbody& phys)
 {
   os << phys._vel;
   os << phys._acc;
   return os;
 }
 
-std::istream& operator>>(std::istream& is, Physics& phys)
+std::istream& operator>>(std::istream& is, Rigidbody& phys)
 {
   is >> phys._vel;
   is >> phys._acc;
