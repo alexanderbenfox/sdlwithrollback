@@ -31,10 +31,10 @@ protected:
 
 };
 
-class Animator : public Sprite
+class AnimationRenderer : public SpriteRenderer
 {
 public:
-  Animator(std::shared_ptr<Entity> owner);
+  AnimationRenderer(std::shared_ptr<Entity> owner);
 
   void RegisterAnimation(const std::string& name, const char* sheet, int rows, int columns, int startIndexOnSheet, int frames);
 
@@ -58,8 +58,8 @@ public:
     return nullptr;
   }
 
-  friend std::ostream& operator<<(std::ostream& os, const Animator& animator);
-  friend std::istream& operator>>(std::istream& is, Animator& animator);
+  friend std::ostream& operator<<(std::ostream& os, const AnimationRenderer& animator);
+  friend std::istream& operator>>(std::istream& is, AnimationRenderer& animator);
 
 protected:
   IAnimatorListener* _listener;
@@ -112,7 +112,7 @@ protected:
 
 };
 
-template <> struct ComponentTraits<Animator>
+template <> struct ComponentTraits<AnimationRenderer>
 {
   static const uint64_t GetSignature() { return 1 << 6;}
   //static const uint64_t GetSignature() { return ComponentTraits<Sprite>::GetSignature(); }

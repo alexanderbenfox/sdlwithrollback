@@ -11,7 +11,7 @@
 #include <cassert>
 
 //______________________________________________________________________________
-void Sprite::Init(const char* sheet, bool horizontalFlip)
+void SpriteRenderer::Init(const char* sheet, bool horizontalFlip)
 {
   //adds new operation to the blitting list
   _display = std::make_unique<Image>(sheet);
@@ -204,7 +204,7 @@ std::istream& operator>>(std::istream& is, Rigidbody& phys)
   return is;
 }
 
-std::ostream& operator<<(std::ostream& os, const Animator& animator)
+std::ostream& operator<<(std::ostream& os, const AnimationRenderer& animator)
 {
   os << animator._playing;
   os << animator._accumulatedTime;
@@ -213,7 +213,7 @@ std::ostream& operator<<(std::ostream& os, const Animator& animator)
   return os;
 }
 
-std::istream& operator>>(std::istream& is, Animator& animator)
+std::istream& operator>>(std::istream& is, AnimationRenderer& animator)
 {
   is >> animator._playing;
   is >> animator._accumulatedTime;

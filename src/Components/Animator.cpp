@@ -95,13 +95,13 @@ Vector2<int> Animation::FindReferencePixel(const char* sheet)
   return Vector2<int>(0, 0);
 }
 
-Animator::Animator(std::shared_ptr<Entity> owner) : 
-  _playing(false), _looping(false), _accumulatedTime(0.0f), _frame(0), _nextFrameOp([](int) { return 0; }), Sprite(owner)
+AnimationRenderer::AnimationRenderer(std::shared_ptr<Entity> owner) : 
+  _playing(false), _looping(false), _accumulatedTime(0.0f), _frame(0), _nextFrameOp([](int) { return 0; }), SpriteRenderer(owner)
 {
   
 }
 
-void Animator::RegisterAnimation(const std::string& name, const char* sheet, int rows, int columns, int startIndexOnSheet, int frames)
+void AnimationRenderer::RegisterAnimation(const std::string& name, const char* sheet, int rows, int columns, int startIndexOnSheet, int frames)
 {
   if (_animations.find(name) == _animations.end())
   {
@@ -114,7 +114,7 @@ void Animator::RegisterAnimation(const std::string& name, const char* sheet, int
   }
 }
 
-void Animator::Advance(float dt)
+void AnimationRenderer::Advance(float dt)
 {
   // if playing, do advance time and update frame
   if (_playing)
@@ -140,7 +140,7 @@ void Animator::Advance(float dt)
   }
 }
 
-void Animator::Play(const std::string& name, bool isLooped, bool horizontalFlip)
+void AnimationRenderer::Play(const std::string& name, bool isLooped, bool horizontalFlip)
 {
   // dont play again if we are already playing it
   if (_playing && (name == _currentAnimationName && _horizontalFlip == horizontalFlip)) return;

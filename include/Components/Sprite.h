@@ -49,10 +49,10 @@ protected:
 
 };
 
-class Sprite : public IComponent
+class SpriteRenderer : public IComponent
 {
 public:
-  Sprite(std::shared_ptr<Entity> owner) : IComponent(owner)
+  SpriteRenderer(std::shared_ptr<Entity> owner) : IComponent(owner)
   {
     ResourceManager::Get().RegisterBlitOp();
   }
@@ -80,7 +80,7 @@ protected:
 
 };
 
-template <> struct ComponentTraits<Sprite>
+template <> struct ComponentTraits<SpriteRenderer>
 {
   static const uint64_t GetSignature() { return 1 << 1;}
 };

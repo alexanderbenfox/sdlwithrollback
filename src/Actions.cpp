@@ -69,7 +69,7 @@ template <> IAction* GetAttacksFromNeutral<StanceState::JUMPING>(const InputStat
 template <StanceState Stance, ActionState Action>
 void AnimatedAction<Stance, Action>::Enact(Entity* actor)
 {
-  if (auto animator = actor->GetComponent<Animator>())
+  if (auto animator = actor->GetComponent<AnimationRenderer>())
   {
     animator->ChangeListener(this);
     if (animator->GetAnimationByName(_animation))
