@@ -6,6 +6,8 @@
 
 #include "Systems/Physics.h"
 #include "Systems/DrawSystem.h"
+#include "Systems/MoveSystem.h"
+#include "Systems/InputSystem.h"
 
 #include <thread>
 #include <mutex>
@@ -46,6 +48,11 @@ public:
   template <class ... Args>
   std::shared_ptr<Entity> CreateEntity();
 
+  SDL_Event const& GetLocalInput()
+  {
+    return _localInput;
+  }
+
 private:
   //! Updates all components in specified order
   void Update(float deltaTime);
@@ -66,7 +73,8 @@ private:
   //!
   std::mutex _debugMutex;
   //!
-  std::unique_ptr<IGameState> _gameState;
+  //std::unique_ptr<IGameState> _gameState;
+  std::shared_ptr<Camera> _camera;
 
   //______________________________________________________________________________
 
@@ -120,6 +128,9 @@ inline std::shared_ptr<Entity> GameManager::CreateEntity()
     // this is just a test... will be moved later
   PhysicsSystem::Check(newEntity.get());
   DrawSystem::Check(newEntity.get());
+  MoveSystemRect::Check(newEntity.get());
+  MoveSystemCamera::Check(newEntity.get());
+  InputSystem::Check(newEntity.get());
 
   return newEntity;
 }

@@ -10,6 +10,7 @@
 #include "Components/GameActor.h"
 #include "Components/Rigidbody.h"
 #include "Components/Collider.h"
+#include "Components/Input.h"
 
 #include "Systems/Physics.h"
 
@@ -153,14 +154,19 @@ void GameManager::Initialize()
   rightBorder->GetComponent<RectColliderD>()->Init(Vector2<double>(m_nativeWidth, 0), Vector2<double>(m_nativeWidth + 200, m_nativeHeight));
   rightBorder->GetComponent<RectColliderD>()->SetStatic(true);
 
-  KeyboardInputHandler* kb1 = new KeyboardInputHandler();
-  KeyboardInputHandler* kb2 = new KeyboardInputHandler();
+
+  auto p1 = EntityCreation::CreateLocalPlayer(0);
+  auto p2 = EntityCreation::CreateLocalPlayer(150);
+
+  auto kb2 = p2->GetComponent<KeyboardInputHandler>();
   kb2->SetKey(SDLK_UP, InputState::UP);
   kb2->SetKey(SDLK_DOWN, InputState::DOWN);
   kb2->SetKey(SDLK_RIGHT, InputState::RIGHT);
   kb2->SetKey(SDLK_LEFT, InputState::LEFT);
 
-  _gameState = std::unique_ptr<IGameState>(new LocalMatch(kb1, kb2));
+  _camera = EntityCreation::CreateCamera();
+
+  //_gameState = std::unique_ptr<IGameState>(new LocalMatch(kb1, kb2));
 }
 
 //______________________________________________________________________________
@@ -197,7 +203,8 @@ void GameManager::BeginGameLoop()
   for (;;)
   {
     //! Collect inputs from controllers (this means AI controllers as well as Player controllers)
-    UpdateInput();
+    //UpdateInput();
+    //InputSystem::DoTick(0);
 
     std::lock_guard<std::mutex> lock(_debugMutex);
     //! Update all components
@@ -220,7 +227,8 @@ void GameManager::BeginGameLoop()
 //______________________________________________________________________________
 Camera* GameManager::GetMainCamera()
 {
-  return _gameState->GetCamera();
+  //return _gameState->GetCamera();
+  return _camera.get();
 }
 
 //______________________________________________________________________________
@@ -228,15 +236,14 @@ void GameManager::Update(float deltaTime)
 {
   //====PREUPDATE=====//
   //ComponentManager<Physics>::Get().PreUpdate();
-
-  // update acting units' state machine
-  ComponentManager<GameActor>::Get().Update(deltaTime);
+  UpdateInput();
+  InputSystem::DoTick(deltaTime);
   // resolve collisions
   //ComponentManager<Physics>::Get().Update(deltaTime);
   PhysicsSystem::DoTick(deltaTime);
   // update the location of the colliders
-  ComponentManager<RectColliderD>::Get().Update(deltaTime);
-
+  //ComponentManager<RectColliderD>::Get().Update(deltaTime);
+  MoveSystem::DoTick(deltaTime);
   // update rendered components last
   //ComponentManager<Sprite>::Get().Update(deltaTime);
   // update animation state
@@ -270,7 +277,6 @@ void GameManager::UpdateInput()
       }
     }
   }
-  _gameState->ProcessRawInputs(&_localInput);
 }
 
 //______________________________________________________________________________

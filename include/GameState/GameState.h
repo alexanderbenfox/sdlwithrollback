@@ -1,7 +1,6 @@
 #pragma once
-#include "Input.h"
+#include "Components/Input.h"
 #include <memory>
-#include "Player.h"
 #include "Actions.h"
 
 class Entity;
@@ -20,7 +19,7 @@ public:
 class EntityCreation
 {
 public:
-  static LocalPlayer CreateLocalPlayer(IInputHandler<SDL_Event>* input, float xOffset);
+  static std::shared_ptr<Entity> CreateLocalPlayer(float xOffset);
   #ifdef _WIN32
   static NetworkPlayer CreateNetworkPlayer(IInputHandler<GGPOInput>* input, float xOffset);
   #endif
@@ -36,7 +35,7 @@ public:
   //virtual void LoadAssets() = 0;
   virtual void ProcessRawInputs(SDL_Event* localInput) = 0;
   //gets active context for the player
-  virtual GameContext GetActiveContext(Player* player) = 0;
+  //virtual GameContext GetActiveContext(Player* player) = 0;
 
   virtual void SaveGameState(ByteBuffer<char>& data) = 0;
   virtual void LoadGameState(ByteBuffer<char>& data) = 0;
@@ -59,31 +58,31 @@ protected:
 class LocalMatch : public MatchBase
 {
 public:
-  LocalMatch(IInputHandler<SDL_Event>* p1, IInputHandler<SDL_Event>* p2) :
-    _player1(EntityCreation::CreateLocalPlayer(p1, 0)),
-    _player2(EntityCreation::CreateLocalPlayer(p2, 150)),
+  LocalMatch(IInputHandler* p1, IInputHandler* p2) :
+    //_player1(EntityCreation::CreateLocalPlayer(p1, 0)),
+    //_player2(EntityCreation::CreateLocalPlayer(p2, 150)),
     MatchBase()
   {}
 
   virtual void ProcessRawInputs(SDL_Event* localInput) override;
 
-  virtual GameContext GetActiveContext(Player* player) override;
+  //virtual GameContext GetActiveContext(Player* player) override;
 
   virtual void SaveGameState(ByteBuffer<char>& data) override
   {
     std::ostream os(&data);
-    os << _player1 << _player2;
+    //os << _player1 << _player2;
   }
 
   virtual void LoadGameState(ByteBuffer<char>& data) override
   {
     std::istream is(&data);
-    is >> _player1;
-    is >> _player2;
+    //is >> _player1;
+    //is >> _player2;
   }
   
 protected:
   //! 
-  LocalPlayer _player1, _player2;
+  //LocalPlayer _player1, _player2;
 
 };

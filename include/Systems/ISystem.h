@@ -24,6 +24,12 @@ struct Requires<T, Rest...>
     auto combinedSignature = ComponentTraits<T>::GetSignature() | (ComponentTraits<Rest>::GetSignature() | ...);
     return (entity->ComponentBitFlag & combinedSignature) == combinedSignature;
   }
+
+  static bool HasOneRequirement(Entity* entity)
+  {
+    auto combinedSignature = ComponentTraits<T>::GetSignature() | (ComponentTraits<Rest>::GetSignature() | ...);
+    return (entity->ComponentBitFlag & combinedSignature) != 0;
+  }
 };
 
 static const uint64_t motion_id = 1 << 0;
@@ -43,7 +49,7 @@ public:
 
   static void Check(Entity* entity)
   {
-    if(Sig::MatchesSignature(entity))
+    if(Req::MatchesSignature(entity))
     {
       auto things = std::make_tuple((entity->GetComponent<T>(), ...));
       std::tuple<std::add_pointer_t<T>...> tuple = entity->MakeComponentTuple<T...>();
@@ -61,8 +67,8 @@ public:
   static std::map<int, std::tuple<std::add_pointer_t<T>...>> Tuples;
 
 protected:
-  //!
-  using Sig = Requires<T...>;
+  //! Required components
+  using Req = Requires<T...>;
 
 };
 

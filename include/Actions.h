@@ -1,6 +1,6 @@
 #pragma once
 #include "Components/IComponent.h"
-#include "Input.h"
+#include "Components/Input.h"
 #include "ListenerInterfaces.h"
 
 //! Inteface for a context of the world that may affect character state

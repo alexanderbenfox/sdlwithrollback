@@ -8,16 +8,16 @@
 
 void LocalMatch::ProcessRawInputs(SDL_Event* localInput)
 {
-  InputState rawInput = _player1.input->HandleInput(localInput);
+  /*InputState rawInput = _player1.input->HandleInput(localInput);
   GameContext contexts = GetActiveContext(&_player1);
   _player1.actor->GetComponent<GameActor>()->EvaluateInputContext(rawInput, contexts);
   
   rawInput = _player2.input->HandleInput(localInput);
   contexts = GetActiveContext(&_player2);
-  _player2.actor->GetComponent<GameActor>()->EvaluateInputContext(rawInput, contexts);
+  _player2.actor->GetComponent<GameActor>()->EvaluateInputContext(rawInput, contexts);*/
 }
 
-GameContext LocalMatch::GetActiveContext(Player* player)
+/*GameContext LocalMatch::GetActiveContext(Player* player)
 {
   GameContext context;
 
@@ -34,13 +34,13 @@ GameContext LocalMatch::GetActiveContext(Player* player)
   context.onLeftSide = player->GetCenterX() < otherPlayer.GetCenterX();
 
   return context;
-}
+}*/
 
-LocalPlayer EntityCreation::CreateLocalPlayer(IInputHandler<SDL_Event>* input, float xOffset)
+std::shared_ptr<Entity> EntityCreation::CreateLocalPlayer(float xOffset)
 {
   Vector2<int> textureSize = ResourceManager::Get().GetTextureWidthAndHeight("spritesheets\\ryu.png");
 
-  auto player = GameManager::Get().CreateEntity<Transform, AnimationRenderer, Rigidbody, GameActor, RectColliderD>();
+  auto player = GameManager::Get().CreateEntity<Transform, KeyboardInputHandler, AnimationRenderer, Rigidbody, GameActor, RectColliderD>();
 
   player->GetComponent<Rigidbody>()->Init(true);
 
@@ -72,10 +72,9 @@ LocalPlayer EntityCreation::CreateLocalPlayer(IInputHandler<SDL_Event>* input, f
 
   player->SetScale(Vector2<float>(1.4f, 1.7f));
   player->GetComponent<Transform>()->position.x = xOffset;
+  player->GetComponent<RectColliderD>()->MoveToTransform(*player->GetComponent<Transform>());
 
-  player->GetComponent<RectColliderD>()->Update(0);
-
-  return LocalPlayer(input, player);
+  return player;
 }
 
 #ifdef _WIN32
@@ -121,7 +120,7 @@ NetworkPlayer EntityCreation::CreateNetworkPlayer(IInputHandler<GGPOInput>* inpu
 
 std::shared_ptr<Camera> EntityCreation::CreateCamera()
 {
-  auto camera = GameManager::Get().CreateEntity<Camera>();
+  auto camera = GameManager::Get().CreateEntity<Camera, Transform>();
   camera->GetComponent<Camera>()->Init(m_nativeWidth, m_nativeHeight);
   return camera->GetComponent<Camera>();
 }

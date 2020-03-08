@@ -12,8 +12,6 @@ public:
   //!
   GameActor(std::shared_ptr<Entity> owner);
   //!
-  virtual void Update(float dt) override;
-  //!
   virtual void OnFrameBegin() override {}
   //! Finishes all of the completed actions in the queue
   virtual void OnFrameEnd() override;
@@ -35,6 +33,9 @@ public:
 
   friend std::ostream& operator<<(std::ostream& os, const GameActor& actor);
   friend std::istream& operator>>(std::istream& is, GameActor& actor);
+
+  InputState& GetInputState() { return _lastInput; }
+  GameContext& GetContext() { return _lastContext; }
 
 
 private:

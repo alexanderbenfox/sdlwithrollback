@@ -18,12 +18,6 @@ std::istream& operator>>(std::istream& is, Transform& transform)
   return is;
 }
 
-void Entity::Update(float dt)
-{
-  for (auto& component : _components)
-    component.second->Update(dt);
-}
-
 void Entity::ParseCommand(const std::string& command)
 {
   auto split = StringUtils::Split(command, ' ');

@@ -17,15 +17,11 @@ public:
   //!
   void Init(int w, int h);
   //!
-  virtual void Update(float dt) override;
-  //!
   void ConvScreenSpace(ResourceManager::BlitOperation* entity);
   //!
   bool EntityInDisplay(const ResourceManager::BlitOperation* entity);
-
-private:
   //!
-  SDL_Rect _rect;
+  SDL_Rect rect;
 };
 
 template <> struct ComponentTraits<Camera>

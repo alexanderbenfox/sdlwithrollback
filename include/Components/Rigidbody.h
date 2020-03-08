@@ -48,8 +48,6 @@ public:
     _useGravity = useGravity;
     _addedAccel = UniversalPhysicsSettings::Get().Gravity;
   }
-  //!
-  virtual void Update(float dt) override {}
 
   CollisionSide _lastCollisionSide;
   //!

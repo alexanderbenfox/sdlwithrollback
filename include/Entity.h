@@ -31,8 +31,6 @@ class Entity : public IDebuggable
 public:
   //! Increment creation id counter
   Entity() : ComponentBitFlag(0x0), _creationId(EntityID++) {}
-  //! Updates all components attached to the entity
-  virtual void Update(float dt);
   //! Retrieves the components of type specified or nullptr if there is no component of that type present
   template <typename T = IComponent> 
   std::shared_ptr<T> GetComponent();

@@ -29,12 +29,6 @@ public:
       comp->PreUpdate();
   }
 
-  void Update(float dt)
-  {
-    for (auto comp : _components)
-      comp->Update(dt);
-  }
-
   void PostUpdate()
   {
     for (auto comp : _components)

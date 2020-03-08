@@ -87,7 +87,7 @@ protected:
   //!
   Vector2<int> _basisRefPx;
   //!
-  Vector2<int> _basisRefSize;
+  //Vector2<int> _basisRefSize;
 
   //!
   std::function<int(int)> _nextFrameOp;
@@ -115,5 +115,6 @@ protected:
 template <> struct ComponentTraits<AnimationRenderer>
 {
   static const uint64_t GetSignature() { return 1 << 6;}
+  //static const uint64_t GetSignature() { return 1 << 1;}
   //static const uint64_t GetSignature() { return ComponentTraits<Sprite>::GetSignature(); }
 };

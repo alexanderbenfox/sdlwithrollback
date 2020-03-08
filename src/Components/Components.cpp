@@ -21,30 +21,23 @@ void SpriteRenderer::Init(const char* sheet, bool horizontalFlip)
 //______________________________________________________________________________
 void Camera::Init(int w, int h)
 {
-  _rect.x = 0;
-  _rect.y = 0;
-  _rect.w = w;
-  _rect.h = h;
-}
-
-//______________________________________________________________________________
-void Camera::Update(float dt)
-{
-  _rect.x = static_cast<int>(std::floor(_owner->GetComponent<Transform>()->position.x));
-  _rect.y = static_cast<int>(std::floor(_owner->GetComponent<Transform>()->position.y));
+  rect.x = 0;
+  rect.y = 0;
+  rect.w = w;
+  rect.h = h;
 }
 
 //______________________________________________________________________________
 void Camera::ConvScreenSpace(ResourceManager::BlitOperation* entity)
 {
-  entity->_displayRect.x -= _rect.x;
-  entity->_displayRect.y -= _rect.y;
+  entity->_displayRect.x -= rect.x;
+  entity->_displayRect.y -= rect.y;
 }
 
 //______________________________________________________________________________
 bool Camera::EntityInDisplay(const ResourceManager::BlitOperation* entity)
 {
-  return SDLRectOverlap(_rect, entity->_displayRect);
+  return SDLRectOverlap(rect, entity->_displayRect);
 }
 
 //______________________________________________________________________________
@@ -52,26 +45,6 @@ template <typename T>
 void RectCollider<T>::Init(Vector2<T> beg, Vector2<T> end)
 {
   rect = Rect<T>(beg, end);
-}
-
-//______________________________________________________________________________
-template <typename T>
-void RectCollider<T>::MoveUnit(Vector2<T> movement)
-{
-  _owner->GetComponent<Transform>()->position += Vector2<float>(static_cast<float>(movement.x), static_cast<float>(movement.y));
-  Update(0);
-}
-
-//______________________________________________________________________________
-template <typename T>
-void RectCollider<T>::Update(float dt)
-{
-  if (!_isStatic)
-  {
-    Transform& transform = *_owner->GetComponent<Transform>();
-    rect = Rect<T>(Vector2<T>((T)transform.position.x, (T)transform.position.y),
-      Vector2<T>(transform.position.x + rect.Width(), transform.position.y + rect.Height()));
-  }
 }
 
 //______________________________________________________________________________
@@ -102,11 +75,6 @@ void RectCollider<T>::Draw()
 GameActor::GameActor(std::shared_ptr<Entity> owner) : _currentAction(nullptr), _newState(true), _lastInput(InputState::NONE), IComponent(owner)
 {
   BeginNewAction(new LoopedAction<StanceState::STANDING, ActionState::NONE>("Idle", owner.get()));
-}
-
-//______________________________________________________________________________
-void GameActor::Update(float dt)
-{
 }
 
 //______________________________________________________________________________

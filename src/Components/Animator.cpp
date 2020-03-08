@@ -109,7 +109,7 @@ void AnimationRenderer::RegisterAnimation(const std::string& name, const char* s
     if (_animations.size() == 1)
     {
       _basisRefPx = _animations.find(name)->second.GetRefPxLocation();
-      _basisRefSize = _animations.find(name)->second.GetFrameWH();
+      //_basisRefSize = _animations.find(name)->second.GetFrameWH();
     }
   }
 }

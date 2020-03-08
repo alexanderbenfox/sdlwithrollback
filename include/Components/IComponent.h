@@ -24,8 +24,6 @@ public:
   //!
   virtual ~IComponent() {}
   //!
-  virtual void Update(float dt) {}// = 0;
-  //!
   virtual void OnFrameBegin() {}
   //!
   virtual void OnFrameEnd() {}
