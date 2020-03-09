@@ -112,15 +112,18 @@ struct GGPOInput
 
 //______________________________________________________________________________
 //!
-class GGPOInputHandler : public IInputHandler<GGPOInput>
+class GGPOInputHandler : public IInputHandler
 {
 public:
   //!
-  GGPOInputHandler() : IInputHandler() {}
+  GGPOInputHandler(std::shared_ptr<Entity> owner) : IInputHandler(owner) {}
   //!
   ~GGPOInputHandler() {}
   //!
-  virtual InputState HandleInput(GGPOInput* input) final;
+  virtual InputState CollectInputState() final;
+
+private:
+  std::shared_ptr<GGPOInput> _input;
 };
 
 #endif

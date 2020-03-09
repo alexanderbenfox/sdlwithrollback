@@ -26,7 +26,7 @@ public:
 
 //______________________________________________________________________________
 //! Entity is the root of the component tree containing all of the positional information for the game object
-class Entity : public IDebuggable
+class Entity : public IDebuggable, public std::enable_shared_from_this<Entity>
 {
 public:
   //! Increment creation id counter
@@ -93,7 +93,7 @@ inline void Entity::AddComponent()
   if (_components.find(std::type_index(typeid(T))) == _components.end())
   {
     ComponentBitFlag |= ComponentTraits<T>::GetSignature();
-    _components.insert(std::make_pair(std::type_index(typeid(T)), ComponentManager<T>::Get().Create(std::shared_ptr<Entity>(this))));
+    _components.insert(std::make_pair(std::type_index(typeid(T)), ComponentManager<T>::Get().Create(std::shared_ptr<Entity>(shared_from_this()))));
   }
 }
 

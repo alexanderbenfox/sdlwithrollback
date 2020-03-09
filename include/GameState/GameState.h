@@ -21,7 +21,7 @@ class EntityCreation
 public:
   static std::shared_ptr<Entity> CreateLocalPlayer(float xOffset);
   #ifdef _WIN32
-  static NetworkPlayer CreateNetworkPlayer(IInputHandler<GGPOInput>* input, float xOffset);
+  static std::shared_ptr<Entity> CreateNetworkPlayer(float xOffset);
   #endif
   static std::shared_ptr<Camera> CreateCamera();
 };

@@ -24,14 +24,13 @@
     <ClCompile Include="..\src\AssetManagement\Resource.cpp" />
     <ClCompile Include="..\src\Components\Animator.cpp" />
     <ClCompile Include="..\src\Components\Components.cpp" />
-    <ClCompile Include="..\src\Components\Physics.cpp" />
+    <ClCompile Include="..\src\Components\Input.cpp" />
     <ClCompile Include="..\src\Entity.cpp" />
     <ClCompile Include="..\src\GameManagement.cpp" />
     <ClCompile Include="..\src\GameState\GameState.cpp" />
     <ClCompile Include="..\src\GameState\GGPOGameState.cpp" />
-    <ClCompile Include="..\src\GameState\Player.cpp" />
     <ClCompile Include="..\src\Geometry.cpp" />
-    <ClCompile Include="..\src\Input.cpp" />
+    <ClCompile Include="..\src\Systems\Physics.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Actions.h" />
@@ -42,18 +41,23 @@
     <ClInclude Include="..\include\Components\ComponentManager.h" />
     <ClInclude Include="..\include\Components\GameActor.h" />
     <ClInclude Include="..\include\Components\IComponent.h" />
-    <ClInclude Include="..\include\Components\Physics.h" />
+    <ClInclude Include="..\include\Components\Input.h" />
+    <ClInclude Include="..\include\Components\Rigidbody.h" />
     <ClInclude Include="..\include\Components\Sprite.h" />
+    <ClInclude Include="..\include\Components\Transform.h" />
     <ClInclude Include="..\include\Entity.h" />
     <ClInclude Include="..\include\GameManagement.h" />
     <ClInclude Include="..\include\GameState\GameState.h" />
     <ClInclude Include="..\include\GameState\GGPOGameState.h" />
-    <ClInclude Include="..\include\GameState\Player.h" />
     <ClInclude Include="..\include\Geometry.h" />
-    <ClInclude Include="..\include\Input.h" />
     <ClInclude Include="..\include\ListenerInterfaces.h" />
     <ClInclude Include="..\include\ResourceManager.h" />
     <ClInclude Include="..\include\StateControl.h" />
+    <ClInclude Include="..\include\Systems\DrawSystem.h" />
+    <ClInclude Include="..\include\Systems\InputSystem.h" />
+    <ClInclude Include="..\include\Systems\ISystem.h" />
+    <ClInclude Include="..\include\Systems\MoveSystem.h" />
+    <ClInclude Include="..\include\Systems\Physics.h" />
     <ClInclude Include="..\include\Timer.h" />
     <ClInclude Include="..\include\Utils.h" />
   </ItemGroup>

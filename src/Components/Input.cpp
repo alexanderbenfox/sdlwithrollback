@@ -158,19 +158,19 @@ InputState JoystickInputHandler::CollectInputState()
 
 #ifdef _WIN32
 //______________________________________________________________________________
-InputState GGPOInputHandler::HandleInput(GGPOInput* input)
+InputState GGPOInputHandler::CollectInputState()
 {
   // notify ggpo of local player's inputs
-  GGPOErrorCode result = ggpo_add_local_input(input->session, (*input->handles)[0], &(*input->inputs)[0], sizeof((*input->inputs)[0]));
+  GGPOErrorCode result = ggpo_add_local_input(_input->session, (*_input->handles)[0], &(*_input->inputs)[0], sizeof((*_input->inputs)[0]));
 
   // synchronize inputs
   if (GGPO_SUCCEEDED(result))
   {
     int disconnectFlags;
-    result = ggpo_synchronize_input(input->session, (*input->inputs), sizeof(*input->inputs), &disconnectFlags);
+    result = ggpo_synchronize_input(_input->session, (*_input->inputs), sizeof(*_input->inputs), &disconnectFlags);
     if (GGPO_SUCCEEDED(result))
     {
-      return (*input->inputs)[1];
+      return (*_input->inputs)[1];
     }
   }
   return InputState::NONE;

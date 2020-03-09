@@ -4,6 +4,7 @@
 #include "ResourceManager.h"
 
 #include <iostream>
+#include "Utils.h"
 
 
 const float avg_animation_fps = 24.0f;
@@ -43,5 +44,5 @@ protected:
 template <typename T>
 struct ComponentTraits
 {
-  static const uint64_t GetSignature();
+  static const uint64_t GetSignature() { return 1000000000; }
 };

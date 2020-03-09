@@ -37,7 +37,7 @@ CollisionSide operator~(CollisionSide og)
 template <typename T>
 Vector2<T> Vector2<T>::Unit()
 {
-  return (static_cast<T>(1.0) / Magnitude()) * (*this);
+  return (T)(static_cast<T>(1.0) / Magnitude()) * (*this);
 }
 
 //______________________________________________________________________________
@@ -51,7 +51,7 @@ T Vector2<T>::Dot(const Vector2<T>& other)
 template <typename T>
 T Vector2<T>::Magnitude()
 {
-  return std::sqrt(x * x + y * y);
+  return static_cast<T>(std::sqrt(x * x + y * y));
 }
 
 //______________________________________________________________________________
