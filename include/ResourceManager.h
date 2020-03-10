@@ -3,6 +3,7 @@
 #include "Geometry.h"
 #include <unordered_map>
 #include <vector>
+#include <functional>
 
 typedef Resource<SDL_Texture> Texture;
 typedef Resource<TTF_Font> Font;
@@ -40,6 +41,9 @@ public:
   void BlitSprites();
   //! Gets the relative source path for the resources
   const std::string& GetResourcePath() { return _resourcePath; }
+
+  static void CrawlTexture(Texture& texture, Vector2<int> begin, Vector2<int> end, std::function<void(int, int, Uint32)> callback);
+  static Rect<double> FindRect(Texture& texture, Vector2<int> frameSize, Vector2<int> begPx);
 
 private:
 

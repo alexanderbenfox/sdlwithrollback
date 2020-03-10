@@ -121,6 +121,82 @@ void ResourceManager::BlitSprites()
 }
 
 //______________________________________________________________________________
+void ResourceManager::CrawlTexture(Texture& texture, Vector2<int> begin, Vector2<int> end, std::function<void(int, int, Uint32)> callback)
+{
+  struct SDLTextureInfo
+  {
+    SDLTextureInfo(SDL_Texture* texture) : texture(texture)
+    {
+      SDL_LockTexture(texture, nullptr, &pixels, &pitch);
+    }
+    ~SDLTextureInfo()
+    {
+      SDL_UnlockTexture(texture);
+    }
+
+    void* pixels;
+    int pitch;
+    SDL_Texture* texture;
+  };
+
+  auto& textureData = texture.GetInfo();
+  // Get the window format
+  Uint32 windowFormat = SDL_GetWindowPixelFormat(GameManager::Get().GetWindow());
+  std::shared_ptr<SDL_PixelFormat> format = std::shared_ptr<SDL_PixelFormat>(SDL_AllocFormat(windowFormat), SDL_FreeFormat);
+
+  // Get the pixel data
+  Uint32* upixels;
+
+#ifdef _WIN32
+  auto textureInfo = SDLTextureInfo(texture.Get());
+  unsigned char* px = (unsigned char*)textureInfo.pixels;
+  upixels = (Uint32*)textureInfo.pixels;
+  Uint32 transparent = SDL_MapRGBA(format.get(), px[0], px[1], px[2], 0x00);
+#else
+  upixels = (Uint32*)_texture.GetInfo().pixels.get();
+#endif
+  for (int y = begin.y; y < end.y; y++)
+  {
+    for (int x = begin.x; x < end.x; x++)
+    {
+      callback(x, y, upixels[textureData.mWidth * y + x]);
+    }
+  }
+}
+
+//______________________________________________________________________________
+Rect<double> ResourceManager::FindRect(Texture& texture, Vector2<int> frameSize, Vector2<int> begPx)
+{
+  Uint32 windowFormat = SDL_GetWindowPixelFormat(GameManager::Get().GetWindow());
+  std::shared_ptr<SDL_PixelFormat> format = std::shared_ptr<SDL_PixelFormat>(SDL_AllocFormat(windowFormat), SDL_FreeFormat);
+
+  Vector2<int> rectBegin;
+  Vector2<int> rectEnd;
+  bool firstFound = false;
+
+  auto buildRect = [format, &rectBegin, &rectEnd, &firstFound](int x, int y, Uint32 pixel)
+  {
+    Uint8 r, g, b, a;
+    SDL_GetRGBA(pixel, format.get(), &r, &g, &b, &a);
+    if (a != 0)
+    {
+      if (!firstFound)
+      {
+        rectBegin = Vector2<int>(x, y);
+        firstFound = true;
+      }
+      else
+      {
+        rectEnd = Vector2<int>(x, y);
+      }
+    }
+  };
+
+  CrawlTexture(texture, begPx, begPx + frameSize, buildRect);
+  return Rect<double>((double)rectBegin.x, (double)rectBegin.y, (double)rectEnd.x, (double)rectEnd.y);
+}
+
+//______________________________________________________________________________
 void GameManager::Initialize()
 {
   SDL_Init(SDL_INIT_EVERYTHING);

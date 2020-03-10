@@ -52,7 +52,7 @@ protected:
 class SpriteRenderer : public IComponent
 {
 public:
-  SpriteRenderer(std::shared_ptr<Entity> owner) : IComponent(owner)
+  SpriteRenderer(std::shared_ptr<Entity> owner) : _horizontalFlip(false), IComponent(owner)
   {
     ResourceManager::Get().RegisterBlitOp();
   }

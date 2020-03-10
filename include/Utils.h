@@ -139,7 +139,6 @@ private:
  /* First a common base class
   * of course, one should always virtually inherit from it.
   */
-#include <memory>
 
 class MultipleInheritableEnableSharedFromThis : public std::enable_shared_from_this<MultipleInheritableEnableSharedFromThis>
 {
