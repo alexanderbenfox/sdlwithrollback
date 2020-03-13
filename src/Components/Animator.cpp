@@ -16,6 +16,10 @@ Animation::Animation(const char* sheet, int rows, int columns, int startIndexOnS
 void Animation::AddHitboxEvents(const char* hitboxesSheet, std::shared_ptr<Entity> entity)
 {
   int entityID = entity->GetID();
+  auto DespawnHitbox = [entityID]()
+  {
+    GameManager::Get().GetEntityByID(entityID)->RemoveComponent<Hitbox>();
+  };
 
   std::string hitBoxFile = hitboxesSheet;
 #ifndef _WIN32
@@ -36,16 +40,11 @@ void Animation::AddHitboxEvents(const char* hitboxesSheet, std::shared_ptr<Entit
       Rect hitbox = ResourceManager::FindRect(hitboxes, _frameSize, Vector2<int>(x * _frameSize.x, y * _frameSize.y));
       if (hitbox.Area() != 0)
       {
-        auto SpawnHitbox = [entityID, hitbox](double x, double y)
+        auto SpawnHitbox = [entityID, hitbox](double x, double y, Transform* trans)
         {
           GameManager::Get().GetEntityByID(entityID)->AddComponent<Hitbox>();
-          GameManager::Get().GetEntityByID(entityID)->GetComponent<Hitbox>()->rect = hitbox;
-          GameManager::Get().GetEntityByID(entityID)->GetComponent<Hitbox>()->rect.MoveAbsolute(Vector2<double>(x, y));
-        };
-
-        auto DespawnHitbox = [entityID]()
-        {
-          GameManager::Get().GetEntityByID(entityID)->RemoveComponent<Hitbox>();
+          GameManager::Get().GetEntityByID(entityID)->GetComponent<Hitbox>()->rect = Rect<double>(hitbox.Beg().x * trans->scale.x, hitbox.Beg().y * trans->scale.y, hitbox.End().x * trans->scale.x, hitbox.End().y * trans->scale.y);
+          GameManager::Get().GetEntityByID(entityID)->GetComponent<Hitbox>()->rect.MoveAbsolute(Vector2<double>(x + (hitbox.Beg().x * trans->scale.x), y + (hitbox.Beg().y * trans->scale.y)));
         };
 
         _events.insert(std::pair(i, AnimationEvent(i, 1, SpawnHitbox, DespawnHitbox)));

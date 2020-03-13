@@ -159,7 +159,7 @@ void ResourceManager::CrawlTexture(Texture& texture, Vector2<int> begin, Vector2
   {
     for (int x = begin.x; x < end.x; x++)
     {
-      callback(x, y, upixels[textureData.mWidth * y + x]);
+      callback(x - begin.x, y - begin.y, upixels[textureData.mWidth * y + x]);
     }
   }
 }

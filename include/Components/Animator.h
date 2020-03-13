@@ -7,9 +7,9 @@ class Animation;
 class AnimationEvent
 {
 public:
-  AnimationEvent(int startFrame, int duration, std::function<void(double, double)> onTriggerCallback, std::function<void()> onEndCallback) :
+  AnimationEvent(int startFrame, int duration, std::function<void(double, double, Transform*)> onTriggerCallback, std::function<void()> onEndCallback) :
     _frame(startFrame), _duration(duration), _onTrigger(onTriggerCallback), _onEnd(onEndCallback) {}
-  void TriggerEvent(double x, double y) { _onTrigger(x, y); }
+  void TriggerEvent(double x, double y, Transform* trans) { _onTrigger(x, y, trans); }
   void EndEvent() { _onEnd(); }
   int GetEndFrame() { return _frame + _duration; }
 
@@ -19,7 +19,7 @@ private:
   int _frame;
   int _duration;
   //!
-  std::function<void(double, double)> _onTrigger;
+  std::function<void(double, double, Transform*)> _onTrigger;
   std::function<void()> _onEnd;
 };
 
@@ -40,12 +40,12 @@ public:
 
   Vector2<int> const GetRefPxLocation() { return _referencePx; }
 
-  void CheckEvents(int frame, double x, double y)
+  void CheckEvents(int frame, double x, double y, Transform* transform)
   {
     auto evtIter = _events.find(frame);
     if (evtIter != _events.end())
     {
-      evtIter->second.TriggerEvent(x, y);
+      evtIter->second.TriggerEvent(x, y, transform);
       _inProgressEvents.push_back(&evtIter->second);
     }
 

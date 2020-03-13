@@ -28,7 +28,9 @@ public:
           if (nextFrame != renderer->GetCurrentFrame())
           {
             renderer->GetCurrentFrame() = nextFrame;
-            renderer->GetCurrentAnimation().CheckEvents(nextFrame, transform->position.x + renderer->GetDisplayOffset().x, transform->position.y + renderer->GetDisplayOffset().y);
+            renderer->GetCurrentAnimation().CheckEvents(nextFrame,
+              (double)transform->position.x - (double)renderer->GetDisplayOffset().x * transform->scale.x, (double)transform->position.y - (double)renderer->GetDisplayOffset().y * transform->scale.y,
+              transform);
           }
 
           // 
