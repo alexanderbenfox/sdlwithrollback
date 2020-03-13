@@ -152,10 +152,10 @@
     <ClInclude Include="..\include\Systems\Physics.h">
       <Filter>Header Files\Systems</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\Systems\DrawSystem.h">
+    <ClInclude Include="..\include\Systems\InputSystem.h">
       <Filter>Header Files\Systems</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\Systems\InputSystem.h">
+    <ClInclude Include="..\include\Systems\AnimationSystem.h">
       <Filter>Header Files\Systems</Filter>
     </ClInclude>
   </ItemGroup>

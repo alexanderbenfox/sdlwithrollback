@@ -5,7 +5,7 @@
 #include "Components/IComponent.h"
 
 #include "Systems/Physics.h"
-#include "Systems/DrawSystem.h"
+#include "Systems/AnimationSystem.h"
 #include "Systems/MoveSystem.h"
 #include "Systems/InputSystem.h"
 
@@ -52,6 +52,8 @@ public:
   {
     return _localInput;
   }
+
+  std::shared_ptr<Entity> GetEntityByID(int id) { return _gameEntities[id]; }
 
 private:
   //! Updates all components in specified order
@@ -127,7 +129,7 @@ inline std::shared_ptr<Entity> GameManager::CreateEntity()
   AddComponentToEntity<Args...>(newEntity.get());
     // this is just a test... will be moved later
   PhysicsSystem::Check(newEntity.get());
-  DrawSystem::Check(newEntity.get());
+  AnimationSystem::Check(newEntity.get());
   MoveSystemRect::Check(newEntity.get());
   MoveSystemCamera::Check(newEntity.get());
   InputSystem::Check(newEntity.get());

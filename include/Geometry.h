@@ -93,7 +93,8 @@ public:
   const T Width() { return _end.x - _beg.x; }
   const T Height() { return _end.y - _beg.y; }
 
-  void Move(const Vector2<T>& vec);
+  void MoveRelative(const Vector2<T>& vec);
+  void MoveAbsolute(const Vector2<T>& vec);
 
   //template <typename U>
   //Vector2<T> Overlap(const U& other, Vector2<T> incidentVector);
@@ -109,6 +110,8 @@ public:
 
   const Vector2<T>& Beg() const { return _beg; }
   const Vector2<T>& End() const { return _end; }
+
+  const T Area() { return Width() * Height(); }
 
   friend std::ostream& operator<<(std::ostream& os, const Rect& rect)
   {

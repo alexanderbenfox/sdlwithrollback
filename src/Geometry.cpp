@@ -56,10 +56,21 @@ T Vector2<T>::Magnitude()
 
 //______________________________________________________________________________
 template <typename T>
-void Rect<T>::Move(const Vector2<T>& vec)
+void Rect<T>::MoveRelative(const Vector2<T>& vec)
 {
   _beg += vec;
   _end += vec;
+}
+
+//______________________________________________________________________________
+template <typename T>
+void Rect<T>::MoveAbsolute(const Vector2<T>& vec)
+{
+  T width = Width();
+  T height = Height();
+  _beg = vec;
+  _end.x = _beg.x + width;
+  _end.y = _beg.y + height;
 }
 
 //______________________________________________________________________________

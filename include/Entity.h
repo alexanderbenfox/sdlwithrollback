@@ -104,6 +104,7 @@ inline void Entity::RemoveComponent()
   if (_components.find(std::type_index(typeid(T))) != _components.end())
   {
     ComponentBitFlag &= ~ComponentTraits<T>::GetSignature();
+    ComponentManager<T>::Get().Erase(GetComponent<T>());
     _components.erase(std::type_index(typeid(T)));
   }
 }

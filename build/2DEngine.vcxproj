@@ -53,7 +53,7 @@
     <ClInclude Include="..\include\ListenerInterfaces.h" />
     <ClInclude Include="..\include\ResourceManager.h" />
     <ClInclude Include="..\include\StateControl.h" />
-    <ClInclude Include="..\include\Systems\DrawSystem.h" />
+    <ClInclude Include="..\include\Systems\AnimationSystem.h" />
     <ClInclude Include="..\include\Systems\InputSystem.h" />
     <ClInclude Include="..\include\Systems\ISystem.h" />
     <ClInclude Include="..\include\Systems\MoveSystem.h" />

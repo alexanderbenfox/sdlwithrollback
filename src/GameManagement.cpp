@@ -170,15 +170,27 @@ Rect<double> ResourceManager::FindRect(Texture& texture, Vector2<int> frameSize,
   Uint32 windowFormat = SDL_GetWindowPixelFormat(GameManager::Get().GetWindow());
   std::shared_ptr<SDL_PixelFormat> format = std::shared_ptr<SDL_PixelFormat>(SDL_AllocFormat(windowFormat), SDL_FreeFormat);
 
-  Vector2<int> rectBegin;
-  Vector2<int> rectEnd;
+  Uint32 transparent;
+#ifdef _WIN32
+  auto textureInfo = SDLTextureInfo(texture.Get());
+  unsigned char* px = (unsigned char*)textureInfo.pixels;
+  Uint32* upixels = (Uint32*)textureInfo.pixels;
+  transparent = SDL_MapRGBA(format.get(), px[0], px[1], px[2], 0x00);
+#endif
+
+  Vector2<int> rectBegin(-1, -1);
+  Vector2<int> rectEnd(-1, -1);
   bool firstFound = false;
 
-  auto buildRect = [format, &rectBegin, &rectEnd, &firstFound](int x, int y, Uint32 pixel)
+  auto buildRect = [format, &rectBegin, &rectEnd, &firstFound, &transparent](int x, int y, Uint32 pixel)
   {
+#ifdef _WIN32
+    if(pixel != transparent)
+#else
     Uint8 r, g, b, a;
     SDL_GetRGBA(pixel, format.get(), &r, &g, &b, &a);
-    if (a != 0)
+    if (r != 0)
+#endif
     {
       if (!firstFound)
       {
@@ -287,7 +299,7 @@ void GameManager::BeginGameLoop()
     clock.Update(update);
 
     // do once per frame system calls
-    DrawSystem::PostUpdate();
+    AnimationSystem::PostUpdate();
 
     //! Finally render the scene
     Draw();
@@ -324,7 +336,7 @@ void GameManager::Update(float deltaTime)
   //ComponentManager<Sprite>::Get().Update(deltaTime);
   // update animation state
   //ComponentManager<Animator>::Get().Update(deltaTime);
-  DrawSystem::DoTick(deltaTime);
+  AnimationSystem::DoTick(deltaTime);
 
   //====POSTUPDATE=====//
   //ComponentManager<Physics>::Get().PostUpdate();
@@ -366,6 +378,7 @@ void GameManager::Draw()
 
   // draw debug rects
   ComponentManager<RectColliderD>::Get().Draw();
+  ComponentManager<Hitbox>::Get().Draw();
 
   //present this frame
   SDL_RenderPresent(_renderer);

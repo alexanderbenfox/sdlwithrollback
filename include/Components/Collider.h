@@ -73,3 +73,15 @@ template <> struct ComponentTraits<RectColliderD>
 {
   static const uint64_t GetSignature() { return 1 << 4;}
 };
+
+
+class Hitbox : public RectColliderD
+{
+public:
+  //!
+  Hitbox(std::shared_ptr<Entity> entity) : RectColliderD(entity) {}
+};
+template <> struct ComponentTraits<Hitbox>
+{
+  static const uint64_t GetSignature() { return 1 << 7; }
+};

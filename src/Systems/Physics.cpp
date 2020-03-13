@@ -118,7 +118,7 @@ OverlapInfo<double> PhysicsSystem::GetPushOnDynamicCollision(Rect<double>& colli
 void PhysicsSystem::AdjustMovementForCollisions( RectColliderD* colliderComponent, const Vector2<double>& movementVector, OverlapInfo<double>& momentum, OverlapInfo<double>& inst)
 {
   Rect<double> potentialRect = colliderComponent->rect;
-  potentialRect.Move(movementVector);
+  potentialRect.MoveRelative(movementVector);
 
   for (auto otherCollider : ComponentManager<RectColliderD>::Get().All())
   {

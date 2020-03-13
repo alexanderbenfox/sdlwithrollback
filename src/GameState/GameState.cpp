@@ -55,6 +55,8 @@ std::shared_ptr<Entity> EntityCreation::CreateLocalPlayer(float xOffset)
   player->GetComponent<AnimationRenderer>()->RegisterAnimation("Crouch", "spritesheets\\crouching.png", 4, 5, 12, 5);
 
   player->GetComponent<AnimationRenderer>()->RegisterAnimation("CrouchingLight", "spritesheets\\grounded_attacks.png", 8, 10, 9, 7);
+  player->GetComponent<AnimationRenderer>()->GetAnimationByName("CrouchingLight")->AddHitboxEvents("spritesheets\\grounded_attacks_hitboxes.png", player);
+
   player->GetComponent<AnimationRenderer>()->RegisterAnimation("CrouchingMedium", "spritesheets\\grounded_attacks.png", 8, 10, 16, 11);
   player->GetComponent<AnimationRenderer>()->RegisterAnimation("CrouchingHeavy", "spritesheets\\grounded_attacks.png", 8, 10, 27, 11);
   player->GetComponent<AnimationRenderer>()->RegisterAnimation("StandingLight", "spritesheets\\grounded_attacks.png", 8, 10, 40, 6);

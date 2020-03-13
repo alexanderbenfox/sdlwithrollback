@@ -8,6 +8,22 @@
 typedef Resource<SDL_Texture> Texture;
 typedef Resource<TTF_Font> Font;
 
+struct SDLTextureInfo
+{
+  SDLTextureInfo(SDL_Texture* texture) : texture(texture)
+  {
+    SDL_LockTexture(texture, nullptr, &pixels, &pitch);
+  }
+  ~SDLTextureInfo()
+  {
+    SDL_UnlockTexture(texture);
+  }
+
+  void* pixels;
+  int pitch;
+  SDL_Texture* texture;
+};
+
 //______________________________________________________________________________
 //! Manager of resources for textures, font, sounds, and drawing
 class ResourceManager

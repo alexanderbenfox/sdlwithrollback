@@ -13,6 +13,47 @@ Animation::Animation(const char* sheet, int rows, int columns, int startIndexOnS
   _referencePx = FindReferencePixel(sheet);
 }
 
+void Animation::AddHitboxEvents(const char* hitboxesSheet, std::shared_ptr<Entity> entity)
+{
+  int entityID = entity->GetID();
+
+  std::string hitBoxFile = hitboxesSheet;
+#ifndef _WIN32
+  auto split = StringUtils::Split(hitBoxFile, '\\');
+  if (split.size() > 1)
+    hitBoxFile = StringUtils::Connect(split.begin(), split.end(), '/');
+#endif
+  Texture hitboxes = Texture(ResourceManager::Get().GetResourcePath() + hitBoxFile);
+
+  hitboxes.Load();
+  if (hitboxes.IsLoaded())
+  {
+    for (int i = 0; i < _frames; i++)
+    {
+      int x = (_startIdx + i) % _columns;
+      int y = (_startIdx + i) / _columns;
+
+      Rect hitbox = ResourceManager::FindRect(hitboxes, _frameSize, Vector2<int>(x * _frameSize.x, y * _frameSize.y));
+      if (hitbox.Area() != 0)
+      {
+        auto SpawnHitbox = [entityID, hitbox](double x, double y)
+        {
+          GameManager::Get().GetEntityByID(entityID)->AddComponent<Hitbox>();
+          GameManager::Get().GetEntityByID(entityID)->GetComponent<Hitbox>()->rect = hitbox;
+          GameManager::Get().GetEntityByID(entityID)->GetComponent<Hitbox>()->rect.MoveAbsolute(Vector2<double>(x, y));
+        };
+
+        auto DespawnHitbox = [entityID]()
+        {
+          GameManager::Get().GetEntityByID(entityID)->RemoveComponent<Hitbox>();
+        };
+
+        _events.insert(std::pair(i, AnimationEvent(i, 1, SpawnHitbox, DespawnHitbox)));
+      }
+    }
+  }
+}
+
 SDL_Rect Animation::GetFrameSrcRect(int frame)
 {
   //if invalid frame, just return nothing
@@ -46,22 +87,6 @@ void Animation::SetOp(const Transform& transform, SDL_Rect rectOnTex, Vector2<in
 
 Vector2<int> Animation::FindReferencePixel(const char* sheet)
 { 
-  struct SDLTextureInfo
-  {
-    SDLTextureInfo(SDL_Texture* texture) : texture(texture)
-    {
-      SDL_LockTexture(texture, nullptr, &pixels, &pitch);
-    }
-    ~SDLTextureInfo()
-    {
-      SDL_UnlockTexture(texture);
-    }
-
-    void* pixels;
-    int pitch;
-    SDL_Texture* texture;
-  };
- 
   // Get the window format
   Uint32 windowFormat = SDL_GetWindowPixelFormat(GameManager::Get().GetWindow());
   std::shared_ptr<SDL_PixelFormat> format = std::shared_ptr<SDL_PixelFormat>(SDL_AllocFormat(windowFormat), SDL_FreeFormat);
