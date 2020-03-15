@@ -13,7 +13,6 @@ bool constexpr all_base_of_bigboysss()
   return (std::is_base_of_v<T, Rest> && ...);
 }
 
-
 static int EntityID = 0;
 
 class IDebuggable
@@ -40,21 +39,9 @@ public:
   //! Removes component of type specified from the entity
   template <typename T = IComponent>
   void RemoveComponent();
-
-  template <typename T>
-  void Help(T*& element)
-  {
-    element = GetComponent<T>().get();
-  }
-
   //!
   template <typename ... T>
-  std::tuple<std::add_pointer_t<T>...> MakeComponentTuple()
-  {
-    std::tuple<std::add_pointer_t<T>...> tuple;
-    (Help<T>(std::get<T*>(tuple)), ...);
-    return tuple;
-  }
+  std::tuple<std::add_pointer_t<T>...> MakeComponentTuple();
 
   //! Transform attached to the object defining the position, scale, and rotation of the object
   // Transform transform;
@@ -65,15 +52,20 @@ public:
 
   void SetScale(Vector2<float> scale);
 
-  uint64_t ComponentBitFlag;
-
   int GetID() const {return _creationId;}
+
+  uint64_t ComponentBitFlag;
 
 protected:
   //! Pointers to all components attached to the object. The component objects exist in their respective manager singleton objects
   std::unordered_map<std::type_index, std::shared_ptr<IComponent>> _components;
   //!
   int _creationId;
+  //!
+  template <typename T>
+  void SetPointerElement(T*& element) { element = GetComponent<T>().get(); }
+  //!
+  static void CheckAgainstSystems(Entity* entity);
 
 };
 
@@ -94,6 +86,8 @@ inline void Entity::AddComponent()
   {
     ComponentBitFlag |= ComponentTraits<T>::GetSignature();
     _components.insert(std::make_pair(std::type_index(typeid(T)), ComponentManager<T>::Get().Create(std::shared_ptr<Entity>(shared_from_this()))));
+    // see if this needs to be added to the system
+    CheckAgainstSystems(this);
   }
 }
 
@@ -107,4 +101,13 @@ inline void Entity::RemoveComponent()
     ComponentManager<T>::Get().Erase(GetComponent<T>());
     _components.erase(std::type_index(typeid(T)));
   }
+}
+
+//______________________________________________________________________________
+template <typename ... T>
+inline std::tuple<std::add_pointer_t<T>...> Entity::MakeComponentTuple()
+{
+  std::tuple<std::add_pointer_t<T>...> tuple;
+  (SetPointerElement<T>(std::get<T*>(tuple)), ...);
+  return tuple;
 }

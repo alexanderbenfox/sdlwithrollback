@@ -21,7 +21,7 @@ public:
   }
 };
 
-class MoveSystemRect : public ISystem<Transform, RectColliderD>
+class MoveSystemRect : public ISystem<Transform, RectColliderD, Hurtbox>
 {
 public:
   static void DoTick(float dt)
@@ -30,8 +30,11 @@ public:
     {
       Transform* transform = std::get<Transform*>(tuple.second);
       RectColliderD* rect = std::get<RectColliderD*>(tuple.second);
+      Hurtbox* hurtbox = std::get<Hurtbox*>(tuple.second);
 
       rect->MoveToTransform(*transform);
+      hurtbox->MoveToTransform(*transform);
+      
     }
   }
 };

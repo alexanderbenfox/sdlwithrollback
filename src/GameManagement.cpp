@@ -13,6 +13,12 @@
 #include "Components/Input.h"
 
 #include "Systems/Physics.h"
+#include "Systems/AnimationSystem.h"
+#include "Systems/MoveSystem.h"
+#include "Systems/InputSystem.h"
+#include "Systems/HitSystem.h"
+
+#include "Systems/Physics.h"
 
 #ifdef _DEBUG
 //used for debugger
@@ -320,28 +326,30 @@ Camera* GameManager::GetMainCamera()
 }
 
 //______________________________________________________________________________
+void GameManager::CheckAgainstSystems(Entity* entity)
+{
+  PhysicsSystem::Check(entity);
+  AnimationSystem::Check(entity);
+  MoveSystemRect::Check(entity);
+  MoveSystemCamera::Check(entity);
+  InputSystem::Check(entity);
+  HitSystem::Check(entity);
+  TimerSystem::Check(entity);
+}
+
+//______________________________________________________________________________
 void GameManager::Update(float deltaTime)
 {
-  //====PREUPDATE=====//
-  //ComponentManager<Physics>::Get().PreUpdate();
   UpdateInput();
+  TimerSystem::DoTick(deltaTime);
+  HitSystem::DoTick(deltaTime);
   InputSystem::DoTick(deltaTime);
   // resolve collisions
-  //ComponentManager<Physics>::Get().Update(deltaTime);
   PhysicsSystem::DoTick(deltaTime);
   // update the location of the colliders
-  //ComponentManager<RectColliderD>::Get().Update(deltaTime);
   MoveSystem::DoTick(deltaTime);
   // update rendered components last
-  //ComponentManager<Sprite>::Get().Update(deltaTime);
-  // update animation state
-  //ComponentManager<Animator>::Get().Update(deltaTime);
   AnimationSystem::DoTick(deltaTime);
-
-  //====POSTUPDATE=====//
-  //ComponentManager<Physics>::Get().PostUpdate();
-  // update the location of the colliders (again)
-  //ComponentManager<RectColliderD>::Get().Update(deltaTime);
 }
 
 //______________________________________________________________________________
@@ -377,7 +385,7 @@ void GameManager::Draw()
   ResourceManager::Get().BlitSprites();
 
   // draw debug rects
-  ComponentManager<RectColliderD>::Get().Draw();
+  ComponentManager<Hurtbox>::Get().Draw();
   ComponentManager<Hitbox>::Get().Draw();
 
   //present this frame

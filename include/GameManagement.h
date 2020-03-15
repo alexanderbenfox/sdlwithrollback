@@ -4,11 +4,6 @@
 #include "Entity.h"
 #include "Components/IComponent.h"
 
-#include "Systems/Physics.h"
-#include "Systems/AnimationSystem.h"
-#include "Systems/MoveSystem.h"
-#include "Systems/InputSystem.h"
-
 #include <thread>
 #include <mutex>
 
@@ -54,6 +49,8 @@ public:
   }
 
   std::shared_ptr<Entity> GetEntityByID(int id) { return _gameEntities[id]; }
+
+  void CheckAgainstSystems(Entity* entity);
 
 private:
   //! Updates all components in specified order
@@ -128,11 +125,7 @@ inline std::shared_ptr<Entity> GameManager::CreateEntity()
   auto newEntity = _gameEntities.back();
   AddComponentToEntity<Args...>(newEntity.get());
     // this is just a test... will be moved later
-  PhysicsSystem::Check(newEntity.get());
-  AnimationSystem::Check(newEntity.get());
-  MoveSystemRect::Check(newEntity.get());
-  MoveSystemCamera::Check(newEntity.get());
-  InputSystem::Check(newEntity.get());
+  CheckAgainstSystems(newEntity.get());
 
   return newEntity;
 }

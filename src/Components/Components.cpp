@@ -7,6 +7,7 @@
 #include "Components/Camera.h"
 #include "Components/Collider.h"
 #include "Components/GameActor.h"
+#include "Components/Rigidbody.h"
 
 #include <cassert>
 
@@ -123,14 +124,20 @@ void GameActor::EvaluateInputContext(InputState input, const GameContext& contex
 
   _newState = false;
 
+  GameContext contextToEval = context + mergeContext;
+
+  // reset the merge context... this is clunky and should be changed
+  mergeContext.hitThisFrame = false;
+  mergeContext.hitOnLeftSide = false;
+
   IAction* prevAction = _currentAction;
-  IAction* nextAction = _currentAction->HandleInput(input, context);
+  IAction* nextAction = _currentAction->HandleInput(input, contextToEval);
 
   if (nextAction && (nextAction != prevAction))
   {
     // update last context
     _lastInput = input;
-    _lastContext = context;
+    _lastContext = contextToEval;
 
     //OnActionComplete(prevAction);
     BeginNewAction(nextAction);

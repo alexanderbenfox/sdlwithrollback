@@ -7,6 +7,7 @@
 
 const float _baseSpeed = 300.0f * 1.5f;
 
+//______________________________________________________________________________
 template <> IAction* GetAttacksFromNeutral<StanceState::STANDING>(const InputState& rawInput, bool facingRight)
 {
   // prioritize attacks
@@ -36,11 +37,13 @@ template <> IAction* GetAttacksFromNeutral<StanceState::STANDING>(const InputSta
   return nullptr;
 }
 
+//______________________________________________________________________________
 template <> IAction* GetAttacksFromNeutral<StanceState::CROUCHING>(const InputState& rawInput, bool facingRight)
 {
   return GetAttacksFromNeutral<StanceState::STANDING>(rawInput, facingRight);
 }
 
+//______________________________________________________________________________
 template <> IAction* GetAttacksFromNeutral<StanceState::JUMPING>(const InputState& rawInput, bool facingRight)
 {
   // prioritize attacks
@@ -61,6 +64,22 @@ template <> IAction* GetAttacksFromNeutral<StanceState::JUMPING>(const InputStat
   }
 
   // state hasn't changed
+  return nullptr;
+}
+
+//______________________________________________________________________________
+IAction* CheckHits(const InputState& rawInput, const GameContext& context)
+{
+  bool facingRight = context.onLeftSide;
+  if (context.hitThisFrame)
+  {
+    bool blockedRight = HasState(rawInput, InputState::LEFT) && !context.hitOnLeftSide;
+    bool blockedLeft = HasState(rawInput, InputState::RIGHT) && context.hitOnLeftSide;
+    if (blockedRight || blockedLeft)
+      return new TimedAction<StanceState::STANDING, ActionState::BLOCKSTUN>("Block", facingRight, 10, Vector2<float>::Zero());
+    else
+      return new StateLockedAnimatedAction<StanceState::STANDING, ActionState::HITSTUN>("HeavyHitstun", facingRight, Vector2<float>::Zero());
+  }
   return nullptr;
 }
 
@@ -109,8 +128,12 @@ template <> IAction* LoopedAction<StanceState::STANDING, ActionState::NONE>::Han
       return new LoopedAction<StanceState::JUMPING, ActionState::NONE>("Falling", facingRight);
   }
 
+  // process attacks before hits so that if you press a button while attacked, you still get attacked
   IAction* attackAction = GetAttacksFromNeutral<StanceState::STANDING>(rawInput, context.onLeftSide);
-  if(attackAction) return attackAction;
+  if (attackAction) return attackAction;
+  
+  IAction* onHitAction = CheckHits(rawInput, context);
+  if (onHitAction) return onHitAction;
 
   //if you arent attacking, you can move forward, move backward, crouch, stand, jumpf, jumpb, jumpn
   //jumping
@@ -144,6 +167,9 @@ template <> IAction* LoopedAction<StanceState::STANDING, ActionState::NONE>::Han
 //______________________________________________________________________________
 template <> IAction* LoopedAction<StanceState::JUMPING, ActionState::NONE>::HandleInput(const InputState& rawInput, const GameContext& context)
 {
+  IAction* onHitAction = CheckHits(rawInput, context);
+  if (onHitAction) return onHitAction;
+
   if (HasState(context.collision, CollisionSide::DOWN))
   {
     // when going back to neutral, change facing
@@ -164,6 +190,9 @@ template <> IAction* LoopedAction<StanceState::CROUCHING, ActionState::NONE>::Ha
 
   IAction* attackAction = GetAttacksFromNeutral<StanceState::CROUCHING>(rawInput, context.onLeftSide);
   if(attackAction) return attackAction;
+
+  IAction* onHitAction = CheckHits(rawInput, context);
+  if (onHitAction) return onHitAction;
 
   //if you arent attacking, you can move forward, move backward, crouch, stand, jumpf, jumpb, jumpn
   //jumping
@@ -193,6 +222,15 @@ template <> IAction* LoopedAction<StanceState::CROUCHING, ActionState::NONE>::Ha
 
   // state hasn't changed
   return new LoopedAction<StanceState::STANDING, ActionState::NONE>("Idle", facingRight, Vector2<float>(0.0, 0.0));
+}
+
+//______________________________________________________________________________
+template <StanceState Stance, ActionState Action>
+void TimedAction<Stance, Action>::Enact(Entity* actor)
+{
+  AnimatedAction<Stance, Action>::Enact(actor);
+  TimerComponent actionTiming([this]() { this->OnActionComplete(); }, _framesDuration);
+  actor->GetComponent<GameActor>()->timings.push_back(actionTiming);
 }
 
 //______________________________________________________________________________

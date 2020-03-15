@@ -1,6 +1,7 @@
 #include "Entity.h"
 #include "Components/Transform.h"
 #include "Components/Collider.h"
+#include "GameManagement.h"
 
 std::ostream& operator<<(std::ostream& os, const Transform& transform)
 {
@@ -84,6 +85,19 @@ void Entity::SetScale(Vector2<float> scale)
     collider->rect = Rect<double>(transform.position.x - addedWidth, transform.position.y - addedHeight,
       transform.position.x + collider->rect.Width() + addedWidth, transform.position.y + collider->rect.Height() + addedHeight);
   }
+  if (auto collider = GetComponent<Hurtbox>())
+  {
+    double addedWidth = collider->rect.Width() * (scale.x - transform.scale.x) / 2.0;
+    double addedHeight = collider->rect.Height() * (scale.y - transform.scale.y) / 2.0;
+
+    collider->rect = Rect<double>(transform.position.x - addedWidth, transform.position.y - addedHeight,
+      transform.position.x + collider->rect.Width() + addedWidth, transform.position.y + collider->rect.Height() + addedHeight);
+  }
   transform.scale.x = scale.x;
   transform.scale.y = scale.y;
+}
+
+void Entity::CheckAgainstSystems(Entity* entity)
+{
+  GameManager::Get().CheckAgainstSystems(entity);
 }

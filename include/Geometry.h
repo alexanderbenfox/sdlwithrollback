@@ -96,6 +96,8 @@ public:
   void MoveRelative(const Vector2<T>& vec);
   void MoveAbsolute(const Vector2<T>& vec);
 
+  Vector2<T> GetCenter() const { return Vector2<T>(_beg.x + (_end.x - _beg.x) / 2.0, _beg.y + (_end.y - _beg.y) / 2.0); }
+
   //template <typename U>
   //Vector2<T> Overlap(const U& other, Vector2<T> incidentVector);
 

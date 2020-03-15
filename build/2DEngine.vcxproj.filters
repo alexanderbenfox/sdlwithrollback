@@ -158,5 +158,8 @@
     <ClInclude Include="..\include\Systems\AnimationSystem.h">
       <Filter>Header Files\Systems</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\Systems\HitSystem.h">
+      <Filter>Header Files\Systems</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

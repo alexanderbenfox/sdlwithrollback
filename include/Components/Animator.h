@@ -39,27 +39,8 @@ public:
   Vector2<int> const GetFrameWH() { return _frameSize; }
 
   Vector2<int> const GetRefPxLocation() { return _referencePx; }
-
-  void CheckEvents(int frame, double x, double y, Transform* transform)
-  {
-    auto evtIter = _events.find(frame);
-    if (evtIter != _events.end())
-    {
-      evtIter->second.TriggerEvent(x, y, transform);
-      _inProgressEvents.push_back(&evtIter->second);
-    }
-
-    for (int i = 0; i < _inProgressEvents.size(); i++)
-    {
-      AnimationEvent* evt = _inProgressEvents[i];
-      if (frame == evt->GetEndFrame())
-      {
-        evt->EndEvent();
-        _inProgressEvents.erase(_inProgressEvents.begin() + i);
-        i--;
-      }
-    }
-  }
+  //! Checks if an event should be trigger this frame of animation and calls its callback if so
+  void CheckEvents(int frame, double x, double y, Transform* transform);
 
 protected:
   //! Gets first non-transparent pixel from the top left

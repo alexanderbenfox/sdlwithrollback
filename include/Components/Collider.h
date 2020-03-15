@@ -74,7 +74,7 @@ template <> struct ComponentTraits<RectColliderD>
   static const uint64_t GetSignature() { return 1 << 4;}
 };
 
-
+//! hitbox is the area that will hit the opponent
 class Hitbox : public RectColliderD
 {
 public:
@@ -83,5 +83,17 @@ public:
 };
 template <> struct ComponentTraits<Hitbox>
 {
-  static const uint64_t GetSignature() { return 1 << 7; }
+  static const uint64_t GetSignature() { return 1 << 8; }
+};
+
+//! hurtbox is the area that you can take damage from an enemy attack
+class Hurtbox : public RectColliderD
+{
+public:
+  //!
+  Hurtbox(std::shared_ptr<Entity> entity) : RectColliderD(entity) {}
+};
+template <> struct ComponentTraits<Hurtbox>
+{
+  static const uint64_t GetSignature() { return 1 << 9; }
 };

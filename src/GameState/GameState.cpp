@@ -40,7 +40,7 @@ std::shared_ptr<Entity> EntityCreation::CreateLocalPlayer(float xOffset)
 {
   Vector2<int> textureSize = ResourceManager::Get().GetTextureWidthAndHeight("spritesheets\\ryu.png");
 
-  auto player = GameManager::Get().CreateEntity<Transform, KeyboardInputHandler, AnimationRenderer, Rigidbody, GameActor, RectColliderD>();
+  auto player = GameManager::Get().CreateEntity<Transform, KeyboardInputHandler, AnimationRenderer, Rigidbody, GameActor, RectColliderD, Hurtbox>();
 
   player->GetComponent<Rigidbody>()->Init(true);
 
@@ -68,15 +68,30 @@ std::shared_ptr<Entity> EntityCreation::CreateLocalPlayer(float xOffset)
   player->GetComponent<AnimationRenderer>()->RegisterAnimation("JumpingMedium", "spritesheets\\jlp.png", 4, 4, 0, 14);
   player->GetComponent<AnimationRenderer>()->RegisterAnimation("JumpingHeavy", "spritesheets\\jlp.png", 4, 4, 0, 14);
 
+  player->GetComponent<AnimationRenderer>()->RegisterAnimation("Block", "spritesheets\\block_mid_hitstun.png", 8, 7, 0, 4);
+  player->GetComponent<AnimationRenderer>()->RegisterAnimation("LightHitstun", "spritesheets\\block_mid_hitstun.png", 8, 7, 4, 3);
+  player->GetComponent<AnimationRenderer>()->RegisterAnimation("LightHitstun2", "spritesheets\\block_mid_hitstun.png", 8, 7, 37, 4);
+  player->GetComponent<AnimationRenderer>()->RegisterAnimation("MediumHitstun", "spritesheets\\block_mid_hitstun.png", 8, 7, 8, 10);
+  player->GetComponent<AnimationRenderer>()->RegisterAnimation("MediumHitstun2", "spritesheets\\block_mid_hitstun.png", 8, 7, 19, 9);
+  player->GetComponent<AnimationRenderer>()->RegisterAnimation("HeavyHitstun", "spritesheets\\block_mid_hitstun.png", 8, 7, 42, 12);
+  player->GetComponent<AnimationRenderer>()->RegisterAnimation("LaunchHitstun", "spritesheets\\block_mid_hitstun.png", 8, 7, 27, 9);
+
+
   player->GetComponent<AnimationRenderer>()->Play("Idle", true, xOffset != 0);
 
   player->GetComponent<RectColliderD>()->Init(Vector2<double>(xOffset, 0.0),
     Vector2<double>(xOffset + static_cast<double>(textureSize.x)*.75, static_cast<double>(textureSize.y)));
   player->GetComponent<RectColliderD>()->SetStatic(false);
 
+  player->GetComponent<Hurtbox>()->Init(Vector2<double>(xOffset, 0.0),
+    Vector2<double>(xOffset + static_cast<double>(textureSize.x) * .75, static_cast<double>(textureSize.y)));
+  player->GetComponent<Hurtbox>()->SetStatic(false);
+
   player->SetScale(Vector2<float>(1.4f, 1.7f));
   player->GetComponent<Transform>()->position.x = xOffset;
+
   player->GetComponent<RectColliderD>()->MoveToTransform(*player->GetComponent<Transform>());
+  player->GetComponent<Hurtbox>()->MoveToTransform(*player->GetComponent<Transform>());
 
   return player;
 }

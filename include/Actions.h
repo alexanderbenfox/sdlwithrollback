@@ -3,6 +3,7 @@
 #include "Components/Input.h"
 #include "ListenerInterfaces.h"
 
+//______________________________________________________________________________
 //! Inteface for a context of the world that may affect character state
 class GameContext
 {
@@ -15,11 +16,27 @@ public:
     return collision == other.collision && onLeftSide == other.onLeftSide && movement == other.movement;
   }
 
+  // will merge the contexts?
+  GameContext operator+(const GameContext& otherContext) const
+  {
+    // copy this
+    GameContext newContext = *this;
+    newContext.hitThisFrame |= otherContext.hitThisFrame;
+    newContext.hitOnLeftSide |= otherContext.hitOnLeftSide;
+    return newContext;
+  }
+
   Vector2<float> movement;
   CollisionSide collision;
   bool onLeftSide;
+  bool hitThisFrame = false;
+  bool hitOnLeftSide = false;
+
+private:
+
 };
 
+//______________________________________________________________________________
 class IAction
 {
 public:
@@ -49,6 +66,7 @@ protected:
 
 };
 
+//______________________________________________________________________________
 //all of the possible states for animation??
 enum class StanceState
 {
@@ -60,9 +78,14 @@ enum class ActionState
   NONE, BLOCKSTUN, HITSTUN, DASHING, LIGHT, MEDIUM, HEAVY
 };
 
+//______________________________________________________________________________
 // partial specialization
 template <StanceState Stance> IAction* GetAttacksFromNeutral(const InputState& rawInput, bool facingRight);
 
+//______________________________________________________________________________
+IAction* CheckHits(const InputState& rawInput, const GameContext& context);
+
+//______________________________________________________________________________
 template <StanceState Stance, ActionState Action>
 class AnimatedAction : public IAction, public IAnimatorListener
 {
@@ -102,6 +125,7 @@ protected:
 
 };
 
+//______________________________________________________________________________
 template <StanceState Stance, ActionState Action>
 class LoopedAction : public AnimatedAction<Stance, Action>
 {
@@ -119,6 +143,42 @@ public:
 
 };
 
+//______________________________________________________________________________
+template <StanceState Stance, ActionState Action>
+class TimedAction : public LoopedAction<Stance, Action>
+{
+public:
+  TimedAction(const std::string& animation, bool facingRight, int framesInState) : _framesDuration(framesInState),
+    LoopedAction<Stance, Action>(animation, facingRight) {}
+  //!
+  TimedAction(const std::string& animation, bool facingRight, int framesInState, Vector2<float> instVeclocity) : _framesDuration(framesInState),
+    LoopedAction<Stance, Action>(animation, facingRight, instVeclocity) {}
+
+  //__________________OVERRIDES________________________________
+
+  //!
+  virtual void Enact(Entity* actor) override;
+
+  //!
+  virtual IAction* HandleInput(const InputState& rawInput, const GameContext& context) override
+  {
+    //IAction* onHitAction = CheckHits(rawInput, context);
+    //if (onHitAction) return onHitAction;
+    return nullptr;
+  }
+
+  virtual IAction* GetFollowUpAction() override
+  {
+    return new LoopedAction<Stance, ActionState::NONE>
+      (Stance == StanceState::STANDING ? "Idle" : Stance == StanceState::CROUCHING ? "Crouch" : "Jumping", this->_facingRight);
+  }
+
+protected:
+  int _framesDuration;
+
+};
+
+//______________________________________________________________________________
 template <StanceState Stance, ActionState Action>
 class StateLockedAnimatedAction : public AnimatedAction<Stance, Action>
 {
@@ -134,6 +194,7 @@ public:
   
 };
 
+//______________________________________________________________________________
 template <StanceState Stance, ActionState Action>
 class GroundedStaticAttack : public StateLockedAnimatedAction<Stance, Action>
 {
@@ -143,17 +204,23 @@ public:
 
 };
 
+//______________________________________________________________________________
 template <> IAction* LoopedAction<StanceState::STANDING, ActionState::NONE>::HandleInput(const InputState& rawInput, const GameContext& context);
 
 template <> IAction* LoopedAction<StanceState::JUMPING, ActionState::NONE>::HandleInput(const InputState& rawInput, const GameContext& context);
 
 template <> IAction* LoopedAction<StanceState::CROUCHING, ActionState::NONE>::HandleInput(const InputState& rawInput, const GameContext& context);
 
+
+//______________________________________________________________________________
 template <> IAction* StateLockedAnimatedAction<StanceState::CROUCHING, ActionState::NONE>::GetFollowUpAction();
 
 template <StanceState State, ActionState Action>
 inline IAction* StateLockedAnimatedAction<State, Action>::HandleInput(const InputState& rawInput, const GameContext& context)
 {
+  IAction* onHitAction = CheckHits(rawInput, context);
+  if (onHitAction) return onHitAction;
+
   if (State == StanceState::JUMPING)
   {
     if (HasState(context.collision, CollisionSide::DOWN))

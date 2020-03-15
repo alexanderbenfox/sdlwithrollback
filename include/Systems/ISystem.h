@@ -51,9 +51,17 @@ public:
   {
     if(Req::MatchesSignature(entity))
     {
-      auto things = std::make_tuple((entity->GetComponent<T>(), ...));
-      std::tuple<std::add_pointer_t<T>...> tuple = entity->MakeComponentTuple<T...>();
-      Tuples.insert(std::make_pair(entity->GetID(), tuple));
+      auto it = Tuples.find(entity->GetID());
+      if (it == Tuples.end())
+      {
+        auto things = std::make_tuple((entity->GetComponent<T>(), ...));
+        std::tuple<std::add_pointer_t<T>...> tuple = entity->MakeComponentTuple<T...>();
+        Tuples.insert(std::make_pair(entity->GetID(), tuple));
+      }
+      else
+      {
+        Tuples[entity->GetID()] = entity->MakeComponentTuple<T...>();
+      }
     }
     else
     {
