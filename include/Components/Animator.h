@@ -31,7 +31,7 @@ class Animation : public Image
 public:
   Animation(const char* sheet, int rows, int columns, int startIndexOnSheet, int frames);
 
-  void AddHitboxEvents(const char* hitboxesSheet, std::shared_ptr<Entity> entity);
+  void AddHitboxEvents(const char* hitboxesSheet, FrameData frameData, std::shared_ptr<Entity> entity);
 
   SDL_Rect GetFrameSrcRect(int frame);
 

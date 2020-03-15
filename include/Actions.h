@@ -23,6 +23,10 @@ public:
     GameContext newContext = *this;
     newContext.hitThisFrame |= otherContext.hitThisFrame;
     newContext.hitOnLeftSide |= otherContext.hitOnLeftSide;
+    newContext.frameData.damage = otherContext.frameData.damage;
+    newContext.frameData.knockback = otherContext.frameData.knockback;
+    newContext.frameData.onHit = otherContext.frameData.onHit;
+    newContext.frameData.onBlock = otherContext.frameData.onBlock;
     return newContext;
   }
 
@@ -31,8 +35,7 @@ public:
   bool onLeftSide;
   bool hitThisFrame = false;
   bool hitOnLeftSide = false;
-
-private:
+  FrameData frameData;
 
 };
 
@@ -218,8 +221,10 @@ template <> IAction* StateLockedAnimatedAction<StanceState::CROUCHING, ActionSta
 template <StanceState State, ActionState Action>
 inline IAction* StateLockedAnimatedAction<State, Action>::HandleInput(const InputState& rawInput, const GameContext& context)
 {
-  IAction* onHitAction = CheckHits(rawInput, context);
-  if (onHitAction) return onHitAction;
+  if (context.hitThisFrame)
+  {
+    return new TimedAction<StanceState::STANDING, ActionState::HITSTUN>("HeavyHitstun", context.onLeftSide, context.frameData.onHit, context.frameData.knockback);
+  }
 
   if (State == StanceState::JUMPING)
   {

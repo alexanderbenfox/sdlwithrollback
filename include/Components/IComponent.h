@@ -6,11 +6,18 @@
 #include <iostream>
 #include "Utils.h"
 
-
 const float avg_animation_fps = 24.0f;
 const float third_strike_fps = 16.0f;
 
 const float animation_fps = third_strike_fps;
+
+struct FrameData
+{
+  int damage;
+  Vector2<float> knockback;
+  int onHit;
+  int onBlock;
+};
 
 class Entity;
 

@@ -3,13 +3,6 @@
 #include "Transform.h"
 #include <functional>
 
-/*class ICollision
-{
-public:
-  virtual ~ICollision() = 0;
-
-};*/
-
 class ICollider : public IComponent
 {
 public:
@@ -72,18 +65,6 @@ typedef RectCollider<double> RectColliderD;
 template <> struct ComponentTraits<RectColliderD>
 {
   static const uint64_t GetSignature() { return 1 << 4;}
-};
-
-//! hitbox is the area that will hit the opponent
-class Hitbox : public RectColliderD
-{
-public:
-  //!
-  Hitbox(std::shared_ptr<Entity> entity) : RectColliderD(entity) {}
-};
-template <> struct ComponentTraits<Hitbox>
-{
-  static const uint64_t GetSignature() { return 1 << 8; }
 };
 
 //! hurtbox is the area that you can take damage from an enemy attack

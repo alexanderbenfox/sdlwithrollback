@@ -1,11 +1,10 @@
 #include "Entity.h"
 #include "Components/Animator.h"
+#include "Components/Hitbox.h"
 
 #include <math.h>
 
 #include "GameManagement.h"
-
-#include "Components/Collider.h"
 
 Animation::Animation(const char* sheet, int rows, int columns, int startIndexOnSheet, int frames) : _rows(rows), _columns(columns), _startIdx(startIndexOnSheet), _frames(frames), Image(sheet)
 {
@@ -13,7 +12,7 @@ Animation::Animation(const char* sheet, int rows, int columns, int startIndexOnS
   _referencePx = FindReferencePixel(sheet);
 }
 
-void Animation::AddHitboxEvents(const char* hitboxesSheet, std::shared_ptr<Entity> entity)
+void Animation::AddHitboxEvents(const char* hitboxesSheet, FrameData frameData, std::shared_ptr<Entity> entity)
 {
   int entityID = entity->GetID();
   auto DespawnHitbox = [entityID]()
@@ -40,9 +39,10 @@ void Animation::AddHitboxEvents(const char* hitboxesSheet, std::shared_ptr<Entit
       Rect<double> hitbox = ResourceManager::FindRect(hitboxes, _frameSize, Vector2<int>(x * _frameSize.x, y * _frameSize.y));
       if (hitbox.Area() != 0)
       {
-        auto SpawnHitbox = [entityID, hitbox](double x, double y, Transform* trans)
+        auto SpawnHitbox = [entityID, hitbox, frameData](double x, double y, Transform* trans)
         {
           GameManager::Get().GetEntityByID(entityID)->AddComponent<Hitbox>();
+          GameManager::Get().GetEntityByID(entityID)->GetComponent<Hitbox>()->frameData = frameData;
           GameManager::Get().GetEntityByID(entityID)->GetComponent<Hitbox>()->rect = Rect<double>(hitbox.Beg().x * trans->scale.x, hitbox.Beg().y * trans->scale.y, hitbox.End().x * trans->scale.x, hitbox.End().y * trans->scale.y);
           GameManager::Get().GetEntityByID(entityID)->GetComponent<Hitbox>()->rect.MoveAbsolute(Vector2<double>(x + (hitbox.Beg().x * trans->scale.x), y + (hitbox.Beg().y * trans->scale.y)));
         };

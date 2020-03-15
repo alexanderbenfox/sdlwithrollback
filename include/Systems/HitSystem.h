@@ -1,6 +1,6 @@
 #pragma once
 #include "Systems/ISystem.h"
-#include "Components/Collider.h"
+#include "Components/Hitbox.h"
 #include "Components/GameActor.h"
 
 //!
@@ -25,6 +25,9 @@ public:
           double amtLeft = hurtbox->rect.GetCenter().x - hitbox->rect.Beg().x;
           double amtRight = hitbox->rect.End().x - hurtbox->rect.GetCenter().x;
           hurtboxController->mergeContext.hitOnLeftSide =  amtLeft > amtRight;
+          hurtboxController->mergeContext.frameData = hitbox->frameData;
+          if(amtLeft < amtRight)
+            hurtboxController->mergeContext.frameData.knockback.x = -hitbox->frameData.knockback.x;
         }
       }
     }

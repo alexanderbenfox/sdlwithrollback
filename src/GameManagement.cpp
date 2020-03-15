@@ -257,6 +257,9 @@ void GameManager::Initialize()
   kb2->SetKey(SDLK_DOWN, InputState::DOWN);
   kb2->SetKey(SDLK_RIGHT, InputState::RIGHT);
   kb2->SetKey(SDLK_LEFT, InputState::LEFT);
+  kb2->SetKey(SDLK_j, InputState::BTN1);
+  kb2->SetKey(SDLK_k, InputState::BTN2);
+  kb2->SetKey(SDLK_l, InputState::BTN3);
 
   _camera = EntityCreation::CreateCamera();
 

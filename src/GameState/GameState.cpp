@@ -54,23 +54,24 @@ std::shared_ptr<Entity> EntityCreation::CreateLocalPlayer(float xOffset)
   player->GetComponent<AnimationRenderer>()->RegisterAnimation("Crouching", "spritesheets\\crouching.png", 4, 5, 0, 4);
   player->GetComponent<AnimationRenderer>()->RegisterAnimation("Crouch", "spritesheets\\crouching.png", 4, 5, 12, 5);
 
+  FrameData testData{1, Vector2<float>(120.0f, -400.0f), 8, 6};
   player->GetComponent<AnimationRenderer>()->RegisterAnimation("CrouchingLight", "spritesheets\\grounded_attacks.png", 8, 10, 9, 7);
-  player->GetComponent<AnimationRenderer>()->GetAnimationByName("CrouchingLight")->AddHitboxEvents("spritesheets\\grounded_attacks_hitboxes.png", player);
+  player->GetComponent<AnimationRenderer>()->GetAnimationByName("CrouchingLight")->AddHitboxEvents("spritesheets\\grounded_attacks_hitboxes.png", testData, player);
 
   player->GetComponent<AnimationRenderer>()->RegisterAnimation("CrouchingMedium", "spritesheets\\grounded_attacks.png", 8, 10, 16, 11);
-  player->GetComponent<AnimationRenderer>()->GetAnimationByName("CrouchingMedium")->AddHitboxEvents("spritesheets\\grounded_attacks_hitboxes.png", player);
+  player->GetComponent<AnimationRenderer>()->GetAnimationByName("CrouchingMedium")->AddHitboxEvents("spritesheets\\grounded_attacks_hitboxes.png", testData, player);
 
   player->GetComponent<AnimationRenderer>()->RegisterAnimation("CrouchingHeavy", "spritesheets\\grounded_attacks.png", 8, 10, 27, 11);
-  player->GetComponent<AnimationRenderer>()->GetAnimationByName("CrouchingHeavy")->AddHitboxEvents("spritesheets\\grounded_attacks_hitboxes.png", player);
+  player->GetComponent<AnimationRenderer>()->GetAnimationByName("CrouchingHeavy")->AddHitboxEvents("spritesheets\\grounded_attacks_hitboxes.png", testData, player);
 
   player->GetComponent<AnimationRenderer>()->RegisterAnimation("StandingLight", "spritesheets\\grounded_attacks.png", 8, 10, 40, 6);
-  player->GetComponent<AnimationRenderer>()->GetAnimationByName("StandingLight")->AddHitboxEvents("spritesheets\\grounded_attacks_hitboxes.png", player);
+  player->GetComponent<AnimationRenderer>()->GetAnimationByName("StandingLight")->AddHitboxEvents("spritesheets\\grounded_attacks_hitboxes.png", testData, player);
 
   player->GetComponent<AnimationRenderer>()->RegisterAnimation("StandingMedium", "spritesheets\\grounded_attacks.png", 8, 10, 46, 9);
-  player->GetComponent<AnimationRenderer>()->GetAnimationByName("StandingMedium")->AddHitboxEvents("spritesheets\\grounded_attacks_hitboxes.png", player);
+  player->GetComponent<AnimationRenderer>()->GetAnimationByName("StandingMedium")->AddHitboxEvents("spritesheets\\grounded_attacks_hitboxes.png", testData, player);
 
   player->GetComponent<AnimationRenderer>()->RegisterAnimation("StandingHeavy", "spritesheets\\grounded_attacks.png", 8, 10, 55, 13);
-  player->GetComponent<AnimationRenderer>()->GetAnimationByName("StandingHeavy")->AddHitboxEvents("spritesheets\\grounded_attacks_hitboxes.png", player);
+  player->GetComponent<AnimationRenderer>()->GetAnimationByName("StandingHeavy")->AddHitboxEvents("spritesheets\\grounded_attacks_hitboxes.png", testData, player);
 
 
   player->GetComponent<AnimationRenderer>()->RegisterAnimation("JumpingLight", "spritesheets\\jlp.png", 4, 4, 0, 14);

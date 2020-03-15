@@ -76,9 +76,9 @@ IAction* CheckHits(const InputState& rawInput, const GameContext& context)
     bool blockedRight = HasState(rawInput, InputState::LEFT) && !context.hitOnLeftSide;
     bool blockedLeft = HasState(rawInput, InputState::RIGHT) && context.hitOnLeftSide;
     if (blockedRight || blockedLeft)
-      return new TimedAction<StanceState::STANDING, ActionState::BLOCKSTUN>("Block", facingRight, 10, Vector2<float>::Zero());
+      return new TimedAction<StanceState::STANDING, ActionState::BLOCKSTUN>("Block", facingRight, context.frameData.onBlock, Vector2<float>::Zero());
     else
-      return new StateLockedAnimatedAction<StanceState::STANDING, ActionState::HITSTUN>("HeavyHitstun", facingRight, Vector2<float>::Zero());
+      return new TimedAction<StanceState::STANDING, ActionState::HITSTUN>("HeavyHitstun", facingRight, context.frameData.onHit, context.frameData.knockback);
   }
   return nullptr;
 }

@@ -1,9 +1,7 @@
 #pragma once
-#include "IComponent.h"
 #include "Actions.h"
 
 #include <set>
-
 #include "ListenerInterfaces.h"
 
 class TimerComponent
