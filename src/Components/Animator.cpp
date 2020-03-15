@@ -37,7 +37,7 @@ void Animation::AddHitboxEvents(const char* hitboxesSheet, std::shared_ptr<Entit
       int x = (_startIdx + i) % _columns;
       int y = (_startIdx + i) / _columns;
 
-      Rect hitbox = ResourceManager::FindRect(hitboxes, _frameSize, Vector2<int>(x * _frameSize.x, y * _frameSize.y));
+      Rect<double> hitbox = ResourceManager::FindRect(hitboxes, _frameSize, Vector2<int>(x * _frameSize.x, y * _frameSize.y));
       if (hitbox.Area() != 0)
       {
         auto SpawnHitbox = [entityID, hitbox](double x, double y, Transform* trans)
@@ -46,8 +46,8 @@ void Animation::AddHitboxEvents(const char* hitboxesSheet, std::shared_ptr<Entit
           GameManager::Get().GetEntityByID(entityID)->GetComponent<Hitbox>()->rect = Rect<double>(hitbox.Beg().x * trans->scale.x, hitbox.Beg().y * trans->scale.y, hitbox.End().x * trans->scale.x, hitbox.End().y * trans->scale.y);
           GameManager::Get().GetEntityByID(entityID)->GetComponent<Hitbox>()->rect.MoveAbsolute(Vector2<double>(x + (hitbox.Beg().x * trans->scale.x), y + (hitbox.Beg().y * trans->scale.y)));
         };
-
-        _events.insert(std::pair(i, AnimationEvent(i, 1, SpawnHitbox, DespawnHitbox)));
+        // construct the animated event in place
+        _events.emplace(std::piecewise_construct, std::make_tuple(i), std::make_tuple(i, 1, SpawnHitbox, DespawnHitbox));
       }
     }
   }
@@ -192,6 +192,9 @@ void AnimationRenderer::Play(const std::string& name, bool isLooped, bool horizo
 
   if (_animations.find(name) != _animations.end())
   {
+    if(_currentAnimation != _animations.end())
+      _currentAnimation->second.ClearEvents();
+
     _currentAnimationName = name;
     _currentAnimation = _animations.find(name);
     _playing = true;

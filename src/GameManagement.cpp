@@ -159,7 +159,7 @@ void ResourceManager::CrawlTexture(Texture& texture, Vector2<int> begin, Vector2
   upixels = (Uint32*)textureInfo.pixels;
   Uint32 transparent = SDL_MapRGBA(format.get(), px[0], px[1], px[2], 0x00);
 #else
-  upixels = (Uint32*)_texture.GetInfo().pixels.get();
+  upixels = (Uint32*)texture.GetInfo().pixels.get();
 #endif
   for (int y = begin.y; y < end.y; y++)
   {

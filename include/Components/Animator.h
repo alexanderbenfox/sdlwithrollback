@@ -9,12 +9,15 @@ class AnimationEvent
 public:
   AnimationEvent(int startFrame, int duration, std::function<void(double, double, Transform*)> onTriggerCallback, std::function<void()> onEndCallback) :
     _frame(startFrame), _duration(duration), _onTrigger(onTriggerCallback), _onEnd(onEndCallback) {}
+
   void TriggerEvent(double x, double y, Transform* trans) { _onTrigger(x, y, trans); }
   void EndEvent() { _onEnd(); }
   int GetEndFrame() { return _frame + _duration; }
 
 private:
-  //Animation* _owner;
+  //! Delete copy constructor because it will only be used in the animation
+  AnimationEvent(const AnimationEvent&) = delete;
+  AnimationEvent operator=(AnimationEvent&) = delete;
   //! Frame this event will be called on
   int _frame;
   int _duration;
@@ -41,6 +44,13 @@ public:
   Vector2<int> const GetRefPxLocation() { return _referencePx; }
   //! Checks if an event should be trigger this frame of animation and calls its callback if so
   void CheckEvents(int frame, double x, double y, Transform* transform);
+  //!
+  void ClearEvents()
+  {
+    for(auto& event : _inProgressEvents)
+      event->EndEvent();
+    _inProgressEvents.clear();
+  }
 
 protected:
   //! Gets first non-transparent pixel from the top left
