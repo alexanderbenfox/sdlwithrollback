@@ -11,12 +11,6 @@ class InputSystem : public ISystem<KeyboardInputHandler, GameActor, Rigidbody, T
 public:
   static void DoTick(float dt)
   {
-    auto GetCenterX = [](Transform* transform, RectColliderD* collider)
-    {
-      return (int)std::floor(static_cast<double>(transform->position.x) + (collider->rect.Width() / 2));
-    };
-
-
     for(auto& tuple : Tuples)
     {
       KeyboardInputHandler* inputHandler = std::get<KeyboardInputHandler*>(tuple.second);
@@ -30,16 +24,13 @@ public:
       GameContext context;
       context.collision = rigidbody->_lastCollisionSide;
 
-      int thisCenterX = GetCenterX(transform, collider);
-
       for(auto& other : Tuples)
       {
         if(other != tuple)
         {
-          context.onLeftSide = thisCenterX < GetCenterX(std::get<Transform*>(other.second), std::get<RectColliderD*>(other.second));
+          context.onLeftSide = collider->rect.GetCenter().x < std::get<RectColliderD*>(other.second)->rect.GetCenter().x;
         }
       }
-
       actor->EvaluateInputContext(unitInputState, context);
     }
   }
