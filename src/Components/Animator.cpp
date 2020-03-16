@@ -141,7 +141,7 @@ Vector2<int> Animation::FindReferencePixel(const char* sheet)
 }
 
 AnimationRenderer::AnimationRenderer(std::shared_ptr<Entity> owner) : 
-  _playing(false), _looping(false), _accumulatedTime(0.0f), _frame(0), _nextFrameOp([](int) { return 0; }), SpriteRenderer(owner)
+  _currentAnimationName(""), _currentAnimation(_animations.end()), _playing(false), _looping(false), _accumulatedTime(0.0f), _frame(0), _nextFrameOp([](int) { return 0; }), SpriteRenderer(owner)
 {
   
 }
@@ -189,7 +189,6 @@ void AnimationRenderer::Play(const std::string& name, bool isLooped, bool horizo
 {
   // dont play again if we are already playing it
   if (_playing && (name == _currentAnimationName && _horizontalFlip == horizontalFlip)) return;
-
   if (_animations.find(name) != _animations.end())
   {
     if(_currentAnimation != _animations.end())

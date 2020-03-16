@@ -161,5 +161,8 @@
     <ClInclude Include="..\include\Systems\HitSystem.h">
       <Filter>Header Files\Systems</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\Components\Hitbox.h">
+      <Filter>Header Files\Components</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
