@@ -28,6 +28,13 @@ void Animation::AddHitboxEvents(const char* hitboxesSheet, FrameData frameData, 
 #endif
   Texture hitboxes = Texture(ResourceManager::Get().GetResourcePath() + hitBoxFile);
 
+  int startUpFrames = -1;
+  int activeFrames = -1;
+  int recoveryFrames = -1;
+
+  std::function<void(double,double,Transform*)> trigger;
+  std::vector<std::function<void(double,double,Transform*)>> updates;
+
   hitboxes.Load();
   if (hitboxes.IsLoaded())
   {
@@ -39,17 +46,36 @@ void Animation::AddHitboxEvents(const char* hitboxesSheet, FrameData frameData, 
       Rect<double> hitbox = ResourceManager::FindRect(hitboxes, _frameSize, Vector2<int>(x * _frameSize.x, y * _frameSize.y));
       if (hitbox.Area() != 0)
       {
-        auto SpawnHitbox = [entityID, hitbox, frameData](double x, double y, Transform* trans)
+        if(startUpFrames != -1)
         {
-          GameManager::Get().GetEntityByID(entityID)->AddComponent<Hitbox>();
-          GameManager::Get().GetEntityByID(entityID)->GetComponent<Hitbox>()->frameData = frameData;
-          GameManager::Get().GetEntityByID(entityID)->GetComponent<Hitbox>()->rect = Rect<double>(hitbox.Beg().x * trans->scale.x, hitbox.Beg().y * trans->scale.y, hitbox.End().x * trans->scale.x, hitbox.End().y * trans->scale.y);
-          GameManager::Get().GetEntityByID(entityID)->GetComponent<Hitbox>()->rect.MoveAbsolute(Vector2<double>(x + (hitbox.Beg().x * trans->scale.x), y + (hitbox.Beg().y * trans->scale.y)));
-        };
-        // construct the animated event in place
-        _events.emplace(std::piecewise_construct, std::make_tuple(i), std::make_tuple(i, 1, SpawnHitbox, DespawnHitbox));
+          auto UpdateHitbox = [entityID, hitbox](double x, double y, Transform* trans)
+          {
+            GameManager::Get().GetEntityByID(entityID)->GetComponent<Hitbox>()->rect = Rect<double>(hitbox.Beg().x * trans->scale.x, hitbox.Beg().y * trans->scale.y, hitbox.End().x * trans->scale.x, hitbox.End().y * trans->scale.y);
+            GameManager::Get().GetEntityByID(entityID)->GetComponent<Hitbox>()->rect.MoveAbsolute(Vector2<double>(x + (hitbox.Beg().x * trans->scale.x), y + (hitbox.Beg().y * trans->scale.y)));
+          };
+          updates.push_back(UpdateHitbox);
+
+          if(activeFrames == -1)
+            activeFrames = i - startUpFrames + 1;
+        }
+        else
+        {
+          startUpFrames = i;
+          trigger = [entityID, hitbox, frameData](double x, double y, Transform* trans)
+          {
+            GameManager::Get().GetEntityByID(entityID)->AddComponent<Hitbox>();
+            GameManager::Get().GetEntityByID(entityID)->GetComponent<Hitbox>()->frameData = frameData;
+            GameManager::Get().GetEntityByID(entityID)->GetComponent<Hitbox>()->rect = Rect<double>(hitbox.Beg().x * trans->scale.x, hitbox.Beg().y * trans->scale.y, hitbox.End().x * trans->scale.x, hitbox.End().y * trans->scale.y);
+            GameManager::Get().GetEntityByID(entityID)->GetComponent<Hitbox>()->rect.MoveAbsolute(Vector2<double>(x + (hitbox.Beg().x * trans->scale.x), y + (hitbox.Beg().y * trans->scale.y)));
+          };
+        }
       }
+      if(activeFrames != -1)
+        recoveryFrames = i - startUpFrames + activeFrames - 1;
     }
+    // construct the animated event in place
+    if(startUpFrames > 0)
+      _events.emplace(std::piecewise_construct, std::make_tuple(startUpFrames), std::make_tuple(startUpFrames, activeFrames, trigger, updates, DespawnHitbox));
   }
 }
 
@@ -86,13 +112,6 @@ void Animation::SetOp(const Transform& transform, SDL_Rect rectOnTex, Vector2<in
 
 void Animation::CheckEvents(int frame, double x, double y, Transform* transform)
 {
-  auto evtIter = _events.find(frame);
-  if (evtIter != _events.end())
-  {
-    evtIter->second.TriggerEvent(x, y, transform);
-    _inProgressEvents.push_back(&evtIter->second);
-  }
-
   for (int i = 0; i < _inProgressEvents.size(); i++)
   {
     AnimationEvent* evt = _inProgressEvents[i];
@@ -102,6 +121,17 @@ void Animation::CheckEvents(int frame, double x, double y, Transform* transform)
       _inProgressEvents.erase(_inProgressEvents.begin() + i);
       i--;
     }
+    else
+    {
+      evt->UpdateEvent(frame, x, y, transform);
+    }
+  }
+
+  auto evtIter = _events.find(frame);
+  if (evtIter != _events.end())
+  {
+    evtIter->second.TriggerEvent(x, y, transform);
+    _inProgressEvents.push_back(&evtIter->second);
   }
 }
 

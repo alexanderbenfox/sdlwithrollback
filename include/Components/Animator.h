@@ -7,10 +7,11 @@ class Animation;
 class AnimationEvent
 {
 public:
-  AnimationEvent(int startFrame, int duration, std::function<void(double, double, Transform*)> onTriggerCallback, std::function<void()> onEndCallback) :
-    _frame(startFrame), _duration(duration), _onTrigger(onTriggerCallback), _onEnd(onEndCallback) {}
+  AnimationEvent(int startFrame, int duration, std::function<void(double, double, Transform*)> onTriggerCallback, std::vector<std::function<void(double,double,Transform*)>> update, std::function<void()> onEndCallback) :
+    _frame(startFrame), _duration(duration), _onTrigger(onTriggerCallback), _updates(update), _onEnd(onEndCallback) {}
 
   void TriggerEvent(double x, double y, Transform* trans) { _onTrigger(x, y, trans); }
+  void UpdateEvent(int frame, double x, double y, Transform* trans) { _updates[frame - _frame - 1](x, y, trans); }
   void EndEvent() { _onEnd(); }
   int GetEndFrame() { return _frame + _duration; }
 
@@ -23,6 +24,7 @@ private:
   int _duration;
   //!
   std::function<void(double, double, Transform*)> _onTrigger;
+  std::vector<std::function<void(double,double,Transform*)>> _updates;
   std::function<void()> _onEnd;
 };
 

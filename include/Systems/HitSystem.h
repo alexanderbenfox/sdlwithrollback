@@ -18,8 +18,14 @@ public:
 
       for (auto hitbox : ComponentManager<Hitbox>::Get().All())
       {
+        if(hitbox->hit)
+          continue;
         if (!hitbox->ShareOwner(hurtbox) && hitbox->rect.Collides(hurtbox->rect))
         {
+          bool ok;
+          if(hurtboxController->GetAction()->GetAction() == ActionState::HITSTUN)
+            ok = true;
+          hitbox->hit = true;
           // change the state variable that will be evaluated on the processing of inputs. probably a better way to do this...
           hurtboxController->mergeContext.hitThisFrame = true;
           double amtLeft = hurtbox->rect.GetCenter().x - hitbox->rect.Beg().x;

@@ -3,6 +3,32 @@
 #include "Components/Input.h"
 #include "ListenerInterfaces.h"
 
+class TimerComponent
+{
+public:
+  TimerComponent(std::function<void()> onComplete, int duration) : playTime(0), currFrame(0), _totalFrames(duration), _onComplete(onComplete), _cancelled(false) {}
+  float playTime;
+  int currFrame;
+
+  //!
+  int const TotalFrames() { return _totalFrames; }
+  //!
+  void OnComplete()
+  {
+    if(!_cancelled)
+      _onComplete();
+  }
+  //!
+  void Cancel() { _cancelled = true; }
+
+  bool const Cancelled() { return _cancelled; }
+private:
+  int _totalFrames;
+  std::function<void()> _onComplete;
+  bool _cancelled;
+
+};
+
 //______________________________________________________________________________
 //! Inteface for a context of the world that may affect character state
 class GameContext
@@ -13,7 +39,7 @@ public:
 
   bool operator==(const GameContext& other) const
   {
-    return collision == other.collision && onLeftSide == other.onLeftSide && movement == other.movement;
+    return collision == other.collision && onLeftSide == other.onLeftSide && movement == other.movement && hitThisFrame == other.hitThisFrame;
   }
 
   // will merge the contexts?
@@ -40,6 +66,18 @@ public:
 };
 
 //______________________________________________________________________________
+//all of the possible states for animation??
+enum class StanceState
+{
+  CROUCHING, STANDING, JUMPING
+};
+
+enum class ActionState
+{
+  NONE, BLOCKSTUN, HITSTUN, DASHING, LIGHT, MEDIUM, HEAVY
+};
+
+//______________________________________________________________________________
 class IAction
 {
 public:
@@ -50,14 +88,19 @@ public:
   //! return true if the input is handled only by the action
   virtual IAction* HandleInput(const InputState& rawInput, const GameContext& context) = 0;
   //!
-  virtual IAction* GetFollowUpAction() = 0;
+  virtual void SetComplete() = 0;
 
   virtual void ChangeListener(IActionListener* listener)
   {
     _listener = listener;
   }
 
+  virtual StanceState GetStance() = 0;
+  virtual ActionState GetAction() = 0;
+
 protected:
+  //!
+  virtual IAction* GetFollowUpAction() = 0;
   //!
   IActionListener* _listener;
     //!
@@ -67,18 +110,6 @@ protected:
       _listener->OnActionComplete(this);
   }
 
-};
-
-//______________________________________________________________________________
-//all of the possible states for animation??
-enum class StanceState
-{
-  CROUCHING, STANDING, JUMPING
-};
-
-enum class ActionState
-{
-  NONE, BLOCKSTUN, HITSTUN, DASHING, LIGHT, MEDIUM, HEAVY
 };
 
 //______________________________________________________________________________
@@ -105,15 +136,21 @@ public:
   //!
   virtual IAction* HandleInput(const InputState& rawInput, const GameContext& context) override = 0;
 
-  virtual IAction* GetFollowUpAction() override {return nullptr;}
-
   virtual void OnAnimationComplete(const std::string& completedAnimation) override
   {
     if(_animation == completedAnimation)
       OnActionComplete();
   }
 
+  virtual void SetComplete() override { _complete = true; }
+
+  virtual StanceState GetStance() override { return Stance; }
+  virtual ActionState GetAction() override { return Action; }
+
 protected:
+  virtual IAction* GetFollowUpAction() override {return nullptr;}
+  //!
+  bool _complete = false;
   //!
   std::string _animation;
   //!
@@ -151,11 +188,14 @@ template <StanceState Stance, ActionState Action>
 class TimedAction : public LoopedAction<Stance, Action>
 {
 public:
-  TimedAction(const std::string& animation, bool facingRight, int framesInState) : _framesDuration(framesInState),
+  TimedAction(const std::string& animation, bool facingRight, int framesInState) : _duration(framesInState),
     LoopedAction<Stance, Action>(animation, facingRight) {}
   //!
-  TimedAction(const std::string& animation, bool facingRight, int framesInState, Vector2<float> instVeclocity) : _framesDuration(framesInState),
+  TimedAction(const std::string& animation, bool facingRight, int framesInState, Vector2<float> instVeclocity) :
+    _duration(framesInState),
     LoopedAction<Stance, Action>(animation, facingRight, instVeclocity) {}
+
+  virtual ~TimedAction();
 
   //__________________OVERRIDES________________________________
 
@@ -165,19 +205,27 @@ public:
   //!
   virtual IAction* HandleInput(const InputState& rawInput, const GameContext& context) override
   {
-    //IAction* onHitAction = CheckHits(rawInput, context);
-    //if (onHitAction) return onHitAction;
+    if(AnimatedAction<Stance, Action>::_complete)
+    {
+      //_actionTiming->Cancel();
+      return GetFollowUpAction();
+    }
+    
+    IAction* onHitAction = CheckHits(rawInput, context);
+    if (onHitAction)
+      return onHitAction;
     return nullptr;
   }
 
+protected:
   virtual IAction* GetFollowUpAction() override
   {
     return new LoopedAction<Stance, ActionState::NONE>
       (Stance == StanceState::STANDING ? "Idle" : Stance == StanceState::CROUCHING ? "Crouch" : "Jumping", this->_facingRight);
   }
 
-protected:
-  int _framesDuration;
+  std::shared_ptr<TimerComponent> _actionTiming;
+  int _duration;
 
 };
 
@@ -192,6 +240,8 @@ public:
   StateLockedAnimatedAction(const std::string& animation, bool facingRight, Vector2<float> actionMovement);
   //!
   virtual IAction* HandleInput(const InputState& rawInput, const GameContext& context) override;
+
+protected:
   //!
   virtual IAction* GetFollowUpAction() override;
   
@@ -221,6 +271,11 @@ template <> IAction* StateLockedAnimatedAction<StanceState::CROUCHING, ActionSta
 template <StanceState State, ActionState Action>
 inline IAction* StateLockedAnimatedAction<State, Action>::HandleInput(const InputState& rawInput, const GameContext& context)
 {
+  if(AnimatedAction<State, Action>::_complete)
+  {
+    return GetFollowUpAction();
+  }
+
   if (context.hitThisFrame)
   {
     return new TimedAction<StanceState::STANDING, ActionState::HITSTUN>("HeavyHitstun", context.onLeftSide, context.frameData.onHit, context.frameData.knockback);

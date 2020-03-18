@@ -4,19 +4,6 @@
 #include <set>
 #include "ListenerInterfaces.h"
 
-class TimerComponent
-{
-public:
-  TimerComponent(std::function<void()> onComplete, int duration) : playTime(0), currFrame(0), _totalFrames(duration), _onComplete(onComplete) {}
-  float playTime;
-  int currFrame;
-  int const TotalFrames() { return _totalFrames; }
-  void OnComplete() { _onComplete(); }
-private:
-  int _totalFrames;
-  std::function<void()> _onComplete;
-};
-
 class GameActor : public IComponent, public IActionListener
 {
 public:
@@ -51,7 +38,9 @@ public:
   //! Context that will be merged with the input context when inputs are evaluated
   GameContext mergeContext;
 
-  std::vector<TimerComponent> timings;
+  std::vector<std::shared_ptr<TimerComponent>> timings;
+
+  IAction* const GetAction() {return _currentAction;}
 
 private:
   //!
@@ -64,6 +53,8 @@ private:
   //!
   GameContext _lastContext;
   bool _newState;
+
+  int _comboCounter;
 
 
 };

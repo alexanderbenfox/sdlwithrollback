@@ -73,7 +73,7 @@ void RectCollider<T>::Draw()
 }
 
 //______________________________________________________________________________
-GameActor::GameActor(std::shared_ptr<Entity> owner) : _currentAction(nullptr), _newState(true), _lastInput(InputState::NONE), IComponent(owner)
+GameActor::GameActor(std::shared_ptr<Entity> owner) : _currentAction(nullptr), _newState(true), _lastInput(InputState::NONE), _comboCounter(0), IComponent(owner)
 {
   BeginNewAction(new LoopedAction<StanceState::STANDING, ActionState::NONE>("Idle", owner.get()));
 }
@@ -96,16 +96,23 @@ void GameActor::OnFrameEnd()
 //______________________________________________________________________________
 void GameActor::OnActionComplete(IAction* action)
 {
-  IAction* nextAction = action->GetFollowUpAction();
+  /*IAction* nextAction = action->GetFollowUpAction();
   if (nextAction == action)
     return;
   if(nextAction)
-    BeginNewAction(nextAction);
+    BeginNewAction(nextAction);*/
+  _newState = true;
+  action->SetComplete();
 }
 
 //______________________________________________________________________________
 void GameActor::BeginNewAction(IAction* action)
 {
+  if(action && _currentAction)
+  {
+    if(_currentAction->GetAction() == ActionState::HITSTUN && action->GetAction() != ActionState::HITSTUN)
+      _comboCounter = 0;
+  }
   if (_currentAction != nullptr)
     delete _currentAction;
   
@@ -135,6 +142,8 @@ void GameActor::EvaluateInputContext(InputState input, const GameContext& contex
 
   if (nextAction && (nextAction != prevAction))
   {
+    if(nextAction->GetAction() == ActionState::HITSTUN)
+      _comboCounter++;
     // update last context
     _lastInput = input;
     _lastContext = contextToEval;

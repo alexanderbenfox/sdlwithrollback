@@ -226,11 +226,19 @@ template <> IAction* LoopedAction<StanceState::CROUCHING, ActionState::NONE>::Ha
 
 //______________________________________________________________________________
 template <StanceState Stance, ActionState Action>
+TimedAction<Stance, Action>::~TimedAction<Stance, Action>()
+{
+  _actionTiming->Cancel();
+}
+
+//______________________________________________________________________________
+template <StanceState Stance, ActionState Action>
 void TimedAction<Stance, Action>::Enact(Entity* actor)
 {
   AnimatedAction<Stance, Action>::Enact(actor);
-  TimerComponent actionTiming([this]() { this->OnActionComplete(); }, _framesDuration);
-  actor->GetComponent<GameActor>()->timings.push_back(actionTiming);
+  AnimatedAction<Stance, Action>::_complete = false;
+  _actionTiming = std::make_shared<TimerComponent>([this]() { this->OnActionComplete(); }, _duration);
+  actor->GetComponent<GameActor>()->timings.push_back(_actionTiming);
 }
 
 //______________________________________________________________________________

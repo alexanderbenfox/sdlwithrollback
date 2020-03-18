@@ -7,9 +7,11 @@ class Hitbox : public RectColliderD
 {
 public:
   //!
-  Hitbox(std::shared_ptr<Entity> entity) : RectColliderD(entity) {}
+  Hitbox(std::shared_ptr<Entity> entity) : hit(false), RectColliderD(entity) {}
   //!
   FrameData frameData;
+
+  bool hit = false;
 
 private:
 
