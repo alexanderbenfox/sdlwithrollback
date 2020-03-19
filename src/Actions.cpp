@@ -4,6 +4,7 @@
 #include "Components/Animator.h"
 #include "Components/Rigidbody.h"
 #include "Components/GameActor.h"
+#include "Components/AttackStateComponent.h"
 
 const float _baseSpeed = 300.0f * 1.5f;
 
@@ -50,17 +51,17 @@ template <> IAction* GetAttacksFromNeutral<StanceState::JUMPING>(const InputStat
   // when attacking in the air, facing direction is not changed
   if (HasState(rawInput, InputState::BTN1))
   {
-    return new StateLockedAnimatedAction<StanceState::JUMPING, ActionState::LIGHT>("JumpingLight", facingRight);
+    return new AttackAction<StanceState::JUMPING, ActionState::LIGHT>("JumpingLight", facingRight);
   }
 
   else if (HasState(rawInput, InputState::BTN2))
   {
-    return new StateLockedAnimatedAction<StanceState::JUMPING, ActionState::MEDIUM>("JumpingMedium", facingRight);
+    return new AttackAction<StanceState::JUMPING, ActionState::MEDIUM>("JumpingMedium", facingRight);
   }
 
   else if (HasState(rawInput, InputState::BTN3))
   {
-    return new StateLockedAnimatedAction<StanceState::JUMPING, ActionState::HEAVY>("JumpingHeavy", facingRight);
+    return new AttackAction<StanceState::JUMPING, ActionState::HEAVY>("JumpingHeavy", facingRight);
   }
 
   // state hasn't changed
@@ -261,4 +262,27 @@ IAction* StateLockedAnimatedAction<Stance, Action>::GetFollowUpAction()
 {
   return new LoopedAction<Stance, ActionState::NONE>
     (Stance == StanceState::STANDING ? "Idle" : Stance == StanceState::CROUCHING ? "Crouch" : "Jumping", this->_facingRight);
+}
+
+//______________________________________________________________________________
+template <StanceState Stance, ActionState Action>
+void AttackAction<Stance, Action>::Enact(Entity* actor)
+{
+  AnimatedAction<Stance, Action>::Enact(actor);
+  if (auto animator = actor->GetComponent<AnimationRenderer>())
+  {
+    if (Animation* anim = animator->GetAnimationByName(AnimatedAction<Stance, Action>::_animation))
+    {
+      actor->AddComponent<AttackStateComponent>();
+      actor->GetComponent<AttackStateComponent>()->SetAnimation(anim);
+    }
+  }
+}
+
+//______________________________________________________________________________
+template <StanceState Stance, ActionState Action>
+void AttackAction<Stance, Action>::OnActionComplete()
+{
+  IAction::_listener->GetOwner()->RemoveComponent<AttackStateComponent>();
+  IAction::OnActionComplete();
 }

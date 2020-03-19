@@ -16,6 +16,8 @@ public:
   //! 
   virtual void OnActionComplete(IAction* action) override;
   //!
+  virtual Entity* GetOwner() override { return _owner.get(); }
+  //!
   void BeginNewAction(IAction* action);
   //!
   void EvaluateInputContext(InputState input, const GameContext& context);

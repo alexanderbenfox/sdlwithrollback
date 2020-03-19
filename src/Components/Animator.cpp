@@ -1,7 +1,6 @@
 #include "Entity.h"
 #include "Components/Animator.h"
 #include "Components/Hitbox.h"
-#include "Components/AttackStateComponent.h"
 
 #include <math.h>
 
@@ -197,12 +196,6 @@ void AnimationRenderer::Play(const std::string& name, bool isLooped, bool horizo
   if (_playing && (name == _currentAnimationName && _horizontalFlip == horizontalFlip)) return;
   if (_animations.find(name) != _animations.end())
   {
-    if(_currentAnimation != _animations.end())
-    {
-      if(_owner->GetComponent<AttackStateComponent>())
-        _owner->RemoveComponent<AttackStateComponent>();
-    }
-
     _currentAnimationName = name;
     _currentAnimation = _animations.find(name);
     _playing = true;
@@ -230,11 +223,5 @@ void AnimationRenderer::Play(const std::string& name, bool isLooped, bool horizo
       _nextFrameOp = [this](int i) { return _loopAnimGetNextFrame(i); };
     else
       _nextFrameOp = [this](int i) { return _onceAnimGetNextFrame(i); };
-
-    if(_currentAnimation->second.Events().size() > 0)
-    {
-      _owner->AddComponent<AttackStateComponent>();
-      _owner->GetComponent<AttackStateComponent>()->SetAnimation(&_currentAnimation->second);
-    }
   }
 }

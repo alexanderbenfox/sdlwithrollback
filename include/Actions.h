@@ -249,11 +249,33 @@ protected:
 
 //______________________________________________________________________________
 template <StanceState Stance, ActionState Action>
-class GroundedStaticAttack : public StateLockedAnimatedAction<Stance, Action>
+class AttackAction : public StateLockedAnimatedAction<Stance, Action>
 {
 public:
   //!
-  GroundedStaticAttack(const std::string& animation, bool facingRight) : StateLockedAnimatedAction<Stance, Action>(animation, facingRight, Vector2<float>(0, 0)) {}
+  AttackAction(const std::string& animation, bool facingRight) :
+    StateLockedAnimatedAction<Stance, Action>(animation, facingRight) {}
+  //!
+  AttackAction(const std::string& animation, bool facingRight, Vector2<float> actionMovement) :
+    StateLockedAnimatedAction<Stance, Action>(animation, facingRight, actionMovement) {}
+
+  //! Adds attack state component
+  virtual void Enact(Entity* actor) override;
+
+protected:
+
+  //! Removes attack state component
+  virtual void OnActionComplete() override;
+
+};
+
+//______________________________________________________________________________
+template <StanceState Stance, ActionState Action>
+class GroundedStaticAttack : public AttackAction<Stance, Action>
+{
+public:
+  //!
+  GroundedStaticAttack(const std::string& animation, bool facingRight) : AttackAction<Stance, Action>(animation, facingRight, Vector2<float>(0, 0)) {}
 
 };
 

@@ -7,6 +7,8 @@ class IActionListener
 {
 public:
   virtual void OnActionComplete(IAction*) = 0;
+
+  virtual Entity* GetOwner() = 0;
 };
 
 class IAnimatorListener
