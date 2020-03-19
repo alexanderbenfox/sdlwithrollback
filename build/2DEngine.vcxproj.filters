@@ -164,5 +164,8 @@
     <ClInclude Include="..\include\Components\Hitbox.h">
       <Filter>Header Files\Components</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\Systems\TimerSystem.h">
+      <Filter>Header Files\Systems</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

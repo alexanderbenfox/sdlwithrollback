@@ -60,6 +60,7 @@
     <ClInclude Include="..\include\Systems\ISystem.h" />
     <ClInclude Include="..\include\Systems\MoveSystem.h" />
     <ClInclude Include="..\include\Systems\Physics.h" />
+    <ClInclude Include="..\include\Systems\TimerSystem.h" />
     <ClInclude Include="..\include\Timer.h" />
     <ClInclude Include="..\include\Utils.h" />
   </ItemGroup>
