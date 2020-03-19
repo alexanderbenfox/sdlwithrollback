@@ -36,6 +36,7 @@
     <ClInclude Include="..\include\Actions.h" />
     <ClInclude Include="..\include\AssetManagement\Resource.h" />
     <ClInclude Include="..\include\Components\Animator.h" />
+    <ClInclude Include="..\include\Components\AttackStateComponent.h" />
     <ClInclude Include="..\include\Components\Camera.h" />
     <ClInclude Include="..\include\Components\Collider.h" />
     <ClInclude Include="..\include\Components\ComponentManager.h" />

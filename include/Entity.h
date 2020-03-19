@@ -100,6 +100,9 @@ inline void Entity::RemoveComponent()
     ComponentBitFlag &= ~ComponentTraits<T>::GetSignature();
     ComponentManager<T>::Get().Erase(GetComponent<T>());
     _components.erase(std::type_index(typeid(T)));
+
+    // see if this needs to be added to the system
+    CheckAgainstSystems(this);
   }
 }
 
