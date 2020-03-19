@@ -1,3 +1,4 @@
+#ifdef EXPERIMENTAL_GGPO_TECH
 #ifdef _WIN32
 
 #include "GameState/GGPOGameState.h"
@@ -75,4 +76,5 @@ bool GGPOMatch::AdvanceFrame(int flags) { return true; }
 
 bool GGPOMatch::OnEvent(GGPOEvent* info) { return true; }
 
+#endif
 #endif

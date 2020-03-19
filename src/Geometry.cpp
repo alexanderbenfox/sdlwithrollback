@@ -9,6 +9,12 @@ void operator|=(CollisionSide& the, CollisionSide other)
 }
 
 //______________________________________________________________________________
+CollisionSide operator|(CollisionSide a, CollisionSide b)
+{
+  return (CollisionSide)((unsigned char)a | (unsigned char)b);
+}
+
+//______________________________________________________________________________
 void operator&=(CollisionSide& the, CollisionSide other)
 {
   the = (CollisionSide)((unsigned char)the & (unsigned char)other);
@@ -31,7 +37,7 @@ CollisionSide operator~(CollisionSide og)
 template <typename T>
 Vector2<T> Vector2<T>::Unit()
 {
-  return (static_cast<T>(1.0) / Magnitude()) * (*this);
+  return (T)(static_cast<T>(1.0) / Magnitude()) * (*this);
 }
 
 //______________________________________________________________________________
@@ -45,15 +51,26 @@ T Vector2<T>::Dot(const Vector2<T>& other)
 template <typename T>
 T Vector2<T>::Magnitude()
 {
-  return std::sqrt(x * x + y * y);
+  return static_cast<T>(std::sqrt(x * x + y * y));
 }
 
 //______________________________________________________________________________
 template <typename T>
-void Rect<T>::Move(const Vector2<T>& vec)
+void Rect<T>::MoveRelative(const Vector2<T>& vec)
 {
   _beg += vec;
   _end += vec;
+}
+
+//______________________________________________________________________________
+template <typename T>
+void Rect<T>::MoveAbsolute(const Vector2<T>& vec)
+{
+  T width = Width();
+  T height = Height();
+  _beg = vec;
+  _end.x = _beg.x + width;
+  _end.y = _beg.y + height;
 }
 
 //______________________________________________________________________________

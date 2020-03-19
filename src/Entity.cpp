@@ -1,5 +1,7 @@
 #include "Entity.h"
+#include "Components/Transform.h"
 #include "Components/Collider.h"
+#include "GameManagement.h"
 
 std::ostream& operator<<(std::ostream& os, const Transform& transform)
 {
@@ -17,12 +19,6 @@ std::istream& operator>>(std::istream& is, Transform& transform)
   return is;
 }
 
-void Entity::Update(float dt)
-{
-  for (auto& component : _components)
-    component.second->Update(dt);
-}
-
 void Entity::ParseCommand(const std::string& command)
 {
   auto split = StringUtils::Split(command, ' ');
@@ -35,6 +31,7 @@ void Entity::ParseCommand(const std::string& command)
   std::string parameter = split[2];
   std::string subparameter = split[3];
   std::string value = split[4];
+  Transform& transform = *GetComponent<Transform>();
 
   if (component == "transform")
   {
@@ -79,7 +76,16 @@ std::string Entity::GetIdentifier()
 
 void Entity::SetScale(Vector2<float> scale)
 {
+  Transform& transform = *GetComponent<Transform>();
   if (auto collider = GetComponent<RectColliderD>())
+  {
+    double addedWidth = collider->rect.Width() * (scale.x - transform.scale.x) / 2.0;
+    double addedHeight = collider->rect.Height() * (scale.y - transform.scale.y) / 2.0;
+
+    collider->rect = Rect<double>(transform.position.x - addedWidth, transform.position.y - addedHeight,
+      transform.position.x + collider->rect.Width() + addedWidth, transform.position.y + collider->rect.Height() + addedHeight);
+  }
+  if (auto collider = GetComponent<Hurtbox>())
   {
     double addedWidth = collider->rect.Width() * (scale.x - transform.scale.x) / 2.0;
     double addedHeight = collider->rect.Height() * (scale.y - transform.scale.y) / 2.0;
@@ -89,4 +95,9 @@ void Entity::SetScale(Vector2<float> scale)
   }
   transform.scale.x = scale.x;
   transform.scale.y = scale.y;
+}
+
+void Entity::CheckAgainstSystems(Entity* entity)
+{
+  GameManager::Get().CheckAgainstSystems(entity);
 }

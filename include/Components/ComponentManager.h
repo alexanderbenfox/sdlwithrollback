@@ -17,6 +17,15 @@ public:
     return _components.back();
   }
 
+  void Erase(std::shared_ptr<T> component)
+  {
+    auto it = std::find(_components.begin(), _components.end(), component);
+    if (it != _components.end())
+    {
+      _components.erase(it);
+    }
+  }
+
   void OnFrameBegin()
   {
     for(auto comp : _components)
@@ -27,12 +36,6 @@ public:
   {
     for (auto comp : _components)
       comp->PreUpdate();
-  }
-
-  void Update(float dt)
-  {
-    for (auto comp : _components)
-      comp->Update(dt);
   }
 
   void PostUpdate()

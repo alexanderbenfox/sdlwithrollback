@@ -2,8 +2,7 @@
 #include <SDL2/SDL.h>
 #include <unordered_map>
 #include "Utils.h"
-
-class ICommand;
+#include "Components/IComponent.h"
 
 //______________________________________________________________________________
 enum class InputState : unsigned char
@@ -32,15 +31,16 @@ static bool HasState(const InputState& state, InputState other) { return (state 
 
 //______________________________________________________________________________
 //! Interface for input handlers
-template <class InputSource>
-class IInputHandler
+//template <class InputSource>
+class IInputHandler : public IComponent
 {
 public:
-  IInputHandler() : _lastFrameState(InputState::NONE) {}
+  IInputHandler(std::shared_ptr<Entity> owner) :
+    _lastFrameState(InputState::NONE), IComponent(owner) {}
   //! Destructor
   virtual ~IInputHandler() {}
   //! Gets the command based on the type of input received from the controller
-  virtual InputState HandleInput(InputSource* input) = 0;
+  virtual InputState CollectInputState() = 0;
 
 protected:
   //! Last state received by the input controller
@@ -50,15 +50,15 @@ protected:
 
 //______________________________________________________________________________
 //! Keyboard handler specification
-class KeyboardInputHandler : public IInputHandler<SDL_Event>
+class KeyboardInputHandler : public IInputHandler
 {
 public:
   //!
-  KeyboardInputHandler();
+  KeyboardInputHandler(std::shared_ptr<Entity> owner);
   //!
   ~KeyboardInputHandler();
   //!
-  virtual InputState HandleInput(SDL_Event* input) final;
+  virtual InputState CollectInputState() final;
   //!
   virtual void SetKey(SDL_Keycode keyCode, InputState action)
   {
@@ -75,15 +75,15 @@ private:
 
 //______________________________________________________________________________
 //!
-class JoystickInputHandler : public IInputHandler<SDL_Event>
+class JoystickInputHandler : public IInputHandler
 {
 public:
   //!
-  JoystickInputHandler();
+  JoystickInputHandler(std::shared_ptr<Entity> owner);
   //!
   ~JoystickInputHandler();
   //!
-  virtual InputState HandleInput(SDL_Event* input) final;
+  virtual InputState CollectInputState() final;
 
 private:
   //!
@@ -93,6 +93,11 @@ private:
   //!
   ConfigMap<uint8_t, InputState> _config;
   
+};
+
+template <> struct ComponentTraits<KeyboardInputHandler>
+{
+  static const uint64_t GetSignature() { return 1 << 7;}
 };
 
 #ifdef _WIN32
@@ -107,15 +112,18 @@ struct GGPOInput
 
 //______________________________________________________________________________
 //!
-class GGPOInputHandler : public IInputHandler<GGPOInput>
+class GGPOInputHandler : public IInputHandler
 {
 public:
   //!
-  GGPOInputHandler() : IInputHandler() {}
+  GGPOInputHandler(std::shared_ptr<Entity> owner) : IInputHandler(owner) {}
   //!
   ~GGPOInputHandler() {}
   //!
-  virtual InputState HandleInput(GGPOInput* input) final;
+  virtual InputState CollectInputState() final;
+
+private:
+  std::shared_ptr<GGPOInput> _input;
 };
 
 #endif

@@ -43,6 +43,15 @@ public:
   template <class ... Args>
   std::shared_ptr<Entity> CreateEntity();
 
+  SDL_Event const& GetLocalInput()
+  {
+    return _localInput;
+  }
+
+  std::shared_ptr<Entity> GetEntityByID(int id) { return _gameEntities[id]; }
+
+  void CheckAgainstSystems(Entity* entity);
+
 private:
   //! Updates all components in specified order
   void Update(float deltaTime);
@@ -63,13 +72,17 @@ private:
   //!
   std::mutex _debugMutex;
   //!
-  std::unique_ptr<IGameState> _gameState;
+  //std::unique_ptr<IGameState> _gameState;
+  std::shared_ptr<Camera> _camera;
 
   //______________________________________________________________________________
 
   //! Helper function for adding multiple components to an entity at one time
   template <typename T = IComponent, typename ... Rest>
   static auto AddComponentToEntity(Entity* entity) -> std::enable_if_t<!std::is_void<T>::value>;
+  //! Helper function for adding multiple components to an entity at one time
+  template <typename T = IComponent, typename ... Rest>
+  static auto ComponentExistsOnEntity(Entity* entity);// -> std::enable_if_t<!std::is_void<T>::value>;
   //! All entities in the scene
   std::vector<std::shared_ptr<Entity>> _gameEntities;
   //______________________________________________________________________________
@@ -95,11 +108,24 @@ inline auto GameManager::AddComponentToEntity(Entity* entity) -> std::enable_if_
 }
 
 //______________________________________________________________________________
+template <typename T, typename ... Rest>
+inline auto GameManager::ComponentExistsOnEntity(Entity* entity)
+{
+  // recursive control path enders
+  if (!all_base_of<IComponent, T, Rest...>() || std::is_same_v<T, IComponent>)
+    return true;
+  return entity->GetComponent<T>() && ComponentExistsOnEntity<Rest...>(entity);
+}
+
+//______________________________________________________________________________
 template <class ... Args>
 inline std::shared_ptr<Entity> GameManager::CreateEntity()
 {
   _gameEntities.push_back(std::make_shared<Entity>());
   auto newEntity = _gameEntities.back();
   AddComponentToEntity<Args...>(newEntity.get());
+    // this is just a test... will be moved later
+  CheckAgainstSystems(newEntity.get());
+
   return newEntity;
 }

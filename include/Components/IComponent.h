@@ -4,12 +4,20 @@
 #include "ResourceManager.h"
 
 #include <iostream>
-
+#include "Utils.h"
 
 const float avg_animation_fps = 24.0f;
 const float third_strike_fps = 16.0f;
 
 const float animation_fps = third_strike_fps;
+
+struct FrameData
+{
+  int damage;
+  Vector2<float> knockback;
+  int onHit;
+  int onBlock;
+};
 
 class Entity;
 
@@ -24,8 +32,6 @@ public:
   //!
   virtual ~IComponent() {}
   //!
-  virtual void Update(float dt) {}// = 0;
-  //!
   virtual void OnFrameBegin() {}
   //!
   virtual void OnFrameEnd() {}
@@ -36,8 +42,19 @@ public:
   //!
   virtual void Draw() {}
 
+  virtual bool ShareOwner(IComponent* component)
+  {
+    return component->_owner == _owner;
+  }
+
 protected:
-  //!
+  //! 
   std::shared_ptr<Entity> _owner;
   
+};
+
+template <typename T>
+struct ComponentTraits
+{
+  static const uint64_t GetSignature() { return 1000000000; }
 };

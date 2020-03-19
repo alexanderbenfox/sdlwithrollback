@@ -1,16 +1,82 @@
 #include "Entity.h"
 #include "Components/Animator.h"
+#include "Components/Hitbox.h"
 
 #include <math.h>
 
 #include "GameManagement.h"
 
-#include "Components/Collider.h"
-
 Animation::Animation(const char* sheet, int rows, int columns, int startIndexOnSheet, int frames) : _rows(rows), _columns(columns), _startIdx(startIndexOnSheet), _frames(frames), Image(sheet)
 {
   _frameSize = Vector2<int>(_sourceRect.w / _columns, _sourceRect.h / _rows);
   _referencePx = FindReferencePixel(sheet);
+}
+
+void Animation::AddHitboxEvents(const char* hitboxesSheet, FrameData frameData, std::shared_ptr<Entity> entity)
+{
+  int entityID = entity->GetID();
+  auto DespawnHitbox = [entityID]()
+  {
+    GameManager::Get().GetEntityByID(entityID)->RemoveComponent<Hitbox>();
+  };
+
+  std::string hitBoxFile = hitboxesSheet;
+#ifndef _WIN32
+  auto split = StringUtils::Split(hitBoxFile, '\\');
+  if (split.size() > 1)
+    hitBoxFile = StringUtils::Connect(split.begin(), split.end(), '/');
+#endif
+  Texture hitboxes = Texture(ResourceManager::Get().GetResourcePath() + hitBoxFile);
+
+  int startUpFrames = -1;
+  int activeFrames = -1;
+  int recoveryFrames = -1;
+
+  std::function<void(double,double,Transform*)> trigger;
+  std::vector<std::function<void(double,double,Transform*)>> updates;
+
+  hitboxes.Load();
+  if (hitboxes.IsLoaded())
+  {
+    for (int i = 0; i < _frames; i++)
+    {
+      int x = (_startIdx + i) % _columns;
+      int y = (_startIdx + i) / _columns;
+
+      Rect<double> hitbox = ResourceManager::FindRect(hitboxes, _frameSize, Vector2<int>(x * _frameSize.x, y * _frameSize.y));
+      if (hitbox.Area() != 0)
+      {
+        if(startUpFrames != -1)
+        {
+          auto UpdateHitbox = [entityID, hitbox](double x, double y, Transform* trans)
+          {
+            GameManager::Get().GetEntityByID(entityID)->GetComponent<Hitbox>()->rect = Rect<double>(hitbox.Beg().x * trans->scale.x, hitbox.Beg().y * trans->scale.y, hitbox.End().x * trans->scale.x, hitbox.End().y * trans->scale.y);
+            GameManager::Get().GetEntityByID(entityID)->GetComponent<Hitbox>()->rect.MoveAbsolute(Vector2<double>(x + (hitbox.Beg().x * trans->scale.x), y + (hitbox.Beg().y * trans->scale.y)));
+          };
+          updates.push_back(UpdateHitbox);
+
+          if(activeFrames == -1)
+            activeFrames = i - startUpFrames + 1;
+        }
+        else
+        {
+          startUpFrames = i;
+          trigger = [entityID, hitbox, frameData](double x, double y, Transform* trans)
+          {
+            GameManager::Get().GetEntityByID(entityID)->AddComponent<Hitbox>();
+            GameManager::Get().GetEntityByID(entityID)->GetComponent<Hitbox>()->frameData = frameData;
+            GameManager::Get().GetEntityByID(entityID)->GetComponent<Hitbox>()->rect = Rect<double>(hitbox.Beg().x * trans->scale.x, hitbox.Beg().y * trans->scale.y, hitbox.End().x * trans->scale.x, hitbox.End().y * trans->scale.y);
+            GameManager::Get().GetEntityByID(entityID)->GetComponent<Hitbox>()->rect.MoveAbsolute(Vector2<double>(x + (hitbox.Beg().x * trans->scale.x), y + (hitbox.Beg().y * trans->scale.y)));
+          };
+        }
+      }
+      if(activeFrames != -1)
+        recoveryFrames = i - startUpFrames + activeFrames - 1;
+    }
+    // construct the animated event in place
+    if(startUpFrames > 0)
+      _events.emplace(std::piecewise_construct, std::make_tuple(startUpFrames), std::make_tuple(startUpFrames, activeFrames, trigger, updates, DespawnHitbox));
+  }
 }
 
 SDL_Rect Animation::GetFrameSrcRect(int frame)
@@ -44,24 +110,33 @@ void Animation::SetOp(const Transform& transform, SDL_Rect rectOnTex, Vector2<in
   op->valid = true;
 }
 
+void Animation::CheckEvents(int frame, double x, double y, Transform* transform)
+{
+  for (int i = 0; i < _inProgressEvents.size(); i++)
+  {
+    AnimationEvent* evt = _inProgressEvents[i];
+    if (frame == evt->GetEndFrame())
+    {
+      evt->EndEvent();
+      _inProgressEvents.erase(_inProgressEvents.begin() + i);
+      i--;
+    }
+    else
+    {
+      evt->UpdateEvent(frame, x, y, transform);
+    }
+  }
+
+  auto evtIter = _events.find(frame);
+  if (evtIter != _events.end())
+  {
+    evtIter->second.TriggerEvent(x, y, transform);
+    _inProgressEvents.push_back(&evtIter->second);
+  }
+}
+
 Vector2<int> Animation::FindReferencePixel(const char* sheet)
 { 
-  struct SDLTextureInfo
-  {
-    SDLTextureInfo(SDL_Texture* texture) : texture(texture)
-    {
-      SDL_LockTexture(texture, nullptr, &pixels, &pitch);
-    }
-    ~SDLTextureInfo()
-    {
-      SDL_UnlockTexture(texture);
-    }
-
-    void* pixels;
-    int pitch;
-    SDL_Texture* texture;
-  };
- 
   // Get the window format
   Uint32 windowFormat = SDL_GetWindowPixelFormat(GameManager::Get().GetWindow());
   std::shared_ptr<SDL_PixelFormat> format = std::shared_ptr<SDL_PixelFormat>(SDL_AllocFormat(windowFormat), SDL_FreeFormat);
@@ -95,15 +170,13 @@ Vector2<int> Animation::FindReferencePixel(const char* sheet)
   return Vector2<int>(0, 0);
 }
 
-Animator::Animator(std::shared_ptr<Entity> owner) : 
-  _playing(false), _looping(false), _accumulatedTime(0.0f), _frame(0), _nextFrameOp([](int) { return 0; }), _horizontalFlip(false), IComponent(owner) {}
-
-void Animator::Init()
+AnimationRenderer::AnimationRenderer(std::shared_ptr<Entity> owner) : 
+  _currentAnimationName(""), _currentAnimation(_animations.end()), _playing(false), _looping(false), _accumulatedTime(0.0f), _frame(0), _nextFrameOp([](int) { return 0; }), SpriteRenderer(owner)
 {
-  ResourceManager::Get().RegisterBlitOp();
+  
 }
 
-void Animator::RegisterAnimation(const std::string& name, const char* sheet, int rows, int columns, int startIndexOnSheet, int frames)
+void AnimationRenderer::RegisterAnimation(const std::string& name, const char* sheet, int rows, int columns, int startIndexOnSheet, int frames)
 {
   if (_animations.find(name) == _animations.end())
   {
@@ -111,17 +184,12 @@ void Animator::RegisterAnimation(const std::string& name, const char* sheet, int
     if (_animations.size() == 1)
     {
       _basisRefPx = _animations.find(name)->second.GetRefPxLocation();
-      _basisRefSize = _animations.find(name)->second.GetFrameWH();
+      //_basisRefSize = _animations.find(name)->second.GetFrameWH();
     }
   }
 }
 
-void Animator::OnFrameBegin()
-{
-  _op = ResourceManager::Get().GetAvailableOp();
-}
-
-void Animator::Update(float dt)
+void AnimationRenderer::Advance(float dt)
 {
   // if playing, do advance time and update frame
   if (_playing)
@@ -145,16 +213,17 @@ void Animator::Update(float dt)
       }
     }
   }
-  _currentAnimation->second.SetOp(_owner->transform, _currentAnimation->second.GetFrameSrcRect(_frame), _basisOffset, _horizontalFlip, _op);
 }
 
-void Animator::Play(const std::string& name, bool isLooped, bool horizontalFlip)
+void AnimationRenderer::Play(const std::string& name, bool isLooped, bool horizontalFlip)
 {
   // dont play again if we are already playing it
   if (_playing && (name == _currentAnimationName && _horizontalFlip == horizontalFlip)) return;
-
   if (_animations.find(name) != _animations.end())
   {
+    if(_currentAnimation != _animations.end())
+      _currentAnimation->second.ClearEvents();
+
     _currentAnimationName = name;
     _currentAnimation = _animations.find(name);
     _playing = true;
@@ -172,7 +241,7 @@ void Animator::Play(const std::string& name, bool isLooped, bool horizontalFlip)
     if(_horizontalFlip)
     {
       // create the offset for flipped
-      const int entityWidth = static_cast<int>(_owner->GetComponent<RectColliderD>()->rect.Width() * (1.0f / _owner->transform.scale.x));
+      const int entityWidth = static_cast<int>(_owner->GetComponent<RectColliderD>()->rect.Width() * (1.0f / _owner->GetComponent<Transform>()->scale.x));
       const Vector2<int> frameSize = _currentAnimation->second.GetFrameWH();
       _basisOffset = Vector2<int>(frameSize.x - entityWidth - _basisOffset.x, _basisOffset.y);
     }

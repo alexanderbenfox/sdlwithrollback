@@ -1,5 +1,7 @@
-#include "Input.h"
+#include "Components/Input.h"
 #include "Components/GameActor.h"
+
+#include "GameManagement.h"
 
 //Analog joystick dead zone
 const int JOYSTICK_DEAD_ZONE = 8000;
@@ -29,7 +31,7 @@ InputState operator~(InputState const& other)
 }
 
 //______________________________________________________________________________
-KeyboardInputHandler::KeyboardInputHandler() : IInputHandler()
+KeyboardInputHandler::KeyboardInputHandler(std::shared_ptr<Entity> owner) : IInputHandler(owner)
 {
   //assign direction buttons
   _config[SDLK_w] = InputState::UP;
@@ -48,23 +50,23 @@ KeyboardInputHandler::KeyboardInputHandler() : IInputHandler()
 KeyboardInputHandler::~KeyboardInputHandler() {}
 
 //______________________________________________________________________________
-InputState KeyboardInputHandler::HandleInput(SDL_Event* input)
+InputState KeyboardInputHandler::CollectInputState()
 {
   InputState frameState = _lastFrameState;
 
   _keyStates = SDL_GetKeyboardState(0);
-  if (input)
+
+  const SDL_Event& input = GameManager::Get().GetLocalInput();
+
+  SDL_Keycode key = input.key.keysym.sym;
+  switch (input.type)
   {
-    SDL_Keycode key = input->key.keysym.sym;
-    switch (input->type)
-    {
-    case SDL_KEYDOWN:
-      frameState |= _config[key];
-      break;
-    case SDL_KEYUP:
-      frameState &= (~(InputState)_config[key]);
-      break;
-    }
+  case SDL_KEYDOWN:
+    frameState |= _config[key];
+    break;
+  case SDL_KEYUP:
+    frameState &= (~(InputState)_config[key]);
+    break;
   }
 
   _lastFrameState = frameState;
@@ -72,7 +74,7 @@ InputState KeyboardInputHandler::HandleInput(SDL_Event* input)
 }
 
 //______________________________________________________________________________
-JoystickInputHandler::JoystickInputHandler() : IInputHandler()
+JoystickInputHandler::JoystickInputHandler(std::shared_ptr<Entity> owner) : IInputHandler(owner)
 {
   if(SDL_NumJoysticks() < 1) {}
   else
@@ -98,78 +100,77 @@ JoystickInputHandler::~JoystickInputHandler()
 }
 
 //______________________________________________________________________________
-InputState JoystickInputHandler::HandleInput(SDL_Event* input)
+InputState JoystickInputHandler::CollectInputState()
 {
   InputState frameState = _lastFrameState;
 
   //reset movement state
   frameState &= ~((InputState)(0xf0));
 
-  if (input)
+  const SDL_Event& input = GameManager::Get().GetLocalInput();
+
+  switch (input.type)
   {
-    switch (input->type)
+  case SDL_JOYAXISMOTION:
+    //action on axis of this controller
+    if(input.jaxis.which == _joyStickID)
     {
-    case SDL_JOYAXISMOTION:
-      //action on axis of this controller
-      if(input->jaxis.which == _joyStickID)
+      //movement on x axis
+      if(input.jaxis.axis == 0)
       {
-        //movement on x axis
-        if(input->jaxis.axis == 0)
+        if(input.jaxis.value < -JOYSTICK_DEAD_ZONE)
         {
-          if(input->jaxis.value < -JOYSTICK_DEAD_ZONE)
-          {
-            frameState |= InputState::RIGHT;
-          }
-          else if (input->jaxis.value > JOYSTICK_DEAD_ZONE)
-          {
-            frameState |= InputState::LEFT;
-          }
+          frameState |= InputState::RIGHT;
         }
-        else if (input->jaxis.axis == 1)
+        else if (input.jaxis.value > JOYSTICK_DEAD_ZONE)
         {
-          if(input->jaxis.value < -JOYSTICK_DEAD_ZONE)
-          {
-            frameState |= InputState::DOWN;
-          }
-          else if (input->jaxis.value > JOYSTICK_DEAD_ZONE)
-          {
-            frameState |= InputState::UP;
-          }
+          frameState |= InputState::LEFT;
         }
       }
-      break;
-    case SDL_JOYBUTTONDOWN:
-      if(input->jbutton.which == _joyStickID)
+      else if (input.jaxis.axis == 1)
       {
-        frameState |= _config[input->jbutton.button];
+        if(input.jaxis.value < -JOYSTICK_DEAD_ZONE)
+        {
+          frameState |= InputState::DOWN;
+        }
+        else if (input.jaxis.value > JOYSTICK_DEAD_ZONE)
+        {
+          frameState |= InputState::UP;
+        }
       }
-      break;
-    case SDL_JOYBUTTONUP:
-      if(input->jbutton.which == _joyStickID)
-      {
-        frameState &= (~(InputState)_config[input->jbutton.button]);
-      }
-      break;
     }
+    break;
+  case SDL_JOYBUTTONDOWN:
+    if(input.jbutton.which == _joyStickID)
+    {
+      frameState |= _config[input.jbutton.button];
+    }
+    break;
+  case SDL_JOYBUTTONUP:
+    if(input.jbutton.which == _joyStickID)
+    {
+      frameState &= (~(InputState)_config[input.jbutton.button]);
+    }
+    break;
   }
   return frameState;
 }
 
 #ifdef _WIN32
 //______________________________________________________________________________
-InputState GGPOInputHandler::HandleInput(GGPOInput* input)
+InputState GGPOInputHandler::CollectInputState()
 {
   // notify ggpo of local player's inputs
-  GGPOErrorCode result = ggpo_add_local_input(input->session, (*input->handles)[0], &(*input->inputs)[0], sizeof((*input->inputs)[0]));
+  GGPOErrorCode result = ggpo_add_local_input(_input->session, (*_input->handles)[0], &(*_input->inputs)[0], sizeof((*_input->inputs)[0]));
 
   // synchronize inputs
   if (GGPO_SUCCEEDED(result))
   {
     int disconnectFlags;
-    result = ggpo_synchronize_input(input->session, (*input->inputs), sizeof(*input->inputs), &disconnectFlags);
+    result = ggpo_synchronize_input(_input->session, (*_input->inputs), sizeof(*_input->inputs), &disconnectFlags);
     if (GGPO_SUCCEEDED(result))
     {
-      return (*input->inputs)[1];
+      return (*_input->inputs)[1];
     }
   }
   return InputState::NONE;

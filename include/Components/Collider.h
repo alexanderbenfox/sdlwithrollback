@@ -1,20 +1,12 @@
 #pragma once
 #include "Entity.h"
+#include "Transform.h"
 #include <functional>
-
-/*class ICollision
-{
-public:
-  virtual ~ICollision() = 0;
-
-};*/
 
 class ICollider : public IComponent
 {
 public:
   ICollider(std::shared_ptr<Entity> entity) : IComponent(entity) {}
-
-  virtual void Update(float dt) override {}
 
   virtual void RegisterOnCollision(std::function<void(ICollider*)> onCollisionEvent)
   {
@@ -46,10 +38,10 @@ public:
   RectCollider(std::shared_ptr<Entity> entity) : ICollider(entity) {}
   //!
   void Init(Vector2<T> beg, Vector2<T> end);
-  //!
-  void MoveUnit(Vector2<T> movement);
-  //!
-  virtual void Update(float dt) override;
+  void MoveToTransform(const Transform& transform)
+  {
+    rect = Rect<T>(Vector2<T>((T)transform.position.x, (T)transform.position.y), Vector2<T>(transform.position.x + rect.Width(), transform.position.y + rect.Height()));
+  }
   //!
   virtual void Draw() override;
   //!
@@ -69,3 +61,22 @@ public:
 };
 
 typedef RectCollider<double> RectColliderD;
+
+template <> struct ComponentTraits<RectColliderD>
+{
+  static const uint64_t GetSignature() { return 1 << 4;}
+};
+
+class Hitbox;
+
+//! hurtbox is the area that you can take damage from an enemy attack
+class Hurtbox : public RectColliderD
+{
+public:
+  //!
+  Hurtbox(std::shared_ptr<Entity> entity) : RectColliderD(entity) {}
+};
+template <> struct ComponentTraits<Hurtbox>
+{
+  static const uint64_t GetSignature() { return 1 << 9; }
+};

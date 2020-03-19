@@ -5,60 +5,40 @@
 
 #include "Components/Animator.h"
 #include "Components/Camera.h"
-#include "Components/Physics.h"
 #include "Components/Collider.h"
 #include "Components/GameActor.h"
+#include "Components/Rigidbody.h"
 
 #include <cassert>
 
 //______________________________________________________________________________
-void Sprite::Init(const char* sheet, bool horizontalFlip)
+void SpriteRenderer::Init(const char* sheet, bool horizontalFlip)
 {
   //adds new operation to the blitting list
-  ResourceManager::Get().RegisterBlitOp();
   _display = std::make_unique<Image>(sheet);
   _horizontalFlip = horizontalFlip;
 }
 
 //______________________________________________________________________________
-void Sprite::OnFrameBegin()
-{
-  _op = ResourceManager::Get().GetAvailableOp();
-}
-
-//______________________________________________________________________________
-void Sprite::Update(float dt)
-{
-  _display->SetOp(_owner->transform, _display->GetRectOnSrcText(), Vector2<int>(0, 0), _horizontalFlip, _op);
-}
-
-//______________________________________________________________________________
 void Camera::Init(int w, int h)
 {
-  _rect.x = 0;
-  _rect.y = 0;
-  _rect.w = w;
-  _rect.h = h;
-}
-
-//______________________________________________________________________________
-void Camera::Update(float dt)
-{
-  _rect.x = static_cast<int>(std::floor(_owner->transform.position.x));
-  _rect.y = static_cast<int>(std::floor(_owner->transform.position.y));
+  rect.x = 0;
+  rect.y = 0;
+  rect.w = w;
+  rect.h = h;
 }
 
 //______________________________________________________________________________
 void Camera::ConvScreenSpace(ResourceManager::BlitOperation* entity)
 {
-  entity->_displayRect.x -= _rect.x;
-  entity->_displayRect.y -= _rect.y;
+  entity->_displayRect.x -= rect.x;
+  entity->_displayRect.y -= rect.y;
 }
 
 //______________________________________________________________________________
 bool Camera::EntityInDisplay(const ResourceManager::BlitOperation* entity)
 {
-  return SDLRectOverlap(_rect, entity->_displayRect);
+  return SDLRectOverlap(rect, entity->_displayRect);
 }
 
 //______________________________________________________________________________
@@ -66,25 +46,6 @@ template <typename T>
 void RectCollider<T>::Init(Vector2<T> beg, Vector2<T> end)
 {
   rect = Rect<T>(beg, end);
-}
-
-//______________________________________________________________________________
-template <typename T>
-void RectCollider<T>::MoveUnit(Vector2<T> movement)
-{
-  _owner->transform.position += Vector2<float>(static_cast<float>(movement.x), static_cast<float>(movement.y));
-  Update(0);
-}
-
-//______________________________________________________________________________
-template <typename T>
-void RectCollider<T>::Update(float dt)
-{
-  if (!_isStatic)
-  {
-    rect = Rect<T>(Vector2<T>((T)_owner->transform.position.x, (T)_owner->transform.position.y),
-      Vector2<T>(_owner->transform.position.x + rect.Width(), _owner->transform.position.y + rect.Height()));
-  }
 }
 
 //______________________________________________________________________________
@@ -112,14 +73,9 @@ void RectCollider<T>::Draw()
 }
 
 //______________________________________________________________________________
-GameActor::GameActor(std::shared_ptr<Entity> owner) : _currentAction(nullptr), _newState(true), _lastInput(InputState::NONE), IComponent(owner)
+GameActor::GameActor(std::shared_ptr<Entity> owner) : _currentAction(nullptr), _newState(true), _lastInput(InputState::NONE), _comboCounter(0), IComponent(owner)
 {
   BeginNewAction(new LoopedAction<StanceState::STANDING, ActionState::NONE>("Idle", owner.get()));
-}
-
-//______________________________________________________________________________
-void GameActor::Update(float dt)
-{
 }
 
 //______________________________________________________________________________
@@ -140,16 +96,23 @@ void GameActor::OnFrameEnd()
 //______________________________________________________________________________
 void GameActor::OnActionComplete(IAction* action)
 {
-  IAction* nextAction = action->GetFollowUpAction();
+  /*IAction* nextAction = action->GetFollowUpAction();
   if (nextAction == action)
     return;
   if(nextAction)
-    BeginNewAction(nextAction);
+    BeginNewAction(nextAction);*/
+  _newState = true;
+  action->SetComplete();
 }
 
 //______________________________________________________________________________
 void GameActor::BeginNewAction(IAction* action)
 {
+  if(action && _currentAction)
+  {
+    if(_currentAction->GetAction() == ActionState::HITSTUN && action->GetAction() != ActionState::HITSTUN)
+      _comboCounter = 0;
+  }
   if (_currentAction != nullptr)
     delete _currentAction;
   
@@ -168,14 +131,22 @@ void GameActor::EvaluateInputContext(InputState input, const GameContext& contex
 
   _newState = false;
 
+  GameContext contextToEval = context + mergeContext;
+
+  // reset the merge context... this is clunky and should be changed
+  mergeContext.hitThisFrame = false;
+  mergeContext.hitOnLeftSide = false;
+
   IAction* prevAction = _currentAction;
-  IAction* nextAction = _currentAction->HandleInput(input, context);
+  IAction* nextAction = _currentAction->HandleInput(input, contextToEval);
 
   if (nextAction && (nextAction != prevAction))
   {
+    if(nextAction->GetAction() == ActionState::HITSTUN)
+      _comboCounter++;
     // update last context
     _lastInput = input;
-    _lastContext = context;
+    _lastContext = contextToEval;
 
     //OnActionComplete(prevAction);
     BeginNewAction(nextAction);
@@ -203,21 +174,21 @@ std::istream& operator>>(std::istream& is, GameActor& actor)
   return is;
 }
 
-std::ostream& operator<<(std::ostream& os, const Physics& phys)
+std::ostream& operator<<(std::ostream& os, const Rigidbody& phys)
 {
   os << phys._vel;
   os << phys._acc;
   return os;
 }
 
-std::istream& operator>>(std::istream& is, Physics& phys)
+std::istream& operator>>(std::istream& is, Rigidbody& phys)
 {
   is >> phys._vel;
   is >> phys._acc;
   return is;
 }
 
-std::ostream& operator<<(std::ostream& os, const Animator& animator)
+std::ostream& operator<<(std::ostream& os, const AnimationRenderer& animator)
 {
   os << animator._playing;
   os << animator._accumulatedTime;
@@ -226,7 +197,7 @@ std::ostream& operator<<(std::ostream& os, const Animator& animator)
   return os;
 }
 
-std::istream& operator>>(std::istream& is, Animator& animator)
+std::istream& operator>>(std::istream& is, AnimationRenderer& animator)
 {
   is >> animator._playing;
   is >> animator._accumulatedTime;

@@ -14,6 +14,8 @@ enum class CollisionSide : unsigned char
 //______________________________________________________________________________
 void operator|=(CollisionSide& the, CollisionSide other);
 //______________________________________________________________________________
+CollisionSide operator|(CollisionSide a, CollisionSide b);
+//______________________________________________________________________________
 void operator&=(CollisionSide& the, CollisionSide other);
 //______________________________________________________________________________
 CollisionSide operator&(CollisionSide a, CollisionSide b);
@@ -21,6 +23,8 @@ CollisionSide operator&(CollisionSide a, CollisionSide b);
 CollisionSide operator~(CollisionSide og);
 //______________________________________________________________________________
 static bool HasState(const CollisionSide& state, CollisionSide other) { return (state & other) == other; }
+//! Returns true if states share at least 1 common
+static bool HasUnion(const CollisionSide& state, CollisionSide other) { return (state & other) != CollisionSide::NONE; }
 
 
 //______________________________________________________________________________
@@ -89,7 +93,10 @@ public:
   const T Width() { return _end.x - _beg.x; }
   const T Height() { return _end.y - _beg.y; }
 
-  void Move(const Vector2<T>& vec);
+  void MoveRelative(const Vector2<T>& vec);
+  void MoveAbsolute(const Vector2<T>& vec);
+
+  Vector2<T> GetCenter() const { return Vector2<T>(_beg.x + (_end.x - _beg.x) / 2.0, _beg.y + (_end.y - _beg.y) / 2.0); }
 
   //template <typename U>
   //Vector2<T> Overlap(const U& other, Vector2<T> incidentVector);
@@ -105,6 +112,8 @@ public:
 
   const Vector2<T>& Beg() const { return _beg; }
   const Vector2<T>& End() const { return _end; }
+
+  const T Area() { return Width() * Height(); }
 
   friend std::ostream& operator<<(std::ostream& os, const Rect& rect)
   {

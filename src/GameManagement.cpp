@@ -8,8 +8,18 @@
 #include "Components/Camera.h"
 #include "Components/Animator.h"
 #include "Components/GameActor.h"
-#include "Components/Physics.h"
+#include "Components/Rigidbody.h"
 #include "Components/Collider.h"
+#include "Components/Input.h"
+
+#include "Systems/Physics.h"
+#include "Systems/AnimationSystem.h"
+#include "Systems/MoveSystem.h"
+#include "Systems/InputSystem.h"
+#include "Systems/HitSystem.h"
+#include "Systems/TimerSystem.h"
+
+#include "Systems/Physics.h"
 
 #ifdef _DEBUG
 //used for debugger
@@ -118,6 +128,94 @@ void ResourceManager::BlitSprites()
 }
 
 //______________________________________________________________________________
+void ResourceManager::CrawlTexture(Texture& texture, Vector2<int> begin, Vector2<int> end, std::function<void(int, int, Uint32)> callback)
+{
+  struct SDLTextureInfo
+  {
+    SDLTextureInfo(SDL_Texture* texture) : texture(texture)
+    {
+      SDL_LockTexture(texture, nullptr, &pixels, &pitch);
+    }
+    ~SDLTextureInfo()
+    {
+      SDL_UnlockTexture(texture);
+    }
+
+    void* pixels;
+    int pitch;
+    SDL_Texture* texture;
+  };
+
+  auto& textureData = texture.GetInfo();
+  // Get the window format
+  Uint32 windowFormat = SDL_GetWindowPixelFormat(GameManager::Get().GetWindow());
+  std::shared_ptr<SDL_PixelFormat> format = std::shared_ptr<SDL_PixelFormat>(SDL_AllocFormat(windowFormat), SDL_FreeFormat);
+
+  // Get the pixel data
+  Uint32* upixels;
+
+#ifdef _WIN32
+  auto textureInfo = SDLTextureInfo(texture.Get());
+  unsigned char* px = (unsigned char*)textureInfo.pixels;
+  upixels = (Uint32*)textureInfo.pixels;
+  Uint32 transparent = SDL_MapRGBA(format.get(), px[0], px[1], px[2], 0x00);
+#else
+  upixels = (Uint32*)texture.GetInfo().pixels.get();
+#endif
+  for (int y = begin.y; y < end.y; y++)
+  {
+    for (int x = begin.x; x < end.x; x++)
+    {
+      callback(x - begin.x, y - begin.y, upixels[textureData.mWidth * y + x]);
+    }
+  }
+}
+
+//______________________________________________________________________________
+Rect<double> ResourceManager::FindRect(Texture& texture, Vector2<int> frameSize, Vector2<int> begPx)
+{
+  Uint32 windowFormat = SDL_GetWindowPixelFormat(GameManager::Get().GetWindow());
+  std::shared_ptr<SDL_PixelFormat> format = std::shared_ptr<SDL_PixelFormat>(SDL_AllocFormat(windowFormat), SDL_FreeFormat);
+
+  Uint32 transparent;
+#ifdef _WIN32
+  auto textureInfo = SDLTextureInfo(texture.Get());
+  unsigned char* px = (unsigned char*)textureInfo.pixels;
+  Uint32* upixels = (Uint32*)textureInfo.pixels;
+  transparent = SDL_MapRGBA(format.get(), px[0], px[1], px[2], 0x00);
+#endif
+
+  Vector2<int> rectBegin(-1, -1);
+  Vector2<int> rectEnd(-1, -1);
+  bool firstFound = false;
+
+  auto buildRect = [format, &rectBegin, &rectEnd, &firstFound, &transparent](int x, int y, Uint32 pixel)
+  {
+#ifdef _WIN32
+    if(pixel != transparent)
+#else
+    Uint8 r, g, b, a;
+    SDL_GetRGBA(pixel, format.get(), &r, &g, &b, &a);
+    if (r != 0)
+#endif
+    {
+      if (!firstFound)
+      {
+        rectBegin = Vector2<int>(x, y);
+        firstFound = true;
+      }
+      else
+      {
+        rectEnd = Vector2<int>(x, y);
+      }
+    }
+  };
+
+  CrawlTexture(texture, begPx, begPx + frameSize, buildRect);
+  return Rect<double>((double)rectBegin.x, (double)rectBegin.y, (double)rectEnd.x, (double)rectEnd.y);
+}
+
+//______________________________________________________________________________
 void GameManager::Initialize()
 {
   SDL_Init(SDL_INIT_EVERYTHING);
@@ -130,35 +228,43 @@ void GameManager::Initialize()
   _renderer = SDL_CreateRenderer(_window, -1, SDL_RENDERER_ACCELERATED);
   SDL_SetRenderDrawBlendMode(_renderer, SDL_BLENDMODE_BLEND);
 
-  auto bottomBorder = CreateEntity<Sprite, RectColliderD>();
-  bottomBorder->transform.position.x = 0.0;
-  bottomBorder->transform.position.y = m_nativeHeight - 40;
-  bottomBorder->GetComponent<Sprite>()->Init("spritesheets\\ryu.png", false);
+  auto bottomBorder = CreateEntity<Transform, SpriteRenderer, RectColliderD>();
+  bottomBorder->GetComponent<Transform>()->position.x = 0.0;
+  bottomBorder->GetComponent<Transform>()->position.y = m_nativeHeight - 40;
+  bottomBorder->GetComponent<SpriteRenderer>()->Init("spritesheets\\ryu.png", false);
   bottomBorder->GetComponent<RectColliderD>()->Init(Vector2<double>(0, m_nativeHeight - 40), Vector2<double>(m_nativeWidth, m_nativeHeight + 5000.0f));
   bottomBorder->GetComponent<RectColliderD>()->SetStatic(true);
 
-  auto leftBorder = CreateEntity<Sprite, RectColliderD>();
-  leftBorder->transform.position.x = -200;
-  leftBorder->transform.position.y = 0;
-  leftBorder->GetComponent<Sprite>()->Init("spritesheets\\ryu.png", false);
+  auto leftBorder = CreateEntity<Transform, SpriteRenderer, RectColliderD>();
+  leftBorder->GetComponent<Transform>()->position.x = -200;
+  leftBorder->GetComponent<Transform>()->position.y = 0;
+  leftBorder->GetComponent<SpriteRenderer>()->Init("spritesheets\\ryu.png", false);
   leftBorder->GetComponent<RectColliderD>()->Init(Vector2<double>(-200, 0), Vector2<double>(0, m_nativeHeight));
   leftBorder->GetComponent<RectColliderD>()->SetStatic(true);
 
-  auto rightBorder = CreateEntity<Sprite, RectColliderD>();
-  rightBorder->transform.position.x = m_nativeWidth;
-  rightBorder->transform.position.y = 0;
-  rightBorder->GetComponent<Sprite>()->Init("spritesheets\\ryu.png", false);
+  auto rightBorder = CreateEntity<Transform, SpriteRenderer, RectColliderD>();
+  rightBorder->GetComponent<Transform>()->position.x = m_nativeWidth;
+  rightBorder->GetComponent<Transform>()->position.y = 0;
+  rightBorder->GetComponent<SpriteRenderer>()->Init("spritesheets\\ryu.png", false);
   rightBorder->GetComponent<RectColliderD>()->Init(Vector2<double>(m_nativeWidth, 0), Vector2<double>(m_nativeWidth + 200, m_nativeHeight));
   rightBorder->GetComponent<RectColliderD>()->SetStatic(true);
 
-  KeyboardInputHandler* kb1 = new KeyboardInputHandler();
-  KeyboardInputHandler* kb2 = new KeyboardInputHandler();
+
+  auto p1 = EntityCreation::CreateLocalPlayer(0);
+  auto p2 = EntityCreation::CreateLocalPlayer(150);
+
+  auto kb2 = p2->GetComponent<KeyboardInputHandler>();
   kb2->SetKey(SDLK_UP, InputState::UP);
   kb2->SetKey(SDLK_DOWN, InputState::DOWN);
   kb2->SetKey(SDLK_RIGHT, InputState::RIGHT);
   kb2->SetKey(SDLK_LEFT, InputState::LEFT);
+  kb2->SetKey(SDLK_j, InputState::BTN1);
+  kb2->SetKey(SDLK_k, InputState::BTN2);
+  kb2->SetKey(SDLK_l, InputState::BTN3);
 
-  _gameState = std::unique_ptr<IGameState>(new LocalMatch(kb1, kb2));
+  _camera = EntityCreation::CreateCamera();
+
+  //_gameState = std::unique_ptr<IGameState>(new LocalMatch(kb1, kb2));
 }
 
 //______________________________________________________________________________
@@ -194,18 +300,16 @@ void GameManager::BeginGameLoop()
 
   for (;;)
   {
-    //! Do pre-input set up stuff
-    for (auto sprite : ComponentManager<Sprite>::Get().All())
-      sprite->OnFrameBegin();
-    for (auto animator : ComponentManager<Animator>::Get().All())
-      animator->OnFrameBegin();
-
     //! Collect inputs from controllers (this means AI controllers as well as Player controllers)
-    UpdateInput();
+    //UpdateInput();
+    //InputSystem::DoTick(0);
 
     std::lock_guard<std::mutex> lock(_debugMutex);
     //! Update all components
     clock.Update(update);
+
+    // do once per frame system calls
+    AnimationSystem::PostUpdate();
 
     //! Finally render the scene
     Draw();
@@ -221,31 +325,35 @@ void GameManager::BeginGameLoop()
 //______________________________________________________________________________
 Camera* GameManager::GetMainCamera()
 {
-  return _gameState->GetCamera();
+  //return _gameState->GetCamera();
+  return _camera.get();
+}
+
+//______________________________________________________________________________
+void GameManager::CheckAgainstSystems(Entity* entity)
+{
+  PhysicsSystem::Check(entity);
+  AnimationSystem::Check(entity);
+  MoveSystemRect::Check(entity);
+  MoveSystemCamera::Check(entity);
+  InputSystem::Check(entity);
+  HitSystem::Check(entity);
+  TimerSystem::Check(entity);
 }
 
 //______________________________________________________________________________
 void GameManager::Update(float deltaTime)
 {
-  //====PREUPDATE=====//
-  ComponentManager<Physics>::Get().PreUpdate();
-
-  // update acting units' state machine
-  ComponentManager<GameActor>::Get().Update(deltaTime);
+  UpdateInput();
+  TimerSystem::DoTick(deltaTime);
+  HitSystem::DoTick(deltaTime);
+  InputSystem::DoTick(deltaTime);
   // resolve collisions
-  ComponentManager<Physics>::Get().Update(deltaTime);
+  PhysicsSystem::DoTick(deltaTime);
   // update the location of the colliders
-  ComponentManager<RectColliderD>::Get().Update(deltaTime);
-
+  MoveSystem::DoTick(deltaTime);
   // update rendered components last
-  ComponentManager<Sprite>::Get().Update(deltaTime);
-  // update animation state
-  ComponentManager<Animator>::Get().Update(deltaTime);
-
-  //====POSTUPDATE=====//
-  ComponentManager<Physics>::Get().PostUpdate();
-  // update the location of the colliders (again)
-  ComponentManager<RectColliderD>::Get().Update(deltaTime);
+  AnimationSystem::DoTick(deltaTime);
 }
 
 //______________________________________________________________________________
@@ -269,7 +377,6 @@ void GameManager::UpdateInput()
       }
     }
   }
-  _gameState->ProcessRawInputs(&_localInput);
 }
 
 //______________________________________________________________________________
@@ -282,7 +389,8 @@ void GameManager::Draw()
   ResourceManager::Get().BlitSprites();
 
   // draw debug rects
-  ComponentManager<RectColliderD>::Get().Draw();
+  ComponentManager<Hurtbox>::Get().Draw();
+  ComponentManager<Hitbox>::Get().Draw();
 
   //present this frame
   SDL_RenderPresent(_renderer);

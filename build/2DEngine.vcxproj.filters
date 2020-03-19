@@ -31,6 +31,12 @@
     <Filter Include="Source Files\GameState">
       <UniqueIdentifier>{13870320-bc90-48d8-94ab-09362b8bc983}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Systems">
+      <UniqueIdentifier>{654c9caa-a963-41b9-a030-24db202c2b71}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Systems">
+      <UniqueIdentifier>{c67b749f-5c17-4550-b806-903bec54e0b8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\2DEngine.cpp">
@@ -43,9 +49,6 @@
       <Filter>Source Files\AssetManagement</Filter>
     </ClCompile>
     <ClCompile Include="..\src\Entity.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\Input.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\src\Geometry.cpp">
@@ -63,14 +66,14 @@
     <ClCompile Include="..\src\GameState\GGPOGameState.cpp">
       <Filter>Source Files\GameState</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\GameState\Player.cpp">
-      <Filter>Source Files\GameState</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\Components\Physics.cpp">
-      <Filter>Source Files\Components</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\Components\Animator.cpp">
       <Filter>Source Files\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Components\Input.cpp">
+      <Filter>Source Files\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Systems\Physics.cpp">
+      <Filter>Source Files\Systems</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -84,9 +87,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\include\Entity.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\Input.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\include\Geometry.h">
@@ -105,9 +105,6 @@
       <Filter>Header Files\Components</Filter>
     </ClInclude>
     <ClInclude Include="..\include\Components\IComponent.h">
-      <Filter>Header Files\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\Components\Physics.h">
       <Filter>Header Files\Components</Filter>
     </ClInclude>
     <ClInclude Include="..\include\Components\Sprite.h">
@@ -131,14 +128,44 @@
     <ClInclude Include="..\include\GameState\GGPOGameState.h">
       <Filter>Header Files\GameState</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\GameState\Player.h">
-      <Filter>Header Files\GameState</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\Components\Animator.h">
       <Filter>Header Files\Components</Filter>
     </ClInclude>
     <ClInclude Include="..\include\ListenerInterfaces.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Components\Input.h">
+      <Filter>Header Files\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Components\Rigidbody.h">
+      <Filter>Header Files\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Components\Transform.h">
+      <Filter>Header Files\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Systems\ISystem.h">
+      <Filter>Header Files\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Systems\MoveSystem.h">
+      <Filter>Header Files\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Systems\Physics.h">
+      <Filter>Header Files\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Systems\InputSystem.h">
+      <Filter>Header Files\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Systems\AnimationSystem.h">
+      <Filter>Header Files\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Systems\HitSystem.h">
+      <Filter>Header Files\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Components\Hitbox.h">
+      <Filter>Header Files\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Systems\TimerSystem.h">
+      <Filter>Header Files\Systems</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

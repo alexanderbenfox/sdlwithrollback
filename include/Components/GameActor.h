@@ -1,9 +1,7 @@
 #pragma once
-#include "IComponent.h"
 #include "Actions.h"
 
 #include <set>
-
 #include "ListenerInterfaces.h"
 
 class GameActor : public IComponent, public IActionListener
@@ -11,8 +9,6 @@ class GameActor : public IComponent, public IActionListener
 public:
   //!
   GameActor(std::shared_ptr<Entity> owner);
-  //!
-  virtual void Update(float dt) override;
   //!
   virtual void OnFrameBegin() override {}
   //! Finishes all of the completed actions in the queue
@@ -36,6 +32,15 @@ public:
   friend std::ostream& operator<<(std::ostream& os, const GameActor& actor);
   friend std::istream& operator>>(std::istream& is, GameActor& actor);
 
+  InputState& GetInputState() { return _lastInput; }
+  GameContext& GetContext() { return _lastContext; }
+
+  //! Context that will be merged with the input context when inputs are evaluated
+  GameContext mergeContext;
+
+  std::vector<std::shared_ptr<TimerComponent>> timings;
+
+  IAction* const GetAction() {return _currentAction;}
 
 private:
   //!
@@ -49,5 +54,12 @@ private:
   GameContext _lastContext;
   bool _newState;
 
+  int _comboCounter;
 
+
+};
+
+template <> struct ComponentTraits<GameActor>
+{
+  static const uint64_t GetSignature() { return 1 << 3;}
 };

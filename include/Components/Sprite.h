@@ -1,6 +1,7 @@
 #pragma once
 #include "AssetManagement/Resource.h"
 #include "IComponent.h"
+#include "Transform.h"
 
 #include <functional>
 #include <cmath>
@@ -48,23 +49,38 @@ protected:
 
 };
 
-class Sprite : public IComponent
+class SpriteRenderer : public IComponent
 {
 public:
-  Sprite(std::shared_ptr<Entity> owner) : _op(nullptr), IComponent(owner) {}
+  SpriteRenderer(std::shared_ptr<Entity> owner) : _horizontalFlip(false), IComponent(owner)
+  {
+    ResourceManager::Get().RegisterBlitOp();
+  }
 
   void Init(const char* sheet, bool horizontalFlip);
 
-  virtual void OnFrameBegin() override;
+  virtual IDisplayable* GetDisplayable() {return _display.get();}
+  virtual SDL_Rect GetSourceRect()
+  {
+    return GetDisplayable()->GetRectOnSrcText();
+  }
+  virtual void Advance(float dt) {}
+  virtual bool const& GetFlip() const {return _horizontalFlip;}
+  virtual Vector2<int> GetDisplayOffset() const { return Vector2<int>(); }
 
-  virtual void Update(float dt) override;
-
+    
 protected:
   //!
   std::unique_ptr<IDisplayable> _display;
   //! Blitter op used on this frame
-  ResourceManager::BlitOperation* _op;
+  //ResourceManager::BlitOperation* _op;
+
   //!
   bool _horizontalFlip;
 
+};
+
+template <> struct ComponentTraits<SpriteRenderer>
+{
+  static const uint64_t GetSignature() { return 1 << 1;}
 };

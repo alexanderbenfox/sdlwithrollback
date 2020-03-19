@@ -1,3 +1,4 @@
+#ifdef EXPERIMENTAL_GGPO_TECH
 #ifdef _WIN32
 #include "GameState.h"
 #include <functional>
@@ -77,4 +78,5 @@ protected:
   NetworkPlayer _player2;
 };
 
+#endif
 #endif
