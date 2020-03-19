@@ -1,6 +1,7 @@
 #include "Entity.h"
 #include "Components/Animator.h"
 #include "Components/Hitbox.h"
+#include "Components/AttackStateComponent.h"
 
 #include <math.h>
 
@@ -110,31 +111,6 @@ void Animation::SetOp(const Transform& transform, SDL_Rect rectOnTex, Vector2<in
   op->valid = true;
 }
 
-void Animation::CheckEvents(int frame, double x, double y, Transform* transform)
-{
-  for (int i = 0; i < _inProgressEvents.size(); i++)
-  {
-    AnimationEvent* evt = _inProgressEvents[i];
-    if (frame == evt->GetEndFrame())
-    {
-      evt->EndEvent();
-      _inProgressEvents.erase(_inProgressEvents.begin() + i);
-      i--;
-    }
-    else
-    {
-      evt->UpdateEvent(frame, x, y, transform);
-    }
-  }
-
-  auto evtIter = _events.find(frame);
-  if (evtIter != _events.end())
-  {
-    evtIter->second.TriggerEvent(x, y, transform);
-    _inProgressEvents.push_back(&evtIter->second);
-  }
-}
-
 Vector2<int> Animation::FindReferencePixel(const char* sheet)
 { 
   // Get the window format
@@ -222,7 +198,10 @@ void AnimationRenderer::Play(const std::string& name, bool isLooped, bool horizo
   if (_animations.find(name) != _animations.end())
   {
     if(_currentAnimation != _animations.end())
-      _currentAnimation->second.ClearEvents();
+    {
+      if(_owner->GetComponent<AttackStateComponent>())
+        _owner->RemoveComponent<AttackStateComponent>();
+    }
 
     _currentAnimationName = name;
     _currentAnimation = _animations.find(name);
@@ -251,5 +230,11 @@ void AnimationRenderer::Play(const std::string& name, bool isLooped, bool horizo
       _nextFrameOp = [this](int i) { return _loopAnimGetNextFrame(i); };
     else
       _nextFrameOp = [this](int i) { return _onceAnimGetNextFrame(i); };
+
+    if(_currentAnimation->second.Events().size() > 0)
+    {
+      _owner->AddComponent<AttackStateComponent>();
+      _owner->GetComponent<AttackStateComponent>()->SetAnimation(&_currentAnimation->second);
+    }
   }
 }

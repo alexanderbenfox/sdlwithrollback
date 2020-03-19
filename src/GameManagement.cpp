@@ -339,12 +339,14 @@ void GameManager::CheckAgainstSystems(Entity* entity)
   InputSystem::Check(entity);
   HitSystem::Check(entity);
   TimerSystem::Check(entity);
+  AttackAnimationSystem::Check(entity);
 }
 
 //______________________________________________________________________________
 void GameManager::Update(float deltaTime)
 {
   UpdateInput();
+  AttackAnimationSystem::DoTick(deltaTime);
   TimerSystem::DoTick(deltaTime);
   HitSystem::DoTick(deltaTime);
   InputSystem::DoTick(deltaTime);

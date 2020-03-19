@@ -45,14 +45,7 @@ public:
 
   Vector2<int> const GetRefPxLocation() { return _referencePx; }
   //! Checks if an event should be trigger this frame of animation and calls its callback if so
-  void CheckEvents(int frame, double x, double y, Transform* transform);
-  //!
-  void ClearEvents()
-  {
-    for(auto& event : _inProgressEvents)
-      event->EndEvent();
-    _inProgressEvents.clear();
-  }
+  std::unordered_map<int, AnimationEvent>& Events() { return _events; }
 
 protected:
   //! Gets first non-transparent pixel from the top left
@@ -67,7 +60,6 @@ protected:
   Vector2<int> _flipOffset;
   //! Map of frame starts for events to the event that should be triggered
   std::unordered_map<int, AnimationEvent> _events;
-  std::vector<AnimationEvent*> _inProgressEvents;
 
 };
 
