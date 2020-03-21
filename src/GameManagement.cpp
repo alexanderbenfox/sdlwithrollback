@@ -105,6 +105,8 @@ void ResourceManager::BlitSprites()
       {
         if (SDL_QueryTexture(operation->_textureResource->Get(), NULL, NULL, &w, &h) == 0)
         {
+          //SDL_SetRenderDrawColor(GameManager::Get().GetRenderer(), operation->_displayColor.r, operation->_displayColor.g, operation->_displayColor.b, operation->_displayColor.a);
+          SDL_SetTextureColorMod(operation->_textureResource->Get(), operation->_displayColor.r, operation->_displayColor.g, operation->_displayColor.b);
           SDL_RenderCopyEx(GameManager::Get().GetRenderer(), srcTexture,
             &operation->_textureRect, &operation->_displayRect, rotation, nullptr, operation->_flip);
         }
@@ -122,6 +124,9 @@ void ResourceManager::BlitSprites()
     // deregister sprite from list
     //sprite.valid = false;
   }
+
+  //reset render colors
+  //SDL_SetRenderDrawColor(GameManager::Get().GetRenderer(), 255, 255, 255, SDL_ALPHA_OPAQUE);
 
   //reset available ops for next frame
   opIndex = 0;
@@ -340,6 +345,7 @@ void GameManager::CheckAgainstSystems(Entity* entity)
   HitSystem::Check(entity);
   TimerSystem::Check(entity);
   AttackAnimationSystem::Check(entity);
+  FrameAdvantageSystem::Check(entity);
 }
 
 //______________________________________________________________________________
@@ -349,6 +355,7 @@ void GameManager::Update(float deltaTime)
   AttackAnimationSystem::DoTick(deltaTime);
   TimerSystem::DoTick(deltaTime);
   HitSystem::DoTick(deltaTime);
+  FrameAdvantageSystem::DoTick(deltaTime);
   InputSystem::DoTick(deltaTime);
   // resolve collisions
   PhysicsSystem::DoTick(deltaTime);

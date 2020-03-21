@@ -37,6 +37,7 @@ public:
     SDL_Rect _displayRect;
     Texture* _textureResource;
     SDL_RendererFlip _flip;
+    SDL_Color _displayColor;
   };
 
   //! Returns singleton instance of the Resource Manager

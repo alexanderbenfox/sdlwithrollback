@@ -3,6 +3,8 @@
 #include "Components/Input.h"
 #include "ListenerInterfaces.h"
 
+
+//! Drives the animation
 class TimerComponent
 {
 public:
@@ -183,6 +185,7 @@ public:
 
 };
 
+//! Timed actions drive the animation/action to run for the specified duration
 //______________________________________________________________________________
 template <StanceState Stance, ActionState Action>
 class TimedAction : public LoopedAction<Stance, Action>
@@ -207,7 +210,6 @@ public:
   {
     if(AnimatedAction<Stance, Action>::_complete)
     {
-      //_actionTiming->Cancel();
       return GetFollowUpAction();
     }
     
@@ -218,14 +220,35 @@ public:
   }
 
 protected:
-  virtual IAction* GetFollowUpAction() override
-  {
-    return new LoopedAction<Stance, ActionState::NONE>
-      (Stance == StanceState::STANDING ? "Idle" : Stance == StanceState::CROUCHING ? "Crouch" : "Jumping", this->_facingRight);
-  }
+  virtual IAction* GetFollowUpAction() = 0;
 
   std::shared_ptr<TimerComponent> _actionTiming;
   int _duration;
+
+};
+
+//______________________________________________________________________________
+template <StanceState Stance, ActionState Action>
+class OnRecvHitAction : public TimedAction<Stance, Action>
+{
+public:
+  OnRecvHitAction(const std::string& animation, bool facingRight, int framesInState) :
+    TimedAction<Stance, Action>(animation, facingRight, framesInState) {}
+  //!
+  OnRecvHitAction(const std::string& animation, bool facingRight, int framesInState, Vector2<float> instVeclocity) :
+    TimedAction<Stance, Action>(animation, facingRight, framesInState, instVeclocity) {}
+
+  virtual ~OnRecvHitAction();
+
+  //__________________OVERRIDES________________________________
+  //! Adds hit state component
+  virtual void Enact(Entity* actor) override;
+
+protected:
+  //! Follows up with idle state
+  virtual IAction* GetFollowUpAction() override;
+  //! Removes hit state component
+  virtual void OnActionComplete() override;
 
 };
 
@@ -258,6 +281,8 @@ public:
   //!
   AttackAction(const std::string& animation, bool facingRight, Vector2<float> actionMovement) :
     StateLockedAnimatedAction<Stance, Action>(animation, facingRight, actionMovement) {}
+
+  virtual ~AttackAction();
 
   //! Adds attack state component
   virtual void Enact(Entity* actor) override;
@@ -300,7 +325,7 @@ inline IAction* StateLockedAnimatedAction<State, Action>::HandleInput(const Inpu
 
   if (context.hitThisFrame)
   {
-    return new TimedAction<StanceState::STANDING, ActionState::HITSTUN>("HeavyHitstun", context.onLeftSide, context.frameData.onHit, context.frameData.knockback);
+    return new OnRecvHitAction<StanceState::STANDING, ActionState::HITSTUN>("HeavyHitstun", context.onLeftSide, context.frameData.onHit, context.frameData.knockback);
   }
 
   if (State == StanceState::JUMPING)

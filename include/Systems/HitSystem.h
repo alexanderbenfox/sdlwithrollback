@@ -39,3 +39,49 @@ public:
     }
   }
 };
+
+class FrameAdvantageSystem : public ISystem<AttackStateComponent, AnimationRenderer>
+{
+public:
+  static void DoTick(float dt)
+  {
+    for (auto tuple : Tuples)
+    {
+      AttackStateComponent* atkState = std::get<AttackStateComponent*>(tuple.second);
+      AnimationRenderer* renderer = std::get<AnimationRenderer*>(tuple.second);
+
+      // because the animation system will end up incrementing and ending the attack
+      // state component, a shitty work around is that the frame advantage system
+      // will end the color change a frame early
+      // i will have to fix the way that the attack animations work first
+      /*if (atkState->GetRemainingFrames() <= 1)
+      {
+        renderer->SetDisplayColor(255, 255, 255);
+        continue;
+      }*/
+
+
+      // initially disadvantage if nothing is currently blocking or hit by it
+      int attackerFrameAdvantage = -atkState->GetRemainingFrames();
+
+      for (auto hitEntity : ComponentManager<HitStateComponent>::Get().All())
+      {
+        attackerFrameAdvantage += hitEntity->GetRemainingFrames();
+      }
+
+      for (auto otherAttackingEntity : ComponentManager<AttackStateComponent>::Get().All())
+      {
+        if(otherAttackingEntity.get() != atkState)
+          attackerFrameAdvantage += otherAttackingEntity->GetRemainingFrames();
+      }
+
+      if (attackerFrameAdvantage > 0)
+        renderer->SetDisplayColor(0, 0, 255);
+      else if (attackerFrameAdvantage < 0)
+        renderer->SetDisplayColor(255, 0, 0);
+      else
+        renderer->SetDisplayColor(255, 255, 255);
+
+    }
+  }
+};

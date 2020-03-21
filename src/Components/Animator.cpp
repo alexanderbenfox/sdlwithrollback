@@ -79,6 +79,73 @@ void Animation::AddHitboxEvents(const char* hitboxesSheet, FrameData frameData, 
   }
 }
 
+void Animation::AddHitboxEvents(const char* hitboxesSheet, FrameData frameData, std::shared_ptr<Entity> entity, int startUpFrames, int activeFrames, int recoveryFrames)
+{
+  int entityID = entity->GetID();
+  auto DespawnHitbox = [entityID]()
+  {
+    GameManager::Get().GetEntityByID(entityID)->RemoveComponent<Hitbox>();
+  };
+
+  std::string hitBoxFile = hitboxesSheet;
+#ifndef _WIN32
+  auto split = StringUtils::Split(hitBoxFile, '\\');
+  if (split.size() > 1)
+    hitBoxFile = StringUtils::Connect(split.begin(), split.end(), '/');
+#endif
+  Texture hitboxes = Texture(ResourceManager::Get().GetResourcePath() + hitBoxFile);
+
+  //int startUpFrames = -1;
+  //int activeFrames = -1;
+  //int recoveryFrames = -1;
+
+  std::function<void(double, double, Transform*)> trigger;
+  std::vector<std::function<void(double, double, Transform*)>> updates;
+
+  hitboxes.Load();
+  if (hitboxes.IsLoaded())
+  {
+    for (int i = 0; i < _frames; i++)
+    {
+      int x = (_startIdx + i) % _columns;
+      int y = (_startIdx + i) / _columns;
+
+      Rect<double> hitbox = ResourceManager::FindRect(hitboxes, _frameSize, Vector2<int>(x * _frameSize.x, y * _frameSize.y));
+      if (hitbox.Area() != 0)
+      {
+        if (startUpFrames != -1)
+        {
+          auto UpdateHitbox = [entityID, hitbox](double x, double y, Transform* trans)
+          {
+            GameManager::Get().GetEntityByID(entityID)->GetComponent<Hitbox>()->rect = Rect<double>(hitbox.Beg().x * trans->scale.x, hitbox.Beg().y * trans->scale.y, hitbox.End().x * trans->scale.x, hitbox.End().y * trans->scale.y);
+            GameManager::Get().GetEntityByID(entityID)->GetComponent<Hitbox>()->rect.MoveAbsolute(Vector2<double>(x + (hitbox.Beg().x * trans->scale.x), y + (hitbox.Beg().y * trans->scale.y)));
+          };
+          updates.push_back(UpdateHitbox);
+
+          if (activeFrames == -1)
+            activeFrames = i - startUpFrames + 1;
+        }
+        else
+        {
+          startUpFrames = i;
+          trigger = [entityID, hitbox, frameData](double x, double y, Transform* trans)
+          {
+            GameManager::Get().GetEntityByID(entityID)->AddComponent<Hitbox>();
+            GameManager::Get().GetEntityByID(entityID)->GetComponent<Hitbox>()->frameData = frameData;
+            GameManager::Get().GetEntityByID(entityID)->GetComponent<Hitbox>()->rect = Rect<double>(hitbox.Beg().x * trans->scale.x, hitbox.Beg().y * trans->scale.y, hitbox.End().x * trans->scale.x, hitbox.End().y * trans->scale.y);
+            GameManager::Get().GetEntityByID(entityID)->GetComponent<Hitbox>()->rect.MoveAbsolute(Vector2<double>(x + (hitbox.Beg().x * trans->scale.x), y + (hitbox.Beg().y * trans->scale.y)));
+          };
+        }
+      }
+      if (activeFrames != -1)
+        recoveryFrames = i - startUpFrames + activeFrames - 1;
+    }
+    // construct the animated event in place
+    if (startUpFrames > 0)
+      _events.emplace(std::piecewise_construct, std::make_tuple(startUpFrames), std::make_tuple(startUpFrames, activeFrames, trigger, updates, DespawnHitbox));
+  }
+}
+
 SDL_Rect Animation::GetFrameSrcRect(int frame)
 {
   //if invalid frame, just return nothing

@@ -52,7 +52,7 @@ protected:
 class SpriteRenderer : public IComponent
 {
 public:
-  SpriteRenderer(std::shared_ptr<Entity> owner) : _horizontalFlip(false), IComponent(owner)
+  SpriteRenderer(std::shared_ptr<Entity> owner) : _horizontalFlip(false), _displayColor{ 255, 255, 255, SDL_ALPHA_OPAQUE }, IComponent(owner)
   {
     ResourceManager::Get().RegisterBlitOp();
   }
@@ -67,7 +67,19 @@ public:
   virtual void Advance(float dt) {}
   virtual bool const& GetFlip() const {return _horizontalFlip;}
   virtual Vector2<int> GetDisplayOffset() const { return Vector2<int>(); }
+  virtual void SetDisplayColor(Uint8 r, Uint8 g, Uint8 b)
+  {
+    _displayColor = { r, g, b, SDL_ALPHA_OPAQUE };
+  }
+  virtual void SetDisplayColor(Uint8 r, Uint8 g, Uint8 b, Uint8 a)
+  {
+    _displayColor = { r, g, b, a };
+  }
 
+  virtual SDL_Color GetDisplayColor() const
+  {
+    return _displayColor;
+  }
     
 protected:
   //!
@@ -77,6 +89,8 @@ protected:
 
   //!
   bool _horizontalFlip;
+  //!
+  SDL_Color _displayColor;
 
 };
 

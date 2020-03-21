@@ -75,6 +75,9 @@ public:
 
       renderer->GetDisplayable()->SetOp(*transform, renderer->GetSourceRect(),
         renderer->GetDisplayOffset(), renderer->GetFlip(), displayOp);
+
+      //! set display color directly
+      displayOp->_displayColor = renderer->GetDisplayColor();
     }
   }
 };

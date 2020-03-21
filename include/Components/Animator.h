@@ -35,6 +35,8 @@ public:
 
   void AddHitboxEvents(const char* hitboxesSheet, FrameData frameData, std::shared_ptr<Entity> entity);
 
+  void AddHitboxEvents(const char* hitboxesSheet, FrameData frameData, std::shared_ptr<Entity> entity, int startUpFrames, int activeFrames, int recoveryFrames);
+
   SDL_Rect GetFrameSrcRect(int frame);
 
   virtual void SetOp(const Transform& transform, SDL_Rect rectOnTex, Vector2<int> offset, bool flip, ResourceManager::BlitOperation* op) override;
@@ -166,6 +168,4 @@ protected:
 template <> struct ComponentTraits<AnimationRenderer>
 {
   static const uint64_t GetSignature() { return 1 << 6;}
-  //static const uint64_t GetSignature() { return 1 << 1;}
-  //static const uint64_t GetSignature() { return ComponentTraits<Sprite>::GetSignature(); }
 };

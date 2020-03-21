@@ -77,9 +77,9 @@ IAction* CheckHits(const InputState& rawInput, const GameContext& context)
     bool blockedRight = HasState(rawInput, InputState::LEFT) && !context.hitOnLeftSide;
     bool blockedLeft = HasState(rawInput, InputState::RIGHT) && context.hitOnLeftSide;
     if (blockedRight || blockedLeft)
-      return new TimedAction<StanceState::STANDING, ActionState::BLOCKSTUN>("Block", facingRight, context.frameData.onBlock, Vector2<float>::Zero());
+      return new OnRecvHitAction<StanceState::STANDING, ActionState::BLOCKSTUN>("Block", facingRight, context.frameData.onBlock, Vector2<float>::Zero());
     else
-      return new TimedAction<StanceState::STANDING, ActionState::HITSTUN>("HeavyHitstun", facingRight, context.frameData.onHit, context.frameData.knockback);
+      return new OnRecvHitAction<StanceState::STANDING, ActionState::HITSTUN>("HeavyHitstun", facingRight, context.frameData.onHit, context.frameData.knockback);
   }
   return nullptr;
 }
@@ -244,6 +244,39 @@ void TimedAction<Stance, Action>::Enact(Entity* actor)
 
 //______________________________________________________________________________
 template <StanceState Stance, ActionState Action>
+OnRecvHitAction<Stance, Action>::~OnRecvHitAction()
+{
+  // make sure this state component is removed
+  IAction::_listener->GetOwner()->RemoveComponent<HitStateComponent>();
+}
+
+//______________________________________________________________________________
+template <StanceState Stance, ActionState Action>
+void OnRecvHitAction<Stance, Action>::Enact(Entity* actor)
+{
+  TimedAction<Stance, Action>::Enact(actor);
+  actor->AddComponent<HitStateComponent>();
+  actor->GetComponent<HitStateComponent>()->SetTimer(TimedAction<Stance, Action>::_actionTiming.get());
+}
+
+//______________________________________________________________________________
+template <StanceState Stance, ActionState Action>
+IAction* OnRecvHitAction<Stance, Action>::GetFollowUpAction()
+{
+  return new LoopedAction<Stance, ActionState::NONE>
+    (Stance == StanceState::STANDING ? "Idle" : Stance == StanceState::CROUCHING ? "Crouch" : "Jumping", this->_facingRight);
+}
+
+//______________________________________________________________________________
+template <StanceState Stance, ActionState Action>
+void OnRecvHitAction<Stance, Action>::OnActionComplete()
+{
+  IAction::_listener->GetOwner()->RemoveComponent<HitStateComponent>();
+  IAction::OnActionComplete();
+}
+
+//______________________________________________________________________________
+template <StanceState Stance, ActionState Action>
 StateLockedAnimatedAction<Stance, Action>::StateLockedAnimatedAction(const std::string& animation, bool facingRight) : AnimatedAction<Stance, Action>(animation, facingRight)
 {
   this->_loopedAnimation = false;
@@ -262,6 +295,14 @@ IAction* StateLockedAnimatedAction<Stance, Action>::GetFollowUpAction()
 {
   return new LoopedAction<Stance, ActionState::NONE>
     (Stance == StanceState::STANDING ? "Idle" : Stance == StanceState::CROUCHING ? "Crouch" : "Jumping", this->_facingRight);
+}
+
+//______________________________________________________________________________
+template <StanceState Stance, ActionState Action>
+AttackAction<Stance, Action>::~AttackAction()
+{
+  // make sure this state component is removed
+  IAction::_listener->GetOwner()->RemoveComponent<AttackStateComponent>();
 }
 
 //______________________________________________________________________________
