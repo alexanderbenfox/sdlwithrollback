@@ -23,7 +23,7 @@ public:
         if (!hitbox->ShareOwner(hurtbox) && hitbox->rect.Collides(hurtbox->rect))
         {
           bool ok;
-          if(hurtboxController->GetAction()->GetAction() == ActionState::HITSTUN)
+          if(hurtboxController->GetActionState() == ActionState::HITSTUN)
             ok = true;
           hitbox->hit = true;
           // change the state variable that will be evaluated on the processing of inputs. probably a better way to do this...

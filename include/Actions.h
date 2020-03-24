@@ -68,18 +68,6 @@ public:
 };
 
 //______________________________________________________________________________
-//all of the possible states for animation??
-enum class StanceState
-{
-  CROUCHING, STANDING, JUMPING
-};
-
-enum class ActionState
-{
-  NONE, BLOCKSTUN, HITSTUN, DASHING, LIGHT, MEDIUM, HEAVY
-};
-
-//______________________________________________________________________________
 class IAction
 {
 public:
@@ -232,8 +220,6 @@ template <StanceState Stance, ActionState Action>
 class OnRecvHitAction : public TimedAction<Stance, Action>
 {
 public:
-  OnRecvHitAction(const std::string& animation, bool facingRight, int framesInState) :
-    TimedAction<Stance, Action>(animation, facingRight, framesInState) {}
   //!
   OnRecvHitAction(const std::string& animation, bool facingRight, int framesInState, Vector2<float> instVeclocity) :
     TimedAction<Stance, Action>(animation, facingRight, framesInState, instVeclocity) {}

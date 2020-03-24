@@ -18,6 +18,14 @@ public:
   //!
   virtual Entity* GetOwner() override { return _owner.get(); }
   //!
+  virtual void SetStateInfo(StanceState stance, ActionState action) override
+  {
+    _currAction = action;
+    _currStance = stance;
+  }
+  //!
+
+  //!
   void BeginNewAction(IAction* action);
   //!
   void EvaluateInputContext(InputState input, const GameContext& context);
@@ -42,7 +50,9 @@ public:
 
   std::vector<std::shared_ptr<TimerComponent>> timings;
 
-  IAction* const GetAction() {return _currentAction;}
+  //IAction* const GetAction() {return _currentAction;}
+  StanceState const& GetStanceState() { return _currStance; }
+  ActionState const& GetActionState() { return _currAction; }
 
 private:
   //!
@@ -57,6 +67,9 @@ private:
   bool _newState;
 
   int _comboCounter;
+
+  StanceState _currStance;
+  ActionState _currAction;
 
 
 };

@@ -11,6 +11,7 @@ void PhysicsSystem::DoTick(float dt)
     auto rigidbody = std::get<Rigidbody*>(collidingObj);
     auto collider = std::get<RectColliderD*>(collidingObj);
     auto transform = std::get<Transform*>(collidingObj);
+    auto actor = std::get<GameActor*>(collidingObj);
 
     Vector2<float>& vel = rigidbody->_vel;
     Vector2<float>& acc = rigidbody->_acc;
@@ -31,7 +32,8 @@ void PhysicsSystem::DoTick(float dt)
     OverlapInfo<double> currentCorrection;
 
     // loop over each other collider
-    AdjustMovementForCollisions(collider, movementVector, futureCorrection, currentCorrection);
+    // if in hitstun, do elastic collision
+    AdjustMovementForCollisions(collider, movementVector, futureCorrection, currentCorrection, actor->GetActionState() == ActionState::HITSTUN);
 
     Vector2<float> caVelocity = PositionAdjustmentToVelocity(futureCorrection.amount, ddt);
     // Convert adjustment vector to a velocity and change object's velocity based on the adjustment
@@ -115,7 +117,7 @@ OverlapInfo<double> PhysicsSystem::GetPushOnDynamicCollision(Rect<double>& colli
   return overlap;
 }
 
-void PhysicsSystem::AdjustMovementForCollisions( RectColliderD* colliderComponent, const Vector2<double>& movementVector, OverlapInfo<double>& momentum, OverlapInfo<double>& inst)
+void PhysicsSystem::AdjustMovementForCollisions( RectColliderD* colliderComponent, const Vector2<double>& movementVector, OverlapInfo<double>& momentum, OverlapInfo<double>& inst, bool elastic)
 {
   Rect<double> potentialRect = colliderComponent->rect;
   potentialRect.MoveRelative(movementVector);
@@ -145,7 +147,12 @@ void PhysicsSystem::AdjustMovementForCollisions( RectColliderD* colliderComponen
         }
         else
         {
-          momentum.amount += CreateResolveCollisionVector(overlap, movementVector);
+          // if elastic collision, rather than just try and stop the collision, actually bounce it back in the opposite direction
+          if(!elastic)
+            momentum.amount += CreateResolveCollisionVector(overlap, movementVector);
+          else
+            momentum.amount += 2.0 * CreateResolveCollisionVector(overlap, movementVector);
+
           momentum.collisionSides |= overlap.collisionSides;
         }
       }

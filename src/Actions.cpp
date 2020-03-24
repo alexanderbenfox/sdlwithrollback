@@ -108,6 +108,9 @@ void AnimatedAction<Stance, Action>::Enact(Entity* actor)
       mover->_vel = _velocity;
       //mover->ApplyVelocity(_velocity);
   }
+
+  if (_listener)
+    _listener->SetStateInfo(Stance, Action);
 }
 
 //______________________________________________________________________________
