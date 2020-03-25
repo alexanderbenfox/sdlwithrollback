@@ -33,15 +33,23 @@ class Animation : public Image
 public:
   Animation(const char* sheet, int rows, int columns, int startIndexOnSheet, int frames);
 
+  struct FrameInfo
+  {
+    int startUp;
+    int active;
+    int recover;
+  };
+
   void AddHitboxEvents(const char* hitboxesSheet, FrameData frameData, std::shared_ptr<Entity> entity);
 
-  void AddHitboxEvents(const char* hitboxesSheet, FrameData frameData, std::shared_ptr<Entity> entity, int startUpFrames, int activeFrames, int recoveryFrames);
+  void AddHitboxEvents(const char* hitboxesSheet, FrameData frameData, std::shared_ptr<Entity> entity, FrameInfo fData);
 
-  SDL_Rect GetFrameSrcRect(int frame);
+  //! Translates anim frame to the frame on spritesheet
+  SDL_Rect GetFrameSrcRect(int animFrame);
 
   virtual void SetOp(const Transform& transform, SDL_Rect rectOnTex, Vector2<int> offset, bool flip, ResourceManager::BlitOperation* op) override;
 
-  const int GetFrameCount() { return _frames; }
+  const int GetFrameCount() { return static_cast<int>(_animFrameToSheetFrame.size()); }
 
   Vector2<int> const GetFrameWH() { return _frameSize; }
 
@@ -62,6 +70,8 @@ protected:
   Vector2<int> _flipOffset;
   //! Map of frame starts for events to the event that should be triggered
   std::unordered_map<int, AnimationEvent> _events;
+  //!
+  std::vector<int> _animFrameToSheetFrame;
 
 };
 

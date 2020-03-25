@@ -9,6 +9,13 @@
 Animation::Animation(const char* sheet, int rows, int columns, int startIndexOnSheet, int frames) : _rows(rows), _columns(columns), _startIdx(startIndexOnSheet), _frames(frames), Image(sheet)
 {
   _frameSize = Vector2<int>(_sourceRect.w / _columns, _sourceRect.h / _rows);
+
+  // initialize animation to play each sprite sheet frame 
+  _animFrameToSheetFrame.resize(frames);
+  for (int i = 0; i < frames; i++)
+  {
+    _animFrameToSheetFrame[i] = i;
+  }
   _referencePx = FindReferencePixel(sheet);
 }
 
@@ -79,7 +86,7 @@ void Animation::AddHitboxEvents(const char* hitboxesSheet, FrameData frameData, 
   }
 }
 
-void Animation::AddHitboxEvents(const char* hitboxesSheet, FrameData frameData, std::shared_ptr<Entity> entity, int startUpFrames, int activeFrames, int recoveryFrames)
+void Animation::AddHitboxEvents(const char* hitboxesSheet, FrameData frameData, std::shared_ptr<Entity> entity, FrameInfo fData)
 {
   int entityID = entity->GetID();
   auto DespawnHitbox = [entityID]()
@@ -95,9 +102,9 @@ void Animation::AddHitboxEvents(const char* hitboxesSheet, FrameData frameData, 
 #endif
   Texture hitboxes = Texture(ResourceManager::Get().GetResourcePath() + hitBoxFile);
 
-  //int startUpFrames = -1;
-  //int activeFrames = -1;
-  //int recoveryFrames = -1;
+  int startUpFrames = -1;
+  int activeFrames = -1;
+  int recoveryFrames = -1;
 
   std::function<void(double, double, Transform*)> trigger;
   std::vector<std::function<void(double, double, Transform*)>> updates;
@@ -142,12 +149,34 @@ void Animation::AddHitboxEvents(const char* hitboxesSheet, FrameData frameData, 
     }
     // construct the animated event in place
     if (startUpFrames > 0)
-      _events.emplace(std::piecewise_construct, std::make_tuple(startUpFrames), std::make_tuple(startUpFrames, activeFrames, trigger, updates, DespawnHitbox));
+    {
+      _animFrameToSheetFrame.resize(fData.startUp + fData.active + fData.recover - 1);
+      for (int i = 0; i < _animFrameToSheetFrame.size(); i++)
+      {
+        if (i < fData.startUp)
+        {
+          _animFrameToSheetFrame[i] = std::min(startUpFrames, i);
+        }
+        else if (i < fData.startUp + fData.active - 1)
+        {
+          _animFrameToSheetFrame[i] = std::min(startUpFrames + activeFrames - 1, i - (fData.startUp - startUpFrames));
+        }
+        else
+        {
+          int offset = (fData.startUp - startUpFrames) + (fData.active - activeFrames);
+          _animFrameToSheetFrame[i] = std::min(startUpFrames + activeFrames + recoveryFrames - 1, i - offset);
+        }
+      }
+      while (updates.size() < (fData.active - 1))
+        updates.push_back(updates.back());
+      _events.emplace(std::piecewise_construct, std::make_tuple(fData.startUp), std::make_tuple(fData.startUp, fData.active, trigger, updates, DespawnHitbox));
+    }
   }
 }
 
-SDL_Rect Animation::GetFrameSrcRect(int frame)
+SDL_Rect Animation::GetFrameSrcRect(int animFrame)
 {
+  int frame = _animFrameToSheetFrame[animFrame];
   //if invalid frame, just return nothing
   if (frame >= _frames || frame < 0)
     return { 0, 0, 0, 0 };
