@@ -208,7 +208,7 @@ public:
   }
 
 protected:
-  virtual IAction* GetFollowUpAction() = 0;
+  virtual IAction* GetFollowUpAction() override = 0;
 
   std::shared_ptr<TimerComponent> _actionTiming;
   int _duration;
