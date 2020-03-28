@@ -18,7 +18,7 @@ class AttackStateComponent : public IStateComponent
 {
 public:
   //!
-  AttackStateComponent(std::shared_ptr<Entity> owner) : lastFrame(-1), _attackAnim(nullptr), IStateComponent(owner) {}
+  AttackStateComponent(std::shared_ptr<Entity> owner) : lastFrame(-1), _lastAnimationFrame(-1), _attackAnim(nullptr), IStateComponent(owner) {}
   //!
   virtual ~AttackStateComponent() override
   {
@@ -35,6 +35,12 @@ public:
   //! Checks if an event should be trigger this frame of animation and calls its callback if so
   void CheckEvents(int frame, double x, double y, Transform* transform)
   {
+    //adjust to get the animation frame
+    frame /= gameFramePerAnimationFrame;
+    if (frame == _lastAnimationFrame)
+      return;
+    _lastAnimationFrame = frame;
+
     for (int i = 0; i < _inProgressEvents.size(); i++)
     {
       AnimationEvent* evt = _inProgressEvents[i];
@@ -76,6 +82,7 @@ private:
   //! Map of frame starts for events to the event that should be triggered
   Animation* _attackAnim;
   std::vector<AnimationEvent*> _inProgressEvents;
+  int _lastAnimationFrame = -1;
 
 };
 

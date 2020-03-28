@@ -11,10 +11,11 @@ Animation::Animation(const char* sheet, int rows, int columns, int startIndexOnS
   _frameSize = Vector2<int>(_sourceRect.w / _columns, _sourceRect.h / _rows);
 
   // initialize animation to play each sprite sheet frame 
-  _animFrameToSheetFrame.resize(frames);
-  for (int i = 0; i < frames; i++)
+  int gameFrames = std::ceil(frames * gameFramePerAnimationFrame);
+  _animFrameToSheetFrame.resize(gameFrames);
+  for (int i = 0; i < gameFrames; i++)
   {
-    _animFrameToSheetFrame[i] = i;
+    _animFrameToSheetFrame[i] = std::floor(i / gameFramePerAnimationFrame);
   }
   _referencePx = FindReferencePixel(sheet);
 }
@@ -77,9 +78,9 @@ void Animation::AddHitboxEvents(const char* hitboxesSheet, FrameData frameData, 
           };
         }
       }
-      if(activeFrames != -1)
-        recoveryFrames = i - startUpFrames + activeFrames - 1;
     }
+    if (activeFrames != -1)
+      recoveryFrames = _frames - (startUpFrames + activeFrames);
     // construct the animated event in place
     if(startUpFrames > 0)
       _events.emplace(std::piecewise_construct, std::make_tuple(startUpFrames), std::make_tuple(startUpFrames, activeFrames, trigger, updates, DespawnHitbox));
@@ -144,32 +145,51 @@ void Animation::AddHitboxEvents(const char* hitboxesSheet, FrameData frameData, 
           };
         }
       }
-      if (activeFrames != -1)
-        recoveryFrames = i - startUpFrames + activeFrames - 1;
     }
+    if (activeFrames != -1)
+      recoveryFrames = _frames - (startUpFrames + activeFrames);
     // construct the animated event in place
     if (startUpFrames > 0)
     {
-      _animFrameToSheetFrame.resize(fData.startUp + fData.active + fData.recover - 1);
+      int animLastStartUpFrameIdx = startUpFrames - 1;
+      int animLastActiveFrameIdx = animLastStartUpFrameIdx + activeFrames;
+      int animLastRecoveryFrameIdx = animLastActiveFrameIdx + recoveryFrames;
+
+      int lastStartUpFrameIdx = std::ceil((fData.startUp - 2) * gameFramePerAnimationFrame);
+      int lastActiveFrameIdx = lastStartUpFrameIdx + std::ceil(fData.active * gameFramePerAnimationFrame);
+      int lastRecoveryFrameIdx = lastActiveFrameIdx + std::ceil(fData.recover * gameFramePerAnimationFrame);
+
+      int totalFramesAdjusted = lastRecoveryFrameIdx + 1;
+
+      _animFrameToSheetFrame.resize(totalFramesAdjusted);
       for (int i = 0; i < _animFrameToSheetFrame.size(); i++)
       {
-        if (i < fData.startUp)
+
+        // set up the pre active frames
+        if (i <= lastStartUpFrameIdx)
         {
-          _animFrameToSheetFrame[i] = std::min(startUpFrames, i);
+
+          //_animFrameToSheetFrame[i] = std::min(animLastStartUpFrameIdx, i);
+          _animFrameToSheetFrame[i] = std::ceil(static_cast<double>(i) / static_cast<double>(lastStartUpFrameIdx) * static_cast<double>(animLastStartUpFrameIdx));
         }
-        else if (i < fData.startUp + fData.active - 1)
+        else if (i <= lastActiveFrameIdx)
         {
-          _animFrameToSheetFrame[i] = std::min(startUpFrames + activeFrames - 1, i - (fData.startUp - startUpFrames));
+          //_animFrameToSheetFrame[i] = std::min(animLastActiveFrameIdx, i - lastStartUpFrameIdx + animLastStartUpFrameIdx);
+          double idx = static_cast<double>(i - lastStartUpFrameIdx + animLastStartUpFrameIdx);
+          _animFrameToSheetFrame[i] = std::ceil(idx / std::ceil(fData.active * gameFramePerAnimationFrame) * static_cast<double>(activeFrames)) + animLastStartUpFrameIdx;
         }
         else
         {
-          int offset = (fData.startUp - startUpFrames) + (fData.active - activeFrames);
-          _animFrameToSheetFrame[i] = std::min(startUpFrames + activeFrames + recoveryFrames - 1, i - offset);
+          //_animFrameToSheetFrame[i] = std::min(animLastRecoveryFrameIdx, i - lastActiveFrameIdx + animLastActiveFrameIdx);
+          double idx = static_cast<double>(i - lastActiveFrameIdx + animLastActiveFrameIdx);
+          _animFrameToSheetFrame[i] = std::ceil(idx / std::ceil(fData.recover * gameFramePerAnimationFrame) * static_cast<double>(recoveryFrames)) + animLastActiveFrameIdx;
         }
       }
+
+      // do not need to adjust this because events only update on new animations
       while (updates.size() < (fData.active - 1))
         updates.push_back(updates.back());
-      _events.emplace(std::piecewise_construct, std::make_tuple(fData.startUp), std::make_tuple(fData.startUp, fData.active, trigger, updates, DespawnHitbox));
+      _events.emplace(std::piecewise_construct, std::make_tuple(fData.startUp - 1), std::make_tuple(fData.startUp - 1, fData.active, trigger, updates, DespawnHitbox));
     }
   }
 }
