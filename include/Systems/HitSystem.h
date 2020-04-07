@@ -18,24 +18,42 @@ public:
 
       for (auto hitbox : ComponentManager<Hitbox>::Get().All())
       {
+        // if the hitbox has hit something (will change this to checking if it has hit the entity?)
         if(hitbox->hit)
           continue;
+
         if (!hitbox->ShareOwner(hurtbox) && hitbox->rect.Collides(hurtbox->rect))
         {
-          bool ok;
-          if(hurtboxController->GetActionState() == ActionState::HITSTUN)
-            ok = true;
           hitbox->hit = true;
           // change the state variable that will be evaluated on the processing of inputs. probably a better way to do this...
           hurtboxController->mergeContext.hitThisFrame = true;
-          double amtLeft = hurtbox->rect.GetCenter().x - hitbox->rect.Beg().x;
-          double amtRight = hitbox->rect.End().x - hurtbox->rect.GetCenter().x;
-          hurtboxController->mergeContext.hitOnLeftSide =  amtLeft > amtRight;
+
+          // calculate the strike vector
+          hurtboxController->mergeContext.hitOnLeftSide =  hitbox->strikeVector.x > 0;
+
           hurtboxController->mergeContext.frameData = hitbox->frameData;
-          if(amtLeft < amtRight)
+
+          // this needs to be made better
+          if(hitbox->strikeVector.x < 0)
             hurtboxController->mergeContext.frameData.knockback.x = -hitbox->frameData.knockback.x;
         }
       }
+    }
+  }
+};
+
+class StrikeVectorSystem : public ISystem<Hitbox, Hurtbox>
+{
+public:
+  static void DoTick(float dt)
+  {
+    for (auto tuple : Tuples)
+    {
+      Hitbox* hitbox = std::get<Hitbox*>(tuple.second);
+      Hurtbox* hurtbox = std::get<Hurtbox*>(tuple.second);
+
+      int strikeDir = hitbox->rect.GetCenter().x > hurtbox->rect.GetCenter().x ? 1 : -1;
+      hitbox->strikeVector = Vector2<int>(strikeDir, 0);
     }
   }
 };

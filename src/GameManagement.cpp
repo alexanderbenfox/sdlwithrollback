@@ -346,6 +346,7 @@ void GameManager::CheckAgainstSystems(Entity* entity)
   TimerSystem::Check(entity);
   AttackAnimationSystem::Check(entity);
   FrameAdvantageSystem::Check(entity);
+  StrikeVectorSystem::Check(entity);
 }
 
 //______________________________________________________________________________
@@ -354,6 +355,7 @@ void GameManager::Update(float deltaTime)
   UpdateInput();
   AttackAnimationSystem::DoTick(deltaTime);
   TimerSystem::DoTick(deltaTime);
+  StrikeVectorSystem::DoTick(deltaTime);
   HitSystem::DoTick(deltaTime);
   FrameAdvantageSystem::DoTick(deltaTime);
   InputSystem::DoTick(deltaTime);

@@ -15,7 +15,7 @@ Animation::Animation(const char* sheet, int rows, int columns, int startIndexOnS
   _animFrameToSheetFrame.resize(gameFrames);
   for (int i = 0; i < gameFrames; i++)
   {
-    _animFrameToSheetFrame[i] = std::floor(i / gameFramePerAnimationFrame);
+    _animFrameToSheetFrame[i] = static_cast<int>(std::floor((double)i * ((double)frames / (double)gameFrames)));
   }
   _referencePx = FindReferencePixel(sheet);
 }
@@ -153,11 +153,12 @@ void Animation::AddHitboxEvents(const char* hitboxesSheet, FrameData frameData, 
     {
       int animLastStartUpFrameIdx = startUpFrames - 1;
       int animLastActiveFrameIdx = animLastStartUpFrameIdx + activeFrames;
-      int animLastRecoveryFrameIdx = animLastActiveFrameIdx + recoveryFrames;
+      // allow for a frame of "active" to seep into recovery for hitstop effect
+      int animLastRecoveryFrameIdx = animLastActiveFrameIdx + recoveryFrames - 1;
 
-      int lastStartUpFrameIdx = std::ceil((fData.startUp - 2) * gameFramePerAnimationFrame);
-      int lastActiveFrameIdx = lastStartUpFrameIdx + std::ceil(fData.active * gameFramePerAnimationFrame);
-      int lastRecoveryFrameIdx = lastActiveFrameIdx + std::ceil(fData.recover * gameFramePerAnimationFrame);
+      int lastStartUpFrameIdx = fData.startUp - 2;
+      int lastActiveFrameIdx = lastStartUpFrameIdx + fData.active;
+      int lastRecoveryFrameIdx = lastActiveFrameIdx + fData.recover;
 
       int totalFramesAdjusted = lastRecoveryFrameIdx + 1;
 
@@ -175,14 +176,15 @@ void Animation::AddHitboxEvents(const char* hitboxesSheet, FrameData frameData, 
         else if (i <= lastActiveFrameIdx)
         {
           //_animFrameToSheetFrame[i] = std::min(animLastActiveFrameIdx, i - lastStartUpFrameIdx + animLastStartUpFrameIdx);
-          double idx = static_cast<double>(i - lastStartUpFrameIdx + animLastStartUpFrameIdx);
-          _animFrameToSheetFrame[i] = std::ceil(idx / std::ceil(fData.active * gameFramePerAnimationFrame) * static_cast<double>(activeFrames)) + animLastStartUpFrameIdx;
+          double idx = static_cast<double>(i - lastStartUpFrameIdx);
+          _animFrameToSheetFrame[i] = std::ceil(idx / (double)fData.active * static_cast<double>(activeFrames)) + animLastStartUpFrameIdx;
         }
         else
         {
           //_animFrameToSheetFrame[i] = std::min(animLastRecoveryFrameIdx, i - lastActiveFrameIdx + animLastActiveFrameIdx);
-          double idx = static_cast<double>(i - lastActiveFrameIdx + animLastActiveFrameIdx);
-          _animFrameToSheetFrame[i] = std::ceil(idx / std::ceil(fData.recover * gameFramePerAnimationFrame) * static_cast<double>(recoveryFrames)) + animLastActiveFrameIdx;
+          double idx = static_cast<double>(i - lastActiveFrameIdx);
+          //_animFrameToSheetFrame[i] = std::ceil(idx / std::ceil(fData.recover * gameFramePerAnimationFrame) * static_cast<double>(recoveryFrames)) + animLastActiveFrameIdx;
+          _animFrameToSheetFrame[i] = std::ceil(idx / (double)fData.recover * static_cast<double>(recoveryFrames)) + animLastActiveFrameIdx;
         }
       }
 

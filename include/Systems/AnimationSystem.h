@@ -40,6 +40,14 @@ public:
       // if playing, do advance time and update frame
       if (renderer->IsPlaying())
       {
+        // when the animation is complete, do the listener callback
+        // do this on the following frame so that the last frame of animation can still render
+        if (renderer->GetListener())
+        {
+          if (!renderer->IsLooping() && renderer->GetCurrentFrame() == (renderer->GetCurrentAnimation().GetFrameCount() - 1))
+            renderer->GetListener()->OnAnimationComplete(renderer->GetAnimationName());
+        }
+
         renderer->PlayTime() += dt;
         if (renderer->PlayTime() >= secPerFrame)
         {
@@ -52,13 +60,6 @@ public:
 
           // 
           renderer->PlayTime() -= (framesToAdv * secPerFrame);
-
-          // when the animation is complete, do the listener callback
-          if (renderer->GetListener())
-          {
-            if (!renderer->IsLooping() && renderer->GetCurrentFrame() == (renderer->GetCurrentAnimation().GetFrameCount() - 1))
-              renderer->GetListener()->OnAnimationComplete(renderer->GetAnimationName());
-          }
         }
       }
     }

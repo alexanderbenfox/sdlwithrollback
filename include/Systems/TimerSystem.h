@@ -1,9 +1,7 @@
 #pragma once
 #include "Systems/ISystem.h"
+#include "Systems/AnimationSystem.h"
 #include "Components/GameActor.h"
-
-//!
-const float asecPerFrame = 1.0f / animation_fps;
 
 class TimerSystem : public ISystem<GameActor>
 {
@@ -19,9 +17,9 @@ public:
         std::shared_ptr<TimerComponent> timer = _timings[i];
         // if playing, do advance time and update frame
         timer->playTime += dt;
-        if (timer->playTime >= asecPerFrame)
+        if (timer->playTime >= secPerFrame)
         {
-          int framesToAdv = (int)std::floor(timer->playTime / asecPerFrame);
+          int framesToAdv = (int)std::floor(timer->playTime / secPerFrame);
 
           if ((timer->currFrame + framesToAdv) >= timer->TotalFrames())
           {
@@ -34,7 +32,7 @@ public:
             timer->currFrame += framesToAdv;
           }
 
-          timer->playTime -= (framesToAdv * asecPerFrame);
+          timer->playTime -= (framesToAdv * secPerFrame);
         }
       }
 

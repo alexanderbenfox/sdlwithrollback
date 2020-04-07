@@ -35,16 +35,17 @@ public:
   //! Checks if an event should be trigger this frame of animation and calls its callback if so
   void CheckEvents(int frame, double x, double y, Transform* transform)
   {
+    int fpsFrame = frame;
     //adjust to get the animation frame
-    frame /= gameFramePerAnimationFrame;
+    /*frame = (int)std::floorf((float)frame / gameFramePerAnimationFrame);
     if (frame == _lastAnimationFrame)
       return;
-    _lastAnimationFrame = frame;
+    _lastAnimationFrame = frame;*/
 
     for (int i = 0; i < _inProgressEvents.size(); i++)
     {
       AnimationEvent* evt = _inProgressEvents[i];
-      if (frame == evt->GetEndFrame())
+      if (frame >= evt->GetEndFrame())
       {
         evt->EndEvent();
         _inProgressEvents.erase(_inProgressEvents.begin() + i);
