@@ -65,6 +65,25 @@ Texture& ResourceManager::GetTexture(const std::string& file)
 }
 
 //______________________________________________________________________________
+Font& ResourceManager::GetFont(const std::string& file)
+{
+  auto fileToLoad = file;
+
+#ifndef _WIN32
+  auto split = StringUtils::Split(file, '\\');
+  if(split.size() > 1)
+    fileToLoad = StringUtils::Connect(split.begin(), split.end(), '/');
+#endif
+
+  if (_loadedFonts.find(fileToLoad) == _loadedFonts.end())
+  {
+    _loadedFonts.insert(std::make_pair(fileToLoad, Font(_resourcePath + fileToLoad)));
+  }
+  _loadedFonts[fileToLoad].Load();
+  return _loadedFonts[fileToLoad];
+}
+
+//______________________________________________________________________________
 Vector2<int> ResourceManager::GetTextureWidthAndHeight(const std::string& file)
 {
   auto fileToQuery = file;
@@ -85,6 +104,12 @@ void ResourceManager::RegisterBlitOp()
 {
   _registeredSprites.push_back(BlitOperation());
   _registeredSprites.back().valid = false;
+}
+
+//______________________________________________________________________________
+void ResourceManager::DeregisterBlitOp()
+{
+  _registeredSprites.pop_back();
 }
 
 //______________________________________________________________________________

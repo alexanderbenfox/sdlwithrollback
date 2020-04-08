@@ -48,12 +48,16 @@ public:
   void Initialize();
   //! Loads texture if unloaded and returns the SDL_Texture resource
   Texture& GetTexture(const std::string& file);
+  //! Loads font from .ttf file and returns resource
+  Font& GetFont(const std::string& file);
   //! Uses SDLQuery to get the width and height of the source texture
   Vector2<int> GetTextureWidthAndHeight(const std::string& file);
   //! Used by drawn objects to pass their drawing parameters to the resource manager
   BlitOperation* GetAvailableOp() { return &_registeredSprites[opIndex++]; }
   //! Adds a new blit op to the list. Only objects registered here will be drawn
   void RegisterBlitOp();
+  //!
+  void DeregisterBlitOp();
   //! Preps all the sprites to be presented on screen on the next SDL_RenderPresent call
   void BlitSprites();
   //! Gets the relative source path for the resources
@@ -67,7 +71,7 @@ private:
   //! All loaded texture resources
   std::unordered_map<std::string, Texture> _loadedTextures;
   //! All loaded font resources
-  std::unordered_map<std::string, Font> _font;
+  std::unordered_map<std::string, Font> _loadedFonts;
   //! Number of sprites that will be drawn in the scene
   int registeredSprites = 0;
   //! Index of the latest available op spot

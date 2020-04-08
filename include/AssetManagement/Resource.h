@@ -28,7 +28,7 @@ public:
     _pathToResource = filename;
   }
 
-  void Load();
+  virtual void Load();
   void Unload();
 
   T* Get() { return _resource.get(); }
@@ -36,7 +36,7 @@ public:
 
   ResourceTraits<T>& GetInfo() { return _info; }
 
-private:
+protected:
   bool _loaded;
   std::string _pathToResource;
   std::shared_ptr<T> _resource;

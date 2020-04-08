@@ -6,9 +6,10 @@
 
 #include "GameManagement.h"
 
-Animation::Animation(const char* sheet, int rows, int columns, int startIndexOnSheet, int frames) : _rows(rows), _columns(columns), _startIdx(startIndexOnSheet), _frames(frames), Image(sheet)
+Animation::Animation(const char* sheet, int rows, int columns, int startIndexOnSheet, int frames) : _rows(rows), _columns(columns), _startIdx(startIndexOnSheet), _frames(frames)
 {
-  _frameSize = Vector2<int>(_sourceRect.w / _columns, _sourceRect.h / _rows);
+  auto sheetSize = ResourceManager::Get().GetTextureWidthAndHeight(sheet);
+  _frameSize = Vector2<int>(sheetSize.x / _columns, sheetSize.y / _rows);
 
   // initialize animation to play each sprite sheet frame 
   int gameFrames = std::ceil(frames * gameFramePerAnimationFrame);
@@ -209,27 +210,9 @@ SDL_Rect Animation::GetFrameSrcRect(int animFrame)
   return OpSysConv::CreateSDLRect(x * _frameSize.x, y * _frameSize.y, _frameSize.x, _frameSize.y );
 }
 
-void Animation::SetOp(const Transform& transform, SDL_Rect rectOnTex, Vector2<int> offset, bool flip, ResourceManager::BlitOperation* op)
-{
-  op->_textureRect = rectOnTex;
-  op->_textureResource = &_texture;
-
-  int fWidth = _sourceRect.w / _columns;
-  int fHeight = _sourceRect.h / _rows;
-
-  op->_displayRect = OpSysConv::CreateSDLRect(
-    static_cast<int>(std::floor(transform.position.x - offset.x * transform.scale.x)),
-    static_cast<int>(std::floor(transform.position.y - offset.y * transform.scale.y)),
-    (int)(static_cast<float>(fWidth) * transform.scale.x),
-    (int)(static_cast<float>(fHeight) * transform.scale.y));
-
-  op->_flip = flip ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
-
-  op->valid = true;
-}
-
 Vector2<int> Animation::FindReferencePixel(const char* sheet)
-{ 
+{
+  Texture& sheetTexture = ResourceManager::Get().GetTexture(sheet);
   // Get the window format
   Uint32 windowFormat = SDL_GetWindowPixelFormat(GameManager::Get().GetWindow());
   std::shared_ptr<SDL_PixelFormat> format = std::shared_ptr<SDL_PixelFormat>(SDL_AllocFormat(windowFormat), SDL_FreeFormat);
@@ -238,18 +221,18 @@ Vector2<int> Animation::FindReferencePixel(const char* sheet)
   Uint32* upixels;
 
 #ifdef _WIN32
-  auto textureInfo = SDLTextureInfo(_texture.Get());
+  auto textureInfo = SDLTextureInfo(sheetTexture.Get());
   unsigned char* px = (unsigned char*)textureInfo.pixels;
   upixels = (Uint32*)textureInfo.pixels;
   Uint32 transparent = SDL_MapRGBA(format.get(), px[0], px[1], px[2], 0x00);
 #else
-  upixels = (Uint32*)_texture.GetInfo().pixels.get();
+  upixels = (Uint32*)sheetTexture.GetInfo().pixels.get();
 #endif
   for (int y = 0; y < _frameSize.y; y++)
   {
     for (int x = 0; x < _frameSize.x; x++)
     {
-      Uint32 pixel = upixels[_sourceRect.w * y + x];
+      Uint32 pixel = upixels[sheetTexture.GetInfo().mWidth * y + x];
 #ifdef _WIN32
       if(pixel != transparent)
 #else
@@ -263,13 +246,13 @@ Vector2<int> Animation::FindReferencePixel(const char* sheet)
   return Vector2<int>(0, 0);
 }
 
-AnimationRenderer::AnimationRenderer(std::shared_ptr<Entity> owner) : 
-  _currentAnimationName(""), _currentAnimation(_animations.end()), _playing(false), _looping(false), _accumulatedTime(0.0f), _frame(0), _nextFrameOp([](int) { return 0; }), SpriteRenderer(owner)
+Animator::Animator(std::shared_ptr<Entity> owner) : 
+  _currentAnimationName(""), _currentAnimation(_animations.end()), playing(false), looping(false), accumulatedTime(0.0f), frame(0), IComponent(owner)
 {
   
 }
 
-void AnimationRenderer::RegisterAnimation(const std::string& name, const char* sheet, int rows, int columns, int startIndexOnSheet, int frames)
+void Animator::RegisterAnimation(const std::string& name, const char* sheet, int rows, int columns, int startIndexOnSheet, int frames)
 {
   if (_animations.find(name) == _animations.end())
   {
@@ -282,53 +265,26 @@ void AnimationRenderer::RegisterAnimation(const std::string& name, const char* s
   }
 }
 
-void AnimationRenderer::Advance(float dt)
-{
-  // if playing, do advance time and update frame
-  if (_playing)
-  {
-    _accumulatedTime += dt;
-    if (_accumulatedTime >= _secPerFrame)
-    {
-      int framesToAdv = (int)std::floor(_accumulatedTime / _secPerFrame);
-
-      // get next frame off of the type of anim it is
-      _frame = _nextFrameOp(framesToAdv);
-
-      // 
-      _accumulatedTime -= (framesToAdv * _secPerFrame);
-
-      // when the animation is complete, do the listener callback
-      if(_listener)
-      {
-        if(!_looping && _frame == (_currentAnimation->second.GetFrameCount() - 1))
-          _listener->OnAnimationComplete(_currentAnimationName);
-      }
-    }
-  }
-}
-
-void AnimationRenderer::Play(const std::string& name, bool isLooped, bool horizontalFlip)
+void Animator::Play(const std::string& name, bool isLooped, bool horizontalFlip)
 {
   // dont play again if we are already playing it
-  if (_playing && (name == _currentAnimationName && _horizontalFlip == horizontalFlip)) return;
+  if (playing && name == _currentAnimationName) return;
   if (_animations.find(name) != _animations.end())
   {
     _currentAnimationName = name;
     _currentAnimation = _animations.find(name);
-    _playing = true;
+    playing = true;
 
     // reset all parameters
-    _accumulatedTime = 0;
-    _frame = 0;
+    accumulatedTime = 0;
+    frame = 0;
 
     // set offset by aligning top left non-transparent pixels of each texture
     _basisOffset = Vector2<int>(
       _currentAnimation->second.GetRefPxLocation().x - _basisRefPx.x,
       _currentAnimation->second.GetRefPxLocation().y - _basisRefPx.y);
 
-    _horizontalFlip = horizontalFlip;
-    if(_horizontalFlip)
+    if(horizontalFlip)
     {
       // create the offset for flipped
       const int entityWidth = static_cast<int>(_owner->GetComponent<RectColliderD>()->rect.Width() * (1.0f / _owner->GetComponent<Transform>()->scale.x));
@@ -336,10 +292,6 @@ void AnimationRenderer::Play(const std::string& name, bool isLooped, bool horizo
       _basisOffset = Vector2<int>(frameSize.x - entityWidth - _basisOffset.x, _basisOffset.y);
     }
 
-    _looping = isLooped;
-    if (isLooped)
-      _nextFrameOp = [this](int i) { return _loopAnimGetNextFrame(i); };
-    else
-      _nextFrameOp = [this](int i) { return _onceAnimGetNextFrame(i); };
+    looping = isLooped;
   }
 }

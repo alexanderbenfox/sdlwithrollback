@@ -30,26 +30,15 @@ private:
   std::function<void()> _onEnd;
 };
 
-class Animation : public Image
+class Animation
 {
 public:
   Animation(const char* sheet, int rows, int columns, int startIndexOnSheet, int frames);
 
-  struct FrameInfo
-  {
-    int startUp;
-    int active;
-    int recover;
-  };
-
   void AddHitboxEvents(const char* hitboxesSheet, FrameData frameData, std::shared_ptr<Entity> entity);
-
-  void AddHitboxEvents(const char* hitboxesSheet, FrameData frameData, std::shared_ptr<Entity> entity, FrameInfo fData);
 
   //! Translates anim frame to the frame on spritesheet
   SDL_Rect GetFrameSrcRect(int animFrame);
-
-  virtual void SetOp(const Transform& transform, SDL_Rect rectOnTex, Vector2<int> offset, bool flip, ResourceManager::BlitOperation* op) override;
 
   const int GetFrameCount() { return static_cast<int>(_animFrameToSheetFrame.size()); }
 
@@ -68,8 +57,6 @@ protected:
   Vector2<int> _frameSize;
   //!
   Vector2<int> _referencePx;
-  //!
-  Vector2<int> _flipOffset;
   //! Map of frame starts for events to the event that should be triggered
   std::unordered_map<int, AnimationEvent> _events;
   //!
@@ -77,20 +64,12 @@ protected:
 
 };
 
-class AnimationRenderer : public SpriteRenderer
+class Animator : public IComponent
 {
 public:
-  AnimationRenderer(std::shared_ptr<Entity> owner);
+  Animator(std::shared_ptr<Entity> owner);
 
   void RegisterAnimation(const std::string& name, const char* sheet, int rows, int columns, int startIndexOnSheet, int frames);
-
-  virtual IDisplayable* GetDisplayable() override { return &_currentAnimation->second; }
-  virtual SDL_Rect GetSourceRect() override
-  {
-    return _currentAnimation->second.GetFrameSrcRect(_frame);
-  }
-  virtual void Advance(float dt) override;
-  virtual Vector2<int> GetDisplayOffset() const override {return _basisOffset;}
 
   // Setter function
   void Play(const std::string& name, bool isLooped, bool horizontalFlip);
@@ -105,73 +84,40 @@ public:
   }
 
   //!
-  bool IsPlaying() const { return _playing; }
-  //!
-  bool IsLooping() const { return _looping; }
-  //!
-  const std::string& GetAnimationName() const { return _currentAnimationName; }
-  //!
   const std::function<int(int)>& GetNextFrame() const { return _nextFrameOp; }
   //!
   IAnimatorListener* GetListener() { return _listener; }
-
-  //! MUTABLES
-  //!
-  int& GetCurrentFrame() { return _frame; }
-  //!
-  float& PlayTime() { return _accumulatedTime; }
   //!
   Animation& GetCurrentAnimation() { return _currentAnimation->second; }
 
-  friend std::ostream& operator<<(std::ostream& os, const AnimationRenderer& animator);
-  friend std::istream& operator>>(std::istream& is, AnimationRenderer& animator);
-
-protected:
-  IAnimatorListener* _listener;
-  //!
-  const float _secPerFrame = 1.0f / animation_fps;
-  //!
-  std::unordered_map<std::string, Animation> _animations;
-
   // STATE VARIABLES
   //!
-  bool _playing;
+  bool playing;
   //!
-  bool _looping;
+  bool looping;
   //!
-  float _accumulatedTime;
+  float accumulatedTime;
   //!
-  int _frame;
-  //!
-  std::string _currentAnimationName;
+  int frame;
+  
+
+  friend std::ostream& operator<<(std::ostream& os, const Animator& animator);
+  friend std::istream& operator>>(std::istream& is, Animator& animator);
+
+protected:
+  //! Things that need to know when an animation is done
+  IAnimatorListener* _listener;
+  //! All animations registered to this animator
+  std::unordered_map<std::string, Animation> _animations;
   //!
   std::unordered_map<std::string, Animation>::iterator _currentAnimation;
+  //!
+  std::string _currentAnimationName;
   
   //!
   Vector2<int> _basisOffset;
   //!
   Vector2<int> _basisRefPx;
-  //!
-  //Vector2<int> _basisRefSize;
-
-  //!
-  std::function<int(int)> _nextFrameOp;
-  //
-  std::function<int(int)> _loopAnimGetNextFrame = [this](int framesToAdv) { return (_frame + framesToAdv) % _currentAnimation->second.GetFrameCount(); };
-  //
-  std::function<int(int)> _onceAnimGetNextFrame = [this](int framesToAdv)
-  {
-    if ((_frame + framesToAdv) >= _currentAnimation->second.GetFrameCount())
-    {
-      for (auto& func : _onAnimCompleteCallbacks)
-        func(&_currentAnimation->second);
-
-      //stop playing and dont advance any frames
-      _playing = false;
-      return _currentAnimation->second.GetFrameCount() - 1;
-    }
-    return _frame + framesToAdv;
-  };
 
   std::vector<std::function<void(Animation*)>> _onAnimCompleteCallbacks;
 

@@ -13,10 +13,14 @@ const float animation_fps = third_strike_fps;
 
 struct FrameData
 {
+  // # of start up frames, active frames, and recovery frames
+  int startUp, active, recover;
+  // # of frames the receiver should be stunned on hit or block
+  int onHit, onBlock;
+  // damage that the move does
   int damage;
+  // knockback vector oriented from attack's source
   Vector2<float> knockback;
-  int onHit;
-  int onBlock;
 };
 
 class Entity;
