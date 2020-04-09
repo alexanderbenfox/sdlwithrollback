@@ -1,3 +1,4 @@
+#pragma once
 #include "Resource.h"
 
 class TextResource : public Resource<SDL_Texture>

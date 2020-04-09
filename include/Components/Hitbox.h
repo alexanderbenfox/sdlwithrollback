@@ -18,7 +18,3 @@ public:
 private:
 
 };
-template <> struct ComponentTraits<Hitbox>
-{
-  static const uint64_t GetSignature() { return 1 << 8; }
-};

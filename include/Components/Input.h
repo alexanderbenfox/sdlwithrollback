@@ -95,11 +95,6 @@ private:
   
 };
 
-template <> struct ComponentTraits<KeyboardInputHandler>
-{
-  static const uint64_t GetSignature() { return 1 << 7;}
-};
-
 #ifdef _WIN32
 #include <GGPO/ggponet.h>
 

@@ -9,6 +9,15 @@
 class GraphicRenderer : public IComponent
 {
 public:
+  class TextureWrapper
+  {
+  public:
+    TextureWrapper(Resource<SDL_Texture>& resource) : _resource(resource) {}
+    Resource<SDL_Texture>& GetResource() { return _resource; }
+  private:
+    Resource<SDL_Texture>& _resource;
+  };
+
   GraphicRenderer(std::shared_ptr<Entity> owner) : IComponent(owner)
   {
     ResourceManager::Get().RegisterBlitOp();
@@ -20,32 +29,40 @@ public:
   }
 
   //! Init with a resource
-  void SetRenderResource(Resource<SDL_Texture>& resource)
+  void Init(Resource<SDL_Texture>& resource)
   {
-    _resource = &resource;
-    sourceRect = { 0, 0, _resource->GetInfo().mWidth, _resource->GetInfo().mHeight };
+    _resource = std::unique_ptr<TextureWrapper>(new TextureWrapper(resource));
+    sourceRect = { 0, 0, resource.GetInfo().mWidth, resource.GetInfo().mHeight };
   }
 
-  Resource<SDL_Texture>* GetRenderResource() { return _resource; }
+  void SetRenderResource(Resource<SDL_Texture>& resource)
+  {
+    _resource.reset();
+    _resource = std::unique_ptr<TextureWrapper>(new TextureWrapper(resource));
+  }
+
+  Resource<SDL_Texture>* GetRenderResource()
+  {
+    if(_resource)
+      return &_resource->GetResource();
+    return nullptr;
+  }
 
   //! Source of display location on texture
   SDL_Rect sourceRect;
     
 protected:
   //!
-  Resource<SDL_Texture>* _resource;
-  
+  std::unique_ptr<TextureWrapper> _resource;
 
 };
 
 class RenderProperties : public IComponent
 {
 public:
-  RenderProperties(std::shared_ptr<Entity> owner) : _horizontalFlip(false), _displayColor{ 255, 255, 255, SDL_ALPHA_OPAQUE }, IComponent(owner)
+  RenderProperties(std::shared_ptr<Entity> owner) : offset(0, 0), horizontalFlip(false), _displayColor{ 255, 255, 255, SDL_ALPHA_OPAQUE }, IComponent(owner)
   {
   }
-
-  virtual bool const& GetFlip() const {return _horizontalFlip;}
 
   virtual void SetDisplayColor(Uint8 r, Uint8 g, Uint8 b)
   {
@@ -63,17 +80,11 @@ public:
 
   //! Display offset from top left of texture
   Vector2<int> offset;
+  //!
+  bool horizontalFlip;
 
 protected:
   //!
-  bool _horizontalFlip;
-  //!
   SDL_Color _displayColor;
   
-
-};
-
-template <> struct ComponentTraits<GraphicRenderer>
-{
-  static const uint64_t GetSignature() { return 1 << 1;}
 };

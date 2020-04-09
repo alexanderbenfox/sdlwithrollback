@@ -12,14 +12,6 @@
 #include <cassert>
 
 //______________________________________________________________________________
-void SpriteRenderer::Init(const char* sheet, bool horizontalFlip)
-{
-  //adds new operation to the blitting list
-  _display = std::make_unique<Image>(sheet);
-  _horizontalFlip = horizontalFlip;
-}
-
-//______________________________________________________________________________
 void Camera::Init(int w, int h)
 {
   rect.x = 0;
@@ -188,26 +180,22 @@ std::istream& operator>>(std::istream& is, Rigidbody& phys)
   return is;
 }
 
-std::ostream& operator<<(std::ostream& os, const AnimationRenderer& animator)
+std::ostream& operator<<(std::ostream& os, const Animator& animator)
 {
-  os << animator._playing;
-  os << animator._accumulatedTime;
-  os << animator._frame;
-  os << animator._currentAnimationName;
+  os << animator.playing;
+  os << animator.accumulatedTime;
+  os << animator.frame;
+  os << animator.currentAnimationName;
   return os;
 }
 
-std::istream& operator>>(std::istream& is, AnimationRenderer& animator)
+std::istream& operator>>(std::istream& is, Animator& animator)
 {
-  is >> animator._playing;
-  is >> animator._accumulatedTime;
-  is >> animator._frame;
-  is >> animator._currentAnimationName;
-  animator._currentAnimation = animator._animations.find(animator._currentAnimationName);
-
-  animator._basisOffset = Vector2<int>(
-    animator._currentAnimation->second.GetRefPxLocation().x - animator._basisRefPx.x,
-    animator._currentAnimation->second.GetRefPxLocation().y - animator._basisRefPx.y);
+  is >> animator.playing;
+  is >> animator.accumulatedTime;
+  is >> animator.frame;
+  is >> animator.currentAnimationName;
+  animator._currentAnimation = animator._animations.find(animator.currentAnimationName);
 
   return is;
 }

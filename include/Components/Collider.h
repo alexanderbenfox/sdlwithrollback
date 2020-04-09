@@ -62,11 +62,6 @@ public:
 
 typedef RectCollider<double> RectColliderD;
 
-template <> struct ComponentTraits<RectColliderD>
-{
-  static const uint64_t GetSignature() { return 1 << 4;}
-};
-
 class Hitbox;
 
 //! hurtbox is the area that you can take damage from an enemy attack
@@ -75,8 +70,4 @@ class Hurtbox : public RectColliderD
 public:
   //!
   Hurtbox(std::shared_ptr<Entity> entity) : RectColliderD(entity) {}
-};
-template <> struct ComponentTraits<Hurtbox>
-{
-  static const uint64_t GetSignature() { return 1 << 9; }
 };

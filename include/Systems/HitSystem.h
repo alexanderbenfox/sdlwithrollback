@@ -58,7 +58,7 @@ public:
   }
 };
 
-class FrameAdvantageSystem : public ISystem<AttackStateComponent, AnimationRenderer>
+class FrameAdvantageSystem : public ISystem<AttackStateComponent, RenderProperties>
 {
 public:
   static void DoTick(float dt)
@@ -66,7 +66,7 @@ public:
     for (auto tuple : Tuples)
     {
       AttackStateComponent* atkState = std::get<AttackStateComponent*>(tuple.second);
-      AnimationRenderer* renderer = std::get<AnimationRenderer*>(tuple.second);
+      RenderProperties* properties = std::get<RenderProperties*>(tuple.second);
 
       // because the animation system will end up incrementing and ending the attack
       // state component, a shitty work around is that the frame advantage system
@@ -94,11 +94,11 @@ public:
       }
 
       if (attackerFrameAdvantage > 0)
-        renderer->SetDisplayColor(0, 0, 255);
+        properties->SetDisplayColor(0, 0, 255);
       else if (attackerFrameAdvantage < 0)
-        renderer->SetDisplayColor(255, 0, 0);
+        properties->SetDisplayColor(255, 0, 0);
       else
-        renderer->SetDisplayColor(255, 255, 255);
+        properties->SetDisplayColor(255, 255, 255);
 
     }
   }

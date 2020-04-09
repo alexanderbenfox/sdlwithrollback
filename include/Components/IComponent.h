@@ -60,5 +60,9 @@ protected:
 template <typename T>
 struct ComponentTraits
 {
-  static const uint64_t GetSignature() { return 1000000000; }
+  static int ID;
+  static const uint64_t GetSignature() { return 1 << ID; }
 };
+
+template <class T>
+int ComponentTraits<T>::ID = ConstComponentIDGenerator::NextID();

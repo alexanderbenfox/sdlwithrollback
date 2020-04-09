@@ -32,6 +32,8 @@ static double heightToScreenHeight = 1.0f;
 
 const char* Title = "Game Title";
 
+int ConstComponentIDGenerator::ID = 0;
+
 //______________________________________________________________________________
 void ResourceManager::Initialize()
 {
@@ -258,24 +260,24 @@ void GameManager::Initialize()
   _renderer = SDL_CreateRenderer(_window, -1, SDL_RENDERER_ACCELERATED);
   SDL_SetRenderDrawBlendMode(_renderer, SDL_BLENDMODE_BLEND);
 
-  auto bottomBorder = CreateEntity<Transform, SpriteRenderer, RectColliderD>();
+  auto bottomBorder = CreateEntity<Transform, GraphicRenderer, RectColliderD>();
   bottomBorder->GetComponent<Transform>()->position.x = 0.0;
   bottomBorder->GetComponent<Transform>()->position.y = m_nativeHeight - 40;
-  bottomBorder->GetComponent<SpriteRenderer>()->Init("spritesheets\\ryu.png", false);
+  bottomBorder->GetComponent<GraphicRenderer>()->Init(ResourceManager::Get().GetTexture("spritesheets\\ryu.png"));
   bottomBorder->GetComponent<RectColliderD>()->Init(Vector2<double>(0, m_nativeHeight - 40), Vector2<double>(m_nativeWidth, m_nativeHeight + 5000.0f));
   bottomBorder->GetComponent<RectColliderD>()->SetStatic(true);
 
-  auto leftBorder = CreateEntity<Transform, SpriteRenderer, RectColliderD>();
+  auto leftBorder = CreateEntity<Transform, GraphicRenderer, RectColliderD>();
   leftBorder->GetComponent<Transform>()->position.x = -200;
   leftBorder->GetComponent<Transform>()->position.y = 0;
-  leftBorder->GetComponent<SpriteRenderer>()->Init("spritesheets\\ryu.png", false);
+  leftBorder->GetComponent<GraphicRenderer>()->Init(ResourceManager::Get().GetTexture("spritesheets\\ryu.png"));
   leftBorder->GetComponent<RectColliderD>()->Init(Vector2<double>(-200, 0), Vector2<double>(0, m_nativeHeight));
   leftBorder->GetComponent<RectColliderD>()->SetStatic(true);
 
-  auto rightBorder = CreateEntity<Transform, SpriteRenderer, RectColliderD>();
+  auto rightBorder = CreateEntity<Transform, GraphicRenderer, RectColliderD>();
   rightBorder->GetComponent<Transform>()->position.x = m_nativeWidth;
   rightBorder->GetComponent<Transform>()->position.y = 0;
-  rightBorder->GetComponent<SpriteRenderer>()->Init("spritesheets\\ryu.png", false);
+  rightBorder->GetComponent<GraphicRenderer>()->Init(ResourceManager::Get().GetTexture("spritesheets\\ryu.png"));
   rightBorder->GetComponent<RectColliderD>()->Init(Vector2<double>(m_nativeWidth, 0), Vector2<double>(m_nativeWidth + 200, m_nativeHeight));
   rightBorder->GetComponent<RectColliderD>()->SetStatic(true);
 
@@ -339,7 +341,7 @@ void GameManager::BeginGameLoop()
     clock.Update(update);
 
     // do once per frame system calls
-    AnimationSystem::PostUpdate();
+    DrawSystem::PostUpdate();
 
     //! Finally render the scene
     Draw();
@@ -372,6 +374,7 @@ void GameManager::CheckAgainstSystems(Entity* entity)
   AttackAnimationSystem::Check(entity);
   FrameAdvantageSystem::Check(entity);
   StrikeVectorSystem::Check(entity);
+  DrawSystem::Check(entity);
 }
 
 //______________________________________________________________________________

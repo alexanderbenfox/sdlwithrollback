@@ -5,6 +5,16 @@
 #include <vector>
 #include <functional>
 
+class ConstComponentIDGenerator
+{
+public:
+  static int ID;
+  static int NextID()
+  {
+      return ID++;
+  }
+};
+
 typedef Resource<SDL_Texture> Texture;
 typedef Resource<TTF_Font> Font;
 

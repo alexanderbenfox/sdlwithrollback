@@ -4,59 +4,28 @@
 #include "Components/AttackStateComponent.h"
 
 //!
-//const float secPerFrame = 1.0f / animation_fps;
 const float secPerFrame = 1.0f / 60.0f;
 
-class AttackAnimationSystem : public ISystem<AttackStateComponent, AnimationRenderer, Transform>
+class AttackAnimationSystem : public ISystem<AttackStateComponent, Animator, Transform, RenderProperties>
 {
 public:
   static void DoTick(float dt)
   {
     for(auto tuple : Tuples)
     {
-      AnimationRenderer* renderer = std::get<AnimationRenderer*>(tuple.second);
+      Animator* animator = std::get<Animator*>(tuple.second);
       Transform* transform = std::get<Transform*>(tuple.second);
       AttackStateComponent* atkState = std::get<AttackStateComponent*>(tuple.second);
-
-      if (atkState->lastFrame != renderer->GetCurrentFrame())
-      {
-        atkState->CheckEvents(renderer->GetCurrentFrame(),
-          (double)transform->position.x - (double)renderer->GetDisplayOffset().x * transform->scale.x, (double)transform->position.y - (double)renderer->GetDisplayOffset().y * transform->scale.y,
-          transform);
-        atkState->lastFrame = renderer->GetCurrentFrame();
-      }
-    }
-  }
-};
-
-class DrawSystem : public ISystem<Transform, GraphicRenderer, RenderProperties>
-{
-  static void PostUpdate()
-  {
-    for (auto tuple : Tuples)
-    {
-      GraphicRenderer* renderer = std::get<GraphicRenderer*>(tuple.second);
-      Transform* transform = std::get<Transform*>(tuple.second);
       RenderProperties* properties = std::get<RenderProperties*>(tuple.second);
 
-      // get a display op to set draw parameters
-      auto displayOp = ResourceManager::Get().GetAvailableOp();
-
-      displayOp->_textureRect = renderer->sourceRect;
-      displayOp->_textureResource = renderer->GetRenderResource();
-
-      displayOp->_displayRect = OpSysConv::CreateSDLRect(
-        static_cast<int>(std::floor(transform->position.x - properties->offset.x)),
-        static_cast<int>(std::floor(transform->position.y - properties->offset.y)),
-        (int)(static_cast<float>(renderer->sourceRect.w) * transform->scale.x),
-        (int)(static_cast<float>(renderer->sourceRect.h) * transform->scale.y));
-
-      // set properties
-      displayOp->_flip = properties->GetFlip() ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
-      // set display color directly
-      displayOp->_displayColor = properties->GetDisplayColor();
-
-      displayOp->valid = true;      
+      if (atkState->lastFrame != animator->frame)
+      {
+        atkState->CheckEvents(animator->frame,
+          (double)transform->position.x - (double)properties->offset.x * transform->scale.x,
+          (double)transform->position.y - (double)properties->offset.y * transform->scale.y,
+          transform);
+        atkState->lastFrame = animator->frame;
+      }
     }
   }
 };
@@ -120,6 +89,42 @@ public:
           animator->accumulatedTime -= (framesToAdv * secPerFrame);
         }
       }
+    }
+  }
+};
+
+class DrawSystem : public ISystem<Transform, GraphicRenderer, RenderProperties>
+{
+public:
+  static void PostUpdate()
+  {
+    for (auto tuple : Tuples)
+    {
+      GraphicRenderer* renderer = std::get<GraphicRenderer*>(tuple.second);
+      Transform* transform = std::get<Transform*>(tuple.second);
+      RenderProperties* properties = std::get<RenderProperties*>(tuple.second);
+
+      // if the render resource hasn't been assigned yet, hold off
+      if(!renderer->GetRenderResource()) continue;
+
+      // get a display op to set draw parameters
+      auto displayOp = ResourceManager::Get().GetAvailableOp();
+
+      displayOp->_textureRect = renderer->sourceRect;
+      displayOp->_textureResource = renderer->GetRenderResource();
+
+      displayOp->_displayRect = OpSysConv::CreateSDLRect(
+        static_cast<int>(std::floor(transform->position.x - properties->offset.x * transform->scale.x)),
+        static_cast<int>(std::floor(transform->position.y - properties->offset.y * transform->scale.y)),
+        (int)(static_cast<float>(renderer->sourceRect.w) * transform->scale.x),
+        (int)(static_cast<float>(renderer->sourceRect.h) * transform->scale.y));
+
+      // set properties
+      displayOp->_flip = properties->horizontalFlip ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
+      // set display color directly
+      displayOp->_displayColor = properties->GetDisplayColor();
+
+      displayOp->valid = true;      
     }
   }
 };

@@ -88,12 +88,25 @@ IAction* CheckHits(const InputState& rawInput, const GameContext& context)
 template <StanceState Stance, ActionState Action>
 void AnimatedAction<Stance, Action>::Enact(Entity* actor)
 {
-  if (auto animator = actor->GetComponent<AnimationRenderer>())
+  if (auto animator = actor->GetComponent<Animator>())
   {
     animator->ChangeListener(this);
     if (animator->GetAnimationByName(_animation))
     {
       animator->Play(_animation, _loopedAnimation, !_facingRight);
+
+      // set the offset in the properties component (needs to be in a system)
+      if(auto properties = actor->GetComponent<RenderProperties>())
+      {
+        properties->horizontalFlip = !_facingRight;
+        properties->offset = animator->GetRenderOffset(!_facingRight);
+      }
+
+      if(auto renderer = actor->GetComponent<GraphicRenderer>())
+      {
+        // render from the sheet of the new animation
+        renderer->SetRenderResource(animator->GetCurrentAnimation().GetSheetTexture());
+      }
     }
     else
     {
@@ -101,6 +114,7 @@ void AnimatedAction<Stance, Action>::Enact(Entity* actor)
         ac->OnActionComplete(this);
     }
   }
+
 
   if (_movementType)
   {
@@ -313,7 +327,7 @@ template <StanceState Stance, ActionState Action>
 void AttackAction<Stance, Action>::Enact(Entity* actor)
 {
   AnimatedAction<Stance, Action>::Enact(actor);
-  if (auto animator = actor->GetComponent<AnimationRenderer>())
+  if (auto animator = actor->GetComponent<Animator>())
   {
     if (Animation* anim = animator->GetAnimationByName(AnimatedAction<Stance, Action>::_animation))
     {

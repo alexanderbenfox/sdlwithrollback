@@ -73,8 +73,3 @@ private:
 
 
 };
-
-template <> struct ComponentTraits<GameActor>
-{
-  static const uint64_t GetSignature() { return 1 << 3;}
-};

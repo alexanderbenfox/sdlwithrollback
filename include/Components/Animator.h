@@ -48,6 +48,8 @@ public:
   //! Checks if an event should be trigger this frame of animation and calls its callback if so
   std::unordered_map<int, AnimationEvent>& Events() { return _events; }
 
+  Texture& GetSheetTexture() { return _src; }
+
 protected:
   //! Gets first non-transparent pixel from the top left
   Vector2<int> FindReferencePixel(const char* sheet);
@@ -61,6 +63,8 @@ protected:
   std::unordered_map<int, AnimationEvent> _events;
   //!
   std::vector<int> _animFrameToSheetFrame;
+  //!
+  Texture& _src;
 
 };
 
@@ -76,15 +80,10 @@ public:
 
   void ChangeListener(IAnimatorListener* listener) { _listener = listener; }
 
-  Animation* GetAnimationByName(const std::string& name)
-  {
-    if(_animations.find(name) != _animations.end())
-      return &_animations.find(name)->second;
-    return nullptr;
-  }
+  Animation* GetAnimationByName(const std::string& name);
 
-  //!
-  const std::function<int(int)>& GetNextFrame() const { return _nextFrameOp; }
+  Vector2<int> GetRenderOffset(bool flipped);
+
   //!
   IAnimatorListener* GetListener() { return _listener; }
   //!
@@ -99,6 +98,8 @@ public:
   float accumulatedTime;
   //!
   int frame;
+  //!
+  std::string currentAnimationName;
   
 
   friend std::ostream& operator<<(std::ostream& os, const Animator& animator);
@@ -111,19 +112,9 @@ protected:
   std::unordered_map<std::string, Animation> _animations;
   //!
   std::unordered_map<std::string, Animation>::iterator _currentAnimation;
-  //!
-  std::string _currentAnimationName;
-  
-  //!
-  Vector2<int> _basisOffset;
-  //!
+  //! Top left pixel offset of the first animation registered to this
   Vector2<int> _basisRefPx;
 
-  std::vector<std::function<void(Animation*)>> _onAnimCompleteCallbacks;
+  //std::vector<std::function<void(Animation*)>> _onAnimCompleteCallbacks;
 
-};
-
-template <> struct ComponentTraits<AnimationRenderer>
-{
-  static const uint64_t GetSignature() { return 1 << 6;}
 };

@@ -63,8 +63,3 @@ public:
   friend std::istream& operator>>(std::istream& is, Rigidbody& rb);
 
 };
-
-template <> struct ComponentTraits<Rigidbody>
-{
-  static const uint64_t GetSignature() { return 1 << 2;}
-};
