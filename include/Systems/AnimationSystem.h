@@ -3,9 +3,6 @@
 #include "Components/Animator.h"
 #include "Components/AttackStateComponent.h"
 
-//!
-const float secPerFrame = 1.0f / 60.0f;
-
 class AttackAnimationSystem : public ISystem<AttackStateComponent, Animator, Transform, RenderProperties>
 {
 public:

@@ -73,11 +73,11 @@ std::shared_ptr<Entity> EntityCreation::CreateLocalPlayer(float xOffset)
   player->GetComponent<Animator>()->GetAnimationByName("StandingLight")->AddHitboxEvents("spritesheets\\grounded_attacks_hitboxes.png", L, player);
 
   player->GetComponent<Animator>()->RegisterAnimation("StandingMedium", "spritesheets\\grounded_attacks.png", 8, 10, 45, 9);
-  FrameData M{12, 3, 18, 21, 19, 1, Vector2<float>(120.0f, -700.0f)};
+  FrameData M{5, 4, 9, 13, 4, 1, Vector2<float>(120.0f, -700.0f)};
   player->GetComponent<Animator>()->GetAnimationByName("StandingMedium")->AddHitboxEvents("spritesheets\\grounded_attacks_hitboxes.png", M, player);
 
   player->GetComponent<Animator>()->RegisterAnimation("StandingHeavy", "spritesheets\\grounded_attacks.png", 8, 10, 53, 12);
-  FrameData H{ 5, 4, 17, 23, 19, 1, Vector2<float>(120.0f, -700.0f) };
+  FrameData H{ 5, 4, 17, 15, 13, 1, Vector2<float>(120.0f, -700.0f) };
   player->GetComponent<Animator>()->GetAnimationByName("StandingHeavy")->AddHitboxEvents("spritesheets\\grounded_attacks_hitboxes.png", H, player);
 
 

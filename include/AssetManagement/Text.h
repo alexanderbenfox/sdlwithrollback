@@ -4,6 +4,7 @@
 class TextResource : public Resource<SDL_Texture>
 {
 public:
+  TextResource() = default;
   TextResource(Resource<TTF_Font> font, const char* text, SDL_Color color);
   virtual void Load() override;
   

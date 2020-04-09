@@ -85,6 +85,19 @@ Font& ResourceManager::GetFont(const std::string& file)
   return _loadedFonts[fileToLoad];
 }
 
+//
+TextResource& ResourceManager::GetText(const char* text, const std::string& fontFile)
+{
+  Font& font = GetFont(fontFile);
+
+  if (_loadedTexts.find(text) == _loadedTexts.end())
+  {
+    _loadedTexts.insert(std::make_pair(text, TextResource(font, text, SDL_Color{255, 255, 255, SDL_ALPHA_OPAQUE})));
+  }
+  _loadedTexts[text].Load();
+  return _loadedTexts[text];
+}
+
 //______________________________________________________________________________
 Vector2<int> ResourceManager::GetTextureWidthAndHeight(const std::string& file)
 {
@@ -281,6 +294,8 @@ void GameManager::Initialize()
   rightBorder->GetComponent<RectColliderD>()->Init(Vector2<double>(m_nativeWidth, 0), Vector2<double>(m_nativeWidth + 200, m_nativeHeight));
   rightBorder->GetComponent<RectColliderD>()->SetStatic(true);
 
+  auto randomAssRenderedText = CreateEntity<Transform, GraphicRenderer, RenderProperties>();
+  randomAssRenderedText->GetComponent<GraphicRenderer>()->Init(ResourceManager::Get().GetText("TEZT", "fonts\\Eurostile.ttf"));
 
   auto p1 = EntityCreation::CreateLocalPlayer(0);
   auto p2 = EntityCreation::CreateLocalPlayer(150);

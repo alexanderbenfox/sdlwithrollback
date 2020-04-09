@@ -2,7 +2,9 @@
 #include "Components/Sprite.h"
 #include "ListenerInterfaces.h"
 
-const float gameFramePerAnimationFrame = 60.0f / animation_fps;
+//!
+const float secPerFrame = 1.0f / 60.0f;
+const float gameFramePerAnimationFrame = (1.0f / secPerFrame) / animation_fps;
 
 class Animation;
 
