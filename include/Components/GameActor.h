@@ -67,6 +67,7 @@ private:
   bool _newState;
 
   int _comboCounter;
+  std::shared_ptr<Entity> _counterText;
 
   StanceState _currStance;
   ActionState _currAction;

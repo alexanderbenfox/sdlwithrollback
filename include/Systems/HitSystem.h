@@ -36,6 +36,8 @@ public:
           // this needs to be made better
           if(hitbox->strikeVector.x < 0)
             hurtboxController->mergeContext.frameData.knockback.x = -hitbox->frameData.knockback.x;
+
+          GameManager::Get().ActivateHitStop(hitbox->frameData.hitstop);
         }
       }
     }

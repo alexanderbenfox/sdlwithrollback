@@ -64,7 +64,6 @@ public:
             animator->GetListener()->OnAnimationComplete(animator->currentAnimationName);
         }
 
-        animator->accumulatedTime += dt;
         if (animator->accumulatedTime >= secPerFrame)
         {
           int framesToAdv = (int)std::floor(animator->accumulatedTime / secPerFrame);
@@ -85,6 +84,7 @@ public:
           // 
           animator->accumulatedTime -= (framesToAdv * secPerFrame);
         }
+        animator->accumulatedTime += dt;
       }
     }
   }

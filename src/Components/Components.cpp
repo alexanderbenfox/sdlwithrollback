@@ -68,6 +68,10 @@ void RectCollider<T>::Draw()
 GameActor::GameActor(std::shared_ptr<Entity> owner) : _currentAction(nullptr), _newState(true), _lastInput(InputState::NONE), _comboCounter(0), IComponent(owner)
 {
   BeginNewAction(new LoopedAction<StanceState::STANDING, ActionState::NONE>("Idle", owner.get()));
+  _counterText = GameManager::Get().CreateEntity<Transform, GraphicRenderer>();
+  //_counterText->GetComponent<GraphicRenderer>()->Init(ResourceManager::Get().GetText("Combo: 0", "fonts\\Eurostile.ttf"));
+  
+
 }
 
 //______________________________________________________________________________
@@ -103,7 +107,20 @@ void GameActor::BeginNewAction(IAction* action)
   if(action && _currentAction)
   {
     if(_currentAction->GetAction() == ActionState::HITSTUN && action->GetAction() != ActionState::HITSTUN)
+    {
       _comboCounter = 0;
+      // remove render properties to hide the text
+      std::shared_ptr<TimerComponent> endComboText = std::shared_ptr<TimerComponent>(new TimerComponent(
+        [this](){ _counterText->RemoveComponent<RenderProperties>(); },
+        5));
+      timings.push_back(endComboText);
+    }
+    else if (action->GetAction() == ActionState::HITSTUN)
+    {
+      _counterText->AddComponent<RenderProperties>();
+    }
+    std::string comboText = "Combo: " + std::to_string(_comboCounter);
+    _counterText->GetComponent<GraphicRenderer>()->Init(ResourceManager::Get().GetText(comboText.c_str(), "fonts\\Eurostile.ttf"));
   }
   if (_currentAction != nullptr)
     delete _currentAction;

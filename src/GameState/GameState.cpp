@@ -57,27 +57,27 @@ std::shared_ptr<Entity> EntityCreation::CreateLocalPlayer(float xOffset)
   FrameData testData{0, 0, 0, 15, 6, 1, Vector2<float>(120.0f, -700.0f)};
 
   player->GetComponent<Animator>()->RegisterAnimation("CrouchingLight", "spritesheets\\grounded_attacks.png", 8, 10, 9, 7);
-  FrameData cLP{5, 3, 5, 8, 7, 1, Vector2<float>(120.0f, -700.0f)};
+  FrameData cLP{4, 3, 5, 11, 10, 1, Vector2<float>(120.0f, -100.0f), GameManager::Get().hitstopLight };
   player->GetComponent<Animator>()->GetAnimationByName("CrouchingLight")->AddHitboxEvents("spritesheets\\grounded_attacks_hitboxes.png", cLP, player);
 
   player->GetComponent<Animator>()->RegisterAnimation("CrouchingMedium", "spritesheets\\grounded_attacks.png", 8, 10, 16, 11);
-  FrameData cM{8, 5, 16, 16, 14, 1, Vector2<float>(120.0f, -700.0f), };
+  FrameData cM{7, 3, 13, 18, 15, 1, Vector2<float>(120.0f, -600.0f), GameManager::Get().hitstopMedium};
   player->GetComponent<Animator>()->GetAnimationByName("CrouchingMedium")->AddHitboxEvents("spritesheets\\grounded_attacks_hitboxes.png", cM, player);
 
   player->GetComponent<Animator>()->RegisterAnimation("CrouchingHeavy", "spritesheets\\grounded_attacks.png", 8, 10, 27, 11);
-  FrameData cH{6, 5, 19, 17, 14, 1, Vector2<float>(120.0f, -700.0f)};
+  FrameData cH{6, 4, 24, 21, 18, 1, Vector2<float>(120.0f, -900.0f), GameManager::Get().hitstopHeavy};
   player->GetComponent<Animator>()->GetAnimationByName("CrouchingHeavy")->AddHitboxEvents("spritesheets\\grounded_attacks_hitboxes.png", cH, player);
 
   player->GetComponent<Animator>()->RegisterAnimation("StandingLight", "spritesheets\\grounded_attacks.png", 8, 10, 38, 7);
-  FrameData L{4, 3, 5, 11, 9, 1, Vector2<float>(120.0f, -700.0f)};
+  FrameData L{3, 2, 7, 13, 11, 1, Vector2<float>(120.0f, -100.0f), GameManager::Get().hitstopLight};
   player->GetComponent<Animator>()->GetAnimationByName("StandingLight")->AddHitboxEvents("spritesheets\\grounded_attacks_hitboxes.png", L, player);
 
   player->GetComponent<Animator>()->RegisterAnimation("StandingMedium", "spritesheets\\grounded_attacks.png", 8, 10, 45, 9);
-  FrameData M{5, 4, 9, 13, 4, 1, Vector2<float>(120.0f, -700.0f)};
+  FrameData M{5, 3, 10, 20, 14, 1, Vector2<float>(120.0f, -100.0f), GameManager::Get().hitstopMedium};
   player->GetComponent<Animator>()->GetAnimationByName("StandingMedium")->AddHitboxEvents("spritesheets\\grounded_attacks_hitboxes.png", M, player);
 
   player->GetComponent<Animator>()->RegisterAnimation("StandingHeavy", "spritesheets\\grounded_attacks.png", 8, 10, 53, 12);
-  FrameData H{ 5, 4, 17, 15, 13, 1, Vector2<float>(120.0f, -700.0f) };
+  FrameData H{ 8, 3, 20, 27, 22, 1, Vector2<float>(120.0f, -400.0f), GameManager::Get().hitstopHeavy};
   player->GetComponent<Animator>()->GetAnimationByName("StandingHeavy")->AddHitboxEvents("spritesheets\\grounded_attacks_hitboxes.png", H, player);
 
 

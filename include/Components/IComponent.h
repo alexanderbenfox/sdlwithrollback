@@ -21,6 +21,8 @@ struct FrameData
   int damage;
   // knockback vector oriented from attack's source
   Vector2<float> knockback;
+  // number of frames of action pause
+  int hitstop;
 };
 
 class Entity;

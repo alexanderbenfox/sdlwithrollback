@@ -10,13 +10,11 @@ public:
   {
     for(auto& tuple : Tuples)
     {
-      std::vector<std::shared_ptr<TimerComponent>> _timings = std::get<GameActor*>(tuple.second)->timings;
+      std::vector<std::shared_ptr<TimerComponent>>& _timings = std::get<GameActor*>(tuple.second)->timings;
       std::vector<int> markedForDelete;
       for (int i = 0; i < _timings.size(); i++)
       {
         std::shared_ptr<TimerComponent> timer = _timings[i];
-        // if playing, do advance time and update frame
-        timer->playTime += dt;
         if (timer->playTime >= secPerFrame)
         {
           int framesToAdv = (int)std::floor(timer->playTime / secPerFrame);
@@ -34,6 +32,8 @@ public:
 
           timer->playTime -= (framesToAdv * secPerFrame);
         }
+        // if playing, do advance time and update frame
+        timer->playTime += dt;
       }
 
       int offset = 0;

@@ -1,5 +1,4 @@
 #include "GameManagement.h"
-#include "Timer.h"
 
 #include <iostream>
 
@@ -158,17 +157,13 @@ void ResourceManager::BlitSprites()
     }
   };
 
-  for (auto& sprite : _registeredSprites)
+  // only draw sprites that have been registered for this draw cycle
+  for(int i = 0; i < opIndex; i++)
   {
-    blit(&sprite);
-    // deregister sprite from list
-    //sprite.valid = false;
+    blit(&_registeredSprites[i]);
   }
 
-  //reset render colors
-  //SDL_SetRenderDrawColor(GameManager::Get().GetRenderer(), 255, 255, 255, SDL_ALPHA_OPAQUE);
-
-  //reset available ops for next frame
+  //reset available ops for next draw cycle
   opIndex = 0;
 }
 
@@ -294,8 +289,8 @@ void GameManager::Initialize()
   rightBorder->GetComponent<RectColliderD>()->Init(Vector2<double>(m_nativeWidth, 0), Vector2<double>(m_nativeWidth + 200, m_nativeHeight));
   rightBorder->GetComponent<RectColliderD>()->SetStatic(true);
 
-  auto randomAssRenderedText = CreateEntity<Transform, GraphicRenderer, RenderProperties>();
-  randomAssRenderedText->GetComponent<GraphicRenderer>()->Init(ResourceManager::Get().GetText("TEZT", "fonts\\Eurostile.ttf"));
+  //auto randomAssRenderedText = CreateEntity<Transform, GraphicRenderer, RenderProperties>();
+  //randomAssRenderedText->GetComponent<GraphicRenderer>()->Init(ResourceManager::Get().GetText("TEZT", "fonts\\Eurostile.ttf"));
 
   auto p1 = EntityCreation::CreateLocalPlayer(0);
   auto p2 = EntityCreation::CreateLocalPlayer(150);
@@ -332,9 +327,8 @@ void GameManager::Destroy()
 //______________________________________________________________________________
 void GameManager::BeginGameLoop()
 {
-  Timer clock;
   //start the timer
-  clock.Start();
+  _clock.Start();
 
   //initialize the functions
   //FrameFunction input = std::bind(&GameManager::UpdateInput, this);
@@ -352,18 +346,15 @@ void GameManager::BeginGameLoop()
     //InputSystem::DoTick(0);
 
     std::lock_guard<std::mutex> lock(_debugMutex);
-    //! Update all components
-    clock.Update(update);
+
+    //! Update all components and coroutines
+    _clock.Update(update);
 
     // do once per frame system calls
     DrawSystem::PostUpdate();
 
     //! Finally render the scene
     Draw();
-
-    //! Do post-frame resolution stuff
-    for (auto actor : ComponentManager<GameActor>::Get().All())
-      actor->OnFrameEnd();
   }
 
   programRunning = false;
@@ -390,6 +381,12 @@ void GameManager::CheckAgainstSystems(Entity* entity)
   FrameAdvantageSystem::Check(entity);
   StrikeVectorSystem::Check(entity);
   DrawSystem::Check(entity);
+}
+
+//______________________________________________________________________________
+void GameManager::ActivateHitStop(int frames)
+{
+  _clock.PauseForTime(static_cast<float>(frames) * secPerFrame);
 }
 
 //______________________________________________________________________________

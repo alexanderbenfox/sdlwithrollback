@@ -106,6 +106,7 @@ void AnimatedAction<Stance, Action>::Enact(Entity* actor)
       {
         // render from the sheet of the new animation
         renderer->SetRenderResource(animator->GetCurrentAnimation().GetSheetTexture());
+        renderer->sourceRect = animator->GetCurrentAnimation().GetFrameSrcRect(0);
       }
     }
     else
