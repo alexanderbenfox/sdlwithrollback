@@ -265,7 +265,7 @@ template <StanceState Stance, ActionState Action>
 OnRecvHitAction<Stance, Action>::~OnRecvHitAction()
 {
   // make sure this state component is removed
-  IAction::_listener->GetOwner()->RemoveComponent<HitStateComponent>();
+  ListenedAction::_listener->GetOwner()->RemoveComponent<HitStateComponent>();
 }
 
 //______________________________________________________________________________
@@ -289,8 +289,8 @@ IAction* OnRecvHitAction<Stance, Action>::GetFollowUpAction()
 template <StanceState Stance, ActionState Action>
 void OnRecvHitAction<Stance, Action>::OnActionComplete()
 {
-  IAction::_listener->GetOwner()->RemoveComponent<HitStateComponent>();
-  IAction::OnActionComplete();
+  ListenedAction::_listener->GetOwner()->RemoveComponent<HitStateComponent>();
+  ListenedAction::OnActionComplete();
 }
 
 //______________________________________________________________________________
@@ -320,7 +320,7 @@ template <StanceState Stance, ActionState Action>
 AttackAction<Stance, Action>::~AttackAction()
 {
   // make sure this state component is removed
-  IAction::_listener->GetOwner()->RemoveComponent<AttackStateComponent>();
+  ListenedAction::_listener->GetOwner()->RemoveComponent<AttackStateComponent>();
 }
 
 //______________________________________________________________________________
@@ -342,6 +342,6 @@ void AttackAction<Stance, Action>::Enact(Entity* actor)
 template <StanceState Stance, ActionState Action>
 void AttackAction<Stance, Action>::OnActionComplete()
 {
-  IAction::_listener->GetOwner()->RemoveComponent<AttackStateComponent>();
-  IAction::OnActionComplete();
+  ListenedAction::_listener->GetOwner()->RemoveComponent<AttackStateComponent>();
+  ListenedAction::OnActionComplete();
 }

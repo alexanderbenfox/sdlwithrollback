@@ -12,9 +12,8 @@ struct ResourceTraits {};
 
 template <> struct ResourceTraits<SDL_Texture>
 {
-  int mPitch;
-  int mWidth;
-  int mHeight;
+  ResourceTraits() : mPitch(0), mWidth(0), mHeight(0) {}
+  int mPitch, mWidth, mHeight;
   std::unique_ptr<unsigned char> pixels;
 };
 

@@ -6,7 +6,7 @@
 class ICollider : public IComponent
 {
 public:
-  ICollider(std::shared_ptr<Entity> entity) : IComponent(entity) {}
+  ICollider(std::shared_ptr<Entity> entity) : _isStatic(false), IComponent(entity) {}
 
   virtual void RegisterOnCollision(std::function<void(ICollider*)> onCollisionEvent)
   {
@@ -25,7 +25,6 @@ public:
 protected:
   std::vector<std::function<void(ICollider*)>> _onCollisionCallbacks;
   bool _isStatic;
-  bool _debug;
 
 };
 

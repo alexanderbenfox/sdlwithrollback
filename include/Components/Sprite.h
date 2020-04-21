@@ -18,7 +18,7 @@ public:
     Resource<SDL_Texture>& _resource;
   };
 
-  GraphicRenderer(std::shared_ptr<Entity> owner) : IComponent(owner)
+  GraphicRenderer(std::shared_ptr<Entity> owner) : sourceRect{ 0, 0, 0, 0 }, IComponent(owner)
   {
     ResourceManager::Get().RegisterBlitOp();
   }

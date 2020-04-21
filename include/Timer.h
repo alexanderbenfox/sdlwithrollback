@@ -47,7 +47,7 @@ class Timer
 {
 public:
   //! Constructor
-  Timer() : _frames(0.0f), _fixedTimeStep(true) {}
+  Timer() : _frames(0.0f), _fixedTimeStep(true), _lastFrameTime(_mainClock.now()){}
   //! Start function gets the FPS from internal hardward
   void Start();
   //! Begins pause coroutine on this clock for the given time

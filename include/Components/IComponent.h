@@ -13,6 +13,8 @@ const float animation_fps = third_strike_fps;
 
 struct FrameData
 {
+  // Member initialization
+  FrameData() = default;
   // # of start up frames, active frames, and recovery frames
   int startUp, active, recover;
   // # of frames the receiver should be stunned on hit or block
@@ -63,7 +65,7 @@ template <typename T>
 struct ComponentTraits
 {
   static int ID;
-  static const uint64_t GetSignature() { return 1 << ID; }
+  static const uint64_t GetSignature() { return 1LL << ID; }
 };
 
 template <class T>

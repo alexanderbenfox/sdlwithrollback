@@ -36,7 +36,7 @@ private:
 class GameContext
 {
 public:
-  GameContext() {}
+  GameContext() : collision(CollisionSide::NONE), onLeftSide(false) {}
   ~GameContext() {}
 
   bool operator==(const GameContext& other) const
@@ -80,10 +80,7 @@ public:
   //!
   virtual void SetComplete() = 0;
 
-  virtual void ChangeListener(IActionListener* listener)
-  {
-    _listener = listener;
-  }
+  virtual void ChangeListener(IActionListener* listener) = 0;
 
   virtual StanceState GetStance() = 0;
   virtual ActionState GetAction() = 0;
@@ -92,14 +89,31 @@ protected:
   //!
   virtual IAction* GetFollowUpAction() = 0;
   //!
-  IActionListener* _listener;
-    //!
-  virtual void OnActionComplete()
+  virtual void OnActionComplete() = 0;
+
+};
+
+class ListenedAction : public IAction
+{
+public:
+  ListenedAction() : _listener(nullptr) {}
+  virtual ~ListenedAction() {}
+
+  virtual void ChangeListener(IActionListener* listener) override
   {
-    if(_listener)
+    _listener = listener;
+  }
+
+protected:
+  //!
+  virtual void OnActionComplete() override
+  {
+    if (_listener)
       _listener->OnActionComplete(this);
   }
 
+  //!
+  IActionListener* _listener;
 };
 
 //______________________________________________________________________________
@@ -111,7 +125,7 @@ IAction* CheckHits(const InputState& rawInput, const GameContext& context);
 
 //______________________________________________________________________________
 template <StanceState Stance, ActionState Action>
-class AnimatedAction : public IAction, public IAnimatorListener
+class AnimatedAction : public ListenedAction, public IAnimatorListener
 {
 public:
   //!
@@ -138,6 +152,7 @@ public:
   virtual ActionState GetAction() override { return Action; }
 
 protected:
+  //!
   virtual IAction* GetFollowUpAction() override {return nullptr;}
   //!
   bool _complete = false;

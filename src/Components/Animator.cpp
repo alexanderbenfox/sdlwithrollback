@@ -13,7 +13,7 @@ Animation::Animation(const char* sheet, int rows, int columns, int startIndexOnS
   _frameSize = Vector2<int>(sheetSize.x / _columns, sheetSize.y / _rows);
 
   // initialize animation to play each sprite sheet frame 
-  int gameFrames = std::ceil(frames * gameFramePerAnimationFrame);
+  int gameFrames = (int)std::ceil(frames * gameFramePerAnimationFrame);
   _animFrameToSheetFrame.resize(gameFrames);
   for (int i = 0; i < gameFrames; i++)
   {
@@ -108,25 +108,25 @@ void Animation::AddHitboxEvents(const char* hitboxesSheet, FrameData frameData, 
         {
 
           //_animFrameToSheetFrame[i] = std::min(animLastStartUpFrameIdx, i);
-          _animFrameToSheetFrame[i] = std::ceil(static_cast<double>(i) / static_cast<double>(lastStartUpFrameIdx) * static_cast<double>(animLastStartUpFrameIdx));
+          _animFrameToSheetFrame[i] = (int)std::ceil(static_cast<double>(i) / static_cast<double>(lastStartUpFrameIdx) * static_cast<double>(animLastStartUpFrameIdx));
         }
         else if (i <= lastActiveFrameIdx)
         {
           //_animFrameToSheetFrame[i] = std::min(animLastActiveFrameIdx, i - lastStartUpFrameIdx + animLastStartUpFrameIdx);
           double idx = static_cast<double>(i - lastStartUpFrameIdx);
-          _animFrameToSheetFrame[i] = std::ceil(idx / (double)frameData.active * static_cast<double>(activeFrames)) + animLastStartUpFrameIdx;
+          _animFrameToSheetFrame[i] = (int)std::ceil(idx / (double)frameData.active * static_cast<double>(activeFrames)) + animLastStartUpFrameIdx;
         }
         else
         {
           //_animFrameToSheetFrame[i] = std::min(animLastRecoveryFrameIdx, i - lastActiveFrameIdx + animLastActiveFrameIdx);
           double idx = static_cast<double>(i - lastActiveFrameIdx);
           //_animFrameToSheetFrame[i] = std::ceil(idx / std::ceil(fData.recover * gameFramePerAnimationFrame) * static_cast<double>(recoveryFrames)) + animLastActiveFrameIdx;
-          _animFrameToSheetFrame[i] = std::ceil(idx / (double)frameData.recover * static_cast<double>(recoveryFrames)) + animLastActiveFrameIdx;
+          _animFrameToSheetFrame[i] = (int)std::ceil(idx / (double)frameData.recover * static_cast<double>(recoveryFrames)) + animLastActiveFrameIdx;
         }
       }
 
       // do not need to adjust this because events only update on new animations
-      while (updates.size() < (frameData.active - 1))
+      while ((int)updates.size() < (frameData.active - 1))
         updates.push_back(updates.back());
       _events.emplace(std::piecewise_construct, std::make_tuple(frameData.startUp - 1), std::make_tuple(frameData.startUp - 1, frameData.active, trigger, updates, DespawnHitbox));
     }
@@ -182,7 +182,7 @@ Vector2<int> Animation::FindReferencePixel(const char* sheet)
   return Vector2<int>(0, 0);
 }
 
-Animator::Animator(std::shared_ptr<Entity> owner) : 
+Animator::Animator(std::shared_ptr<Entity> owner) : _listener(nullptr),
   _currentAnimation(_animations.end()), playing(false), looping(false), accumulatedTime(0.0f), frame(0), currentAnimationName(""), IComponent(owner)
 {
   
