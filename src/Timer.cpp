@@ -132,7 +132,7 @@ void Timer::Update(UpdateFunction& updateFunction)
 
   //updateInput();
 
-  if(fixedTimeStep)
+  if(_fixedTimeStep)
   {
     //try to maintain 60 fps
     while(_mainClock.lag >= _mainClock.timestep)

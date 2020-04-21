@@ -57,7 +57,7 @@ std::shared_ptr<Entity> EntityCreation::CreateLocalPlayer(float xOffset)
   FrameData testData{0, 0, 0, 15, 6, 1, Vector2<float>(120.0f, -700.0f)};
 
   player->GetComponent<Animator>()->RegisterAnimation("CrouchingLight", "spritesheets\\grounded_attacks.png", 8, 10, 9, 7);
-  FrameData cLP{4, 3, 5, 11, 10, 1, Vector2<float>(120.0f, -100.0f), GameManager::Get().hitstopLight };
+  FrameData cLP{4, 3, 5, 12, 10, 1, Vector2<float>(120.0f, -100.0f), GameManager::Get().hitstopLight };
   player->GetComponent<Animator>()->GetAnimationByName("CrouchingLight")->AddHitboxEvents("spritesheets\\grounded_attacks_hitboxes.png", cLP, player);
 
   player->GetComponent<Animator>()->RegisterAnimation("CrouchingMedium", "spritesheets\\grounded_attacks.png", 8, 10, 16, 11);
@@ -113,42 +113,7 @@ std::shared_ptr<Entity> EntityCreation::CreateLocalPlayer(float xOffset)
 #ifdef _WIN32
 std::shared_ptr<Entity> EntityCreation::CreateNetworkPlayer(float xOffset)
 {
-  Vector2<int> textureSize = ResourceManager::Get().GetTextureWidthAndHeight("spritesheets\\ryu.png");
-
-  auto player = GameManager::Get().CreateEntity<Transform, GGPOInputHandler, AnimationRenderer, Rigidbody, GameActor, RectColliderD>();
-
-  player->GetComponent<Rigidbody>()->Init(true);
-
-  player->GetComponent<AnimationRenderer>()->RegisterAnimation("Idle", "spritesheets\\idle_and_walking.png", 6, 6, 0, 10);
-  player->GetComponent<AnimationRenderer>()->RegisterAnimation("WalkF", "spritesheets\\idle_and_walking.png", 6, 6, 10, 12);
-  player->GetComponent<AnimationRenderer>()->RegisterAnimation("WalkB", "spritesheets\\idle_and_walking.png", 6, 6, 22, 11);
-
-  player->GetComponent<AnimationRenderer>()->RegisterAnimation("Jumping", "spritesheets\\idle_walking_jab_jump_crouch.png", 8, 10, 41, 19);
-  player->GetComponent<AnimationRenderer>()->RegisterAnimation("Falling", "spritesheets\\idle_walking_jab_jump_crouch.png", 8, 10, 60, 13);
-
-  player->GetComponent<AnimationRenderer>()->RegisterAnimation("Crouching", "spritesheets\\crouching.png", 4, 5, 0, 4);
-  player->GetComponent<AnimationRenderer>()->RegisterAnimation("Crouch", "spritesheets\\crouching.png", 4, 5, 12, 5);
-
-  player->GetComponent<AnimationRenderer>()->RegisterAnimation("CrouchingLight", "spritesheets\\grounded_attacks.png", 8, 10, 9, 7);
-  player->GetComponent<AnimationRenderer>()->RegisterAnimation("CrouchingMedium", "spritesheets\\grounded_attacks.png", 8, 10, 16, 11);
-  player->GetComponent<AnimationRenderer>()->RegisterAnimation("CrouchingHeavy", "spritesheets\\grounded_attacks.png", 8, 10, 27, 11);
-  player->GetComponent<AnimationRenderer>()->RegisterAnimation("StandingLight", "spritesheets\\grounded_attacks.png", 8, 10, 40, 6);
-  player->GetComponent<AnimationRenderer>()->RegisterAnimation("StandingMedium", "spritesheets\\grounded_attacks.png", 8, 10, 46, 9);
-  player->GetComponent<AnimationRenderer>()->RegisterAnimation("StandingHeavy", "spritesheets\\grounded_attacks.png", 8, 10, 55, 13);
-  player->GetComponent<AnimationRenderer>()->RegisterAnimation("JumpingLight", "spritesheets\\jlp.png", 4, 4, 0, 14);
-  player->GetComponent<AnimationRenderer>()->RegisterAnimation("JumpingMedium", "spritesheets\\jlp.png", 4, 4, 0, 14);
-  player->GetComponent<AnimationRenderer>()->RegisterAnimation("JumpingHeavy", "spritesheets\\jlp.png", 4, 4, 0, 14);
-
-  player->GetComponent<AnimationRenderer>()->Play("Idle", true, xOffset != 0);
-
-  player->GetComponent<RectColliderD>()->Init(Vector2<double>(xOffset, 0.0),
-    Vector2<double>(xOffset + static_cast<double>(textureSize.x) * .75, static_cast<double>(textureSize.y)));
-  player->GetComponent<RectColliderD>()->SetStatic(false);
-
-  player->SetScale(Vector2<float>(1.4f, 1.7f));
-  player->GetComponent<Transform>()->position.x = xOffset;
-  player->GetComponent<RectColliderD>()->MoveToTransform(*player->GetComponent<Transform>());
-
+  auto player = GameManager::Get().CreateEntity<>();
   return player;
 }
 #endif

@@ -22,6 +22,7 @@
     <ClCompile Include="..\src\2DEngine.cpp" />
     <ClCompile Include="..\src\Actions.cpp" />
     <ClCompile Include="..\src\AssetManagement\Resource.cpp" />
+    <ClCompile Include="..\src\AssetManagement\Text.cpp" />
     <ClCompile Include="..\src\Components\Animator.cpp" />
     <ClCompile Include="..\src\Components\Components.cpp" />
     <ClCompile Include="..\src\Components\Input.cpp" />
@@ -31,10 +32,12 @@
     <ClCompile Include="..\src\GameState\GGPOGameState.cpp" />
     <ClCompile Include="..\src\Geometry.cpp" />
     <ClCompile Include="..\src\Systems\Physics.cpp" />
+    <ClCompile Include="..\src\Timer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Actions.h" />
     <ClInclude Include="..\include\AssetManagement\Resource.h" />
+    <ClInclude Include="..\include\AssetManagement\Text.h" />
     <ClInclude Include="..\include\Components\Animator.h" />
     <ClInclude Include="..\include\Components\AttackStateComponent.h" />
     <ClInclude Include="..\include\Components\Camera.h" />
