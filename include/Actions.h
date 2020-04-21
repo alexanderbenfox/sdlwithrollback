@@ -164,7 +164,6 @@ protected:
   bool _facingRight;
   //!
   Vector2<float> _velocity;
-
   //!
   bool _movementType;
 
