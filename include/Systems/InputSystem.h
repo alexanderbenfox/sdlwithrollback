@@ -23,6 +23,7 @@ public:
 
       GameContext context;
       context.collision = rigidbody->_lastCollisionSide;
+      context.specialMoveState = inputHandler->GetLastSpMoveState();
 
       for(auto& other : Tuples)
       {

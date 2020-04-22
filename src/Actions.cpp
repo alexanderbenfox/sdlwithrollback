@@ -9,11 +9,15 @@
 const float _baseSpeed = 300.0f * 1.5f;
 
 //______________________________________________________________________________
-template <> IAction* GetAttacksFromNeutral<StanceState::STANDING>(const InputState& rawInput, bool facingRight)
+template <> IAction* GetAttacksFromNeutral<StanceState::STANDING>(const InputState& rawInput, const SpecialMoveState& spMotion, bool facingRight)
 {
   // prioritize attacks
   if (HasState(rawInput, InputState::BTN1))
   {
+    //!!!! TESTING SPECIAL MOVES HERE
+    if (spMotion == SpecialMoveState::QCF)
+      return new StateLockedAnimatedAction<StanceState::STANDING, ActionState::NONE>("SpecialMove1", facingRight, Vector2<float>(0, 0));
+
     if (HasState(rawInput, InputState::DOWN))
       return new GroundedStaticAttack<StanceState::CROUCHING, ActionState::LIGHT>("CrouchingLight", facingRight);
     else
@@ -39,13 +43,13 @@ template <> IAction* GetAttacksFromNeutral<StanceState::STANDING>(const InputSta
 }
 
 //______________________________________________________________________________
-template <> IAction* GetAttacksFromNeutral<StanceState::CROUCHING>(const InputState& rawInput, bool facingRight)
+template <> IAction* GetAttacksFromNeutral<StanceState::CROUCHING>(const InputState& rawInput, const SpecialMoveState& spMotion, bool facingRight)
 {
-  return GetAttacksFromNeutral<StanceState::STANDING>(rawInput, facingRight);
+  return GetAttacksFromNeutral<StanceState::STANDING>(rawInput, spMotion, facingRight);
 }
 
 //______________________________________________________________________________
-template <> IAction* GetAttacksFromNeutral<StanceState::JUMPING>(const InputState& rawInput, bool facingRight)
+template <> IAction* GetAttacksFromNeutral<StanceState::JUMPING>(const InputState& rawInput, const SpecialMoveState& spMotion, bool facingRight)
 {
   // prioritize attacks
   // when attacking in the air, facing direction is not changed
@@ -149,7 +153,7 @@ template <> IAction* LoopedAction<StanceState::STANDING, ActionState::NONE>::Han
   }
 
   // process attacks before hits so that if you press a button while attacked, you still get attacked
-  IAction* attackAction = GetAttacksFromNeutral<StanceState::STANDING>(rawInput, context.onLeftSide);
+  IAction* attackAction = GetAttacksFromNeutral<StanceState::STANDING>(rawInput, context.specialMoveState, context.onLeftSide);
   if (attackAction) return attackAction;
   
   IAction* onHitAction = CheckHits(rawInput, context);
@@ -196,7 +200,7 @@ template <> IAction* LoopedAction<StanceState::JUMPING, ActionState::NONE>::Hand
     return new LoopedAction<StanceState::STANDING, ActionState::NONE>("Idle", context.onLeftSide, Vector2<float>(0,0));
   }
 
-  return GetAttacksFromNeutral<StanceState::JUMPING>(rawInput, _facingRight);
+  return GetAttacksFromNeutral<StanceState::JUMPING>(rawInput, context.specialMoveState, _facingRight);
 }
 
 //______________________________________________________________________________
@@ -208,7 +212,7 @@ template <> IAction* LoopedAction<StanceState::CROUCHING, ActionState::NONE>::Ha
     return new LoopedAction<StanceState::JUMPING, ActionState::NONE>("Jumping", facingRight);
   }
 
-  IAction* attackAction = GetAttacksFromNeutral<StanceState::CROUCHING>(rawInput, context.onLeftSide);
+  IAction* attackAction = GetAttacksFromNeutral<StanceState::CROUCHING>(rawInput, context.specialMoveState, context.onLeftSide);
   if(attackAction) return attackAction;
 
   IAction* onHitAction = CheckHits(rawInput, context);
@@ -357,7 +361,7 @@ template <> IAction* StateLockedAnimatedAction<StanceState::CROUCHING, ActionSta
     return new LoopedAction<StanceState::JUMPING, ActionState::NONE>("Jumping", facingRight);
   }
 
-  IAction* attackAction = GetAttacksFromNeutral<StanceState::CROUCHING>(rawInput, context.onLeftSide);
+  IAction* attackAction = GetAttacksFromNeutral<StanceState::CROUCHING>(rawInput, context.specialMoveState, context.onLeftSide);
   if(attackAction) return attackAction;
 
   IAction* onHitAction = CheckHits(rawInput, context);

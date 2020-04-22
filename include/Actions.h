@@ -36,7 +36,7 @@ private:
 class GameContext
 {
 public:
-  GameContext() : collision(CollisionSide::NONE), onLeftSide(false) {}
+  GameContext() : collision(CollisionSide::NONE), onLeftSide(false), specialMoveState(SpecialMoveState::NONE) {}
   ~GameContext() {}
 
   bool operator==(const GameContext& other) const
@@ -61,6 +61,8 @@ public:
   bool hitThisFrame = false;
   bool hitOnLeftSide = false;
   FrameData frameData;
+
+  SpecialMoveState specialMoveState;
 
 };
 
@@ -115,7 +117,7 @@ protected:
 
 //______________________________________________________________________________
 // partial specialization
-template <StanceState Stance> IAction* GetAttacksFromNeutral(const InputState& rawInput, bool facingRight);
+template <StanceState Stance> IAction* GetAttacksFromNeutral(const InputState& rawInput, const SpecialMoveState& spMotion, bool facingRight);
 
 //______________________________________________________________________________
 IAction* CheckHits(const InputState& rawInput, const GameContext& context);

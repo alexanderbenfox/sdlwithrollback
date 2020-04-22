@@ -25,9 +25,77 @@ InputState operator&(InputState a, InputState b)
 }
 
 //______________________________________________________________________________
+InputState operator|(InputState a, InputState b)
+{
+  return (InputState)((unsigned char)a | (unsigned char)b);
+}
+
+//______________________________________________________________________________
 InputState operator~(InputState const& other)
 {
   return (InputState)~((unsigned char)other);
+}
+
+//______________________________________________________________________________
+InputBuffer::InputBuffer(int limit) : _limit(limit)
+{
+  // construct by initializing the queue 
+  while (_buffer.size() < _limit)
+    _buffer.push_back(InputState::NONE);
+}
+
+//______________________________________________________________________________
+void InputBuffer::Push(InputState item)
+{
+  _buffer.push_back(item);
+  // pop
+  _buffer.erase(_buffer.begin());
+}
+
+//______________________________________________________________________________
+SpecialMoveState InputBuffer::Evaluate(const TrieNode<InputState, SpecialMoveState>& spMoveDict)
+{
+  std::list<InputState> latestCompletedSequence = {};
+  std::deque<std::list<InputState>> potentialSequences;
+  // push back an empty list to begin search
+  potentialSequences.push_back({});
+
+  for (auto it = _buffer.rbegin(); it != _buffer.rend(); ++it)
+  {
+    InputState curr = *it;
+    std::deque<std::list<InputState>> outputSequences;
+
+    while (!potentialSequences.empty())
+    {
+      std::list<InputState>& frontier = potentialSequences.front();
+      for (InputState i = InputState::NONE; i <= InputState::BTN4; i = (InputState)((unsigned char)i + 1))
+      {
+        if ((i & curr) != InputState::NONE)
+        {
+          // copy frontier
+          std::list<InputState> searchInput = frontier;
+          searchInput.push_back(i);
+          auto result = spMoveDict.Search(searchInput);
+
+          if (result == TrieReturnValue::Leaf)
+            latestCompletedSequence = searchInput;
+          else if (result == TrieReturnValue::Branch)
+            outputSequences.push_back(searchInput);
+        }
+      }
+      // if its neither a leaf or branch, add it back into the potential sequences for later
+      outputSequences.push_back(frontier);
+
+      potentialSequences.pop_front();
+    }
+    // use the output of this round for the next round
+    potentialSequences = outputSequences;
+    
+  }
+
+  if (latestCompletedSequence.empty())
+    return SpecialMoveState::NONE;
+  return spMoveDict.GetKeyValue(latestCompletedSequence);
 }
 
 //______________________________________________________________________________
@@ -70,6 +138,8 @@ InputState KeyboardInputHandler::CollectInputState()
   }
 
   _lastFrameState = frameState;
+  _inputBuffer.Push(frameState);
+
   return frameState;
 }
 
@@ -153,6 +223,10 @@ InputState JoystickInputHandler::CollectInputState()
     }
     break;
   }
+
+  _lastFrameState = frameState;
+  _inputBuffer.Push(frameState);
+
   return frameState;
 }
 

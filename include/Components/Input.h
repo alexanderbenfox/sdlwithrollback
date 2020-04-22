@@ -3,6 +3,7 @@
 #include <unordered_map>
 #include "Utils.h"
 #include "Components/IComponent.h"
+#include <queue>
 
 //______________________________________________________________________________
 enum class InputState : unsigned char
@@ -18,6 +19,24 @@ enum class InputState : unsigned char
   BTN4 = 0x80
 };
 
+template <> struct std::hash<InputState>
+{
+  std::size_t operator()(const InputState& k) const
+  {
+    return hash<unsigned char>()((unsigned char)k);
+  }
+};
+
+//______________________________________________________________________________
+enum class SpecialMoveState : unsigned char
+{
+  NONE = 0x00,
+  QCF = 0x01, // quarter circle forward
+  QCB = 0x02, // quarter circle back
+  DPF = 0x04, // dragon punch forward
+  DPB = 0x08 // dragon punch back
+};
+
 //______________________________________________________________________________
 void operator|=(InputState& the, InputState other);
 //______________________________________________________________________________
@@ -25,26 +44,62 @@ void operator&=(InputState& the, InputState other);
 //______________________________________________________________________________
 InputState operator&(InputState a, InputState b);
 //______________________________________________________________________________
+InputState operator|(InputState a, InputState b);
+//______________________________________________________________________________
 InputState operator~(InputState const& other);
+
 //______________________________________________________________________________
 static bool HasState(const InputState& state, InputState other) { return (state & other) == other; }
 
+
+//! Input buffer class for storing 
+class InputBuffer
+{
+public:
+  //! construct with a limit to the size of the buffer
+  InputBuffer(int limit);
+  //! push new input state into the buffer and remove oldest state from buffer
+  void Push(InputState item);
+  //! evaluate possible special motions
+  SpecialMoveState Evaluate(const TrieNode<InputState, SpecialMoveState>& spMoveDict);
+
+private:
+  std::vector<InputState> _buffer;
+  int _limit;
+
+};
+
+// simple move dict to test this out
+const TrieNode<InputState, SpecialMoveState> UnivSpecMoveDict
+{
+  std::make_pair(std::list<InputState>{InputState::DOWN, InputState::DOWN | InputState::RIGHT, InputState::RIGHT}, SpecialMoveState::QCF)
+};
+
 //______________________________________________________________________________
 //! Interface for input handlers
-//template <class InputSource>
 class IInputHandler : public IComponent
 {
 public:
+  // initialize with input buffer of 6 frames
   IInputHandler(std::shared_ptr<Entity> owner) :
-    _lastFrameState(InputState::NONE), IComponent(owner) {}
+    _lastFrameState(InputState::NONE), _lastSpecialMove(SpecialMoveState::NONE), _inputBuffer(6), IComponent(owner) {}
   //! Destructor
   virtual ~IInputHandler() {}
   //! Gets the command based on the type of input received from the controller
   virtual InputState CollectInputState() = 0;
+  //!
+  virtual SpecialMoveState GetLastSpMoveState()
+  {
+    return _inputBuffer.Evaluate(UnivSpecMoveDict);
+  }
 
 protected:
   //! Last state received by the input controller
   InputState _lastFrameState;
+  //!
+  SpecialMoveState _lastSpecialMove;
+  //!
+  InputBuffer _inputBuffer;
 
 };
 

@@ -81,6 +81,9 @@ std::shared_ptr<Entity> EntityCreation::CreateLocalPlayer(float xOffset)
   player->GetComponent<Animator>()->GetAnimationByName("StandingHeavy")->AddHitboxEvents("spritesheets\\grounded_attacks_hitboxes.png", H, player);
 
 
+  // special moves - quarter circle forward punch aka hadoken
+  player->GetComponent<Animator>()->RegisterAnimation("SpecialMove1", "spritesheets\\grounded_attacks.png", 8, 10, 65, 14);
+
   player->GetComponent<Animator>()->RegisterAnimation("JumpingLight", "spritesheets\\jlp.png", 4, 4, 0, 14);
   player->GetComponent<Animator>()->RegisterAnimation("JumpingMedium", "spritesheets\\jlp.png", 4, 4, 0, 14);
   player->GetComponent<Animator>()->RegisterAnimation("JumpingHeavy", "spritesheets\\jlp.png", 4, 4, 0, 14);
