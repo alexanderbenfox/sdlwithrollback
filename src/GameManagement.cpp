@@ -393,20 +393,21 @@ void GameManager::ActivateHitStop(int frames)
 void GameManager::Update(float deltaTime)
 {
   UpdateInput();
-  AttackAnimationSystem::DoTick(deltaTime);
-  HitSystem::DoTick(deltaTime);
-  TimerSystem::DoTick(deltaTime);
   
+  TimerSystem::DoTick(deltaTime);
   StrikeVectorSystem::DoTick(deltaTime);
-  FrameAdvantageSystem::DoTick(deltaTime);
+  HitSystem::DoTick(deltaTime);
 
   InputSystem::DoTick(deltaTime);
+  
+  FrameAdvantageSystem::DoTick(deltaTime);
   // resolve collisions
   PhysicsSystem::DoTick(deltaTime);
   // update the location of the colliders
   MoveSystem::DoTick(deltaTime);
-  // update rendered components last
+
   AnimationSystem::DoTick(deltaTime);
+  AttackAnimationSystem::DoTick(deltaTime);
 }
 
 //______________________________________________________________________________

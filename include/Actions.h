@@ -336,6 +336,9 @@ inline IAction* StateLockedAnimatedAction<State, Action>::HandleInput(const Inpu
   return nullptr;
 }
 
+//______________________________________________________________________________
+template <> IAction* StateLockedAnimatedAction<StanceState::CROUCHING, ActionState::NONE>::HandleInput(const InputState& rawInput, const GameContext& context);
+
 #ifdef _WIN32
 template LoopedAction<StanceState::STANDING, ActionState::NONE>;
 #endif

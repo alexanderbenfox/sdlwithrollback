@@ -169,7 +169,7 @@ template <> IAction* LoopedAction<StanceState::STANDING, ActionState::NONE>::Han
 
   if (HasState(rawInput, InputState::DOWN))
   {
-    return new StateLockedAnimatedAction<StanceState::CROUCHING, ActionState::NONE>("Crouching", facingRight);
+    return new StateLockedAnimatedAction<StanceState::CROUCHING, ActionState::NONE>("Crouching", facingRight, Vector2<float>(0,0));
   }
 
   std::string walkAnimLeft = !facingRight ? "WalkF" : "WalkB";
@@ -345,4 +345,54 @@ void AttackAction<Stance, Action>::OnActionComplete()
 {
   ListenedAction::_listener->GetOwner()->RemoveComponent<AttackStateComponent>();
   ListenedAction::OnActionComplete();
+}
+
+//______________________________________________________________________________
+template <> IAction* StateLockedAnimatedAction<StanceState::CROUCHING, ActionState::NONE>::HandleInput(const InputState& rawInput, const GameContext& context)
+{
+
+  bool facingRight = context.onLeftSide;
+  if (context.collision == CollisionSide::NONE)
+  {
+    return new LoopedAction<StanceState::JUMPING, ActionState::NONE>("Jumping", facingRight);
+  }
+
+  IAction* attackAction = GetAttacksFromNeutral<StanceState::CROUCHING>(rawInput, context.onLeftSide);
+  if(attackAction) return attackAction;
+
+  IAction* onHitAction = CheckHits(rawInput, context);
+  if (onHitAction) return onHitAction;
+
+  //if you arent attacking, you can move forward, move backward, crouch, stand, jumpf, jumpb, jumpn
+  //jumping
+  
+
+  if (HasState(rawInput, InputState::UP))
+  {
+    if (HasState(rawInput, InputState::LEFT))
+      return new LoopedAction<StanceState::JUMPING, ActionState::NONE>("Jumping", facingRight, Vector2<float>(-0.5f * _baseSpeed, -UniversalPhysicsSettings::Get().JumpVelocity));
+    else if (HasState(rawInput, InputState::RIGHT))
+      return new LoopedAction<StanceState::JUMPING, ActionState::NONE>("Jumping", facingRight, Vector2<float>(0.5f * _baseSpeed, -UniversalPhysicsSettings::Get().JumpVelocity));
+    return new LoopedAction<StanceState::JUMPING, ActionState::NONE>("Jumping", facingRight, Vector2<float>(0.0f, -UniversalPhysicsSettings::Get().JumpVelocity));
+  }
+
+  if (HasState(rawInput, InputState::DOWN))
+  {
+    return nullptr;
+  }
+
+  std::string walkAnimLeft = !facingRight ? "WalkF" : "WalkB";
+  std::string walkAnimRight = !facingRight ? "WalkB" : "WalkF";
+
+  if (HasState(rawInput, InputState::LEFT))
+    return new LoopedAction<StanceState::STANDING, ActionState::NONE>(walkAnimLeft, facingRight, Vector2<float>(-0.5f * _baseSpeed, 0));
+  else if (HasState(rawInput, InputState::RIGHT))
+    return new LoopedAction<StanceState::STANDING, ActionState::NONE>(walkAnimRight, facingRight, Vector2<float>(0.5f * _baseSpeed, 0));
+
+  if(AnimatedAction<StanceState::CROUCHING, ActionState::NONE>::_complete)
+  {
+    return GetFollowUpAction();
+  }
+  // state hasn't changed
+  return new LoopedAction<StanceState::STANDING, ActionState::NONE>("Idle", facingRight, Vector2<float>(0.0, 0.0));
 }

@@ -61,7 +61,7 @@ std::shared_ptr<Entity> EntityCreation::CreateLocalPlayer(float xOffset)
   player->GetComponent<Animator>()->GetAnimationByName("CrouchingLight")->AddHitboxEvents("spritesheets\\grounded_attacks_hitboxes.png", cLP, player);
 
   player->GetComponent<Animator>()->RegisterAnimation("CrouchingMedium", "spritesheets\\grounded_attacks.png", 8, 10, 16, 11);
-  FrameData cM{7, 3, 13, 5, 0, 1, Vector2<float>(120.0f, -600.0f), GameManager::Get().hitstopMedium};
+  FrameData cM{10, 3, 13, 5, 0, 1, Vector2<float>(120.0f, -600.0f), GameManager::Get().hitstopMedium};
   player->GetComponent<Animator>()->GetAnimationByName("CrouchingMedium")->AddHitboxEvents("spritesheets\\grounded_attacks_hitboxes.png", cM, player);
 
   player->GetComponent<Animator>()->RegisterAnimation("CrouchingHeavy", "spritesheets\\grounded_attacks.png", 8, 10, 27, 11);
@@ -73,11 +73,11 @@ std::shared_ptr<Entity> EntityCreation::CreateLocalPlayer(float xOffset)
   player->GetComponent<Animator>()->GetAnimationByName("StandingLight")->AddHitboxEvents("spritesheets\\grounded_attacks_hitboxes.png", L, player);
 
   player->GetComponent<Animator>()->RegisterAnimation("StandingMedium", "spritesheets\\grounded_attacks.png", 8, 10, 45, 9);
-  FrameData M{5, 3, 10, 4, 2, 1, Vector2<float>(120.0f, -100.0f), GameManager::Get().hitstopMedium};
+  FrameData M{7, 3, 12, 4, 2, 1, Vector2<float>(120.0f, -100.0f), GameManager::Get().hitstopMedium};
   player->GetComponent<Animator>()->GetAnimationByName("StandingMedium")->AddHitboxEvents("spritesheets\\grounded_attacks_hitboxes.png", M, player);
 
   player->GetComponent<Animator>()->RegisterAnimation("StandingHeavy", "spritesheets\\grounded_attacks.png", 8, 10, 53, 12);
-  FrameData H{ 8, 3, 20, 5, 3, 1, Vector2<float>(120.0f, -400.0f), GameManager::Get().hitstopHeavy};
+  FrameData H{ 8, 3, 20, 7, -6, 1, Vector2<float>(120.0f, -400.0f), GameManager::Get().hitstopHeavy};
   player->GetComponent<Animator>()->GetAnimationByName("StandingHeavy")->AddHitboxEvents("spritesheets\\grounded_attacks_hitboxes.png", H, player);
 
 
