@@ -13,10 +13,18 @@ const float animation_fps = third_strike_fps;
 
 struct FrameData
 {
+  // Member initialization
+  FrameData() = default;
+  // # of start up frames, active frames, and recovery frames
+  int startUp, active, recover;
+  // # of frames the receiver should be stunned on hit or block after attacker returns to neutral (can be + or -)
+  int onHitAdvantage, onBlockAdvantage;
+  // damage that the move does
   int damage;
+  // knockback vector oriented from attack's source
   Vector2<float> knockback;
-  int onHit;
-  int onBlock;
+  // number of frames of action pause
+  int hitstop;
 };
 
 class Entity;
@@ -56,5 +64,9 @@ protected:
 template <typename T>
 struct ComponentTraits
 {
-  static const uint64_t GetSignature() { return 1000000000; }
+  static int ID;
+  static const uint64_t GetSignature() { return 1LL << ID; }
 };
+
+template <class T>
+int ComponentTraits<T>::ID = ConstComponentIDGenerator::NextID();

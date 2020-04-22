@@ -75,6 +75,12 @@
     <ClCompile Include="..\src\Systems\Physics.cpp">
       <Filter>Source Files\Systems</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\Timer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\AssetManagement\Text.cpp">
+      <Filter>Source Files\AssetManagement</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\AssetManagement\Resource.h">
@@ -169,6 +175,9 @@
     </ClInclude>
     <ClInclude Include="..\include\Components\AttackStateComponent.h">
       <Filter>Header Files\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\AssetManagement\Text.h">
+      <Filter>Header Files\AssetManagement</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

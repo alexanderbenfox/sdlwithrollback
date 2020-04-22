@@ -76,10 +76,11 @@ IAction* CheckHits(const InputState& rawInput, const GameContext& context)
   {
     bool blockedRight = HasState(rawInput, InputState::LEFT) && !context.hitOnLeftSide;
     bool blockedLeft = HasState(rawInput, InputState::RIGHT) && context.hitOnLeftSide;
+    int neutralFrame = context.frameData.active + context.frameData.recover + 1;
     if (blockedRight || blockedLeft)
-      return new OnRecvHitAction<StanceState::STANDING, ActionState::BLOCKSTUN>("Block", facingRight, context.frameData.onBlock, Vector2<float>::Zero());
+      return new OnRecvHitAction<StanceState::STANDING, ActionState::BLOCKSTUN>("Block", facingRight, neutralFrame + context.frameData.onBlockAdvantage, Vector2<float>::Zero());
     else
-      return new OnRecvHitAction<StanceState::STANDING, ActionState::HITSTUN>("HeavyHitstun", facingRight, context.frameData.onHit, context.frameData.knockback);
+      return new OnRecvHitAction<StanceState::STANDING, ActionState::HITSTUN>("HeavyHitstun", facingRight, neutralFrame + context.frameData.onHitAdvantage, context.frameData.knockback);
   }
   return nullptr;
 }
@@ -88,12 +89,26 @@ IAction* CheckHits(const InputState& rawInput, const GameContext& context)
 template <StanceState Stance, ActionState Action>
 void AnimatedAction<Stance, Action>::Enact(Entity* actor)
 {
-  if (auto animator = actor->GetComponent<AnimationRenderer>())
+  if (auto animator = actor->GetComponent<Animator>())
   {
     animator->ChangeListener(this);
     if (animator->GetAnimationByName(_animation))
     {
       animator->Play(_animation, _loopedAnimation, !_facingRight);
+
+      // set the offset in the properties component (needs to be in a system)
+      if(auto properties = actor->GetComponent<RenderProperties>())
+      {
+        properties->horizontalFlip = !_facingRight;
+        properties->offset = animator->GetRenderOffset(!_facingRight);
+      }
+
+      if(auto renderer = actor->GetComponent<GraphicRenderer>())
+      {
+        // render from the sheet of the new animation
+        renderer->SetRenderResource(animator->GetCurrentAnimation().GetSheetTexture());
+        renderer->sourceRect = animator->GetCurrentAnimation().GetFrameSrcRect(0);
+      }
     }
     else
     {
@@ -101,6 +116,7 @@ void AnimatedAction<Stance, Action>::Enact(Entity* actor)
         ac->OnActionComplete(this);
     }
   }
+
 
   if (_movementType)
   {
@@ -250,7 +266,7 @@ template <StanceState Stance, ActionState Action>
 OnRecvHitAction<Stance, Action>::~OnRecvHitAction()
 {
   // make sure this state component is removed
-  IAction::_listener->GetOwner()->RemoveComponent<HitStateComponent>();
+  ListenedAction::_listener->GetOwner()->RemoveComponent<HitStateComponent>();
 }
 
 //______________________________________________________________________________
@@ -274,8 +290,8 @@ IAction* OnRecvHitAction<Stance, Action>::GetFollowUpAction()
 template <StanceState Stance, ActionState Action>
 void OnRecvHitAction<Stance, Action>::OnActionComplete()
 {
-  IAction::_listener->GetOwner()->RemoveComponent<HitStateComponent>();
-  IAction::OnActionComplete();
+  ListenedAction::_listener->GetOwner()->RemoveComponent<HitStateComponent>();
+  ListenedAction::OnActionComplete();
 }
 
 //______________________________________________________________________________
@@ -305,7 +321,7 @@ template <StanceState Stance, ActionState Action>
 AttackAction<Stance, Action>::~AttackAction()
 {
   // make sure this state component is removed
-  IAction::_listener->GetOwner()->RemoveComponent<AttackStateComponent>();
+  ListenedAction::_listener->GetOwner()->RemoveComponent<AttackStateComponent>();
 }
 
 //______________________________________________________________________________
@@ -313,7 +329,7 @@ template <StanceState Stance, ActionState Action>
 void AttackAction<Stance, Action>::Enact(Entity* actor)
 {
   AnimatedAction<Stance, Action>::Enact(actor);
-  if (auto animator = actor->GetComponent<AnimationRenderer>())
+  if (auto animator = actor->GetComponent<Animator>())
   {
     if (Animation* anim = animator->GetAnimationByName(AnimatedAction<Stance, Action>::_animation))
     {
@@ -327,6 +343,6 @@ void AttackAction<Stance, Action>::Enact(Entity* actor)
 template <StanceState Stance, ActionState Action>
 void AttackAction<Stance, Action>::OnActionComplete()
 {
-  IAction::_listener->GetOwner()->RemoveComponent<AttackStateComponent>();
-  IAction::OnActionComplete();
+  ListenedAction::_listener->GetOwner()->RemoveComponent<AttackStateComponent>();
+  ListenedAction::OnActionComplete();
 }

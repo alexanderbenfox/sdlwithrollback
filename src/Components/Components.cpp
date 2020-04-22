@@ -12,14 +12,6 @@
 #include <cassert>
 
 //______________________________________________________________________________
-void SpriteRenderer::Init(const char* sheet, bool horizontalFlip)
-{
-  //adds new operation to the blitting list
-  _display = std::make_unique<Image>(sheet);
-  _horizontalFlip = horizontalFlip;
-}
-
-//______________________________________________________________________________
 void Camera::Init(int w, int h)
 {
   rect.x = 0;
@@ -76,6 +68,10 @@ void RectCollider<T>::Draw()
 GameActor::GameActor(std::shared_ptr<Entity> owner) : _currentAction(nullptr), _newState(true), _lastInput(InputState::NONE), _comboCounter(0), IComponent(owner)
 {
   BeginNewAction(new LoopedAction<StanceState::STANDING, ActionState::NONE>("Idle", owner.get()));
+  _counterText = GameManager::Get().CreateEntity<Transform, GraphicRenderer>();
+  //_counterText->GetComponent<GraphicRenderer>()->Init(ResourceManager::Get().GetText("Combo: 0", "fonts\\Eurostile.ttf"));
+  
+
 }
 
 //______________________________________________________________________________
@@ -111,7 +107,20 @@ void GameActor::BeginNewAction(IAction* action)
   if(action && _currentAction)
   {
     if(_currentAction->GetAction() == ActionState::HITSTUN && action->GetAction() != ActionState::HITSTUN)
+    {
       _comboCounter = 0;
+      // remove render properties to hide the text
+      std::shared_ptr<TimerComponent> endComboText = std::shared_ptr<TimerComponent>(new TimerComponent(
+        [this](){ _counterText->RemoveComponent<RenderProperties>(); },
+        5));
+      timings.push_back(endComboText);
+    }
+    else if (action->GetAction() == ActionState::HITSTUN)
+    {
+      _counterText->AddComponent<RenderProperties>();
+    }
+    std::string comboText = "Combo: " + std::to_string(_comboCounter);
+    _counterText->GetComponent<GraphicRenderer>()->Init(ResourceManager::Get().GetText(comboText.c_str(), "fonts\\Eurostile.ttf"));
   }
   if (_currentAction != nullptr)
     delete _currentAction;
@@ -188,26 +197,22 @@ std::istream& operator>>(std::istream& is, Rigidbody& phys)
   return is;
 }
 
-std::ostream& operator<<(std::ostream& os, const AnimationRenderer& animator)
+std::ostream& operator<<(std::ostream& os, const Animator& animator)
 {
-  os << animator._playing;
-  os << animator._accumulatedTime;
-  os << animator._frame;
-  os << animator._currentAnimationName;
+  os << animator.playing;
+  os << animator.accumulatedTime;
+  os << animator.frame;
+  os << animator.currentAnimationName;
   return os;
 }
 
-std::istream& operator>>(std::istream& is, AnimationRenderer& animator)
+std::istream& operator>>(std::istream& is, Animator& animator)
 {
-  is >> animator._playing;
-  is >> animator._accumulatedTime;
-  is >> animator._frame;
-  is >> animator._currentAnimationName;
-  animator._currentAnimation = animator._animations.find(animator._currentAnimationName);
-
-  animator._basisOffset = Vector2<int>(
-    animator._currentAnimation->second.GetRefPxLocation().x - animator._basisRefPx.x,
-    animator._currentAnimation->second.GetRefPxLocation().y - animator._basisRefPx.y);
+  is >> animator.playing;
+  is >> animator.accumulatedTime;
+  is >> animator.frame;
+  is >> animator.currentAnimationName;
+  animator._currentAnimation = animator._animations.find(animator.currentAnimationName);
 
   return is;
 }

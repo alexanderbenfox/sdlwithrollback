@@ -6,67 +6,64 @@
 #include <functional>
 #include <cmath>
 
-class IDisplayable
+class GraphicRenderer : public IComponent
 {
 public:
-  virtual ~IDisplayable() {}
-  virtual SDL_Rect GetRectOnSrcText() = 0;
-  virtual void SetOp(const Transform& transform, SDL_Rect rectOnTex, Vector2<int> offset, bool flip, ResourceManager::BlitOperation* op) = 0;
-};
-
-class Image : public IDisplayable
-{
-public:
-  Image(const char* src) : _texture(ResourceManager::Get().GetTexture(src))
+  class TextureWrapper
   {
-    auto size = ResourceManager::Get().GetTextureWidthAndHeight(src);
-    _sourceRect = { 0, 0, size.x, size.y };
-  }
+  public:
+    TextureWrapper(Resource<SDL_Texture>& resource) : _resource(resource) {}
+    Resource<SDL_Texture>& GetResource() { return _resource; }
+  private:
+    Resource<SDL_Texture>& _resource;
+  };
 
-  virtual SDL_Rect GetRectOnSrcText() override { return _sourceRect; }
-
-  virtual void SetOp(const Transform& transform, SDL_Rect rectOnTex, Vector2<int> offset, bool flip, ResourceManager::BlitOperation* op) override
-  {
-    op->_textureRect = rectOnTex;
-    op->_textureResource = &_texture;
-
-    op->_displayRect = OpSysConv::CreateSDLRect(
-      static_cast<int>(std::floor(transform.position.x - offset.x)),
-      static_cast<int>(std::floor(transform.position.y - offset.y)),
-      (int)(static_cast<float>(_sourceRect.w) * transform.scale.x),
-      (int)(static_cast<float>(_sourceRect.h) * transform.scale.y));
-
-    op->_flip = flip ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
-
-    op->valid = true;
-  }
-
-protected:
-  //std::string _src;
-  Texture& _texture;
-  //! Source location on texture of sprite
-  SDL_Rect _sourceRect;
-
-};
-
-class SpriteRenderer : public IComponent
-{
-public:
-  SpriteRenderer(std::shared_ptr<Entity> owner) : _horizontalFlip(false), _displayColor{ 255, 255, 255, SDL_ALPHA_OPAQUE }, IComponent(owner)
+  GraphicRenderer(std::shared_ptr<Entity> owner) : sourceRect{ 0, 0, 0, 0 }, IComponent(owner)
   {
     ResourceManager::Get().RegisterBlitOp();
   }
 
-  void Init(const char* sheet, bool horizontalFlip);
-
-  virtual IDisplayable* GetDisplayable() {return _display.get();}
-  virtual SDL_Rect GetSourceRect()
+  ~GraphicRenderer()
   {
-    return GetDisplayable()->GetRectOnSrcText();
+    ResourceManager::Get().DeregisterBlitOp();
   }
-  virtual void Advance(float dt) {}
-  virtual bool const& GetFlip() const {return _horizontalFlip;}
-  virtual Vector2<int> GetDisplayOffset() const { return Vector2<int>(); }
+
+  //! Init with a resource
+  void Init(Resource<SDL_Texture>& resource)
+  {
+    _resource = std::unique_ptr<TextureWrapper>(new TextureWrapper(resource));
+    sourceRect = { 0, 0, resource.GetInfo().mWidth, resource.GetInfo().mHeight };
+  }
+
+  void SetRenderResource(Resource<SDL_Texture>& resource)
+  {
+    _resource.reset();
+    _resource = std::unique_ptr<TextureWrapper>(new TextureWrapper(resource));
+  }
+
+  Resource<SDL_Texture>* GetRenderResource()
+  {
+    if(_resource)
+      return &_resource->GetResource();
+    return nullptr;
+  }
+
+  //! Source of display location on texture
+  SDL_Rect sourceRect;
+    
+protected:
+  //!
+  std::unique_ptr<TextureWrapper> _resource;
+
+};
+
+class RenderProperties : public IComponent
+{
+public:
+  RenderProperties(std::shared_ptr<Entity> owner) : offset(0, 0), horizontalFlip(false), _displayColor{ 255, 255, 255, SDL_ALPHA_OPAQUE }, IComponent(owner)
+  {
+  }
+
   virtual void SetDisplayColor(Uint8 r, Uint8 g, Uint8 b)
   {
     _displayColor = { r, g, b, SDL_ALPHA_OPAQUE };
@@ -80,21 +77,14 @@ public:
   {
     return _displayColor;
   }
-    
+
+  //! Display offset from top left of texture
+  Vector2<int> offset;
+  //!
+  bool horizontalFlip;
+
 protected:
   //!
-  std::unique_ptr<IDisplayable> _display;
-  //! Blitter op used on this frame
-  //ResourceManager::BlitOperation* _op;
-
-  //!
-  bool _horizontalFlip;
-  //!
   SDL_Color _displayColor;
-
-};
-
-template <> struct ComponentTraits<SpriteRenderer>
-{
-  static const uint64_t GetSignature() { return 1 << 1;}
+  
 };

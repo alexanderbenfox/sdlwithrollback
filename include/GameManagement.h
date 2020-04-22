@@ -3,6 +3,7 @@
 #include "GameState/GameState.h"
 #include "Entity.h"
 #include "Components/IComponent.h"
+#include "Timer.h"
 
 #include <thread>
 #include <mutex>
@@ -52,6 +53,12 @@ public:
 
   void CheckAgainstSystems(Entity* entity);
 
+  void ActivateHitStop(int frames);
+
+  const int hitstopLight = 5;
+  const int hitstopMedium = 6;
+  const int hitstopHeavy = 7;
+
 private:
   //! Updates all components in specified order
   void Update(float deltaTime);
@@ -69,6 +76,8 @@ private:
   SDL_Window* _window;
   //!
   SDL_Event _localInput;
+  //!
+  Timer _clock;
   //!
   std::mutex _debugMutex;
   //!

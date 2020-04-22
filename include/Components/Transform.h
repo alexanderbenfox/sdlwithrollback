@@ -17,8 +17,3 @@ struct Transform : public IComponent
   friend std::ostream& operator<<(std::ostream& os, const Transform& transform);
   friend std::istream& operator>>(std::istream& is, Transform& transform);
 };
-
-template <> struct ComponentTraits<Transform>
-{
-  static const uint64_t GetSignature() { return 0x0;}
-};

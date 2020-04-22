@@ -22,10 +22,10 @@ public:
   //!
   virtual ~AttackStateComponent() override
   {
-    if (auto renderer = _owner->GetComponent<AnimationRenderer>())
+    if (auto properties = _owner->GetComponent<RenderProperties>())
     {
       //reset color back to white in case stuck in frame advantage
-      renderer->SetDisplayColor(255, 255, 255);
+      properties->SetDisplayColor(255, 255, 255);
     }
   }
 
@@ -87,11 +87,6 @@ private:
 
 };
 
-template <> struct ComponentTraits<AttackStateComponent>
-{
-  static const uint64_t GetSignature() { return 1 << 10; }
-};
-
 class HitStateComponent : public IStateComponent
 {
 public:
@@ -100,10 +95,10 @@ public:
   //!
   virtual ~HitStateComponent() override
   {
-    if (auto renderer = _owner->GetComponent<AnimationRenderer>())
+    if (auto properties = _owner->GetComponent<RenderProperties>())
     {
       //reset color back to white in case stuck in frame advantage
-      renderer->SetDisplayColor(255, 255, 255);
+      properties->SetDisplayColor(255, 255, 255);
     }
   }
   //!
@@ -114,9 +109,4 @@ public:
 private:
   //!
   TimerComponent* _linkedTimer;
-};
-
-template <> struct ComponentTraits<HitStateComponent>
-{
-  static const uint64_t GetSignature() { return 1 << 11; }
 };

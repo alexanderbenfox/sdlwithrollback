@@ -12,9 +12,8 @@ struct ResourceTraits {};
 
 template <> struct ResourceTraits<SDL_Texture>
 {
-  int mPitch;
-  int mWidth;
-  int mHeight;
+  ResourceTraits() : mPitch(0), mWidth(0), mHeight(0) {}
+  int mPitch, mWidth, mHeight;
   std::unique_ptr<unsigned char> pixels;
 };
 
@@ -28,7 +27,7 @@ public:
     _pathToResource = filename;
   }
 
-  void Load();
+  virtual void Load();
   void Unload();
 
   T* Get() { return _resource.get(); }
@@ -36,7 +35,7 @@ public:
 
   ResourceTraits<T>& GetInfo() { return _info; }
 
-private:
+protected:
   bool _loaded;
   std::string _pathToResource;
   std::shared_ptr<T> _resource;

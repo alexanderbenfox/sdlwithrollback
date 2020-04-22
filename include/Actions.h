@@ -36,7 +36,7 @@ private:
 class GameContext
 {
 public:
-  GameContext() {}
+  GameContext() : collision(CollisionSide::NONE), onLeftSide(false) {}
   ~GameContext() {}
 
   bool operator==(const GameContext& other) const
@@ -51,10 +51,7 @@ public:
     GameContext newContext = *this;
     newContext.hitThisFrame |= otherContext.hitThisFrame;
     newContext.hitOnLeftSide |= otherContext.hitOnLeftSide;
-    newContext.frameData.damage = otherContext.frameData.damage;
-    newContext.frameData.knockback = otherContext.frameData.knockback;
-    newContext.frameData.onHit = otherContext.frameData.onHit;
-    newContext.frameData.onBlock = otherContext.frameData.onBlock;
+    newContext.frameData = otherContext.frameData;
     return newContext;
   }
 
@@ -80,10 +77,7 @@ public:
   //!
   virtual void SetComplete() = 0;
 
-  virtual void ChangeListener(IActionListener* listener)
-  {
-    _listener = listener;
-  }
+  virtual void ChangeListener(IActionListener* listener) = 0;
 
   virtual StanceState GetStance() = 0;
   virtual ActionState GetAction() = 0;
@@ -92,14 +86,31 @@ protected:
   //!
   virtual IAction* GetFollowUpAction() = 0;
   //!
-  IActionListener* _listener;
-    //!
-  virtual void OnActionComplete()
+  virtual void OnActionComplete() = 0;
+
+};
+
+class ListenedAction : public IAction
+{
+public:
+  ListenedAction() : _listener(nullptr) {}
+  virtual ~ListenedAction() {}
+
+  virtual void ChangeListener(IActionListener* listener) override
   {
-    if(_listener)
+    _listener = listener;
+  }
+
+protected:
+  //!
+  virtual void OnActionComplete() override
+  {
+    if (_listener)
       _listener->OnActionComplete(this);
   }
 
+  //!
+  IActionListener* _listener;
 };
 
 //______________________________________________________________________________
@@ -111,7 +122,7 @@ IAction* CheckHits(const InputState& rawInput, const GameContext& context);
 
 //______________________________________________________________________________
 template <StanceState Stance, ActionState Action>
-class AnimatedAction : public IAction, public IAnimatorListener
+class AnimatedAction : public ListenedAction, public IAnimatorListener
 {
 public:
   //!
@@ -138,6 +149,7 @@ public:
   virtual ActionState GetAction() override { return Action; }
 
 protected:
+  //!
   virtual IAction* GetFollowUpAction() override {return nullptr;}
   //!
   bool _complete = false;
@@ -149,7 +161,6 @@ protected:
   bool _facingRight;
   //!
   Vector2<float> _velocity;
-
   //!
   bool _movementType;
 
@@ -311,7 +322,8 @@ inline IAction* StateLockedAnimatedAction<State, Action>::HandleInput(const Inpu
 
   if (context.hitThisFrame)
   {
-    return new OnRecvHitAction<StanceState::STANDING, ActionState::HITSTUN>("HeavyHitstun", context.onLeftSide, context.frameData.onHit, context.frameData.knockback);
+    int neutralFrame = context.frameData.active + context.frameData.recover + 1;
+    return new OnRecvHitAction<StanceState::STANDING, ActionState::HITSTUN>("HeavyHitstun", context.onLeftSide, neutralFrame + context.frameData.onHitAdvantage, context.frameData.knockback);
   }
 
   if (State == StanceState::JUMPING)

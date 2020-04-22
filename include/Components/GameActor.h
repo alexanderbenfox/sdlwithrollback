@@ -67,14 +67,10 @@ private:
   bool _newState;
 
   int _comboCounter;
+  std::shared_ptr<Entity> _counterText;
 
   StanceState _currStance;
   ActionState _currAction;
 
 
-};
-
-template <> struct ComponentTraits<GameActor>
-{
-  static const uint64_t GetSignature() { return 1 << 3;}
 };
