@@ -51,10 +51,7 @@ public:
     GameContext newContext = *this;
     newContext.hitThisFrame |= otherContext.hitThisFrame;
     newContext.hitOnLeftSide |= otherContext.hitOnLeftSide;
-    newContext.frameData.damage = otherContext.frameData.damage;
-    newContext.frameData.knockback = otherContext.frameData.knockback;
-    newContext.frameData.onHit = otherContext.frameData.onHit;
-    newContext.frameData.onBlock = otherContext.frameData.onBlock;
+    newContext.frameData = otherContext.frameData;
     return newContext;
   }
 
@@ -325,7 +322,8 @@ inline IAction* StateLockedAnimatedAction<State, Action>::HandleInput(const Inpu
 
   if (context.hitThisFrame)
   {
-    return new OnRecvHitAction<StanceState::STANDING, ActionState::HITSTUN>("HeavyHitstun", context.onLeftSide, context.frameData.onHit, context.frameData.knockback);
+    int neutralFrame = context.frameData.active + context.frameData.recover + 1;
+    return new OnRecvHitAction<StanceState::STANDING, ActionState::HITSTUN>("HeavyHitstun", context.onLeftSide, neutralFrame + context.frameData.onHitAdvantage, context.frameData.knockback);
   }
 
   if (State == StanceState::JUMPING)

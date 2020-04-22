@@ -17,8 +17,8 @@ struct FrameData
   FrameData() = default;
   // # of start up frames, active frames, and recovery frames
   int startUp, active, recover;
-  // # of frames the receiver should be stunned on hit or block
-  int onHit, onBlock;
+  // # of frames the receiver should be stunned on hit or block after attacker returns to neutral (can be + or -)
+  int onHitAdvantage, onBlockAdvantage;
   // damage that the move does
   int damage;
   // knockback vector oriented from attack's source

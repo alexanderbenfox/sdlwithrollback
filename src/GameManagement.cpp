@@ -370,14 +370,14 @@ Camera* GameManager::GetMainCamera()
 //______________________________________________________________________________
 void GameManager::CheckAgainstSystems(Entity* entity)
 {
+  InputSystem::Check(entity);
   PhysicsSystem::Check(entity);
   AnimationSystem::Check(entity);
   MoveSystemRect::Check(entity);
   MoveSystemCamera::Check(entity);
-  InputSystem::Check(entity);
+  AttackAnimationSystem::Check(entity);
   HitSystem::Check(entity);
   TimerSystem::Check(entity);
-  AttackAnimationSystem::Check(entity);
   FrameAdvantageSystem::Check(entity);
   StrikeVectorSystem::Check(entity);
   DrawSystem::Check(entity);
@@ -394,10 +394,12 @@ void GameManager::Update(float deltaTime)
 {
   UpdateInput();
   AttackAnimationSystem::DoTick(deltaTime);
-  TimerSystem::DoTick(deltaTime);
-  StrikeVectorSystem::DoTick(deltaTime);
   HitSystem::DoTick(deltaTime);
+  TimerSystem::DoTick(deltaTime);
+  
+  StrikeVectorSystem::DoTick(deltaTime);
   FrameAdvantageSystem::DoTick(deltaTime);
+
   InputSystem::DoTick(deltaTime);
   // resolve collisions
   PhysicsSystem::DoTick(deltaTime);
