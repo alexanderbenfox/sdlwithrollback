@@ -28,7 +28,7 @@ public:
   //!
   void BeginNewAction(IAction* action);
   //!
-  void EvaluateInputContext(InputState input, const GameContext& context);
+  void EvaluateInputContext(const InputBuffer& input, const GameContext& context);
   //!
   /*void StartAnimatedAction(const std::string& animName, bool isJC = false);
   //!

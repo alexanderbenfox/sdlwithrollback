@@ -53,7 +53,7 @@ void InputBuffer::Push(InputState item)
 }
 
 //______________________________________________________________________________
-SpecialMoveState InputBuffer::Evaluate(const TrieNode<InputState, SpecialMoveState>& spMoveDict)
+SpecialMoveState InputBuffer::Evaluate(const TrieNode<InputState, SpecialMoveState>& spMoveDict) const
 {
   std::list<InputState> latestCompletedSequence = {};
   std::deque<std::list<InputState>> potentialSequences;
@@ -118,9 +118,9 @@ KeyboardInputHandler::KeyboardInputHandler(std::shared_ptr<Entity> owner) : IInp
 KeyboardInputHandler::~KeyboardInputHandler() {}
 
 //______________________________________________________________________________
-InputState KeyboardInputHandler::CollectInputState()
+InputBuffer const& KeyboardInputHandler::CollectInputState()
 {
-  InputState frameState = _lastFrameState;
+  InputState frameState = _inputBuffer.Latest();
 
   _keyStates = SDL_GetKeyboardState(0);
 
@@ -137,10 +137,8 @@ InputState KeyboardInputHandler::CollectInputState()
     break;
   }
 
-  _lastFrameState = frameState;
   _inputBuffer.Push(frameState);
-
-  return frameState;
+  return _inputBuffer;
 }
 
 //______________________________________________________________________________
@@ -170,9 +168,9 @@ JoystickInputHandler::~JoystickInputHandler()
 }
 
 //______________________________________________________________________________
-InputState JoystickInputHandler::CollectInputState()
+InputBuffer const& JoystickInputHandler::CollectInputState()
 {
-  InputState frameState = _lastFrameState;
+  InputState frameState = _inputBuffer.Latest();
 
   //reset movement state
   frameState &= ~((InputState)(0xf0));
@@ -224,15 +222,13 @@ InputState JoystickInputHandler::CollectInputState()
     break;
   }
 
-  _lastFrameState = frameState;
   _inputBuffer.Push(frameState);
-
-  return frameState;
+  return _inputBuffer;
 }
 
 #ifdef _WIN32
 //______________________________________________________________________________
-InputState GGPOInputHandler::CollectInputState()
+InputBuffer const& GGPOInputHandler::CollectInputState()
 {
   // notify ggpo of local player's inputs
   GGPOErrorCode result = ggpo_add_local_input(_input->session, (*_input->handles)[0], &(*_input->inputs)[0], sizeof((*_input->inputs)[0]));
@@ -244,10 +240,18 @@ InputState GGPOInputHandler::CollectInputState()
     result = ggpo_synchronize_input(_input->session, (*_input->inputs), sizeof(*_input->inputs), &disconnectFlags);
     if (GGPO_SUCCEEDED(result))
     {
-      return (*_input->inputs)[1];
+      _inputBuffer.Push((*_input->inputs)[1]);
+    }
+    else
+    {
+      _inputBuffer.Push(InputState::NONE);
     }
   }
-  return InputState::NONE;
+  else
+  {
+    _inputBuffer.Push(InputState::NONE);
+  }
+  return _inputBuffer;
 
 }
 #endif

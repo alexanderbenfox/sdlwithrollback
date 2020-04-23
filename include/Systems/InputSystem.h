@@ -19,11 +19,10 @@ public:
       Transform* transform = std::get<Transform*>(tuple.second);
       RectColliderD* collider = std::get<RectColliderD*>(tuple.second);
 
-      InputState unitInputState = inputHandler->CollectInputState();
+      const InputBuffer& unitInputState = inputHandler->CollectInputState();
 
       GameContext context;
       context.collision = rigidbody->_lastCollisionSide;
-      context.specialMoveState = inputHandler->GetLastSpMoveState();
 
       for(auto& other : Tuples)
       {

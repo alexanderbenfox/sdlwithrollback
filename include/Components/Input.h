@@ -60,8 +60,10 @@ public:
   InputBuffer(int limit);
   //! push new input state into the buffer and remove oldest state from buffer
   void Push(InputState item);
+  //! gets the most recently added item
+  InputState const& Latest() const { return _buffer.back(); }
   //! evaluate possible special motions
-  SpecialMoveState Evaluate(const TrieNode<InputState, SpecialMoveState>& spMoveDict);
+  SpecialMoveState Evaluate(const TrieNode<InputState, SpecialMoveState>& spMoveDict) const;
 
 private:
   std::vector<InputState> _buffer;
@@ -81,24 +83,14 @@ class IInputHandler : public IComponent
 {
 public:
   // initialize with input buffer of 6 frames
-  IInputHandler(std::shared_ptr<Entity> owner) :
-    _lastFrameState(InputState::NONE), _lastSpecialMove(SpecialMoveState::NONE), _inputBuffer(6), IComponent(owner) {}
+  IInputHandler(std::shared_ptr<Entity> owner) : _inputBuffer(6), IComponent(owner) {}
   //! Destructor
   virtual ~IInputHandler() {}
   //! Gets the command based on the type of input received from the controller
-  virtual InputState CollectInputState() = 0;
-  //!
-  virtual SpecialMoveState GetLastSpMoveState()
-  {
-    return _inputBuffer.Evaluate(UnivSpecMoveDict);
-  }
+  virtual InputBuffer const& CollectInputState() = 0;
 
 protected:
   //! Last state received by the input controller
-  InputState _lastFrameState;
-  //!
-  SpecialMoveState _lastSpecialMove;
-  //!
   InputBuffer _inputBuffer;
 
 };
@@ -113,7 +105,7 @@ public:
   //!
   ~KeyboardInputHandler();
   //!
-  virtual InputState CollectInputState() final;
+  virtual InputBuffer const& CollectInputState() final;
   //!
   virtual void SetKey(SDL_Keycode keyCode, InputState action)
   {
@@ -138,7 +130,7 @@ public:
   //!
   ~JoystickInputHandler();
   //!
-  virtual InputState CollectInputState() final;
+  virtual InputBuffer const& CollectInputState() final;
 
 private:
   //!
@@ -170,7 +162,7 @@ public:
   //!
   ~GGPOInputHandler() {}
   //!
-  virtual InputState CollectInputState() final;
+  virtual InputBuffer const& CollectInputState() final;
 
 private:
   std::shared_ptr<GGPOInput> _input;
