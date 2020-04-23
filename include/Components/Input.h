@@ -83,7 +83,7 @@ class IInputHandler : public IComponent
 {
 public:
   // initialize with input buffer of 6 frames
-  IInputHandler(std::shared_ptr<Entity> owner) : _inputBuffer(8), IComponent(owner) {}
+  IInputHandler(std::shared_ptr<Entity> owner) : _inputBuffer(10), IComponent(owner) {}
   //! Destructor
   virtual ~IInputHandler() {}
   //! Gets the command based on the type of input received from the controller

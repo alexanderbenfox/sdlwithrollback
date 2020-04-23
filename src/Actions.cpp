@@ -16,7 +16,7 @@ template <> IAction* GetAttacksFromNeutral<StanceState::STANDING>(const InputBuf
   {
     //!!!! TESTING SPECIAL MOVES HERE
     if (rawInput.Evaluate(UnivSpecMoveDict) == SpecialMoveState::QCF)
-      return new StateLockedAnimatedAction<StanceState::STANDING, ActionState::NONE>("SpecialMove1", facingRight, Vector2<float>(0, 0));
+      return new GroundedStaticAttack<StanceState::STANDING, ActionState::NONE>("SpecialMove1", facingRight);
 
     if (HasState(rawInput.Latest(), InputState::DOWN))
       return new GroundedStaticAttack<StanceState::CROUCHING, ActionState::LIGHT>("CrouchingLight", facingRight);
