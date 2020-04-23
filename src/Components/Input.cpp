@@ -60,7 +60,7 @@ SpecialMoveState InputBuffer::Evaluate(const TrieNode<InputState, SpecialMoveSta
   // push back an empty list to begin search
   potentialSequences.push_back({});
 
-  for (auto it = _buffer.rbegin(); it != _buffer.rend(); ++it)
+  for (auto it = _buffer.begin(); it != _buffer.end(); ++it)
   {
     InputState curr = *it;
     std::deque<std::list<InputState>> outputSequences;
@@ -68,29 +68,24 @@ SpecialMoveState InputBuffer::Evaluate(const TrieNode<InputState, SpecialMoveSta
     while (!potentialSequences.empty())
     {
       std::list<InputState>& frontier = potentialSequences.front();
-      for (InputState i = InputState::NONE; i <= InputState::BTN4; i = (InputState)((unsigned char)i + 1))
-      {
-        if ((i & curr) != InputState::NONE)
-        {
-          // copy frontier
-          std::list<InputState> searchInput = frontier;
-          searchInput.push_back(i);
-          auto result = spMoveDict.Search(searchInput);
+      
+      // copy frontier
+      std::list<InputState> searchInput = frontier;
+      //searchInput.push_back(i);
+      searchInput.push_back(curr);
+      auto result = spMoveDict.Search(searchInput);
 
-          if (result == TrieReturnValue::Leaf)
-            latestCompletedSequence = searchInput;
-          else if (result == TrieReturnValue::Branch)
-            outputSequences.push_back(searchInput);
-        }
-      }
-      // if its neither a leaf or branch, add it back into the potential sequences for later
+      if (result == TrieReturnValue::Leaf)
+        latestCompletedSequence = searchInput;
+      else if (result == TrieReturnValue::Branch)
+        outputSequences.push_back(searchInput);
+
       outputSequences.push_back(frontier);
 
       potentialSequences.pop_front();
     }
     // use the output of this round for the next round
     potentialSequences = outputSequences;
-    
   }
 
   if (latestCompletedSequence.empty())
