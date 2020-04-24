@@ -16,6 +16,10 @@ public:
       Hurtbox* hurtbox = std::get<Hurtbox*>(tuple.second);
       GameActor* hurtboxController = std::get<GameActor*>(tuple.second);
 
+      // reset the merge context
+      hurtboxController->mergeContext.hitThisFrame = false;
+      hurtboxController->mergeContext.hitOnLeftSide = false;
+
       for (auto hitbox : ComponentManager<Hitbox>::Get().All())
       {
         // if the hitbox has hit something (will change this to checking if it has hit the entity?)
@@ -75,6 +79,7 @@ public:
     {
       Hitbox* hitbox = std::get<Hitbox*>(tuple.second);
       GameActor* hitboxController = std::get<GameActor*>(tuple.second);
+
       hitboxController->mergeContext.hitting = hitbox->hitting;
       hitbox->hitting = false;
     }

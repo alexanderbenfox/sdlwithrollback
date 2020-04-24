@@ -142,9 +142,6 @@ void GameActor::EvaluateInputContext(const InputBuffer& input, const GameContext
 
   GameContext contextToEval = context + mergeContext;
 
-  // reset the merge context... this is clunky and should be changed
-  mergeContext.hitThisFrame = false;
-  mergeContext.hitOnLeftSide = false;
   // so freakin clunky......
   if (dt > 0 && _lastContext.hitting)
     mergeContext.hitting = false;
