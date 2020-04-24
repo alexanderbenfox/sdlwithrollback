@@ -56,36 +56,44 @@ void InputBuffer::Push(InputState item)
 SpecialMoveState InputBuffer::Evaluate(const TrieNode<InputState, SpecialMoveState>& spMoveDict) const
 {
   std::list<InputState> latestCompletedSequence = {};
-  std::deque<std::list<InputState>> potentialSequences;
+  std::deque<std::list<InputState>> prefixes;
   // push back an empty list to begin search
-  potentialSequences.push_back({});
+  prefixes.push_back({});
 
   for (auto it = _buffer.begin(); it != _buffer.end(); ++it)
   {
     InputState curr = *it;
+
+    // only concerned with directional input here, so we just look at the bottom 4 bits
+    unsigned char chopped = (unsigned char)curr << 4;
+    curr = (InputState)(chopped >> 4);
+
     std::deque<std::list<InputState>> outputSequences;
 
-    while (!potentialSequences.empty())
+    while (!prefixes.empty())
     {
-      std::list<InputState>& frontier = potentialSequences.front();
-      
-      // copy frontier
+      std::list<InputState>& frontier = prefixes.front();
+
+      // copy frontier and push our next state onto the end
       std::list<InputState> searchInput = frontier;
-      //searchInput.push_back(i);
       searchInput.push_back(curr);
-      auto result = spMoveDict.Search(searchInput);
+      TrieReturnValue result = spMoveDict.Search(searchInput);
 
       if (result == TrieReturnValue::Leaf)
         latestCompletedSequence = searchInput;
       else if (result == TrieReturnValue::Branch)
-        outputSequences.push_back(searchInput);
+      {
+        if (std::find(outputSequences.begin(), outputSequences.end(), searchInput) == outputSequences.end())
+          outputSequences.push_back(searchInput);
+      }
+      // only push unique states
+      if (std::find(outputSequences.begin(), outputSequences.end(), frontier) == outputSequences.end())
+        outputSequences.push_back(frontier);
 
-      outputSequences.push_back(frontier);
-
-      potentialSequences.pop_front();
+      prefixes.pop_front();
     }
     // use the output of this round for the next round
-    potentialSequences = outputSequences;
+    prefixes = outputSequences;
   }
 
   if (latestCompletedSequence.empty())

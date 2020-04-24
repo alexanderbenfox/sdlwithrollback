@@ -31,7 +31,7 @@ public:
           context.onLeftSide = collider->rect.GetCenter().x < std::get<RectColliderD*>(other.second)->rect.GetCenter().x;
         }
       }
-      actor->EvaluateInputContext(unitInputState, context);
+      actor->EvaluateInputContext(unitInputState, context, dt);
     }
   }
 };

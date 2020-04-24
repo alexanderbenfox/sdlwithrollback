@@ -22,6 +22,7 @@ public:
   //!
   virtual ~AttackStateComponent() override
   {
+    ClearEvents();
     if (auto properties = _owner->GetComponent<RenderProperties>())
     {
       //reset color back to white in case stuck in frame advantage

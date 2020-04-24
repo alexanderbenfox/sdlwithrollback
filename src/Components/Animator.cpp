@@ -157,10 +157,9 @@ Vector2<int> Animation::FindReferencePixel(const char* sheet)
   Uint32* upixels;
 
 #ifdef _WIN32
-  auto textureInfo = SDLTextureInfo(sheetTexture.Get());
-  unsigned char* px = (unsigned char*)textureInfo.pixels;
-  upixels = (Uint32*)textureInfo.pixels;
-  Uint32 transparent = SDL_MapRGBA(format.get(), px[0], px[1], px[2], 0x00);
+  unsigned char* px = sheetTexture.GetInfo().pixels.get();
+  upixels = (Uint32*)px;
+  Uint32 transparent = sheetTexture.GetInfo().transparent;
 #else
   upixels = (Uint32*)sheetTexture.GetInfo().pixels.get();
 #endif

@@ -12,6 +12,8 @@ public:
   FrameData frameData;
 
   bool hit = false;
+  //! indicates that the hit happened this frame
+  bool hitting = false;
 
   Vector2<int> strikeVector;
 

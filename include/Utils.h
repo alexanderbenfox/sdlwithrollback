@@ -168,7 +168,7 @@ public:
 #include <unordered_map>
 #include <list>
 
-enum TrieReturnValue
+enum class TrieReturnValue
 {
   Leaf, Branch, None
 };
@@ -228,8 +228,6 @@ inline void TrieNode<T, V>::InsertSequence(std::list<T> sequenceKey, V value)
   curr->_value = value;
 }
 
-// Iterative function to search a key in Trie. It returns true
-// if the key is found in the Trie, else it returns false
 template <typename T, typename V>
 inline TrieReturnValue TrieNode<T, V>::Search(std::list<T> sequence) const
 {

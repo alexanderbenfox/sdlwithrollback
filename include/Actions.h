@@ -41,7 +41,8 @@ public:
 
   bool operator==(const GameContext& other) const
   {
-    return collision == other.collision && onLeftSide == other.onLeftSide && movement == other.movement && hitThisFrame == other.hitThisFrame;
+    return collision == other.collision && onLeftSide == other.onLeftSide && movement == other.movement && hitThisFrame == other.hitThisFrame
+      && hitting == other.hitting;
   }
 
   // will merge the contexts?
@@ -52,6 +53,7 @@ public:
     newContext.hitThisFrame |= otherContext.hitThisFrame;
     newContext.hitOnLeftSide |= otherContext.hitOnLeftSide;
     newContext.frameData = otherContext.frameData;
+    newContext.hitting = otherContext.hitting;
     return newContext;
   }
 
@@ -61,6 +63,7 @@ public:
   bool hitThisFrame = false;
   bool hitOnLeftSide = false;
   FrameData frameData;
+  bool hitting = false;
 
 };
 
@@ -221,8 +224,8 @@ public:
 protected:
   virtual IAction* GetFollowUpAction() override = 0;
 
-  std::shared_ptr<TimerComponent> _actionTiming;
-  int _duration;
+std::shared_ptr<TimerComponent> _actionTiming;
+int _duration;
 
 };
 
@@ -264,7 +267,7 @@ public:
 protected:
   //!
   virtual IAction* GetFollowUpAction() override;
-  
+
 };
 
 //______________________________________________________________________________
@@ -315,6 +318,10 @@ template <> IAction* StateLockedAnimatedAction<StanceState::CROUCHING, ActionSta
 template <StanceState State, ActionState Action>
 inline IAction* StateLockedAnimatedAction<State, Action>::HandleInput(const InputBuffer& rawInput, const GameContext& context)
 {
+  //!!!! TESTING SPECIAL CANCELS HERE
+  if (context.hitting && HasState(rawInput.Latest(), InputState::BTN1) && rawInput.Evaluate(UnivSpecMoveDict) == SpecialMoveState::QCF)
+    return new GroundedStaticAttack<StanceState::STANDING, ActionState::NONE>("SpecialMove1", context.onLeftSide);
+
   if(AnimatedAction<State, Action>::_complete)
   {
     return GetFollowUpAction();
