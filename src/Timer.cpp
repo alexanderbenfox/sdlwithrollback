@@ -130,21 +130,22 @@ void Timer::Update(UpdateFunction& updateFunction)
   _lastFrameTime = _mainClock.GetElapsedTicks();
   _mainClock.lag += dt;
 
-  //updateInput();
-
   if(_fixedTimeStep)
   {
+    if (_mainClock.paused)
+      updateFunction(0);
+
     //try to maintain 60 fps
-    while(_mainClock.lag >= _mainClock.timestep)
+    while (_mainClock.lag >= _mainClock.timestep)
     {
       _frames++;
       _mainClock.lag -= _mainClock.timestep;
       updateFunction(_mainClock.frametime);
-    }
+    } 
 
     //cap framerate
-    if(dt < _mainClock.timestep)
-      SDL_Delay(_mainClock.timestep - dt);
+    uint32_t updatedDt = (_mainClock.GetElapsedTicks() - _lastFrameTime) + dt;
+    SDL_Delay(_mainClock.timestep - updatedDt % _mainClock.timestep);
   }
   else
   {

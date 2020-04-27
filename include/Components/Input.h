@@ -3,6 +3,7 @@
 #include <unordered_map>
 #include "Utils.h"
 #include "Components/IComponent.h"
+#include <queue>
 
 //______________________________________________________________________________
 enum class InputState : unsigned char
@@ -18,6 +19,24 @@ enum class InputState : unsigned char
   BTN4 = 0x80
 };
 
+template <> struct std::hash<InputState>
+{
+  std::size_t operator()(const InputState& k) const
+  {
+    return hash<unsigned char>()((unsigned char)k);
+  }
+};
+
+//______________________________________________________________________________
+enum class SpecialMoveState : unsigned char
+{
+  NONE = 0x00,
+  QCF = 0x01, // quarter circle forward
+  QCB = 0x02, // quarter circle back
+  DPF = 0x04, // dragon punch forward
+  DPB = 0x08 // dragon punch back
+};
+
 //______________________________________________________________________________
 void operator|=(InputState& the, InputState other);
 //______________________________________________________________________________
@@ -25,26 +44,54 @@ void operator&=(InputState& the, InputState other);
 //______________________________________________________________________________
 InputState operator&(InputState a, InputState b);
 //______________________________________________________________________________
+InputState operator|(InputState a, InputState b);
+//______________________________________________________________________________
 InputState operator~(InputState const& other);
+
 //______________________________________________________________________________
 static bool HasState(const InputState& state, InputState other) { return (state & other) == other; }
 
+
+//! Input buffer class for storing 
+class InputBuffer
+{
+public:
+  //! construct with a limit to the size of the buffer
+  InputBuffer(int limit);
+  //! push new input state into the buffer and remove oldest state from buffer
+  void Push(InputState item);
+  //! gets the most recently added item
+  InputState const& Latest() const { return _buffer.back(); }
+  //! evaluate possible special motions
+  SpecialMoveState Evaluate(const TrieNode<InputState, SpecialMoveState>& spMoveDict) const;
+
+private:
+  std::vector<InputState> _buffer;
+  int _limit;
+
+};
+
+// simple move dict to test this out
+const TrieNode<InputState, SpecialMoveState> UnivSpecMoveDict
+{
+  std::make_pair(std::list<InputState>{InputState::DOWN, InputState::DOWN | InputState::RIGHT, InputState::RIGHT}, SpecialMoveState::QCF)
+};
+
 //______________________________________________________________________________
 //! Interface for input handlers
-//template <class InputSource>
 class IInputHandler : public IComponent
 {
 public:
-  IInputHandler(std::shared_ptr<Entity> owner) :
-    _lastFrameState(InputState::NONE), IComponent(owner) {}
+  // initialize with input buffer of 6 frames
+  IInputHandler(std::shared_ptr<Entity> owner) : _inputBuffer(10), IComponent(owner) {}
   //! Destructor
   virtual ~IInputHandler() {}
   //! Gets the command based on the type of input received from the controller
-  virtual InputState CollectInputState() = 0;
+  virtual InputBuffer const& CollectInputState() = 0;
 
 protected:
   //! Last state received by the input controller
-  InputState _lastFrameState;
+  InputBuffer _inputBuffer;
 
 };
 
@@ -58,7 +105,7 @@ public:
   //!
   ~KeyboardInputHandler();
   //!
-  virtual InputState CollectInputState() final;
+  virtual InputBuffer const& CollectInputState() final;
   //!
   virtual void SetKey(SDL_Keycode keyCode, InputState action)
   {
@@ -83,7 +130,7 @@ public:
   //!
   ~JoystickInputHandler();
   //!
-  virtual InputState CollectInputState() final;
+  virtual InputBuffer const& CollectInputState() final;
 
 private:
   //!
@@ -115,7 +162,7 @@ public:
   //!
   ~GGPOInputHandler() {}
   //!
-  virtual InputState CollectInputState() final;
+  virtual InputBuffer const& CollectInputState() final;
 
 private:
   std::shared_ptr<GGPOInput> _input;

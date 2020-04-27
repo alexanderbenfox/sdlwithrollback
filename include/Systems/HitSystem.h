@@ -16,6 +16,10 @@ public:
       Hurtbox* hurtbox = std::get<Hurtbox*>(tuple.second);
       GameActor* hurtboxController = std::get<GameActor*>(tuple.second);
 
+      // reset the merge context
+      hurtboxController->mergeContext.hitThisFrame = false;
+      hurtboxController->mergeContext.hitOnLeftSide = false;
+
       for (auto hitbox : ComponentManager<Hitbox>::Get().All())
       {
         // if the hitbox has hit something (will change this to checking if it has hit the entity?)
@@ -25,6 +29,7 @@ public:
         if (!hitbox->ShareOwner(hurtbox) && hitbox->rect.Collides(hurtbox->rect))
         {
           hitbox->hit = true;
+          hitbox->hitting = true;
           // change the state variable that will be evaluated on the processing of inputs. probably a better way to do this...
           hurtboxController->mergeContext.hitThisFrame = true;
 
@@ -56,6 +61,27 @@ public:
 
       int strikeDir = hitbox->rect.GetCenter().x > hurtbox->rect.GetCenter().x ? 1 : -1;
       hitbox->strikeVector = Vector2<int>(strikeDir, 0);
+    }
+  }
+};
+
+// don't know what else to do for this so this is probably stupid
+class SendHittingStateSystem : public ISystem<Hitbox, GameActor>
+{
+public:
+  static void DoTick(float dt)
+  {
+    // only update this on active frames
+    if (dt == 0)
+      return;
+
+    for (auto tuple : Tuples)
+    {
+      Hitbox* hitbox = std::get<Hitbox*>(tuple.second);
+      GameActor* hitboxController = std::get<GameActor*>(tuple.second);
+
+      hitboxController->mergeContext.hitting = hitbox->hitting;
+      hitbox->hitting = false;
     }
   }
 };

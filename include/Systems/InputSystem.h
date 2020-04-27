@@ -19,7 +19,7 @@ public:
       Transform* transform = std::get<Transform*>(tuple.second);
       RectColliderD* collider = std::get<RectColliderD*>(tuple.second);
 
-      InputState unitInputState = inputHandler->CollectInputState();
+      const InputBuffer& unitInputState = inputHandler->CollectInputState();
 
       GameContext context;
       context.collision = rigidbody->_lastCollisionSide;
@@ -31,7 +31,7 @@ public:
           context.onLeftSide = collider->rect.GetCenter().x < std::get<RectColliderD*>(other.second)->rect.GetCenter().x;
         }
       }
-      actor->EvaluateInputContext(unitInputState, context);
+      actor->EvaluateInputContext(unitInputState, context, dt);
     }
   }
 };

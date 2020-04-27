@@ -25,9 +25,80 @@ InputState operator&(InputState a, InputState b)
 }
 
 //______________________________________________________________________________
+InputState operator|(InputState a, InputState b)
+{
+  return (InputState)((unsigned char)a | (unsigned char)b);
+}
+
+//______________________________________________________________________________
 InputState operator~(InputState const& other)
 {
   return (InputState)~((unsigned char)other);
+}
+
+//______________________________________________________________________________
+InputBuffer::InputBuffer(int limit) : _limit(limit)
+{
+  // construct by initializing the queue 
+  while (_buffer.size() < _limit)
+    _buffer.push_back(InputState::NONE);
+}
+
+//______________________________________________________________________________
+void InputBuffer::Push(InputState item)
+{
+  _buffer.push_back(item);
+  // pop
+  _buffer.erase(_buffer.begin());
+}
+
+//______________________________________________________________________________
+SpecialMoveState InputBuffer::Evaluate(const TrieNode<InputState, SpecialMoveState>& spMoveDict) const
+{
+  std::list<InputState> latestCompletedSequence = {};
+  std::deque<std::list<InputState>> prefixes;
+  // push back an empty list to begin search
+  prefixes.push_back({});
+
+  for (auto it = _buffer.begin(); it != _buffer.end(); ++it)
+  {
+    InputState curr = *it;
+
+    // only concerned with directional input here, so we just look at the bottom 4 bits
+    unsigned char chopped = (unsigned char)curr << 4;
+    curr = (InputState)(chopped >> 4);
+
+    std::deque<std::list<InputState>> outputSequences;
+
+    while (!prefixes.empty())
+    {
+      std::list<InputState>& frontier = prefixes.front();
+
+      // copy frontier and push our next state onto the end
+      std::list<InputState> searchInput = frontier;
+      searchInput.push_back(curr);
+      TrieReturnValue result = spMoveDict.Search(searchInput);
+
+      if (result == TrieReturnValue::Leaf)
+        latestCompletedSequence = searchInput;
+      else if (result == TrieReturnValue::Branch)
+      {
+        if (std::find(outputSequences.begin(), outputSequences.end(), searchInput) == outputSequences.end())
+          outputSequences.push_back(searchInput);
+      }
+      // only push unique states
+      if (std::find(outputSequences.begin(), outputSequences.end(), frontier) == outputSequences.end())
+        outputSequences.push_back(frontier);
+
+      prefixes.pop_front();
+    }
+    // use the output of this round for the next round
+    prefixes = outputSequences;
+  }
+
+  if (latestCompletedSequence.empty())
+    return SpecialMoveState::NONE;
+  return spMoveDict.GetKeyValue(latestCompletedSequence);
 }
 
 //______________________________________________________________________________
@@ -50,9 +121,9 @@ KeyboardInputHandler::KeyboardInputHandler(std::shared_ptr<Entity> owner) : IInp
 KeyboardInputHandler::~KeyboardInputHandler() {}
 
 //______________________________________________________________________________
-InputState KeyboardInputHandler::CollectInputState()
+InputBuffer const& KeyboardInputHandler::CollectInputState()
 {
-  InputState frameState = _lastFrameState;
+  InputState frameState = _inputBuffer.Latest();
 
   _keyStates = SDL_GetKeyboardState(0);
 
@@ -69,8 +140,8 @@ InputState KeyboardInputHandler::CollectInputState()
     break;
   }
 
-  _lastFrameState = frameState;
-  return frameState;
+  _inputBuffer.Push(frameState);
+  return _inputBuffer;
 }
 
 //______________________________________________________________________________
@@ -100,9 +171,9 @@ JoystickInputHandler::~JoystickInputHandler()
 }
 
 //______________________________________________________________________________
-InputState JoystickInputHandler::CollectInputState()
+InputBuffer const& JoystickInputHandler::CollectInputState()
 {
-  InputState frameState = _lastFrameState;
+  InputState frameState = _inputBuffer.Latest();
 
   //reset movement state
   frameState &= ~((InputState)(0xf0));
@@ -153,12 +224,14 @@ InputState JoystickInputHandler::CollectInputState()
     }
     break;
   }
-  return frameState;
+
+  _inputBuffer.Push(frameState);
+  return _inputBuffer;
 }
 
 #ifdef _WIN32
 //______________________________________________________________________________
-InputState GGPOInputHandler::CollectInputState()
+InputBuffer const& GGPOInputHandler::CollectInputState()
 {
   // notify ggpo of local player's inputs
   GGPOErrorCode result = ggpo_add_local_input(_input->session, (*_input->handles)[0], &(*_input->inputs)[0], sizeof((*_input->inputs)[0]));
@@ -170,10 +243,18 @@ InputState GGPOInputHandler::CollectInputState()
     result = ggpo_synchronize_input(_input->session, (*_input->inputs), sizeof(*_input->inputs), &disconnectFlags);
     if (GGPO_SUCCEEDED(result))
     {
-      return (*_input->inputs)[1];
+      _inputBuffer.Push((*_input->inputs)[1]);
+    }
+    else
+    {
+      _inputBuffer.Push(InputState::NONE);
     }
   }
-  return InputState::NONE;
+  else
+  {
+    _inputBuffer.Push(InputState::NONE);
+  }
+  return _inputBuffer;
 
 }
 #endif

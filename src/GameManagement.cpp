@@ -170,22 +170,6 @@ void ResourceManager::BlitSprites()
 //______________________________________________________________________________
 void ResourceManager::CrawlTexture(Texture& texture, Vector2<int> begin, Vector2<int> end, std::function<void(int, int, Uint32)> callback)
 {
-  struct SDLTextureInfo
-  {
-    SDLTextureInfo(SDL_Texture* texture) : texture(texture)
-    {
-      SDL_LockTexture(texture, nullptr, &pixels, &pitch);
-    }
-    ~SDLTextureInfo()
-    {
-      SDL_UnlockTexture(texture);
-    }
-
-    void* pixels;
-    int pitch;
-    SDL_Texture* texture;
-  };
-
   auto& textureData = texture.GetInfo();
   // Get the window format
   Uint32 windowFormat = SDL_GetWindowPixelFormat(GameManager::Get().GetWindow());
@@ -195,12 +179,11 @@ void ResourceManager::CrawlTexture(Texture& texture, Vector2<int> begin, Vector2
   Uint32* upixels;
 
 #ifdef _WIN32
-  auto textureInfo = SDLTextureInfo(texture.Get());
-  unsigned char* px = (unsigned char*)textureInfo.pixels;
-  upixels = (Uint32*)textureInfo.pixels;
-  Uint32 transparent = SDL_MapRGBA(format.get(), px[0], px[1], px[2], 0x00);
+  unsigned char* px = textureData.pixels.get();
+  upixels = (Uint32*)px;
+  Uint32 transparent = textureData.transparent;
 #else
-  upixels = (Uint32*)texture.GetInfo().pixels.get();
+  upixels = (Uint32*)textureData.pixels.get();
 #endif
   for (int y = begin.y; y < end.y; y++)
   {
@@ -219,10 +202,9 @@ Rect<double> ResourceManager::FindRect(Texture& texture, Vector2<int> frameSize,
 
   Uint32 transparent;
 #ifdef _WIN32
-  auto textureInfo = SDLTextureInfo(texture.Get());
-  unsigned char* px = (unsigned char*)textureInfo.pixels;
-  Uint32* upixels = (Uint32*)textureInfo.pixels;
-  transparent = SDL_MapRGBA(format.get(), px[0], px[1], px[2], 0x00);
+  unsigned char* px = texture.GetInfo().pixels.get();
+  Uint32* upixels = (Uint32*)px;
+  transparent = texture.GetInfo().transparent;
 #endif
 
   Vector2<int> rectBegin(-1, -1);
@@ -381,6 +363,7 @@ void GameManager::CheckAgainstSystems(Entity* entity)
   FrameAdvantageSystem::Check(entity);
   StrikeVectorSystem::Check(entity);
   DrawSystem::Check(entity);
+  SendHittingStateSystem::Check(entity);
 }
 
 //______________________________________________________________________________
@@ -397,7 +380,7 @@ void GameManager::Update(float deltaTime)
   TimerSystem::DoTick(deltaTime);
   StrikeVectorSystem::DoTick(deltaTime);
   HitSystem::DoTick(deltaTime);
-
+  SendHittingStateSystem::DoTick(deltaTime);
   InputSystem::DoTick(deltaTime);
   
   FrameAdvantageSystem::DoTick(deltaTime);

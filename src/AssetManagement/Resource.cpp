@@ -46,11 +46,15 @@ template <> void Resource<SDL_Texture>::Load()
     // copy pixels from old surface to new surface
     std::memcpy(pixels, surface->pixels, surface->pitch * surface->h);
 
-#ifndef _WIN32
+//#ifndef _WIN32
     //for some reason, i havent been able to lock/unlock textures on mac without wiping them
     _info.pixels = std::unique_ptr<unsigned char>(new unsigned char[surface->pitch * surface->h]);
     std::memcpy(_info.pixels.get(), surface->pixels, surface->pitch * surface->h);
-#endif
+//#endif
+
+    std::shared_ptr<SDL_PixelFormat> format = std::shared_ptr<SDL_PixelFormat>(SDL_AllocFormat(windowFormat), SDL_FreeFormat);
+    unsigned char* px = (unsigned char*)pixels;
+    _info.transparent = SDL_MapRGBA(format.get(), px[0], px[1], px[2], 0x00);
 
     // Unlock texture so it can update
     SDL_UnlockTexture(texture);

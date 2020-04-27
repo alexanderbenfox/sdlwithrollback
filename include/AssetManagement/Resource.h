@@ -15,6 +15,7 @@ template <> struct ResourceTraits<SDL_Texture>
   ResourceTraits() : mPitch(0), mWidth(0), mHeight(0) {}
   int mPitch, mWidth, mHeight;
   std::unique_ptr<unsigned char> pixels;
+  Uint32 transparent;
 };
 
 template <typename T>
