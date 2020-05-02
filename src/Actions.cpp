@@ -145,12 +145,7 @@ template <> IAction* LoopedAction<StanceState::STANDING, ActionState::NONE>::Han
   bool facingRight = context.onLeftSide;
 
   if (context.collision == CollisionSide::NONE)
-  {
-    if(context.movement.y < 0)
-      return new LoopedAction<StanceState::JUMPING, ActionState::NONE>("Jumping", facingRight);
-    else
-      return new LoopedAction<StanceState::JUMPING, ActionState::NONE>("Falling", facingRight);
-  }
+    return new LoopedAction<StanceState::JUMPING, ActionState::NONE>("Falling", facingRight);
 
   // process attacks before hits so that if you press a button while attacked, you still get attacked
   IAction* attackAction = GetAttacksFromNeutral<StanceState::STANDING>(rawInput, context.onLeftSide);

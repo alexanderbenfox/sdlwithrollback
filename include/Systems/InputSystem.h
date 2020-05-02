@@ -6,7 +6,7 @@
 #include "Components/Transform.h"
 #include "Components/Rigidbody.h"
 
-class InputSystem : public ISystem<KeyboardInputHandler, GameActor, Rigidbody, Transform, RectColliderD>
+class InputSystem : public ISystem<KeyboardInputHandler, GameActor, Rigidbody, RectColliderD>
 {
 public:
   static void DoTick(float dt)
@@ -16,7 +16,6 @@ public:
       KeyboardInputHandler* inputHandler = std::get<KeyboardInputHandler*>(tuple.second);
       GameActor* actor = std::get<GameActor*>(tuple.second);
       Rigidbody* rigidbody = std::get<Rigidbody*>(tuple.second);
-      Transform* transform = std::get<Transform*>(tuple.second);
       RectColliderD* collider = std::get<RectColliderD*>(tuple.second);
 
       const InputBuffer& unitInputState = inputHandler->CollectInputState();
@@ -32,6 +31,8 @@ public:
         }
       }
       actor->EvaluateInputContext(unitInputState, context, dt);
+
+      rigidbody->elasticCollisions = actor->GetActionState() == ActionState::HITSTUN;
     }
   }
 };

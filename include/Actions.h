@@ -41,8 +41,7 @@ public:
 
   bool operator==(const GameContext& other) const
   {
-    return collision == other.collision && onLeftSide == other.onLeftSide && movement == other.movement && hitThisFrame == other.hitThisFrame
-      && hitting == other.hitting;
+    return collision == other.collision && onLeftSide == other.onLeftSide && hitThisFrame == other.hitThisFrame && hitting == other.hitting;
   }
 
   // will merge the contexts?
@@ -57,7 +56,6 @@ public:
     return newContext;
   }
 
-  Vector2<float> movement;
   CollisionSide collision;
   bool onLeftSide;
   bool hitThisFrame = false;

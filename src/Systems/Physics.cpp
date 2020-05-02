@@ -11,7 +11,6 @@ void PhysicsSystem::DoTick(float dt)
     auto rigidbody = std::get<Rigidbody*>(collidingObj);
     auto collider = std::get<RectColliderD*>(collidingObj);
     auto transform = std::get<Transform*>(collidingObj);
-    auto actor = std::get<GameActor*>(collidingObj);
 
     Vector2<float>& vel = rigidbody->_vel;
     Vector2<float>& acc = rigidbody->_acc;
@@ -33,7 +32,7 @@ void PhysicsSystem::DoTick(float dt)
 
     // loop over each other collider
     // if in hitstun, do elastic collision
-    AdjustMovementForCollisions(collider, movementVector, futureCorrection, currentCorrection, actor->GetActionState() == ActionState::HITSTUN);
+    AdjustMovementForCollisions(collider, movementVector, futureCorrection, currentCorrection, rigidbody->elasticCollisions);
 
     Vector2<float> caVelocity = PositionAdjustmentToVelocity(futureCorrection.amount, ddt);
     // Convert adjustment vector to a velocity and change object's velocity based on the adjustment
