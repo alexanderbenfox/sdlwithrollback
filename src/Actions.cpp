@@ -73,7 +73,7 @@ template <> IAction* GetAttacksFromNeutral<StanceState::JUMPING>(const InputBuff
 }
 
 //______________________________________________________________________________
-IAction* CheckHits(const InputState& rawInput, const GameContext& context)
+IAction* CheckHits(const InputState& rawInput, const StateComponent& context)
 {
   bool facingRight = context.onLeftSide;
   if (context.hitThisFrame)
@@ -140,7 +140,7 @@ template <> IAction* StateLockedAnimatedAction<StanceState::CROUCHING, ActionSta
 }
 
 //______________________________________________________________________________
-template <> IAction* LoopedAction<StanceState::STANDING, ActionState::NONE>::HandleInput(const InputBuffer& rawInput, const GameContext& context)
+template <> IAction* LoopedAction<StanceState::STANDING, ActionState::NONE>::HandleInput(const InputBuffer& rawInput, const StateComponent& context)
 {
   bool facingRight = context.onLeftSide;
 
@@ -184,7 +184,7 @@ template <> IAction* LoopedAction<StanceState::STANDING, ActionState::NONE>::Han
 }
 
 //______________________________________________________________________________
-template <> IAction* LoopedAction<StanceState::JUMPING, ActionState::NONE>::HandleInput(const InputBuffer& rawInput, const GameContext& context)
+template <> IAction* LoopedAction<StanceState::JUMPING, ActionState::NONE>::HandleInput(const InputBuffer& rawInput, const StateComponent& context)
 {
   IAction* onHitAction = CheckHits(rawInput.Latest(), context);
   if (onHitAction) return onHitAction;
@@ -199,7 +199,7 @@ template <> IAction* LoopedAction<StanceState::JUMPING, ActionState::NONE>::Hand
 }
 
 //______________________________________________________________________________
-template <> IAction* LoopedAction<StanceState::CROUCHING, ActionState::NONE>::HandleInput(const InputBuffer& rawInput, const GameContext& context)
+template <> IAction* LoopedAction<StanceState::CROUCHING, ActionState::NONE>::HandleInput(const InputBuffer& rawInput, const StateComponent& context)
 {
   bool facingRight = context.onLeftSide;
   if (context.collision == CollisionSide::NONE)
@@ -347,7 +347,7 @@ void AttackAction<Stance, Action>::OnActionComplete()
 }
 
 //______________________________________________________________________________
-template <> IAction* StateLockedAnimatedAction<StanceState::CROUCHING, ActionState::NONE>::HandleInput(const InputBuffer& rawInput, const GameContext& context)
+template <> IAction* StateLockedAnimatedAction<StanceState::CROUCHING, ActionState::NONE>::HandleInput(const InputBuffer& rawInput, const StateComponent& context)
 {
 
   bool facingRight = context.onLeftSide;

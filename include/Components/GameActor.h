@@ -1,5 +1,6 @@
 #pragma once
 #include "Actions.h"
+#include "StateComponent.h"
 
 #include <set>
 #include "ListenerInterfaces.h"
@@ -28,7 +29,7 @@ public:
   //!
   void BeginNewAction(IAction* action);
   //!
-  void EvaluateInputContext(const InputBuffer& input, const GameContext& context, float dt);
+  void EvaluateInputContext(const InputBuffer& input, const StateComponent* stateInfo, float dt);
   //!
   /*void StartAnimatedAction(const std::string& animName, bool isJC = false);
   //!
@@ -43,10 +44,10 @@ public:
   friend std::istream& operator>>(std::istream& is, GameActor& actor);
 
   InputState& GetInputState() { return _lastInput; }
-  GameContext& GetContext() { return _lastContext; }
+  //GameContext& GetContext() { return _lastContext; }
 
   //! Context that will be merged with the input context when inputs are evaluated
-  GameContext mergeContext;
+  //GameContext mergeContext;
 
   std::vector<std::shared_ptr<TimerComponent>> timings;
 
@@ -63,7 +64,8 @@ private:
   //!
   InputState _lastInput;
   //!
-  GameContext _lastContext;
+  StateComponent _lastState;
+
   bool _newState;
 
   int _comboCounter;

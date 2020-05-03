@@ -133,29 +133,27 @@ void GameActor::BeginNewAction(IAction* action)
 }
 
 //______________________________________________________________________________
-void GameActor::EvaluateInputContext(const InputBuffer& input, const GameContext& context, float dt)
+void GameActor::EvaluateInputContext(const InputBuffer& input, const StateComponent* stateInfo, float dt)
 {
-  if (!_newState && input.Latest() == _lastInput && context == _lastContext)
+  StateComponent currentState = *stateInfo;
+
+  if (!_newState && input.Latest() == _lastInput && currentState == _lastState)
     return;
 
   _newState = false;
-
-  GameContext contextToEval = context + mergeContext;
-
-  // so freakin clunky......
-  if (dt > 0 && _lastContext.hitting)
-    mergeContext.hitting = false;
+  _lastInput = input.Latest();
+  _lastState = currentState;
 
   IAction* prevAction = _currentAction;
-  IAction* nextAction = _currentAction->HandleInput(input, contextToEval);
+  IAction* nextAction = _currentAction->HandleInput(input, currentState);
 
   if (nextAction && (nextAction != prevAction))
   {
     if(nextAction->GetAction() == ActionState::HITSTUN)
       _comboCounter++;
     // update last context
-    _lastInput = input.Latest();
-    _lastContext = contextToEval;
+    //_lastInput = input.Latest();
+    //_lastState = currentState;
 
     //OnActionComplete(prevAction);
     BeginNewAction(nextAction);
