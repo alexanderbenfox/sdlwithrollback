@@ -17,10 +17,35 @@ public:
 
       if (atkState->lastFrame != animator->frame)
       {
-        atkState->CheckEvents(animator->frame,
-          (double)transform->position.x - (double)properties->offset.x * transform->scale.x,
-          (double)transform->position.y - (double)properties->offset.y * transform->scale.y,
-          transform);
+        int frame = animator->frame;
+        double transformOffsetX = (double)transform->position.x - (double)properties->offset.x * transform->scale.x;
+        double transformOffsetY = (double)transform->position.y - (double)properties->offset.y * transform->scale.y;
+
+        // update all in progress events now
+        for (int i = 0; i < atkState->inProgressEvents.size(); i++)
+        {
+          AnimationEvent* evt = atkState->inProgressEvents[i];
+          if (frame >= evt->GetEndFrame())
+          {
+            evt->EndEvent();
+            atkState->inProgressEvents.erase(atkState->inProgressEvents.begin() + i);
+            i--;
+          }
+          else
+          {
+            evt->UpdateEvent(frame, transformOffsetX, transformOffsetY, transform);
+          }
+        }
+
+        // Checks if an event should be trigger this frame of animation and calls its callback if so
+        AnimationEvent* potentialEvent = atkState->GetEventStartsThisFrame(frame);
+        if (potentialEvent)
+        {
+          atkState->inProgressEvents.push_back(potentialEvent);
+          potentialEvent->TriggerEvent(transformOffsetX, transformOffsetY, transform);
+        }
+
+        // update the last frame updated
         atkState->lastFrame = animator->frame;
       }
     }
