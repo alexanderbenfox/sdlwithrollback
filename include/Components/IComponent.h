@@ -50,10 +50,10 @@ public:
   //!
   virtual void Draw() {}
 
-  virtual bool ShareOwner(IComponent* component)
-  {
-    return component->_owner == _owner;
-  }
+  //virtual bool ShareOwner(IComponent* component)
+  //{
+  ///  return component->_owner == _owner;
+  //}
 
 protected:
   //! 

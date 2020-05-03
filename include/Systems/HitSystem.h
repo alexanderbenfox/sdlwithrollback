@@ -3,15 +3,12 @@
 #include "Components/Hitbox.h"
 #include "Components/GameActor.h"
 
-//!
-//const float secPerFrame = 1.0f / animation_fps;
-
-class HitSystem : public ISystem<Hurtbox, GameActor>
+class HitSystem : public IMultiSystem<SysComponents<Hurtbox, GameActor>, SysComponents<Hitbox, Hurtbox, GameActor>>
 {
 public:
   static void DoTick(float dt)
   {
-    for (auto tuple : Tuples)
+    for (auto tuple : MainSystem::Tuples)
     {
       Hurtbox* hurtbox = std::get<Hurtbox*>(tuple.second);
       GameActor* hurtboxController = std::get<GameActor*>(tuple.second);
@@ -20,68 +17,40 @@ public:
       hurtboxController->mergeContext.hitThisFrame = false;
       hurtboxController->mergeContext.hitOnLeftSide = false;
 
-      for (auto hitbox : ComponentManager<Hitbox>::Get().All())
+      //for (auto hitbox : ComponentManager<Hitbox>::Get().All())
+      for(auto subTuple : SubSystem::Tuples)
       {
+        Hitbox* hitbox = std::get<Hitbox*>(subTuple.second);
+        GameActor* hitboxController = std::get<GameActor*>(subTuple.second);
+        Hurtbox* hitterHurtbox = std::get<Hurtbox*>(subTuple.second);
+
         // if the hitbox has hit something (will change this to checking if it has hit the entity?)
-        if(hitbox->hit)
+        if (hitbox->hit)
           continue;
 
-        if (!hitbox->ShareOwner(hurtbox) && hitbox->rect.Collides(hurtbox->rect))
+        if (hurtboxController != hitboxController && hitbox->rect.Collides(hurtbox->rect))
         {
+          // do hitbox stuff first
           hitbox->hit = true;
-          hitbox->hitting = true;
+          hitboxController->mergeContext.hitting = true;
+          int strikeDir = hitbox->rect.GetCenter().x > hitterHurtbox->rect.GetCenter().x ? 1 : -1;
+          hitbox->strikeVector = Vector2<int>(strikeDir, 0);
+
           // change the state variable that will be evaluated on the processing of inputs. probably a better way to do this...
           hurtboxController->mergeContext.hitThisFrame = true;
 
           // calculate the strike vector
-          hurtboxController->mergeContext.hitOnLeftSide =  hitbox->strikeVector.x > 0;
+          hurtboxController->mergeContext.hitOnLeftSide = hitbox->strikeVector.x > 0;
 
           hurtboxController->mergeContext.frameData = hitbox->frameData;
 
           // this needs to be made better
-          if(hitbox->strikeVector.x < 0)
+          if (hitbox->strikeVector.x < 0)
             hurtboxController->mergeContext.frameData.knockback.x = -hitbox->frameData.knockback.x;
 
           GameManager::Get().ActivateHitStop(hitbox->frameData.hitstop);
         }
       }
-    }
-  }
-};
-
-class StrikeVectorSystem : public ISystem<Hitbox, Hurtbox>
-{
-public:
-  static void DoTick(float dt)
-  {
-    for (auto tuple : Tuples)
-    {
-      Hitbox* hitbox = std::get<Hitbox*>(tuple.second);
-      Hurtbox* hurtbox = std::get<Hurtbox*>(tuple.second);
-
-      int strikeDir = hitbox->rect.GetCenter().x > hurtbox->rect.GetCenter().x ? 1 : -1;
-      hitbox->strikeVector = Vector2<int>(strikeDir, 0);
-    }
-  }
-};
-
-// don't know what else to do for this so this is probably stupid
-class SendHittingStateSystem : public ISystem<Hitbox, GameActor>
-{
-public:
-  static void DoTick(float dt)
-  {
-    // only update this on active frames
-    if (dt == 0)
-      return;
-
-    for (auto tuple : Tuples)
-    {
-      Hitbox* hitbox = std::get<Hitbox*>(tuple.second);
-      GameActor* hitboxController = std::get<GameActor*>(tuple.second);
-
-      hitboxController->mergeContext.hitting = hitbox->hitting;
-      hitbox->hitting = false;
     }
   }
 };
