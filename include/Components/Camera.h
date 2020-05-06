@@ -1,5 +1,6 @@
 #pragma once
 #include "IComponent.h"
+#include "AssetManagement/BlitOperation.h"
 
 //!
 static bool SDLRectOverlap(const SDL_Rect& a, const SDL_Rect& b)
@@ -17,9 +18,9 @@ public:
   //!
   void Init(int w, int h);
   //!
-  void ConvScreenSpace(ResourceManager::BlitOperation* entity);
+  void ConvScreenSpace(BlitOperation* entity);
   //!
-  bool EntityInDisplay(const ResourceManager::BlitOperation* entity);
+  bool EntityInDisplay(const BlitOperation* entity);
   //!
   SDL_Rect rect;
 };

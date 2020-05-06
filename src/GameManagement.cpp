@@ -98,6 +98,17 @@ TextResource& ResourceManager::GetText(const char* text, const std::string& font
 }
 
 //______________________________________________________________________________
+Animation& ResourceManager::GetAnimation(const Animation::Key& animKey)
+{
+  if(_loadedAnimations.find(animKey) == _loadedAnimations.end())
+  {
+    //_loadedAnimations.emplace(std::piecewise_construct, std::make_tuple(animKey), std::make_tuple(animKey.sheetFilePath.c_str(), animKey.rows, animKey.columns, animKey.startIdx, animKey.frames));
+    _loadedAnimations.insert(std::make_pair(animKey, Animation(animKey.sheetFilePath.c_str(), animKey.rows, animKey.columns, animKey.startIdx, animKey.frames)));
+  }
+  return _loadedAnimations[animKey];
+}
+
+//______________________________________________________________________________
 Vector2<int> ResourceManager::GetTextureWidthAndHeight(const std::string& file)
 {
   auto fileToQuery = file;

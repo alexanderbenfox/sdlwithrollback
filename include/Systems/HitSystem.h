@@ -42,18 +42,13 @@ public:
           hitbox->hit = true;
           hitboxController->hitting = true;
           int strikeDir = hitbox->rect.GetCenter().x > hitterHurtbox->rect.GetCenter().x ? 1 : -1;
-          hitbox->strikeVector = Vector2<int>(strikeDir, 0);
 
           // change the state variable that will be evaluated on the processing of inputs. probably a better way to do this...
           hurtboxController->hitThisFrame = true;
-
-          // calculate the strike vector
-          hurtboxController->hitOnLeftSide = hitbox->strikeVector.x > 0;
-
           hurtboxController->frameData = hitbox->frameData;
 
           // this needs to be made better
-          if (hitbox->strikeVector.x < 0)
+          if (strikeDir < 0)
             hurtboxController->frameData.knockback.x = -hitbox->frameData.knockback.x;
 
           GameManager::Get().ActivateHitStop(hitbox->frameData.hitstop);

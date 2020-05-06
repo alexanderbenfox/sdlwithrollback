@@ -1,5 +1,6 @@
 #pragma once
 #include "AssetManagement/Resource.h"
+#include "ResourceManager.h"
 #include "IComponent.h"
 #include "Transform.h"
 

@@ -21,14 +21,14 @@ void Camera::Init(int w, int h)
 }
 
 //______________________________________________________________________________
-void Camera::ConvScreenSpace(ResourceManager::BlitOperation* entity)
+void Camera::ConvScreenSpace(BlitOperation* entity)
 {
   entity->_displayRect.x -= rect.x;
   entity->_displayRect.y -= rect.y;
 }
 
 //______________________________________________________________________________
-bool Camera::EntityInDisplay(const ResourceManager::BlitOperation* entity)
+bool Camera::EntityInDisplay(const BlitOperation* entity)
 {
   return SDLRectOverlap(rect, entity->_displayRect);
 }
@@ -136,7 +136,6 @@ void GameActor::BeginNewAction(IAction* action)
 void GameActor::EvaluateInputContext(const InputBuffer& input, const StateComponent* stateInfo, float dt)
 {
   StateComponent currentState = *stateInfo;
-
   if (!_newState && input.Latest() == _lastInput && currentState == _lastState)
     return;
 
@@ -151,10 +150,6 @@ void GameActor::EvaluateInputContext(const InputBuffer& input, const StateCompon
   {
     if(nextAction->GetAction() == ActionState::HITSTUN)
       _comboCounter++;
-    // update last context
-    //_lastInput = input.Latest();
-    //_lastState = currentState;
-
     //OnActionComplete(prevAction);
     BeginNewAction(nextAction);
   }

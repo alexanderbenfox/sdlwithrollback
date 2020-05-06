@@ -1,40 +1,17 @@
 #pragma once
-#include "AssetManagement/Resource.h"
-#include "AssetManagement/Text.h"
 #include "Geometry.h"
+#include "AssetManagement/BlitOperation.h"
+#include "AssetManagement/Animation.h"
+
 #include <unordered_map>
 #include <vector>
 #include <functional>
-
-class ConstComponentIDGenerator
-{
-public:
-  static int ID;
-  static int NextID()
-  {
-      return ID++;
-  }
-};
-
-typedef Resource<SDL_Texture> Texture;
-typedef Resource<TTF_Font> Font;
 
 //______________________________________________________________________________
 //! Manager of resources for textures, font, sounds, and drawing
 class ResourceManager
 {
 public:
-  //! Drawing parameters drawing sprite objects
-  struct BlitOperation
-  {
-    bool valid = false;
-    SDL_Rect _textureRect;
-    SDL_Rect _displayRect;
-    Texture* _textureResource;
-    SDL_RendererFlip _flip;
-    SDL_Color _displayColor;
-  };
-
   //! Returns singleton instance of the Resource Manager
   static ResourceManager& Get() { static ResourceManager rm; return rm; }
   //! Destroy loaded resource objects
@@ -47,6 +24,8 @@ public:
   Font& GetFont(const std::string& file);
   //!
   TextResource& GetText(const char* text, const std::string& fontFile);
+  //!
+  Animation& GetAnimation(const Animation::Key& animKey);
   //! Uses SDLQuery to get the width and height of the source texture
   Vector2<int> GetTextureWidthAndHeight(const std::string& file);
   //! Used by drawn objects to pass their drawing parameters to the resource manager
@@ -71,6 +50,8 @@ private:
   std::unordered_map<std::string, Font> _loadedFonts;
   //! All loaded font resources
   std::unordered_map<std::string, TextResource> _loadedTexts;
+  //! Loaded animation resources
+  std::unordered_map<Animation::Key, Animation> _loadedAnimations;
   //! Number of sprites that will be drawn in the scene
   int registeredSprites = 0;
   //! Index of the latest available op spot

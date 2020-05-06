@@ -1,5 +1,7 @@
 #pragma once
+#include <SDL2/SDL_rect.h>
 
+#include <unordered_map>
 #include <string>
 #include <sstream>
 #include <vector>
