@@ -24,8 +24,6 @@ public:
   Font& GetFont(const std::string& file);
   //!
   TextResource& GetText(const char* text, const std::string& fontFile);
-  //!
-  Animation& GetAnimation(const Animation::Key& animKey);
   //! Uses SDLQuery to get the width and height of the source texture
   Vector2<int> GetTextureWidthAndHeight(const std::string& file);
   //! Used by drawn objects to pass their drawing parameters to the resource manager
@@ -50,8 +48,6 @@ private:
   std::unordered_map<std::string, Font> _loadedFonts;
   //! All loaded font resources
   std::unordered_map<std::string, TextResource> _loadedTexts;
-  //! Loaded animation resources
-  std::unordered_map<Animation::Key, Animation> _loadedAnimations;
   //! Number of sprites that will be drawn in the scene
   int registeredSprites = 0;
   //! Index of the latest available op spot

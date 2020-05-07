@@ -8,22 +8,19 @@ class Animator : public IComponent
 public:
   Animator(std::shared_ptr<Entity> owner);
 
-  void RegisterAnimation(const std::string& name, const char* sheet, int rows, int columns, int startIndexOnSheet, int frames);
+  void SetAnimations(const AnimationCollection& animations);
 
   // Setter function
-  void Play(const std::string& name, bool isLooped, bool horizontalFlip);
+  Animation* Play(const std::string& name, bool isLooped, bool horizontalFlip);
 
   void ChangeListener(IAnimatorListener* listener) { _listener = listener; }
 
-  Animation* GetAnimationByName(const std::string& name);
-
-  Vector2<int> GetRenderOffset(bool flipped);
+  Animation* GetCurrentAnimation() { return _animations.GetAnimation(currentAnimationName); }
 
   //!
   IAnimatorListener* GetListener() { return _listener; }
   //!
-  Animation& GetCurrentAnimation();
-
+  AnimationCollection& AnimationLib() {return _animations; }
   // STATE VARIABLES
   //!
   bool playing;
@@ -44,12 +41,6 @@ protected:
   //! Things that need to know when an animation is done
   IAnimatorListener* _listener;
   //! All animations registered to this animator
-  std::unordered_map<std::string, Animation::Key> _animations;
-  //!
-  std::unordered_map<std::string, Animation::Key>::iterator _currentAnimation;
-  //! Top left pixel offset of the first animation registered to this
-  Vector2<int> _basisRefPx;
-
-  //std::vector<std::function<void(Animation*)>> _onAnimCompleteCallbacks;
+  AnimationCollection _animations;
 
 };

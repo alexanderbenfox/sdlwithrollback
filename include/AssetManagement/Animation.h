@@ -10,17 +10,23 @@
 const float secPerFrame = 1.0f / 60.0f;
 const float gameFramePerAnimationFrame = (1.0f / secPerFrame) / animation_fps;
 
+enum class AnchorPoint
+{
+  TL, TR, BL, BR, Size
+};
+
 class Animation;
 
+//______________________________________________________________________________
 class AnimationEvent
 {
 public:
-  AnimationEvent(int startFrame, int duration, std::function<void(double, double, Transform*)> onTriggerCallback, std::vector<std::function<void(double,double,Transform*)>> update, std::function<void()> onEndCallback) :
+  AnimationEvent(int startFrame, int duration, std::function<void(double, double, Transform*)> onTriggerCallback, std::vector<std::function<void(double,double,Transform*)>> update, std::function<void(Transform*)> onEndCallback) :
     _frame(startFrame), _duration(duration), _onTrigger(onTriggerCallback), _updates(update), _onEnd(onEndCallback) {}
 
   void TriggerEvent(double x, double y, Transform* trans) { _onTrigger(x, y, trans); }
   void UpdateEvent(int frame, double x, double y, Transform* trans) { _updates[frame - _frame - 1](x, y, trans); }
-  void EndEvent() { _onEnd(); }
+  void EndEvent(Transform* trans) { _onEnd(trans); }
   int GetEndFrame() { return _frame + _duration; }
 
 private:
@@ -33,86 +39,84 @@ private:
   //!
   std::function<void(double, double, Transform*)> _onTrigger;
   std::vector<std::function<void(double,double,Transform*)>> _updates;
-  std::function<void()> _onEnd;
+  std::function<void(Transform*)> _onEnd;
 };
 
+typedef std::tuple<int, int, std::function<void(double, double, Transform*)>, std::vector<std::function<void(double,double,Transform*)>>, std::function<void(Transform*)>> EventInitParams;
+
+//______________________________________________________________________________
 class Animation
 {
 public:
-  struct Key
-  {
-    //!
-    int rows, columns, frames, startIdx;
-    //!
-    std::string sheetFilePath;
+  Animation(const char* sheet, int rows, int columns, int startIndexOnSheet, int frames, AnchorPoint anchor);
 
-    bool operator==(const Key& other)
-    {
-      return rows == other.rows && columns == other.columns && frames == other.frames && startIdx == other.startIdx && sheetFilePath == other.sheetFilePath;
-    }
-
-    friend bool operator==(const Key& a, const Key& b)
-    {
-      return a.rows == b.rows && a.columns == b.columns && a.frames == b.frames && a.startIdx == b.startIdx && a.sheetFilePath == b.sheetFilePath;
-    }
-    
-  };
-
-  Animation() = default;
-  Animation(const char* sheet, int rows, int columns, int startIndexOnSheet, int frames);
-
-  void AddHitboxEvents(const char* hitboxesSheet, FrameData frameData, std::shared_ptr<Entity> entity);
+  EventInitParams CreateHitboxEvent(const char* hitboxesSheet, FrameData frameData);
 
   //! Translates anim frame to the frame on spritesheet
-  SDL_Rect GetFrameSrcRect(int animFrame);
+  SDL_Rect GetFrameSrcRect(int animFrame) const;
 
-  const int GetFrameCount() { return static_cast<int>(_animFrameToSheetFrame.size()); }
+  const int GetFrameCount() const { return static_cast<int>(_animFrameToSheetFrame.size()); }
 
   Vector2<int> const GetFrameWH() { return _frameSize; }
-
-  Vector2<int> const GetRefPxLocation() { return _referencePx; }
-  //! Checks if an event should be trigger this frame of animation and calls its callback if so
-  std::unordered_map<int, AnimationEvent>& Events() { return _events; }
-
-  Texture& GetSheetTexture();
+  //!
+  Texture& GetSheetTexture() const;
+  //! Gets first non-transparent pixel from the top left and bottom left
+  Vector2<int> FindAnchorPoint(AnchorPoint anchorType, bool fromFirstFrame) const;
+  //!
+  std::pair<AnchorPoint, Vector2<int>> const& GetMainAnchor() const { return _anchorPoint; }
 
 protected:
-  //! Gets first non-transparent pixel from the top left
-  Vector2<int> FindReferencePixel(const char* sheet);
   //!
   int _rows, _columns, _frames, _startIdx;
   //!
   Vector2<int> _frameSize;
-  //!
-  Vector2<int> _referencePx;
-  //! Map of frame starts for events to the event that should be triggered
-  std::unordered_map<int, AnimationEvent> _events;
+  //! stores the bottom left and top left reference pixels
+  //Vector2<int> _anchorPoints[(const int)AnchorPoint::Size];
   //!
   std::vector<int> _animFrameToSheetFrame;
   //!
   std::string _src;
   //!
-  bool _hitboxEventRegistered;
+  std::pair<AnchorPoint, Vector2<int>> _anchorPoint;
 
 };
 
-template <class T>
-inline void hash_combine(std::size_t & seed, const T & v)
-{
-  std::hash<T> hasher;
-  seed ^= hasher(v) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-}
+typedef std::unordered_map<int, AnimationEvent> EventList;
 
-template <> class std::hash<Animation::Key> {
+//______________________________________________________________________________
+class AnimationCollection
+{
 public:
-  size_t operator()(const Animation::Key& key) const
+  AnimationCollection() = default;
+  void RegisterAnimation(const std::string& animationName, const char* sheet, int rows, int columns, int startIndexOnSheet, int frames, AnchorPoint anchor);
+  void AddHitboxEvents(const std::string& animationName, const char* hitboxesSheet, FrameData frameData);
+
+
+  Vector2<int> GetRenderOffset(const std::string& animationName, bool flipped) const;
+  //! Getters
+  Animation* GetAnimation(const std::string& name)
   {
-    std::size_t hashResult = 0;
-    hash_combine(hashResult, key.sheetFilePath);
-    hash_combine(hashResult, key.rows);
-    hash_combine(hashResult, key.columns);
-    hash_combine(hashResult, key.frames);
-    hash_combine(hashResult, key.startIdx);
-    return hashResult;
+    if(_animations.find(name) == _animations.end())
+      return nullptr;
+    return &_animations.find(name)->second;
   }
+  //!
+  EventList* GetEventList(const std::string& name)
+  {
+    if(_events.find(name) == _events.end())
+      return nullptr;
+    return _events.find(name)->second.get();
+  }
+
+private:
+  //! Map of animations name to animation object
+  std::unordered_map<std::string, Animation> _animations;
+  //! Map of frame starts for events to the event that should be triggered
+  std::unordered_map<std::string, std::shared_ptr<EventList>> _events;
+  //!
+  Vector2<int> _anchorPoint[(const int)AnchorPoint::Size];
+
+  //! use the first sprite sheet in as anchor point reference
+  bool _useFirstSprite = false;
+
 };

@@ -205,7 +205,7 @@ std::istream& operator>>(std::istream& is, Animator& animator)
   is >> animator.accumulatedTime;
   is >> animator.frame;
   is >> animator.currentAnimationName;
-  animator._currentAnimation = animator._animations.find(animator.currentAnimationName);
+  //animator._currentAnimation = _animations.GetAnimation(animator.currentAnimationName);
 
   return is;
 }

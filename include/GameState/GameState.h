@@ -2,6 +2,7 @@
 #include "Components/Input.h"
 #include <memory>
 #include "Actions.h"
+#include "AssetManagement/Animation.h"
 
 class Entity;
 class Camera;
@@ -19,6 +20,7 @@ public:
 class EntityCreation
 {
 public:
+  static AnimationCollection RyuAnimations();
   static std::shared_ptr<Entity> CreateLocalPlayer(float xOffset);
   #ifdef _WIN32
   static std::shared_ptr<Entity> CreateNetworkPlayer(float xOffset);

@@ -42,6 +42,14 @@ public:
   void operator*=(const Vector2<T>& other) { x *= other.x; y *= other.y; }
   bool operator==(const Vector2<T>& other) const { return x == other.x && y == other.y; }
 
+  friend Vector2<T> operator+(const Vector2<T>& a, const Vector2<T>& b)
+  {
+    return Vector2<T>(a.x + b.x, a.y + b.y);
+  }
+  friend Vector2<T> operator-(const Vector2<T>& a, const Vector2<T>& b)
+  {
+    return Vector2<T>(a.x - b.x, a.y - b.y);
+  }
 
   Vector2<T> Unit();
   T Dot(const Vector2<T>& other);

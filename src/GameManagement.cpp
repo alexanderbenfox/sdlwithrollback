@@ -84,7 +84,7 @@ Font& ResourceManager::GetFont(const std::string& file)
   return _loadedFonts[fileToLoad];
 }
 
-//
+//______________________________________________________________________________
 TextResource& ResourceManager::GetText(const char* text, const std::string& fontFile)
 {
   Font& font = GetFont(fontFile);
@@ -95,17 +95,6 @@ TextResource& ResourceManager::GetText(const char* text, const std::string& font
   }
   _loadedTexts[text].Load();
   return _loadedTexts[text];
-}
-
-//______________________________________________________________________________
-Animation& ResourceManager::GetAnimation(const Animation::Key& animKey)
-{
-  if(_loadedAnimations.find(animKey) == _loadedAnimations.end())
-  {
-    //_loadedAnimations.emplace(std::piecewise_construct, std::make_tuple(animKey), std::make_tuple(animKey.sheetFilePath.c_str(), animKey.rows, animKey.columns, animKey.startIdx, animKey.frames));
-    _loadedAnimations.insert(std::make_pair(animKey, Animation(animKey.sheetFilePath.c_str(), animKey.rows, animKey.columns, animKey.startIdx, animKey.frames)));
-  }
-  return _loadedAnimations[animKey];
 }
 
 //______________________________________________________________________________

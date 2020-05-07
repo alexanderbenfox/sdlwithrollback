@@ -31,20 +31,24 @@ public:
   }
 
   //!
-  void SetAnimation(Animation* animation) { _attackAnim = animation; }
+  void Init(Animation* animation, EventList* eventList)
+  {
+    _attackAnim = animation;
+    _eventList = eventList;
+  }
 
   //!
   void ClearEvents()
   {
     for(auto& event : inProgressEvents)
-      event->EndEvent();
+      event->EndEvent(_owner->GetComponent<Transform>().get());
     inProgressEvents.clear();
   }
 
   AnimationEvent* GetEventStartsThisFrame(int frame)
   {
-    auto evtIter = _attackAnim->Events().find(frame);
-    if (evtIter != _attackAnim->Events().end())
+    auto evtIter = _eventList->find(frame);
+    if (evtIter != _eventList->end())
     {
       return &evtIter->second;
     }
@@ -62,6 +66,8 @@ public:
 private:
   //! Map of frame starts for events to the event that should be triggered
   Animation* _attackAnim;
+  //
+  EventList* _eventList;
 
 };
 

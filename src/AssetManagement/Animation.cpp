@@ -4,8 +4,9 @@
 #include "ResourceManager.h"
 #include <math.h>
 
-Animation::Animation(const char* sheet, int rows, int columns, int startIndexOnSheet, int frames) : _rows(rows), _columns(columns), _startIdx(startIndexOnSheet), _frames(frames),
-  _src(sheet), _hitboxEventRegistered(false)
+//______________________________________________________________________________
+Animation::Animation(const char* sheet, int rows, int columns, int startIndexOnSheet, int frames, AnchorPoint anchor) : _rows(rows), _columns(columns), _startIdx(startIndexOnSheet), _frames(frames),
+  _src(sheet), _anchorPoint(std::make_pair(anchor, Vector2<int>::Zero()))
 {
   auto sheetSize = ResourceManager::Get().GetTextureWidthAndHeight(sheet);
   _frameSize = Vector2<int>(sheetSize.x / _columns, sheetSize.y / _rows);
@@ -17,19 +18,15 @@ Animation::Animation(const char* sheet, int rows, int columns, int startIndexOnS
   {
     _animFrameToSheetFrame[i] = static_cast<int>(std::floor((double)i * ((double)frames / (double)gameFrames)));
   }
-  _referencePx = FindReferencePixel(sheet);
+  _anchorPoint.second = FindAnchorPoint(anchor, true);
 }
 
-void Animation::AddHitboxEvents(const char* hitboxesSheet, FrameData frameData, std::shared_ptr<Entity> entity)
+//______________________________________________________________________________
+EventInitParams Animation::CreateHitboxEvent(const char* hitboxesSheet, FrameData frameData)
 {
-  if(_hitboxEventRegistered)
-    return;
-  _hitboxEventRegistered = true;
-
-  int entityID = entity->GetID();
-  auto DespawnHitbox = [entityID]()
+  auto DespawnHitbox = [](Transform* trans)
   {
-    GameManager::Get().GetEntityByID(entityID)->RemoveComponent<Hitbox>();
+    trans->RemoveComponent<Hitbox>();
   };
 
   std::string hitBoxFile = hitboxesSheet;
@@ -60,10 +57,10 @@ void Animation::AddHitboxEvents(const char* hitboxesSheet, FrameData frameData, 
       {
         if (startUpFrames != -1)
         {
-          auto UpdateHitbox = [entityID, hitbox](double x, double y, Transform* trans)
+          auto UpdateHitbox = [hitbox](double x, double y, Transform* trans)
           {
-            GameManager::Get().GetEntityByID(entityID)->GetComponent<Hitbox>()->rect = Rect<double>(hitbox.Beg().x * trans->scale.x, hitbox.Beg().y * trans->scale.y, hitbox.End().x * trans->scale.x, hitbox.End().y * trans->scale.y);
-            GameManager::Get().GetEntityByID(entityID)->GetComponent<Hitbox>()->rect.MoveAbsolute(Vector2<double>(x + (hitbox.Beg().x * trans->scale.x), y + (hitbox.Beg().y * trans->scale.y)));
+            trans->GetComponent<Hitbox>()->rect = Rect<double>(hitbox.Beg().x * trans->scale.x, hitbox.Beg().y * trans->scale.y, hitbox.End().x * trans->scale.x, hitbox.End().y * trans->scale.y);
+            trans->GetComponent<Hitbox>()->rect.MoveAbsolute(Vector2<double>(x + (hitbox.Beg().x * trans->scale.x), y + (hitbox.Beg().y * trans->scale.y)));
           };
           updates.push_back(UpdateHitbox);
 
@@ -73,12 +70,12 @@ void Animation::AddHitboxEvents(const char* hitboxesSheet, FrameData frameData, 
         else
         {
           startUpFrames = i;
-          trigger = [entityID, hitbox, frameData](double x, double y, Transform* trans)
+          trigger = [hitbox, frameData](double x, double y, Transform* trans)
           {
-            GameManager::Get().GetEntityByID(entityID)->AddComponent<Hitbox>();
-            GameManager::Get().GetEntityByID(entityID)->GetComponent<Hitbox>()->frameData = frameData;
-            GameManager::Get().GetEntityByID(entityID)->GetComponent<Hitbox>()->rect = Rect<double>(hitbox.Beg().x * trans->scale.x, hitbox.Beg().y * trans->scale.y, hitbox.End().x * trans->scale.x, hitbox.End().y * trans->scale.y);
-            GameManager::Get().GetEntityByID(entityID)->GetComponent<Hitbox>()->rect.MoveAbsolute(Vector2<double>(x + (hitbox.Beg().x * trans->scale.x), y + (hitbox.Beg().y * trans->scale.y)));
+            trans->AddComponent<Hitbox>();
+            trans->GetComponent<Hitbox>()->frameData = frameData;
+            trans->GetComponent<Hitbox>()->rect = Rect<double>(hitbox.Beg().x * trans->scale.x, hitbox.Beg().y * trans->scale.y, hitbox.End().x * trans->scale.x, hitbox.End().y * trans->scale.y);
+            trans->GetComponent<Hitbox>()->rect.MoveAbsolute(Vector2<double>(x + (hitbox.Beg().x * trans->scale.x), y + (hitbox.Beg().y * trans->scale.y)));
           };
         }
       }
@@ -130,12 +127,13 @@ void Animation::AddHitboxEvents(const char* hitboxesSheet, FrameData frameData, 
       // do not need to adjust this because events only update on new animations
       while ((int)updates.size() < (frameData.active - 1))
         updates.push_back(updates.back());
-      _events.emplace(std::piecewise_construct, std::make_tuple(frameData.startUp - 1), std::make_tuple(frameData.startUp - 1, frameData.active, trigger, updates, DespawnHitbox));
     }
   }
+  return std::make_tuple(frameData.startUp - 1, frameData.active, trigger, updates, DespawnHitbox);
 }
 
-SDL_Rect Animation::GetFrameSrcRect(int animFrame)
+//______________________________________________________________________________
+SDL_Rect Animation::GetFrameSrcRect(int animFrame) const
 {
   int frame = _animFrameToSheetFrame[animFrame];
   //if invalid frame, just return nothing
@@ -148,42 +146,107 @@ SDL_Rect Animation::GetFrameSrcRect(int animFrame)
   return OpSysConv::CreateSDLRect(x * _frameSize.x, y * _frameSize.y, _frameSize.x, _frameSize.y );
 }
 
-Texture& Animation::GetSheetTexture()
+//______________________________________________________________________________
+Texture& Animation::GetSheetTexture() const
 {
   return ResourceManager::Get().GetTexture(_src);
 }
 
-Vector2<int> Animation::FindReferencePixel(const char* sheet)
+//______________________________________________________________________________
+Vector2<int> Animation::FindAnchorPoint(AnchorPoint anchorType, bool fromFirstFrame) const
 {
-  Texture& sheetTexture = ResourceManager::Get().GetTexture(sheet);
+  Texture& sheetTexture = ResourceManager::Get().GetTexture(_src);
   // Get the window format
   Uint32 windowFormat = SDL_GetWindowPixelFormat(GameManager::Get().GetWindow());
   std::shared_ptr<SDL_PixelFormat> format = std::shared_ptr<SDL_PixelFormat>(SDL_AllocFormat(windowFormat), SDL_FreeFormat);
 
   // Get the pixel data
   Uint32* upixels;
-
-#ifdef _WIN32
+  #ifdef _WIN32
   unsigned char* px = sheetTexture.GetInfo().pixels.get();
   upixels = (Uint32*)px;
   Uint32 transparent = sheetTexture.GetInfo().transparent;
 #else
   upixels = (Uint32*)sheetTexture.GetInfo().pixels.get();
 #endif
-  for (int y = 0; y < _frameSize.y; y++)
+
+  auto findAnchor = [this, &upixels, &sheetTexture, &format](bool reverseX, bool reverseY, int startX, int startY)
   {
-    for (int x = 0; x < _frameSize.x; x++)
+    for (int yValue = startY; yValue < startY + _frameSize.y; yValue++)
     {
-      Uint32 pixel = upixels[sheetTexture.GetInfo().mWidth * y + x];
+      for (int xValue = startX; xValue < startX + _frameSize.x; xValue++)
+      {
+        int y = yValue;
+        if(reverseY)
+          y = startY + _frameSize.y - (yValue - startY);
+        int x = xValue;
+        if(reverseX)
+          x = startX + _frameSize.x - (xValue - startX);
+
+        Uint32 pixel = upixels[sheetTexture.GetInfo().mWidth * y + x];
 #ifdef _WIN32
-      if(pixel != transparent)
+        if(pixel != transparent)
 #else
-      Uint8 r, g, b, a;
-      SDL_GetRGBA(pixel, format.get(), &r, &g, &b, &a);
-      if(a == 0xFF)
+        Uint8 r, g, b, a;
+        SDL_GetRGBA(pixel, format.get(), &r, &g, &b, &a);
+        if(a == 0xFF)
 #endif
-        return Vector2<int>(x, y);
+          return Vector2<int>(x - startX, y - startY);
+      }
+    }
+    return Vector2<int>(0, 0);
+  };
+
+  int startX = (_startIdx % _columns) * _frameSize.x;
+  int startY = (_startIdx / _columns) * _frameSize.y;
+  bool reverseX = anchorType == AnchorPoint::TR || anchorType == AnchorPoint::BR;
+  bool reverseY = anchorType == AnchorPoint::BR || anchorType == AnchorPoint::BL;
+  if(fromFirstFrame)
+    return findAnchor(reverseX, reverseY, 0, 0);
+  else
+    return findAnchor(reverseX, reverseY, startX, startY);
+  
+}
+
+//______________________________________________________________________________
+void AnimationCollection::RegisterAnimation(const std::string& name, const char* sheet, int rows, int columns, int startIndexOnSheet, int frames, AnchorPoint anchor)
+{
+  if (_animations.find(name) == _animations.end())
+  {
+    _animations.emplace(std::make_pair(name, Animation(sheet, rows, columns, startIndexOnSheet, frames, anchor)));
+    if (_animations.size() == 1)
+    {
+      for(int pt = 0; pt < (int)AnchorPoint::Size; pt++)
+        _anchorPoint[pt] = _animations.find(name)->second.FindAnchorPoint((AnchorPoint)pt, _useFirstSprite);
     }
   }
-  return Vector2<int>(0, 0);
+}
+
+//______________________________________________________________________________
+void AnimationCollection::AddHitboxEvents(const std::string& animationName, const char* hitboxesSheet, FrameData frameData)
+{
+  if (_animations.find(animationName) != _animations.end())
+  {
+    Animation& animation = _animations.find(animationName)->second;
+    _events.emplace(std::make_pair(animationName, std::make_shared<EventList>()));
+    _events[animationName]->emplace(std::piecewise_construct, std::make_tuple(frameData.startUp - 1), animation.CreateHitboxEvent(hitboxesSheet, frameData));
+  }
+}
+
+//______________________________________________________________________________
+Vector2<int> AnimationCollection::GetRenderOffset(const std::string& animationName, bool flipped) const
+{
+  auto animIt = _animations.find(animationName);
+  if(animIt == _animations.end())
+    return Vector2<int>::Zero();
+  // set offset by aligning top left non-transparent pixels of each texture
+  AnchorPoint location = animIt->second.GetMainAnchor().first;
+  Vector2<int> anchPosition = animIt->second.GetMainAnchor().second;
+
+  Vector2<int> offset = anchPosition - _anchorPoint[(int)location];
+
+  if(flipped)
+  {
+  }
+  return offset;
 }
