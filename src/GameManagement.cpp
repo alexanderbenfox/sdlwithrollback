@@ -321,8 +321,12 @@ void GameManager::BeginGameLoop()
   std::thread debuggerThread;
   RunScripter(debuggerThread, programRunning);
 
+  int frameCount = 0;
   for (;;)
   {
+    if(frameCount == 0)
+      std::cout << "Update time: " << _clock.GetUpdateTime() << "\n";
+
     //! Collect inputs from controllers (this means AI controllers as well as Player controllers)
     //UpdateInput();
     //InputSystem::DoTick(0);
@@ -337,6 +341,8 @@ void GameManager::BeginGameLoop()
 
     //! Finally render the scene
     Draw();
+
+    frameCount = (++frameCount) % 60;
   }
 
   programRunning = false;

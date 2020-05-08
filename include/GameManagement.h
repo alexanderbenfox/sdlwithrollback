@@ -82,7 +82,7 @@ private:
   std::mutex _debugMutex;
   //!
   //std::unique_ptr<IGameState> _gameState;
-  std::shared_ptr<Camera> _camera;
+  std::shared_ptr<Camera> _camera; 
 
   //______________________________________________________________________________
 

@@ -1,6 +1,7 @@
 #include "Timer.h"
 #include <SDL2/SDL.h>
 #include <algorithm>
+#include <chrono>
 
 //______________________________________________________________________________
 SDLClock::SDLClock() : startTicks(0), pauseTicks(0), lag(0), paused(false), started(false) {}
@@ -133,14 +134,26 @@ void Timer::Update(UpdateFunction& updateFunction)
   if(_fixedTimeStep)
   {
     if (_mainClock.paused)
+    {
+      std::chrono::time_point<std::chrono::high_resolution_clock> tp1 = std::chrono::steady_clock::now();
       updateFunction(0);
+
+      long long timeToUpdate = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::high_resolution_clock::now() - tp1).count();
+      _perfCounter.Add(timeToUpdate);
+    }
 
     //try to maintain 60 fps
     while (_mainClock.lag >= _mainClock.timestep)
     {
+      
       _frames++;
       _mainClock.lag -= _mainClock.timestep;
+
+      std::chrono::time_point<std::chrono::high_resolution_clock> tp1 = std::chrono::steady_clock::now();
       updateFunction(_mainClock.frametime);
+
+      long long timeToUpdate = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::high_resolution_clock::now() - tp1).count();
+      _perfCounter.Add(timeToUpdate);
     } 
 
     //cap framerate
