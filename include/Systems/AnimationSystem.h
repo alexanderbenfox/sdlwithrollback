@@ -85,7 +85,7 @@ public:
         // do this on the following frame so that the last frame of animation can still render
         if (animator->GetListener())
         {
-          if (!animator->looping && animator->frame == (animator->GetCurrentAnimation()->GetFrameCount() - 1))
+          if (!animator->looping && animator->frame == (animator->GetCurrentAnimation().GetFrameCount() - 1))
             animator->GetListener()->OnAnimationComplete(animator->currentAnimationName);
         }
 
@@ -94,7 +94,7 @@ public:
           int framesToAdv = (int)std::floor(animator->accumulatedTime / secPerFrame);
 
           // get next frame off of the type of anim it is
-          int totalAnimFrames = animator->GetCurrentAnimation()->GetFrameCount();
+          int totalAnimFrames = animator->GetCurrentAnimation().GetFrameCount();
 
           int nextFrame = animator->looping ? GetNextFrameLooping(framesToAdv, animator->frame, totalAnimFrames)
             : GetNextFrameOnce(framesToAdv, animator->frame, totalAnimFrames);
@@ -103,7 +103,7 @@ public:
           if (nextFrame != animator->frame)
           {
             animator->frame = nextFrame;
-            renderer->sourceRect = animator->GetCurrentAnimation()->GetFrameSrcRect(animator->frame);
+            renderer->sourceRect = animator->GetCurrentAnimation().GetFrameSrcRect(animator->frame);
           }
 
           // 

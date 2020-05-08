@@ -108,6 +108,21 @@ public:
     return _events.find(name)->second.get();
   }
 
+  std::unordered_map<std::string, Animation>::iterator GetAnimationIt(const std::string& name)
+  {
+    return _animations.find(name);
+  }
+
+  std::unordered_map<std::string, Animation>::iterator GetEnd()
+  {
+    return _animations.end();
+  }
+
+  bool IsValid(const std::unordered_map<std::string, Animation>::iterator& it)
+  {
+    return it != _animations.end();
+  }
+
 private:
   //! Map of animations name to animation object
   std::unordered_map<std::string, Animation> _animations;

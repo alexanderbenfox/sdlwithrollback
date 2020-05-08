@@ -15,7 +15,7 @@ public:
 
   void ChangeListener(IAnimatorListener* listener) { _listener = listener; }
 
-  Animation* GetCurrentAnimation() { return _animations.GetAnimation(currentAnimationName); }
+  Animation& GetCurrentAnimation() { return _currentAnimation->second; }
 
   //!
   IAnimatorListener* GetListener() { return _listener; }
@@ -42,5 +42,7 @@ protected:
   IAnimatorListener* _listener;
   //! All animations registered to this animator
   AnimationCollection _animations;
+  //!
+  std::unordered_map<std::string, Animation>::iterator _currentAnimation;
 
 };

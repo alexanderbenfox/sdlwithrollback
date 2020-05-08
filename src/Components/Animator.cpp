@@ -16,9 +16,11 @@ Animation* Animator::Play(const std::string& name, bool isLooped, bool horizonta
 {
   // dont play again if we are already playing it
   if (playing && name == currentAnimationName) return _animations.GetAnimation(currentAnimationName);
-  if (_animations.GetAnimation(name))
+  auto animation = _animations.GetAnimationIt(name);
+  if (_animations.IsValid(animation))
   {
     currentAnimationName = name;
+    _currentAnimation = animation;
     playing = true;
 
     // reset all parameters
@@ -27,5 +29,5 @@ Animation* Animator::Play(const std::string& name, bool isLooped, bool horizonta
 
     looping = isLooped;
   }
-  return _animations.GetAnimation(name);
+  return _animations.GetAnimation(currentAnimationName);
 }
