@@ -28,4 +28,9 @@ public:
     return collision == other.collision && onLeftSide == other.onLeftSide && hitThisFrame == other.hitThisFrame && hitting == other.hitting;
   }
 
+  bool operator!=(const StateComponent& other) const
+  {
+    return !(operator==(other));
+  }
+
 };

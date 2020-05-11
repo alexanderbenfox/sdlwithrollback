@@ -63,7 +63,7 @@ AnimationCollection EntityCreation::RyuAnimations()
   ryuAnimations.AddHitboxEvents("CrouchingHeavy", "spritesheets\\grounded_attacks_hitboxes.png", cH);
 
   ryuAnimations.RegisterAnimation("StandingLight", "spritesheets\\grounded_attacks.png", 8, 10, 38, 7, AnchorPoint::BL);
-  FrameData L{4, 2, 7, 2, -2, 1, Vector2<float>(120.0f, -100.0f), GameManager::Get().hitstopLight};
+  FrameData L{4, 2, 7, 3, -2, 1, Vector2<float>(120.0f, -100.0f), GameManager::Get().hitstopLight};
   ryuAnimations.AddHitboxEvents("StandingLight", "spritesheets\\grounded_attacks_hitboxes.png", L);
 
   ryuAnimations.RegisterAnimation("StandingMedium", "spritesheets\\grounded_attacks.png", 8, 10, 45, 9, AnchorPoint::BL);

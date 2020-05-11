@@ -33,40 +33,6 @@ private:
 };
 
 //______________________________________________________________________________
-//! Inteface for a context of the world that may affect character state
-/*class GameContext
-{
-public:
-  GameContext() : collision(CollisionSide::NONE), onLeftSide(false) {}
-  ~GameContext() {}
-
-  bool operator==(const GameContext& other) const
-  {
-    return collision == other.collision && onLeftSide == other.onLeftSide && hitThisFrame == other.hitThisFrame && hitting == other.hitting;
-  }
-
-  // will merge the contexts?
-  GameContext operator+(const GameContext& otherContext) const
-  {
-    // copy this
-    GameContext newContext = *this;
-    newContext.hitThisFrame |= otherContext.hitThisFrame;
-    newContext.hitOnLeftSide |= otherContext.hitOnLeftSide;
-    newContext.frameData = otherContext.frameData;
-    newContext.hitting = otherContext.hitting;
-    return newContext;
-  }
-
-  CollisionSide collision;
-  bool onLeftSide;
-  bool hitThisFrame = false;
-  bool hitOnLeftSide = false;
-  FrameData frameData;
-  bool hitting = false;
-
-};*/
-
-//______________________________________________________________________________
 class IAction
 {
 public:
@@ -84,9 +50,11 @@ public:
   virtual StanceState GetStance() = 0;
   virtual ActionState GetAction() = 0;
 
+  virtual bool CheckInputsOnFollowUp() = 0;
+
 protected:
   //!
-  virtual IAction* GetFollowUpAction() = 0;
+  virtual IAction* GetFollowUpAction(const InputBuffer& rawInput, const StateComponent& context) = 0;
   //!
   virtual void OnActionComplete() = 0;
 
@@ -102,6 +70,8 @@ public:
   {
     _listener = listener;
   }
+
+  virtual bool CheckInputsOnFollowUp() override { return false; }
 
 protected:
   //!
@@ -152,7 +122,7 @@ public:
 
 protected:
   //!
-  virtual IAction* GetFollowUpAction() override {return nullptr;}
+  virtual IAction* GetFollowUpAction(const InputBuffer& rawInput, const StateComponent& context) override {return nullptr;}
   //!
   bool _complete = false;
   //!
@@ -211,17 +181,18 @@ public:
   {
     if(AnimatedAction<Stance, Action>::_complete)
     {
-      return GetFollowUpAction();
+      return GetFollowUpAction(rawInput, context);
     }
-    
+
     IAction* onHitAction = CheckHits(rawInput.Latest(), context);
     if (onHitAction)
       return onHitAction;
+    
     return nullptr;
   }
 
 protected:
-  virtual IAction* GetFollowUpAction() override = 0;
+  virtual IAction* GetFollowUpAction(const InputBuffer& rawInput, const StateComponent& context) override = 0;
 
 std::shared_ptr<TimerComponent> _actionTiming;
 int _duration;
@@ -243,9 +214,11 @@ public:
   //! Adds hit state component
   virtual void Enact(Entity* actor) override;
 
+  virtual bool CheckInputsOnFollowUp() override { return true; }
+
 protected:
   //! Follows up with idle state
-  virtual IAction* GetFollowUpAction() override;
+  virtual IAction* GetFollowUpAction(const InputBuffer& rawInput, const StateComponent& context) override;
   //! Removes hit state component
   virtual void OnActionComplete() override;
 
@@ -263,9 +236,11 @@ public:
   //!
   virtual IAction* HandleInput(const InputBuffer& rawInput, const StateComponent& context) override;
 
+  virtual bool CheckInputsOnFollowUp() override { return true; }
+
 protected:
   //!
-  virtual IAction* GetFollowUpAction() override;
+  virtual IAction* GetFollowUpAction(const InputBuffer& rawInput, const StateComponent& context) override;
 
 };
 
@@ -291,6 +266,11 @@ protected:
   //! Removes attack state component
   virtual void OnActionComplete() override;
 
+  virtual IAction* GetFollowUpAction(const InputBuffer& rawInput, const StateComponent& context) override
+  {
+    return new LoopedAction<Stance, ActionState::NONE>(Stance == StanceState::STANDING ? "Idle" : Stance == StanceState::CROUCHING ? "Crouch" : "Jumping", this->_facingRight);
+  }
+
 };
 
 //______________________________________________________________________________
@@ -310,9 +290,8 @@ template <> IAction* LoopedAction<StanceState::JUMPING, ActionState::NONE>::Hand
 
 template <> IAction* LoopedAction<StanceState::CROUCHING, ActionState::NONE>::HandleInput(const InputBuffer& rawInput, const StateComponent& context);
 
-
 //______________________________________________________________________________
-template <> IAction* StateLockedAnimatedAction<StanceState::CROUCHING, ActionState::NONE>::GetFollowUpAction();
+template <> IAction* StateLockedAnimatedAction<StanceState::CROUCHING, ActionState::NONE>::GetFollowUpAction(const InputBuffer& rawInput, const StateComponent& context);
 
 template <StanceState State, ActionState Action>
 inline IAction* StateLockedAnimatedAction<State, Action>::HandleInput(const InputBuffer& rawInput, const StateComponent& context)
@@ -323,7 +302,7 @@ inline IAction* StateLockedAnimatedAction<State, Action>::HandleInput(const Inpu
 
   if(AnimatedAction<State, Action>::_complete)
   {
-    return GetFollowUpAction();
+    return GetFollowUpAction(rawInput, context);
   }
 
   if (context.hitThisFrame)
@@ -336,7 +315,7 @@ inline IAction* StateLockedAnimatedAction<State, Action>::HandleInput(const Inpu
   {
     if (HasState(context.collision, CollisionSide::DOWN))
     {
-      return GetFollowUpAction();
+      return GetFollowUpAction(rawInput, context);
     }
   }
   return nullptr;

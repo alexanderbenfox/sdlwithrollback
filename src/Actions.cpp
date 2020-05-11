@@ -137,8 +137,12 @@ void AnimatedAction<Stance, Action>::Enact(Entity* actor)
 }
 
 //______________________________________________________________________________
-template <> IAction* StateLockedAnimatedAction<StanceState::CROUCHING, ActionState::NONE>::GetFollowUpAction()
+template <> IAction* StateLockedAnimatedAction<StanceState::CROUCHING, ActionState::NONE>::GetFollowUpAction(const InputBuffer& rawInput, const StateComponent& context)
 {
+  LoopedAction<StanceState::CROUCHING, ActionState::NONE> followUp("Crouch", _facingRight);
+  IAction* action = followUp.HandleInput(rawInput, context);
+  if(action)
+    return action;
   return new LoopedAction<StanceState::CROUCHING, ActionState::NONE>("Crouch", _facingRight);
 }
 
@@ -195,6 +199,7 @@ template <> IAction* LoopedAction<StanceState::JUMPING, ActionState::NONE>::Hand
   if (HasState(context.collision, CollisionSide::DOWN))
   {
     // when going back to neutral, change facing
+    OnActionComplete();
     return new LoopedAction<StanceState::STANDING, ActionState::NONE>("Idle", context.onLeftSide, Vector2<float>(0,0));
   }
 
@@ -207,6 +212,7 @@ template <> IAction* LoopedAction<StanceState::CROUCHING, ActionState::NONE>::Ha
   bool facingRight = context.onLeftSide;
   if (context.collision == CollisionSide::NONE)
   {
+    OnActionComplete();
     return new LoopedAction<StanceState::JUMPING, ActionState::NONE>("Jumping", facingRight);
   }
 
@@ -282,10 +288,14 @@ void OnRecvHitAction<Stance, Action>::Enact(Entity* actor)
 
 //______________________________________________________________________________
 template <StanceState Stance, ActionState Action>
-IAction* OnRecvHitAction<Stance, Action>::GetFollowUpAction()
+IAction* OnRecvHitAction<Stance, Action>::GetFollowUpAction(const InputBuffer& rawInput, const StateComponent& context)
 {
-  return new LoopedAction<Stance, ActionState::NONE>
-    (Stance == StanceState::STANDING ? "Idle" : Stance == StanceState::CROUCHING ? "Crouch" : "Jumping", this->_facingRight);
+  /*LoopedAction<Stance, ActionState::NONE> followUp(Stance == StanceState::STANDING ? "Idle" : Stance == StanceState::CROUCHING ? "Crouch" : "Jumping", this->_facingRight);
+  IAction* action = followUp.HandleInput(rawInput, context);
+  if(action)
+    return action;
+  return new LoopedAction<Stance, ActionState::NONE>(Stance == StanceState::STANDING ? "Idle" : Stance == StanceState::CROUCHING ? "Crouch" : "Jumping", this->_facingRight);*/
+  return new LoopedAction<Stance, ActionState::NONE>(Stance == StanceState::STANDING ? "Idle" : Stance == StanceState::CROUCHING ? "Crouch" : "Jumping", this->_facingRight);
 }
 
 //______________________________________________________________________________
@@ -312,10 +322,13 @@ StateLockedAnimatedAction<Stance, Action>::StateLockedAnimatedAction(const std::
 
 //______________________________________________________________________________
 template <StanceState Stance, ActionState Action>
-IAction* StateLockedAnimatedAction<Stance, Action>::GetFollowUpAction()
+IAction* StateLockedAnimatedAction<Stance, Action>::GetFollowUpAction(const InputBuffer& rawInput, const StateComponent& context)
 {
-  return new LoopedAction<Stance, ActionState::NONE>
-    (Stance == StanceState::STANDING ? "Idle" : Stance == StanceState::CROUCHING ? "Crouch" : "Jumping", this->_facingRight);
+  LoopedAction<Stance, ActionState::NONE> followUp(Stance == StanceState::STANDING ? "Idle" : Stance == StanceState::CROUCHING ? "Crouch" : "Jumping", this->_facingRight);
+  IAction* action = followUp.HandleInput(rawInput, context);
+  if(action)
+    return action;
+  return new LoopedAction<Stance, ActionState::NONE>(Stance == StanceState::STANDING ? "Idle" : Stance == StanceState::CROUCHING ? "Crouch" : "Jumping", this->_facingRight);
 }
 
 //______________________________________________________________________________
@@ -346,7 +359,7 @@ template <StanceState Stance, ActionState Action>
 void AttackAction<Stance, Action>::OnActionComplete()
 {
   ListenedAction::_listener->GetOwner()->RemoveComponent<AttackStateComponent>();
-  ListenedAction::OnActionComplete();
+  StateLockedAnimatedAction<Stance, Action>::OnActionComplete();
 }
 
 //______________________________________________________________________________
@@ -356,14 +369,25 @@ template <> IAction* StateLockedAnimatedAction<StanceState::CROUCHING, ActionSta
   bool facingRight = context.onLeftSide;
   if (context.collision == CollisionSide::NONE)
   {
+    OnActionComplete();
     return new LoopedAction<StanceState::JUMPING, ActionState::NONE>("Jumping", facingRight);
+  }
+
+  IAction* onHitAction = CheckHits(rawInput.Latest(), context);
+  if (onHitAction) return onHitAction;
+
+  if(AnimatedAction<StanceState::CROUCHING, ActionState::NONE>::_complete)
+  {
+    return GetFollowUpAction(rawInput, context);
+  }
+
+  if (HasState(rawInput.Latest(), InputState::DOWN))
+  {
+    return nullptr;
   }
 
   IAction* attackAction = GetAttacksFromNeutral<StanceState::CROUCHING>(rawInput, context.onLeftSide);
   if(attackAction) return attackAction;
-
-  IAction* onHitAction = CheckHits(rawInput.Latest(), context);
-  if (onHitAction) return onHitAction;
 
   //if you arent attacking, you can move forward, move backward, crouch, stand, jumpf, jumpb, jumpn
   //jumping
@@ -378,11 +402,6 @@ template <> IAction* StateLockedAnimatedAction<StanceState::CROUCHING, ActionSta
     return new LoopedAction<StanceState::JUMPING, ActionState::NONE>("Jumping", facingRight, Vector2<float>(0.0f, -UniversalPhysicsSettings::Get().JumpVelocity));
   }
 
-  if (HasState(rawInput.Latest(), InputState::DOWN))
-  {
-    return nullptr;
-  }
-
   std::string walkAnimLeft = !facingRight ? "WalkF" : "WalkB";
   std::string walkAnimRight = !facingRight ? "WalkB" : "WalkF";
 
@@ -391,10 +410,6 @@ template <> IAction* StateLockedAnimatedAction<StanceState::CROUCHING, ActionSta
   else if (HasState(rawInput.Latest(), InputState::RIGHT))
     return new LoopedAction<StanceState::STANDING, ActionState::NONE>(walkAnimRight, facingRight, Vector2<float>(0.5f * _baseSpeed, 0));
 
-  if(AnimatedAction<StanceState::CROUCHING, ActionState::NONE>::_complete)
-  {
-    return GetFollowUpAction();
-  }
-  // state hasn't changed
+  // if not holding down, brought back to standing
   return new LoopedAction<StanceState::STANDING, ActionState::NONE>("Idle", facingRight, Vector2<float>(0.0, 0.0));
 }
