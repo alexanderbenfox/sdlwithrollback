@@ -385,11 +385,6 @@ template <> IAction* StateLockedAnimatedAction<StanceState::CROUCHING, ActionSta
     return GetFollowUpAction(rawInput, context);
   }
 
-  if (HasState(rawInput.Latest(), InputState::DOWN))
-  {
-    return nullptr;
-  }
-
   IAction* attackAction = GetAttacksFromNeutral<StanceState::CROUCHING>(rawInput, context.onLeftSide);
   if(attackAction) return attackAction;
 
@@ -413,6 +408,11 @@ template <> IAction* StateLockedAnimatedAction<StanceState::CROUCHING, ActionSta
     return new LoopedAction<StanceState::STANDING, ActionState::NONE>(walkAnimLeft, facingRight, Vector2<float>(-0.5f * _baseSpeed, 0));
   else if (HasState(rawInput.Latest(), InputState::RIGHT))
     return new LoopedAction<StanceState::STANDING, ActionState::NONE>(walkAnimRight, facingRight, Vector2<float>(0.5f * _baseSpeed, 0));
+
+  if (HasState(rawInput.Latest(), InputState::DOWN))
+  {
+    return nullptr;
+  }
 
   // if not holding down, brought back to standing
   return new LoopedAction<StanceState::STANDING, ActionState::NONE>("Idle", facingRight, Vector2<float>(0.0, 0.0));
