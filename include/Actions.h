@@ -4,6 +4,7 @@
 #include "ListenerInterfaces.h"
 #include "Components/StateComponent.h"
 
+#include <functional>
 
 //! Drives the animation
 class TimerComponent

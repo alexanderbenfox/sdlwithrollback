@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClCompile Include="..\src\2DEngine.cpp" />
     <ClCompile Include="..\src\Actions.cpp" />
+    <ClCompile Include="..\src\AssetManagement\Animation.cpp" />
     <ClCompile Include="..\src\AssetManagement\Resource.cpp" />
     <ClCompile Include="..\src\AssetManagement\Text.cpp" />
     <ClCompile Include="..\src\Components\Animator.cpp" />
@@ -36,8 +37,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Actions.h" />
+    <ClInclude Include="..\include\AssetManagement\Animation.h" />
+    <ClInclude Include="..\include\AssetManagement\BlitOperation.h" />
     <ClInclude Include="..\include\AssetManagement\Resource.h" />
     <ClInclude Include="..\include\AssetManagement\Text.h" />
+    <ClInclude Include="..\include\ComponentConst.h" />
     <ClInclude Include="..\include\Components\Animator.h" />
     <ClInclude Include="..\include\Components\AttackStateComponent.h" />
     <ClInclude Include="..\include\Components\Camera.h" />

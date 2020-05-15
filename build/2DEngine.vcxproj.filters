@@ -81,6 +81,9 @@
     <ClCompile Include="..\src\AssetManagement\Text.cpp">
       <Filter>Source Files\AssetManagement</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\AssetManagement\Animation.cpp">
+      <Filter>Source Files\AssetManagement</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\AssetManagement\Resource.h">
@@ -178,6 +181,15 @@
     </ClInclude>
     <ClInclude Include="..\include\AssetManagement\Text.h">
       <Filter>Header Files\AssetManagement</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\AssetManagement\Animation.h">
+      <Filter>Header Files\AssetManagement</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\AssetManagement\BlitOperation.h">
+      <Filter>Header Files\AssetManagement</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\ComponentConst.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

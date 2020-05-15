@@ -162,16 +162,19 @@ Vector2<int> Animation::FindAnchorPoint(AnchorPoint anchorType, bool fromFirstFr
 
   // Get the pixel data
   Uint32* upixels;
-  #ifdef _WIN32
+#ifdef _WIN32
   unsigned char* px = sheetTexture.GetInfo().pixels.get();
   upixels = (Uint32*)px;
-  Uint32 transparent = sheetTexture.GetInfo().transparent;
 #else
   upixels = (Uint32*)sheetTexture.GetInfo().pixels.get();
 #endif
 
   auto findAnchor = [this, &upixels, &sheetTexture, &format](bool reverseX, bool reverseY, int startX, int startY)
   {
+#ifdef _WIN32
+    Uint32 transparent = sheetTexture.GetInfo().transparent;
+#endif
+
     for (int yValue = startY; yValue < startY + _frameSize.y; yValue++)
     {
       for (int xValue = startX; xValue < startX + _frameSize.x; xValue++)
