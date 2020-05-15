@@ -37,7 +37,7 @@ bool Camera::EntityInDisplay(const BlitOperation* entity)
 template <typename T>
 void RectCollider<T>::Init(Vector2<T> beg, Vector2<T> end)
 {
-  rect = Rect<T>(beg, end);
+  rect = unscaledRect = Rect<T>(beg, end);
 }
 
 //______________________________________________________________________________
@@ -122,10 +122,15 @@ void GameActor::BeginNewAction(IAction* action)
     std::string comboText = "Combo: " + std::to_string(_comboCounter);
     _counterText->GetComponent<GraphicRenderer>()->Init(ResourceManager::Get().GetText(comboText.c_str(), "fonts\\Eurostile.ttf"));
   }
+
+
   if (_currentAction != nullptr)
+  {
+    if(_currentAction->CheckInputsOnFollowUp())
+      _newState = true;
     delete _currentAction;
+  }
   
-  _newState = true;
   _currentAction = action;
 
   _currentAction->ChangeListener(this);
@@ -136,22 +141,22 @@ void GameActor::BeginNewAction(IAction* action)
 void GameActor::EvaluateInputContext(const InputBuffer& input, const StateComponent* stateInfo, float dt)
 {
   StateComponent currentState = *stateInfo;
-  if (!_newState && input.Latest() == _lastInput && currentState == _lastState)
-    return;
-
-  _newState = false;
-  _lastInput = input.Latest();
-  _lastState = currentState;
-
-  IAction* prevAction = _currentAction;
-  IAction* nextAction = _currentAction->HandleInput(input, currentState);
-
-  if (nextAction && (nextAction != prevAction))
+  if (_newState || input.Latest() != _lastInput || currentState != _lastState)
   {
-    if(nextAction->GetAction() == ActionState::HITSTUN)
-      _comboCounter++;
-    //OnActionComplete(prevAction);
-    BeginNewAction(nextAction);
+    _newState = false;
+    _lastInput = input.Latest();
+    _lastState = currentState;
+
+    IAction* prevAction = _currentAction;
+    IAction* nextAction = _currentAction->HandleInput(input, currentState);
+
+    if (nextAction && (nextAction != prevAction))
+    {
+      if(nextAction->GetAction() == ActionState::HITSTUN)
+        _comboCounter++;
+      //OnActionComplete(prevAction);
+      BeginNewAction(nextAction);
+    }
   }
 }
 

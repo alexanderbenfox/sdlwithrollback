@@ -98,8 +98,8 @@ public:
   Rect(Vector2<T> beg, Vector2<T> end) : _beg(beg), _end(end) {}
   Rect(T xMin, T yMin, T xMax, T yMax) : _beg(xMin, yMin), _end(xMax, yMax) {}
 
-  const T Width() { return _end.x - _beg.x; }
-  const T Height() { return _end.y - _beg.y; }
+  T Width() const { return _end.x - _beg.x; }
+  T Height() const { return _end.y - _beg.y; }
 
   void MoveRelative(const Vector2<T>& vec);
   void MoveAbsolute(const Vector2<T>& vec);

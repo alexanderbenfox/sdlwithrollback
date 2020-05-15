@@ -15,7 +15,7 @@ void Animator::SetAnimations(const AnimationCollection& animations)
 Animation* Animator::Play(const std::string& name, bool isLooped, bool horizontalFlip)
 {
   // dont play again if we are already playing it
-  if (playing && name == currentAnimationName) return _animations.GetAnimation(currentAnimationName);
+  //if (playing && name == currentAnimationName) return _animations.GetAnimation(currentAnimationName);
   auto animation = _animations.GetAnimationIt(name);
   if (_animations.IsValid(animation))
   {
