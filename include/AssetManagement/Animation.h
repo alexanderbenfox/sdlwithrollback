@@ -57,7 +57,7 @@ public:
 
   const int GetFrameCount() const { return static_cast<int>(_animFrameToSheetFrame.size()); }
 
-  Vector2<int> const GetFrameWH() { return _frameSize; }
+  Vector2<int> GetFrameWH() const { return _frameSize; }
   //!
   Texture& GetSheetTexture() const;
   //! Gets first non-transparent pixel from the top left and bottom left
@@ -92,7 +92,7 @@ public:
   void AddHitboxEvents(const std::string& animationName, const char* hitboxesSheet, FrameData frameData);
 
 
-  Vector2<int> GetRenderOffset(const std::string& animationName, bool flipped) const;
+  Vector2<int> GetRenderOffset(const std::string& animationName, bool flipped, int transformWidth) const;
   //! Getters
   Animation* GetAnimation(const std::string& name)
   {
@@ -130,6 +130,7 @@ private:
   std::unordered_map<std::string, std::shared_ptr<EventList>> _events;
   //!
   Vector2<int> _anchorPoint[(const int)AnchorPoint::Size];
+  Rect<int> _anchorRect;
 
   //! use the first sprite sheet in as anchor point reference
   bool _useFirstSprite = false;

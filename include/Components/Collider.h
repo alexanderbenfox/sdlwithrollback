@@ -45,6 +45,7 @@ public:
   virtual void Draw() override;
   //!
   Rect<T> rect;
+  Rect<T> unscaledRect;
 
   friend std::ostream& operator<<(std::ostream& os, const RectCollider& collider)
   {

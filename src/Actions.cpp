@@ -104,7 +104,11 @@ void AnimatedAction<Stance, Action>::Enact(Entity* actor)
       if(auto properties = actor->GetComponent<RenderProperties>())
       {
         properties->horizontalFlip = !_facingRight;
-        properties->offset = animator->AnimationLib().GetRenderOffset(_animation, !_facingRight);
+
+        if(auto rect = actor->GetComponent<Hurtbox>())
+        {
+          properties->offset = animator->AnimationLib().GetRenderOffset(_animation, !_facingRight, (int)std::floor(rect->unscaledRect.Width()));
+        }
       }
 
       if(auto renderer = actor->GetComponent<GraphicRenderer>())

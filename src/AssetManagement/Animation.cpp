@@ -216,8 +216,13 @@ void AnimationCollection::RegisterAnimation(const std::string& name, const char*
     _animations.emplace(std::make_pair(name, Animation(sheet, rows, columns, startIndexOnSheet, frames, anchor)));
     if (_animations.size() == 1)
     {
+      Animation& mainAnim = _animations.find(name)->second;
       for(int pt = 0; pt < (int)AnchorPoint::Size; pt++)
-        _anchorPoint[pt] = _animations.find(name)->second.FindAnchorPoint((AnchorPoint)pt, _useFirstSprite);
+      {
+        _anchorPoint[pt] = mainAnim.FindAnchorPoint((AnchorPoint)pt, _useFirstSprite);
+      }
+      auto size = mainAnim.GetFrameWH();
+      _anchorRect = Rect<int>(0, 0, size.x, size.y);
     }
   }
 }
@@ -234,19 +239,24 @@ void AnimationCollection::AddHitboxEvents(const std::string& animationName, cons
 }
 
 //______________________________________________________________________________
-Vector2<int> AnimationCollection::GetRenderOffset(const std::string& animationName, bool flipped) const
+Vector2<int> AnimationCollection::GetRenderOffset(const std::string& animationName, bool flipped, int transformWidth) const
 {
   auto animIt = _animations.find(animationName);
   if(animIt == _animations.end())
     return Vector2<int>::Zero();
+
+  Animation const& renderedAnim = animIt->second;
   // set offset by aligning top left non-transparent pixels of each texture
-  AnchorPoint location = animIt->second.GetMainAnchor().first;
-  Vector2<int> anchPosition = animIt->second.GetMainAnchor().second;
+  AnchorPoint location = renderedAnim.GetMainAnchor().first;
+  Vector2<int> anchPosition = renderedAnim.GetMainAnchor().second;
 
   Vector2<int> offset = anchPosition - _anchorPoint[(int)location];
 
   if(flipped)
   {
+    // good enough lol
+    offset.x = -transformWidth + offset.x - 3;
+    offset.x += renderedAnim.GetFrameWH().x;
   }
   return offset;
 }

@@ -37,7 +37,7 @@ bool Camera::EntityInDisplay(const BlitOperation* entity)
 template <typename T>
 void RectCollider<T>::Init(Vector2<T> beg, Vector2<T> end)
 {
-  rect = Rect<T>(beg, end);
+  rect = unscaledRect = Rect<T>(beg, end);
 }
 
 //______________________________________________________________________________
