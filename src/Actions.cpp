@@ -15,7 +15,9 @@ template <> IAction* GetAttacksFromNeutral<StanceState::STANDING>(const InputBuf
   if (HasState(rawInput.Latest(), InputState::BTN1))
   {
     //!!!! TESTING SPECIAL MOVES HERE
-    if (rawInput.Evaluate(UnivSpecMoveDict) == SpecialMoveState::QCF)
+    bool qcf = rawInput.Evaluate(UnivSpecMoveDict) == SpecialMoveState::QCF && facingRight;
+    bool qcb = rawInput.Evaluate(UnivSpecMoveDict) == SpecialMoveState::QCB && !facingRight;
+    if (qcf || qcb)
       return new GroundedStaticAttack<StanceState::STANDING, ActionState::NONE>("SpecialMove1", facingRight);
 
     if (HasState(rawInput.Latest(), InputState::DOWN))
@@ -82,7 +84,7 @@ IAction* CheckHits(const InputState& rawInput, const StateComponent& context)
     bool blockedLeft = HasState(rawInput, InputState::RIGHT) && context.hitOnLeftSide;
     int neutralFrame = context.frameData.active + context.frameData.recover + 1;
     if (blockedRight || blockedLeft)
-      return new OnRecvHitAction<StanceState::STANDING, ActionState::BLOCKSTUN>("Block", facingRight, neutralFrame + context.frameData.onBlockAdvantage, Vector2<float>::Zero());
+      return new OnRecvHitAction<StanceState::STANDING, ActionState::BLOCKSTUN>("Block", facingRight, neutralFrame + context.frameData.onBlockAdvantage, Vector2<float>::Zero);
     else
       return new OnRecvHitAction<StanceState::STANDING, ActionState::HITSTUN>("HeavyHitstun", facingRight, neutralFrame + context.frameData.onHitAdvantage, context.frameData.knockback);
   }
@@ -107,7 +109,7 @@ void AnimatedAction<Stance, Action>::Enact(Entity* actor)
 
         if(auto rect = actor->GetComponent<Hurtbox>())
         {
-          properties->offset = animator->AnimationLib().GetRenderOffset(_animation, !_facingRight, (int)std::floor(rect->unscaledRect.Width()));
+          properties->offset = -1 * animator->AnimationLib().GetRenderOffset(_animation, !_facingRight, (int)std::floor(rect->unscaledRect.Width()));
         }
       }
 
@@ -191,7 +193,7 @@ template <> IAction* LoopedAction<StanceState::STANDING, ActionState::NONE>::Han
     return new LoopedAction<StanceState::STANDING, ActionState::NONE>(walkAnimRight, facingRight, Vector2<float>(0.5f * _baseSpeed, 0));
 
   // Stopped
-  return new LoopedAction<StanceState::STANDING, ActionState::NONE>("Idle", facingRight, Vector2<float>::Zero());
+  return new LoopedAction<StanceState::STANDING, ActionState::NONE>("Idle", facingRight, Vector2<float>::Zero);
 }
 
 //______________________________________________________________________________
@@ -401,6 +403,11 @@ template <> IAction* StateLockedAnimatedAction<StanceState::CROUCHING, ActionSta
     return new LoopedAction<StanceState::JUMPING, ActionState::NONE>("Jumping", facingRight, Vector2<float>(0.0f, -UniversalPhysicsSettings::Get().JumpVelocity));
   }
 
+  if (HasState(rawInput.Latest(), InputState::DOWN))
+  {
+    return nullptr;
+  }
+
   std::string walkAnimLeft = !facingRight ? "WalkF" : "WalkB";
   std::string walkAnimRight = !facingRight ? "WalkB" : "WalkF";
 
@@ -408,11 +415,6 @@ template <> IAction* StateLockedAnimatedAction<StanceState::CROUCHING, ActionSta
     return new LoopedAction<StanceState::STANDING, ActionState::NONE>(walkAnimLeft, facingRight, Vector2<float>(-0.5f * _baseSpeed, 0));
   else if (HasState(rawInput.Latest(), InputState::RIGHT))
     return new LoopedAction<StanceState::STANDING, ActionState::NONE>(walkAnimRight, facingRight, Vector2<float>(0.5f * _baseSpeed, 0));
-
-  if (HasState(rawInput.Latest(), InputState::DOWN))
-  {
-    return nullptr;
-  }
 
   // if not holding down, brought back to standing
   return new LoopedAction<StanceState::STANDING, ActionState::NONE>("Idle", facingRight, Vector2<float>(0.0, 0.0));

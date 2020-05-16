@@ -298,7 +298,9 @@ template <StanceState State, ActionState Action>
 inline IAction* StateLockedAnimatedAction<State, Action>::HandleInput(const InputBuffer& rawInput, const StateComponent& context)
 {
   //!!!! TESTING SPECIAL CANCELS HERE
-  if (context.hitting && HasState(rawInput.Latest(), InputState::BTN1) && rawInput.Evaluate(UnivSpecMoveDict) == SpecialMoveState::QCF)
+  bool qcf = rawInput.Evaluate(UnivSpecMoveDict) == SpecialMoveState::QCF && context.onLeftSide;
+  bool qcb = rawInput.Evaluate(UnivSpecMoveDict) == SpecialMoveState::QCB && !context.onLeftSide;
+  if (context.hitting && HasState(rawInput.Latest(), InputState::BTN1) && (qcf || qcb))
     return new GroundedStaticAttack<StanceState::STANDING, ActionState::NONE>("SpecialMove1", context.onLeftSide);
 
   if(AnimatedAction<State, Action>::_complete)

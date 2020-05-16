@@ -39,8 +39,13 @@ public:
   T y;
 
   void operator+=(const Vector2<T>& other) { x += other.x; y += other.y; }
+  void operator-=(const Vector2<T>& other) { x -= other.x; y -= other.y; }
   void operator*=(const Vector2<T>& other) { x *= other.x; y *= other.y; }
   bool operator==(const Vector2<T>& other) const { return x == other.x && y == other.y; }
+
+  //! Casting operator for other types of vectors (numerical only)
+  template <typename U>
+  operator Vector2<U>() const { return Vector2<U>((U)x, (U)y); }
 
   friend Vector2<T> operator+(const Vector2<T>& a, const Vector2<T>& b)
   {
@@ -69,8 +74,12 @@ public:
     return is;
   }
 
-  static Vector2<T> Zero(){ return Vector2<T>(static_cast<T>(0), static_cast<T>(0)); }
+  static Vector2<T> Zero;
 };
+
+//______________________________________________________________________________
+template <typename T>
+inline Vector2<T> Vector2<T>::Zero = Vector2<T>(static_cast<T>(0), static_cast<T>(0));
 
 template <typename T> Vector2<T> operator+(const Vector2<T>& lhs, const Vector2<T>& rhs);
 template <typename T> Vector2<T> operator*(const Vector2<T>& lhs, T rhs);
@@ -100,11 +109,27 @@ public:
 
   T Width() const { return _end.x - _beg.x; }
   T Height() const { return _end.y - _beg.y; }
+  T HalfWidth() const { return Width() / (T)2.0; }
+  T HalfHeight() const { return Height() / (T)2.0; }
 
   void MoveRelative(const Vector2<T>& vec);
   void MoveAbsolute(const Vector2<T>& vec);
 
   Vector2<T> GetCenter() const { return Vector2<T>(_beg.x + (_end.x - _beg.x) / 2.0, _beg.y + (_end.y - _beg.y) / 2.0); }
+  void CenterOnPoint(const Vector2<T> center)
+  {
+    T halfW = HalfWidth();
+    T halfH = HalfHeight();
+    _beg = Vector2<T>(center.x - halfW, center.y - halfH);
+    _end = Vector2<T>(center.x + halfW, center.y + halfH);
+  }
+
+  void Scale(Vector2<T> oldScale, Vector2<T> newScale)
+  {
+    Vector2<T> scaler(Width() * (newScale.x - oldScale.x) / (T)2.0, Height() * (newScale.y - oldScale.y) / (T)2.0);
+    _beg -= scaler;
+    _end += scaler;
+  }
 
   //template <typename U>
   //Vector2<T> Overlap(const U& other, Vector2<T> incidentVector);

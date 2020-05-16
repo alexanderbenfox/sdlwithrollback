@@ -11,12 +11,20 @@ struct Transform : public IComponent
     position(Vector2<float>(0.0f, 0.0f)),
     scale(Vector2<float>(1.0f, 1.0f)),
     rotation(Vector2<float>(0.0f, 0.0f)),
+    rect(),
     IComponent(owner) {}
   Vector2<float> position;
   Vector2<float> scale;
   Vector2<float> rotation;
+  //! Rect used for anchor points and rendering images in the world
+  Rect<float> rect;
 
-    //!
+  void SetWidthAndHeight(float width, float height)
+  {
+    rect = Rect<float>(0.0f, 0.0f, width, height);
+  }
+
+  //!
   template <typename T>
   void AddComponent();
   //!

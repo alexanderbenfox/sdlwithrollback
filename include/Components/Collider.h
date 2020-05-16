@@ -37,13 +37,12 @@ public:
   RectCollider(std::shared_ptr<Entity> entity) : ICollider(entity) {}
   //!
   void Init(Vector2<T> beg, Vector2<T> end);
-  void MoveToTransform(const Transform& transform)
-  {
-    rect = Rect<T>(Vector2<T>((T)transform.position.x, (T)transform.position.y), Vector2<T>(transform.position.x + rect.Width(), transform.position.y + rect.Height()));
-  }
+  void MoveToTransform(const Transform& transform) { rect.CenterOnPoint(transform.position); }
   //!
   virtual void Draw() override;
   //!
+
+
   Rect<T> rect;
   Rect<T> unscaledRect;
 

@@ -99,7 +99,7 @@ double PhysicsSystem::ToDouble(const float& f)
 Vector2<float> PhysicsSystem::PositionAdjustmentToVelocity(const Vector2<double>& overlap, const double& ddt)
 {
   if (ddt == 0.0)
-    return Vector2<float>::Zero();
+    return Vector2<float>::Zero;
   return (Vector2<float>((float)(overlap.x) / (float)ddt, (float)(overlap.y) / (float)ddt));
 }
 

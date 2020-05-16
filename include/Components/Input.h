@@ -74,7 +74,8 @@ private:
 // simple move dict to test this out
 const TrieNode<InputState, SpecialMoveState> UnivSpecMoveDict
 {
-  std::make_pair(std::list<InputState>{InputState::DOWN, InputState::DOWN | InputState::RIGHT, InputState::RIGHT}, SpecialMoveState::QCF)
+  std::make_pair(std::list<InputState>{InputState::DOWN, InputState::DOWN | InputState::RIGHT, InputState::RIGHT}, SpecialMoveState::QCF),
+  std::make_pair(std::list<InputState>{InputState::DOWN, InputState::DOWN | InputState::LEFT, InputState::LEFT}, SpecialMoveState::QCB)
 };
 
 //______________________________________________________________________________

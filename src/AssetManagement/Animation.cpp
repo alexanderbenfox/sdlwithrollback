@@ -6,7 +6,7 @@
 
 //______________________________________________________________________________
 Animation::Animation(const char* sheet, int rows, int columns, int startIndexOnSheet, int frames, AnchorPoint anchor) : _rows(rows), _columns(columns), _startIdx(startIndexOnSheet), _frames(frames),
-  _src(sheet), _anchorPoint(std::make_pair(anchor, Vector2<int>::Zero()))
+  _src(sheet), _anchorPoint(std::make_pair(anchor, Vector2<int>::Zero))
 {
   auto sheetSize = ResourceManager::Get().GetTextureWidthAndHeight(sheet);
   _frameSize = Vector2<int>(sheetSize.x / _columns, sheetSize.y / _rows);
@@ -18,6 +18,11 @@ Animation::Animation(const char* sheet, int rows, int columns, int startIndexOnS
   {
     _animFrameToSheetFrame[i] = static_cast<int>(std::floor((double)i * ((double)frames / (double)gameFrames)));
   }
+
+  _lMargin = FindAnchorPoint(AnchorPoint::BL, true).x;
+  _rMargin = FindAnchorPoint(AnchorPoint::BR, true).x;
+  _tMargin = FindAnchorPoint(AnchorPoint::TL, true).y;
+
   _anchorPoint.second = FindAnchorPoint(anchor, true);
 }
 
@@ -41,8 +46,8 @@ EventInitParams Animation::CreateHitboxEvent(const char* hitboxesSheet, FrameDat
   int activeFrames = -1;
   int recoveryFrames = -1;
 
-  std::function<void(double, double, Transform*)> trigger;
-  std::vector<std::function<void(double, double, Transform*)>> updates;
+  std::function<void(Transform*,StateComponent*)> trigger;
+  std::vector<std::function<void(Transform*,StateComponent*)>> updates;
 
   hitboxes.Load();
   if (hitboxes.IsLoaded())
@@ -55,12 +60,20 @@ EventInitParams Animation::CreateHitboxEvent(const char* hitboxesSheet, FrameDat
       Rect<double> hitbox = ResourceManager::FindRect(hitboxes, _frameSize, Vector2<int>(x * _frameSize.x, y * _frameSize.y));
       if (hitbox.Area() != 0)
       {
+        Vector2<double> dataOffset(_lMargin, _tMargin);
+
         if (startUpFrames != -1)
         {
-          auto UpdateHitbox = [hitbox](double x, double y, Transform* trans)
+          auto UpdateHitbox = [hitbox, dataOffset](Transform* trans, StateComponent* state)
           {
-            trans->GetComponent<Hitbox>()->rect = Rect<double>(hitbox.Beg().x * trans->scale.x, hitbox.Beg().y * trans->scale.y, hitbox.End().x * trans->scale.x, hitbox.End().y * trans->scale.y);
-            trans->GetComponent<Hitbox>()->rect.MoveAbsolute(Vector2<double>(x + (hitbox.Beg().x * trans->scale.x), y + (hitbox.Beg().y * trans->scale.y)));
+            Rect<double> hitboxBoundsRelativeToAnim(hitbox.Beg().x * trans->scale.x, hitbox.Beg().y * trans->scale.y, hitbox.End().x * trans->scale.x, hitbox.End().y * trans->scale.y);
+            Vector2<float> transCenterRelativeToAnim(trans->rect.HalfWidth() + dataOffset.x * trans->scale.x, trans->rect.HalfHeight() + dataOffset.y * trans->scale.y);
+            Vector2<double> relativeToTransformCenter = hitboxBoundsRelativeToAnim.GetCenter() - (Vector2<double>)transCenterRelativeToAnim;
+            if(!state->onLeftSide)
+              relativeToTransformCenter.x *= -1.0;
+
+            trans->GetComponent<Hitbox>()->rect = hitboxBoundsRelativeToAnim;
+            trans->GetComponent<Hitbox>()->rect.CenterOnPoint((Vector2<double>)trans->position + relativeToTransformCenter);
           };
           updates.push_back(UpdateHitbox);
 
@@ -70,12 +83,19 @@ EventInitParams Animation::CreateHitboxEvent(const char* hitboxesSheet, FrameDat
         else
         {
           startUpFrames = i;
-          trigger = [hitbox, frameData](double x, double y, Transform* trans)
+          trigger = [hitbox, frameData, dataOffset](Transform* trans, StateComponent* state)
           {
             trans->AddComponent<Hitbox>();
             trans->GetComponent<Hitbox>()->frameData = frameData;
-            trans->GetComponent<Hitbox>()->rect = Rect<double>(hitbox.Beg().x * trans->scale.x, hitbox.Beg().y * trans->scale.y, hitbox.End().x * trans->scale.x, hitbox.End().y * trans->scale.y);
-            trans->GetComponent<Hitbox>()->rect.MoveAbsolute(Vector2<double>(x + (hitbox.Beg().x * trans->scale.x), y + (hitbox.Beg().y * trans->scale.y)));
+            
+            Rect<double> hitboxBoundsRelativeToAnim(hitbox.Beg().x * trans->scale.x, hitbox.Beg().y * trans->scale.y, hitbox.End().x * trans->scale.x, hitbox.End().y * trans->scale.y);
+            Vector2<float> transCenterRelativeToAnim(trans->rect.HalfWidth() + dataOffset.x * trans->scale.x, trans->rect.HalfHeight() + dataOffset.y * trans->scale.y);
+            Vector2<double> relativeToTransformCenter = hitboxBoundsRelativeToAnim.GetCenter() - (Vector2<double>)transCenterRelativeToAnim;
+            if(!state->onLeftSide)
+              relativeToTransformCenter.x *= -1.0;
+
+            trans->GetComponent<Hitbox>()->rect = hitboxBoundsRelativeToAnim;
+            trans->GetComponent<Hitbox>()->rect.CenterOnPoint((Vector2<double>)trans->position + relativeToTransformCenter);
           };
         }
       }
@@ -246,7 +266,7 @@ Vector2<int> AnimationCollection::GetRenderOffset(const std::string& animationNa
 {
   auto animIt = _animations.find(animationName);
   if(animIt == _animations.end())
-    return Vector2<int>::Zero();
+    return Vector2<int>::Zero;
 
   Animation const& renderedAnim = animIt->second;
   // set offset by aligning top left non-transparent pixels of each texture
@@ -256,10 +276,7 @@ Vector2<int> AnimationCollection::GetRenderOffset(const std::string& animationNa
   Vector2<int> offset = anchPosition - _anchorPoint[(int)location];
 
   if(flipped)
-  {
-    // good enough lol
-    offset.x = -transformWidth + offset.x - 3;
-    offset.x += renderedAnim.GetFrameWH().x;
-  }
+    offset.x += (renderedAnim.GetFlipMargin() - transformWidth);
+
   return offset;
 }

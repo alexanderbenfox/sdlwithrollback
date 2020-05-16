@@ -2,8 +2,9 @@
 #include "Systems/ISystem.h"
 #include "Components/Animator.h"
 #include "Components/AttackStateComponent.h"
+#include "Components/StateComponent.h"
 
-class AttackAnimationSystem : public ISystem<AttackStateComponent, Animator, Transform, RenderProperties>
+class AttackAnimationSystem : public ISystem<AttackStateComponent, Animator, Transform, StateComponent>
 {
 public:
   static void DoTick(float dt)
@@ -13,13 +14,11 @@ public:
       Animator* animator = std::get<Animator*>(tuple.second);
       Transform* transform = std::get<Transform*>(tuple.second);
       AttackStateComponent* atkState = std::get<AttackStateComponent*>(tuple.second);
-      RenderProperties* properties = std::get<RenderProperties*>(tuple.second);
+      StateComponent* stateComp = std::get<StateComponent*>(tuple.second);
 
       if (atkState->lastFrame != animator->frame)
       {
         int frame = animator->frame;
-        double transformOffsetX = (double)transform->position.x - (double)properties->offset.x * transform->scale.x;
-        double transformOffsetY = (double)transform->position.y - (double)properties->offset.y * transform->scale.y;
 
         // update all in progress events now
         for (int i = 0; i < atkState->inProgressEvents.size(); i++)
@@ -33,7 +32,7 @@ public:
           }
           else
           {
-            evt->UpdateEvent(frame, transformOffsetX, transformOffsetY, transform);
+            evt->UpdateEvent(frame, transform, stateComp);
           }
         }
 
@@ -42,7 +41,7 @@ public:
         if (potentialEvent)
         {
           atkState->inProgressEvents.push_back(potentialEvent);
-          potentialEvent->TriggerEvent(transformOffsetX, transformOffsetY, transform);
+          potentialEvent->TriggerEvent(transform, stateComp);
         }
 
         // update the last frame updated
@@ -135,9 +134,11 @@ public:
       displayOp->_textureRect = renderer->sourceRect;
       displayOp->_textureResource = renderer->GetRenderResource();
 
+      Vector2<int> renderOffset = properties->Offset();
+
       displayOp->_displayRect = OpSysConv::CreateSDLRect(
-        static_cast<int>(std::floor(transform->position.x - properties->offset.x * transform->scale.x)),
-        static_cast<int>(std::floor(transform->position.y - properties->offset.y * transform->scale.y)),
+        static_cast<int>(std::floor(transform->position.x + renderOffset.x * transform->scale.x)),
+        static_cast<int>(std::floor(transform->position.y + renderOffset.y * transform->scale.y)),
         (int)(static_cast<float>(renderer->sourceRect.w) * transform->scale.x),
         (int)(static_cast<float>(renderer->sourceRect.h) * transform->scale.y));
 

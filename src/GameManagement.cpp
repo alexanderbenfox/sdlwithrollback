@@ -251,31 +251,34 @@ void GameManager::Initialize()
   SDL_SetRenderDrawBlendMode(_renderer, SDL_BLENDMODE_BLEND);
 
   auto bottomBorder = CreateEntity<Transform, GraphicRenderer, RectColliderD>();
-  bottomBorder->GetComponent<Transform>()->position.x = 0.0;
-  bottomBorder->GetComponent<Transform>()->position.y = m_nativeHeight - 40;
+  bottomBorder->GetComponent<Transform>()->position.x = (float)m_nativeWidth / 2.0f;
+  bottomBorder->GetComponent<Transform>()->position.y = m_nativeHeight;
   bottomBorder->GetComponent<GraphicRenderer>()->Init(ResourceManager::Get().GetTexture("spritesheets\\ryu.png"));
-  bottomBorder->GetComponent<RectColliderD>()->Init(Vector2<double>(0, m_nativeHeight - 40), Vector2<double>(m_nativeWidth, m_nativeHeight + 5000.0f));
+  bottomBorder->GetComponent<RectColliderD>()->Init(Vector2<double>(0, m_nativeHeight - 40), Vector2<double>(m_nativeWidth, m_nativeHeight + 40.0f));
+  bottomBorder->GetComponent<RectColliderD>()->MoveToTransform(*bottomBorder->GetComponent<Transform>());
   bottomBorder->GetComponent<RectColliderD>()->SetStatic(true);
 
   auto leftBorder = CreateEntity<Transform, GraphicRenderer, RectColliderD>();
-  leftBorder->GetComponent<Transform>()->position.x = -200;
-  leftBorder->GetComponent<Transform>()->position.y = 0;
+  leftBorder->GetComponent<Transform>()->position.x = -100;
+  leftBorder->GetComponent<Transform>()->position.y = (float)m_nativeHeight/ 2.0f;
   leftBorder->GetComponent<GraphicRenderer>()->Init(ResourceManager::Get().GetTexture("spritesheets\\ryu.png"));
   leftBorder->GetComponent<RectColliderD>()->Init(Vector2<double>(-200, 0), Vector2<double>(0, m_nativeHeight));
+  leftBorder->GetComponent<RectColliderD>()->MoveToTransform(*leftBorder->GetComponent<Transform>());
   leftBorder->GetComponent<RectColliderD>()->SetStatic(true);
 
   auto rightBorder = CreateEntity<Transform, GraphicRenderer, RectColliderD>();
-  rightBorder->GetComponent<Transform>()->position.x = m_nativeWidth;
-  rightBorder->GetComponent<Transform>()->position.y = 0;
+  rightBorder->GetComponent<Transform>()->position.x = (float)m_nativeWidth + 100.0f;
+  rightBorder->GetComponent<Transform>()->position.y = (float)m_nativeHeight/ 2.0f;
   rightBorder->GetComponent<GraphicRenderer>()->Init(ResourceManager::Get().GetTexture("spritesheets\\ryu.png"));
   rightBorder->GetComponent<RectColliderD>()->Init(Vector2<double>(m_nativeWidth, 0), Vector2<double>(m_nativeWidth + 200, m_nativeHeight));
+  rightBorder->GetComponent<RectColliderD>()->MoveToTransform(*rightBorder->GetComponent<Transform>());
   rightBorder->GetComponent<RectColliderD>()->SetStatic(true);
 
   //auto randomAssRenderedText = CreateEntity<Transform, GraphicRenderer, RenderProperties>();
   //randomAssRenderedText->GetComponent<GraphicRenderer>()->Init(ResourceManager::Get().GetText("TEZT", "fonts\\Eurostile.ttf"));
 
-  auto p1 = EntityCreation::CreateLocalPlayer(0);
-  auto p2 = EntityCreation::CreateLocalPlayer(150);
+  auto p1 = EntityCreation::CreateLocalPlayer(100);
+  auto p2 = EntityCreation::CreateLocalPlayer(400);
 
   auto kb2 = p2->GetComponent<KeyboardInputHandler>();
   kb2->SetKey(SDLK_UP, InputState::UP);

@@ -1,5 +1,6 @@
 #pragma once
 #include "Components/Transform.h"
+#include "Components/StateComponent.h"
 #include "AssetManagement/BlitOperation.h"
 #include "ComponentConst.h"
 
@@ -21,11 +22,11 @@ class Animation;
 class AnimationEvent
 {
 public:
-  AnimationEvent(int startFrame, int duration, std::function<void(double, double, Transform*)> onTriggerCallback, std::vector<std::function<void(double,double,Transform*)>> update, std::function<void(Transform*)> onEndCallback) :
+  AnimationEvent(int startFrame, int duration, std::function<void(Transform*, StateComponent*)> onTriggerCallback, std::vector<std::function<void(Transform*, StateComponent*)>> update, std::function<void(Transform*)> onEndCallback) :
     _frame(startFrame), _duration(duration), _onTrigger(onTriggerCallback), _updates(update), _onEnd(onEndCallback) {}
 
-  void TriggerEvent(double x, double y, Transform* trans) { _onTrigger(x, y, trans); }
-  void UpdateEvent(int frame, double x, double y, Transform* trans) { _updates[frame - _frame - 1](x, y, trans); }
+  void TriggerEvent(Transform* trans, StateComponent* state) { _onTrigger(trans, state); }
+  void UpdateEvent(int frame, Transform* trans, StateComponent* state) { _updates[frame - _frame - 1](trans, state); }
   void EndEvent(Transform* trans) { _onEnd(trans); }
   int GetEndFrame() { return _frame + _duration; }
 
@@ -37,12 +38,12 @@ private:
   int _frame;
   int _duration;
   //!
-  std::function<void(double, double, Transform*)> _onTrigger;
-  std::vector<std::function<void(double,double,Transform*)>> _updates;
+  std::function<void(Transform*, StateComponent*)> _onTrigger;
+  std::vector<std::function<void(Transform*, StateComponent*)>> _updates;
   std::function<void(Transform*)> _onEnd;
 };
 
-typedef std::tuple<int, int, std::function<void(double, double, Transform*)>, std::vector<std::function<void(double,double,Transform*)>>, std::function<void(Transform*)>> EventInitParams;
+typedef std::tuple<int, int, std::function<void(Transform*, StateComponent*)>, std::vector<std::function<void(Transform*, StateComponent*)>>, std::function<void(Transform*)>> EventInitParams;
 
 //______________________________________________________________________________
 class Animation
@@ -65,6 +66,8 @@ public:
   //!
   std::pair<AnchorPoint, Vector2<int>> const& GetMainAnchor() const { return _anchorPoint; }
 
+  int GetFlipMargin() const { return _frameSize.x - _lMargin; }
+
 protected:
   //!
   int _rows, _columns, _frames, _startIdx;
@@ -78,6 +81,8 @@ protected:
   std::string _src;
   //!
   std::pair<AnchorPoint, Vector2<int>> _anchorPoint;
+  //! finding margin from the bottom right now
+  int _lMargin, _rMargin, _tMargin;
 
 };
 
