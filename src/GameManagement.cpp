@@ -289,6 +289,8 @@ void GameManager::Initialize()
   kb2->SetKey(SDLK_k, InputState::BTN2);
   kb2->SetKey(SDLK_l, InputState::BTN3);
 
+  p2->AddComponent<GamepadInputHandler>();
+
   _camera = EntityCreation::CreateCamera();
 
   //_gameState = std::unique_ptr<IGameState>(new LocalMatch(kb1, kb2));
@@ -362,6 +364,7 @@ Camera* GameManager::GetMainCamera()
 void GameManager::CheckAgainstSystems(Entity* entity)
 {
   InputSystem::Check(entity);
+  GamepadInputSystem::Check(entity);
   PhysicsSystem::Check(entity);
   AnimationSystem::Check(entity);
   MoveSystemRect::Check(entity);
@@ -387,6 +390,7 @@ void GameManager::Update(float deltaTime)
   TimerSystem::DoTick(deltaTime);
   HitSystem::DoTick(deltaTime);
   InputSystem::DoTick(deltaTime);
+  GamepadInputSystem::DoTick(deltaTime);
   
   FrameAdvantageSystem::DoTick(deltaTime);
   // resolve collisions

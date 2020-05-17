@@ -143,6 +143,31 @@ private:
   
 };
 
+
+//______________________________________________________________________________
+//!
+class GamepadInputHandler : public IInputHandler
+{
+public:
+  //!
+  GamepadInputHandler(std::shared_ptr<Entity> owner);
+  //!
+  ~GamepadInputHandler();
+  //!
+  virtual InputBuffer const& CollectInputState() final;
+
+private:
+  //!
+  SDL_GameController* _gameController = nullptr;
+  //!
+  SDL_Joystick* _joyStick;
+  //!
+  const int _joyStickID = 0;
+  //!
+  ConfigMap<SDL_GameControllerButton, InputState> _config;
+  
+};
+
 #ifdef _WIN32
 #include <GGPO/ggponet.h>
 
