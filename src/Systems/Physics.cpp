@@ -9,9 +9,8 @@ void PhysicsSystem::DoTick(float dt)
     // Apply last frame of acceleration to the velocity
 
     auto rigidbody = std::get<Rigidbody*>(collidingObj);
-    auto collider = std::get<RectColliderD*>(collidingObj);
+    auto collider = std::get<DynamicCollider*>(collidingObj);
     auto transform = std::get<Transform*>(collidingObj);
-    auto actor = std::get<GameActor*>(collidingObj);
 
     Vector2<float>& vel = rigidbody->_vel;
     Vector2<float>& acc = rigidbody->_acc;
@@ -33,7 +32,7 @@ void PhysicsSystem::DoTick(float dt)
 
     // loop over each other collider
     // if in hitstun, do elastic collision
-    AdjustMovementForCollisions(collider, movementVector, futureCorrection, currentCorrection, actor->GetActionState() == ActionState::HITSTUN);
+    AdjustMovementForCollisions(collider, movementVector, futureCorrection, currentCorrection, rigidbody->elasticCollisions);
 
     Vector2<float> caVelocity = PositionAdjustmentToVelocity(futureCorrection.amount, ddt);
     // Convert adjustment vector to a velocity and change object's velocity based on the adjustment
@@ -100,7 +99,7 @@ double PhysicsSystem::ToDouble(const float& f)
 Vector2<float> PhysicsSystem::PositionAdjustmentToVelocity(const Vector2<double>& overlap, const double& ddt)
 {
   if (ddt == 0.0)
-    return Vector2<float>::Zero();
+    return Vector2<float>::Zero;
   return (Vector2<float>((float)(overlap.x) / (float)ddt, (float)(overlap.y) / (float)ddt));
 }
 
@@ -124,39 +123,41 @@ void PhysicsSystem::AdjustMovementForCollisions( RectColliderD* colliderComponen
   Rect<double> potentialRect = colliderComponent->rect;
   potentialRect.MoveRelative(movementVector);
 
-  for (auto otherCollider : ComponentManager<RectColliderD>::Get().All())
+  // process all dynamic collisions
+  for (auto otherCollider : ComponentManager<DynamicCollider>::Get().All())
   {
     if (potentialRect.Collides(otherCollider->rect))
     {
       // only check right or left on dynamic colliders
-      if(!otherCollider->IsStatic())
-      {
         auto push = GetPushOnDynamicCollision(colliderComponent->rect, otherCollider->rect, movementVector, 0.5);
 
         // add to instantaneous corrections because we dont want to maintain momentum for these kinds of collisions
         inst.collisionSides |= push.collisionSides;
         inst.amount += push.amount;
+    }
+  }
+  // process static collisions
+  for (auto otherCollider : ComponentManager<StaticCollider>::Get().All())
+  {
+    if (potentialRect.Collides(otherCollider->rect))
+    {
+      // return the reverse of the overlap to correct for the collision
+      auto overlap = potentialRect.Overlap(otherCollider->rect);
+
+      if(colliderComponent->rect.Collides(otherCollider->rect))
+      {
+        inst.amount += CreateResolveCollisionVector(overlap, movementVector);
+        momentum.collisionSides |= overlap.collisionSides;
       }
       else
       {
-        // return the reverse of the overlap to correct for the collision
-        auto overlap = potentialRect.Overlap(otherCollider->rect);
-
-        if(colliderComponent->rect.Collides(otherCollider->rect))
-        {
-          inst.amount += CreateResolveCollisionVector(overlap, movementVector);
-          momentum.collisionSides |= overlap.collisionSides;
-        }
+        // if elastic collision, rather than just try and stop the collision, actually bounce it back in the opposite direction
+        if(!elastic)
+          momentum.amount += CreateResolveCollisionVector(overlap, movementVector);
         else
-        {
-          // if elastic collision, rather than just try and stop the collision, actually bounce it back in the opposite direction
-          if(!elastic)
-            momentum.amount += CreateResolveCollisionVector(overlap, movementVector);
-          else
-            momentum.amount += 2.0 * CreateResolveCollisionVector(overlap, movementVector);
+          momentum.amount += 2.0 * CreateResolveCollisionVector(overlap, movementVector);
 
-          momentum.collisionSides |= overlap.collisionSides;
-        }
+        momentum.collisionSides |= overlap.collisionSides;
       }
     }
   }

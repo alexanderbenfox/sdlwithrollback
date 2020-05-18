@@ -32,21 +32,11 @@ struct Requires<T, Rest...>
   }
 };
 
-static const uint64_t motion_id = 1 << 0;
-static const uint64_t sprite_id = 1 << 1;
-static const uint64_t sound_id = 1 << 2;
-static const uint64_t particle_id = 1 << 3;
-
-// Signature to check for entities with motion, sprite, and 
-// particle components.
-static const uint64_t sig = motion_id | sprite_id | particle_id;
-
 template <typename ... T>
 class ISystem
 {
 public:
-  //static void DoTick(float dt) {}
-
+  //! 
   static void Check(Entity* entity)
   {
     if(Req::MatchesSignature(entity))
@@ -82,3 +72,28 @@ protected:
 
 template <typename ... T>
 std::map<int, std::tuple<std::add_pointer_t<T>...>> ISystem<T...>::Tuples;
+
+
+//_________________________________________________________________________
+// Multi System facilitates interaction between multiple entities in a system
+
+template <typename ... T>
+struct SysComponents {};
+
+template <typename Main, typename Sub>
+class IMultiSystem;
+
+template <typename ... Main, typename ... Sub>
+class IMultiSystem<SysComponents<Main...>, SysComponents<Sub...>>
+{
+public:
+  class MainSystem : public ISystem<Main...> {};
+
+  class SubSystem : public ISystem<Sub...> {};
+
+  static void Check(Entity* entity)
+  {
+    MainSystem::Check(entity);
+    SubSystem::Check(entity);
+  }
+};

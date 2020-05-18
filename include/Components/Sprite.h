@@ -1,5 +1,6 @@
 #pragma once
 #include "AssetManagement/Resource.h"
+#include "ResourceManager.h"
 #include "IComponent.h"
 #include "Transform.h"
 
@@ -60,9 +61,20 @@ protected:
 class RenderProperties : public IComponent
 {
 public:
-  RenderProperties(std::shared_ptr<Entity> owner) : offset(0, 0), horizontalFlip(false), _displayColor{ 255, 255, 255, SDL_ALPHA_OPAQUE }, IComponent(owner)
-  {
-  }
+  RenderProperties(std::shared_ptr<Entity> owner) :
+    baseRenderOffset(0, 0), 
+    offset(0, 0), 
+    horizontalFlip(false), 
+    _displayColor{ 255, 255, 255, SDL_ALPHA_OPAQUE }, 
+    IComponent(owner)
+  {}
+
+  //! inherent offset added to any display from this entity
+  Vector2<int> baseRenderOffset;
+  //! Display offset from top left of texture to top left of transform
+  Vector2<int> offset;
+  //!
+  bool horizontalFlip;
 
   virtual void SetDisplayColor(Uint8 r, Uint8 g, Uint8 b)
   {
@@ -78,10 +90,7 @@ public:
     return _displayColor;
   }
 
-  //! Display offset from top left of texture
-  Vector2<int> offset;
-  //!
-  bool horizontalFlip;
+  Vector2<int> Offset() const { return baseRenderOffset + offset; }
 
 protected:
   //!

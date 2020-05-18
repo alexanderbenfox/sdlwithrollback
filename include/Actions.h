@@ -2,7 +2,9 @@
 #include "Components/IComponent.h"
 #include "Components/Input.h"
 #include "ListenerInterfaces.h"
+#include "Components/StateComponent.h"
 
+#include <functional>
 
 //! Drives the animation
 class TimerComponent
@@ -32,42 +34,6 @@ private:
 };
 
 //______________________________________________________________________________
-//! Inteface for a context of the world that may affect character state
-class GameContext
-{
-public:
-  GameContext() : collision(CollisionSide::NONE), onLeftSide(false) {}
-  ~GameContext() {}
-
-  bool operator==(const GameContext& other) const
-  {
-    return collision == other.collision && onLeftSide == other.onLeftSide && movement == other.movement && hitThisFrame == other.hitThisFrame
-      && hitting == other.hitting;
-  }
-
-  // will merge the contexts?
-  GameContext operator+(const GameContext& otherContext) const
-  {
-    // copy this
-    GameContext newContext = *this;
-    newContext.hitThisFrame |= otherContext.hitThisFrame;
-    newContext.hitOnLeftSide |= otherContext.hitOnLeftSide;
-    newContext.frameData = otherContext.frameData;
-    newContext.hitting = otherContext.hitting;
-    return newContext;
-  }
-
-  Vector2<float> movement;
-  CollisionSide collision;
-  bool onLeftSide;
-  bool hitThisFrame = false;
-  bool hitOnLeftSide = false;
-  FrameData frameData;
-  bool hitting = false;
-
-};
-
-//______________________________________________________________________________
 class IAction
 {
 public:
@@ -76,7 +42,7 @@ public:
   //! Begin action
   virtual void Enact(Entity* actor) = 0;
   //! return true if the input is handled only by the action
-  virtual IAction* HandleInput(const InputBuffer& rawInput, const GameContext& context) = 0;
+  virtual IAction* HandleInput(const InputBuffer& rawInput, const StateComponent& context) = 0;
   //!
   virtual void SetComplete() = 0;
 
@@ -85,9 +51,11 @@ public:
   virtual StanceState GetStance() = 0;
   virtual ActionState GetAction() = 0;
 
+  virtual bool CheckInputsOnFollowUp() = 0;
+
 protected:
   //!
-  virtual IAction* GetFollowUpAction() = 0;
+  virtual IAction* GetFollowUpAction(const InputBuffer& rawInput, const StateComponent& context) = 0;
   //!
   virtual void OnActionComplete() = 0;
 
@@ -103,6 +71,8 @@ public:
   {
     _listener = listener;
   }
+
+  virtual bool CheckInputsOnFollowUp() override { return false; }
 
 protected:
   //!
@@ -121,7 +91,7 @@ protected:
 template <StanceState Stance> IAction* GetAttacksFromNeutral(const InputBuffer& rawInput, bool facingRight);
 
 //______________________________________________________________________________
-IAction* CheckHits(const InputState& rawInput, const GameContext& context);
+IAction* CheckHits(const InputState& rawInput, const StateComponent& context);
 
 //______________________________________________________________________________
 template <StanceState Stance, ActionState Action>
@@ -138,7 +108,7 @@ public:
   //!
   virtual void Enact(Entity* actor) override;
   //!
-  virtual IAction* HandleInput(const InputBuffer& rawInput, const GameContext& context) override = 0;
+  virtual IAction* HandleInput(const InputBuffer& rawInput, const StateComponent& context) override = 0;
 
   virtual void OnAnimationComplete(const std::string& completedAnimation) override
   {
@@ -153,7 +123,7 @@ public:
 
 protected:
   //!
-  virtual IAction* GetFollowUpAction() override {return nullptr;}
+  virtual IAction* GetFollowUpAction(const InputBuffer& rawInput, const StateComponent& context) override {return nullptr;}
   //!
   bool _complete = false;
   //!
@@ -183,7 +153,7 @@ public:
   //__________________OVERRIDES________________________________
 
   //!
-  virtual IAction* HandleInput(const InputBuffer& rawInput, const GameContext& context) override { return nullptr; }
+  virtual IAction* HandleInput(const InputBuffer& rawInput, const StateComponent& context) override { return nullptr; }
 
 };
 
@@ -208,21 +178,22 @@ public:
   virtual void Enact(Entity* actor) override;
 
   //!
-  virtual IAction* HandleInput(const InputBuffer& rawInput, const GameContext& context) override
+  virtual IAction* HandleInput(const InputBuffer& rawInput, const StateComponent& context) override
   {
     if(AnimatedAction<Stance, Action>::_complete)
     {
-      return GetFollowUpAction();
+      return GetFollowUpAction(rawInput, context);
     }
-    
+
     IAction* onHitAction = CheckHits(rawInput.Latest(), context);
     if (onHitAction)
       return onHitAction;
+    
     return nullptr;
   }
 
 protected:
-  virtual IAction* GetFollowUpAction() override = 0;
+  virtual IAction* GetFollowUpAction(const InputBuffer& rawInput, const StateComponent& context) override = 0;
 
 std::shared_ptr<TimerComponent> _actionTiming;
 int _duration;
@@ -244,9 +215,11 @@ public:
   //! Adds hit state component
   virtual void Enact(Entity* actor) override;
 
+  virtual bool CheckInputsOnFollowUp() override { return true; }
+
 protected:
   //! Follows up with idle state
-  virtual IAction* GetFollowUpAction() override;
+  virtual IAction* GetFollowUpAction(const InputBuffer& rawInput, const StateComponent& context) override;
   //! Removes hit state component
   virtual void OnActionComplete() override;
 
@@ -262,11 +235,13 @@ public:
   //!
   StateLockedAnimatedAction(const std::string& animation, bool facingRight, Vector2<float> actionMovement);
   //!
-  virtual IAction* HandleInput(const InputBuffer& rawInput, const GameContext& context) override;
+  virtual IAction* HandleInput(const InputBuffer& rawInput, const StateComponent& context) override;
+
+  virtual bool CheckInputsOnFollowUp() override { return true; }
 
 protected:
   //!
-  virtual IAction* GetFollowUpAction() override;
+  virtual IAction* GetFollowUpAction(const InputBuffer& rawInput, const StateComponent& context) override;
 
 };
 
@@ -292,6 +267,11 @@ protected:
   //! Removes attack state component
   virtual void OnActionComplete() override;
 
+  virtual IAction* GetFollowUpAction(const InputBuffer& rawInput, const StateComponent& context) override
+  {
+    return new LoopedAction<Stance, ActionState::NONE>(Stance == StanceState::STANDING ? "Idle" : Stance == StanceState::CROUCHING ? "Crouch" : "Jumping", this->_facingRight);
+  }
+
 };
 
 //______________________________________________________________________________
@@ -305,26 +285,29 @@ public:
 };
 
 //______________________________________________________________________________
-template <> IAction* LoopedAction<StanceState::STANDING, ActionState::NONE>::HandleInput(const InputBuffer& rawInput, const GameContext& context);
+template <> IAction* LoopedAction<StanceState::STANDING, ActionState::NONE>::HandleInput(const InputBuffer& rawInput, const StateComponent& context);
 
-template <> IAction* LoopedAction<StanceState::JUMPING, ActionState::NONE>::HandleInput(const InputBuffer& rawInput, const GameContext& context);
+template <> IAction* LoopedAction<StanceState::JUMPING, ActionState::NONE>::HandleInput(const InputBuffer& rawInput, const StateComponent& context);
 
-template <> IAction* LoopedAction<StanceState::CROUCHING, ActionState::NONE>::HandleInput(const InputBuffer& rawInput, const GameContext& context);
-
+template <> IAction* LoopedAction<StanceState::CROUCHING, ActionState::NONE>::HandleInput(const InputBuffer& rawInput, const StateComponent& context);
 
 //______________________________________________________________________________
-template <> IAction* StateLockedAnimatedAction<StanceState::CROUCHING, ActionState::NONE>::GetFollowUpAction();
+template <> IAction* StateLockedAnimatedAction<StanceState::CROUCHING, ActionState::NONE>::GetFollowUpAction(const InputBuffer& rawInput, const StateComponent& context);
 
 template <StanceState State, ActionState Action>
-inline IAction* StateLockedAnimatedAction<State, Action>::HandleInput(const InputBuffer& rawInput, const GameContext& context)
+inline IAction* StateLockedAnimatedAction<State, Action>::HandleInput(const InputBuffer& rawInput, const StateComponent& context)
 {
   //!!!! TESTING SPECIAL CANCELS HERE
-  if (context.hitting && HasState(rawInput.Latest(), InputState::BTN1) && rawInput.Evaluate(UnivSpecMoveDict) == SpecialMoveState::QCF)
-    return new GroundedStaticAttack<StanceState::STANDING, ActionState::NONE>("SpecialMove1", context.onLeftSide);
-
+  bool qcf = rawInput.Evaluate(UnivSpecMoveDict) == SpecialMoveState::QCF && context.onLeftSide;
+  bool qcb = rawInput.Evaluate(UnivSpecMoveDict) == SpecialMoveState::QCB && !context.onLeftSide;
+  if (HasState(rawInput.Latest(), InputState::BTN1))
+  {
+    if (context.hitting && (qcf || qcb))
+      return new GroundedStaticAttack<StanceState::STANDING, ActionState::NONE>("SpecialMove1", context.onLeftSide);
+  }
   if(AnimatedAction<State, Action>::_complete)
   {
-    return GetFollowUpAction();
+    return GetFollowUpAction(rawInput, context);
   }
 
   if (context.hitThisFrame)
@@ -337,14 +320,14 @@ inline IAction* StateLockedAnimatedAction<State, Action>::HandleInput(const Inpu
   {
     if (HasState(context.collision, CollisionSide::DOWN))
     {
-      return GetFollowUpAction();
+      return GetFollowUpAction(rawInput, context);
     }
   }
   return nullptr;
 }
 
 //______________________________________________________________________________
-template <> IAction* StateLockedAnimatedAction<StanceState::CROUCHING, ActionState::NONE>::HandleInput(const InputBuffer& rawInput, const GameContext& context);
+template <> IAction* StateLockedAnimatedAction<StanceState::CROUCHING, ActionState::NONE>::HandleInput(const InputBuffer& rawInput, const StateComponent& context);
 
 #ifdef _WIN32
 template LoopedAction<StanceState::STANDING, ActionState::NONE>;

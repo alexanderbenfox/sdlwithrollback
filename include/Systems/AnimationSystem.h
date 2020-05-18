@@ -2,8 +2,9 @@
 #include "Systems/ISystem.h"
 #include "Components/Animator.h"
 #include "Components/AttackStateComponent.h"
+#include "Components/StateComponent.h"
 
-class AttackAnimationSystem : public ISystem<AttackStateComponent, Animator, Transform, RenderProperties>
+class AttackAnimationSystem : public ISystem<AttackStateComponent, Animator, Transform, StateComponent>
 {
 public:
   static void DoTick(float dt)
@@ -13,14 +14,37 @@ public:
       Animator* animator = std::get<Animator*>(tuple.second);
       Transform* transform = std::get<Transform*>(tuple.second);
       AttackStateComponent* atkState = std::get<AttackStateComponent*>(tuple.second);
-      RenderProperties* properties = std::get<RenderProperties*>(tuple.second);
+      StateComponent* stateComp = std::get<StateComponent*>(tuple.second);
 
       if (atkState->lastFrame != animator->frame)
       {
-        atkState->CheckEvents(animator->frame,
-          (double)transform->position.x - (double)properties->offset.x * transform->scale.x,
-          (double)transform->position.y - (double)properties->offset.y * transform->scale.y,
-          transform);
+        int frame = animator->frame;
+
+        // update all in progress events now
+        for (int i = 0; i < atkState->inProgressEvents.size(); i++)
+        {
+          AnimationEvent* evt = atkState->inProgressEvents[i];
+          if (frame >= evt->GetEndFrame())
+          {
+            evt->EndEvent(transform);
+            atkState->inProgressEvents.erase(atkState->inProgressEvents.begin() + i);
+            i--;
+          }
+          else
+          {
+            evt->UpdateEvent(frame, transform, stateComp);
+          }
+        }
+
+        // Checks if an event should be trigger this frame of animation and calls its callback if so
+        AnimationEvent* potentialEvent = atkState->GetEventStartsThisFrame(frame);
+        if (potentialEvent)
+        {
+          atkState->inProgressEvents.push_back(potentialEvent);
+          potentialEvent->TriggerEvent(transform, stateComp);
+        }
+
+        // update the last frame updated
         atkState->lastFrame = animator->frame;
       }
     }
@@ -110,9 +134,11 @@ public:
       displayOp->_textureRect = renderer->sourceRect;
       displayOp->_textureResource = renderer->GetRenderResource();
 
+      Vector2<int> renderOffset = properties->Offset();
+
       displayOp->_displayRect = OpSysConv::CreateSDLRect(
-        static_cast<int>(std::floor(transform->position.x - properties->offset.x * transform->scale.x)),
-        static_cast<int>(std::floor(transform->position.y - properties->offset.y * transform->scale.y)),
+        static_cast<int>(std::floor(transform->position.x + renderOffset.x * transform->scale.x)),
+        static_cast<int>(std::floor(transform->position.y + renderOffset.y * transform->scale.y)),
         (int)(static_cast<float>(renderer->sourceRect.w) * transform->scale.x),
         (int)(static_cast<float>(renderer->sourceRect.h) * transform->scale.y));
 

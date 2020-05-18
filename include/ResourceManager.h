@@ -1,40 +1,17 @@
 #pragma once
-#include "AssetManagement/Resource.h"
-#include "AssetManagement/Text.h"
 #include "Geometry.h"
+#include "AssetManagement/BlitOperation.h"
+#include "AssetManagement/Animation.h"
+
 #include <unordered_map>
 #include <vector>
 #include <functional>
-
-class ConstComponentIDGenerator
-{
-public:
-  static int ID;
-  static int NextID()
-  {
-      return ID++;
-  }
-};
-
-typedef Resource<SDL_Texture> Texture;
-typedef Resource<TTF_Font> Font;
 
 //______________________________________________________________________________
 //! Manager of resources for textures, font, sounds, and drawing
 class ResourceManager
 {
 public:
-  //! Drawing parameters drawing sprite objects
-  struct BlitOperation
-  {
-    bool valid = false;
-    SDL_Rect _textureRect;
-    SDL_Rect _displayRect;
-    Texture* _textureResource;
-    SDL_RendererFlip _flip;
-    SDL_Color _displayColor;
-  };
-
   //! Returns singleton instance of the Resource Manager
   static ResourceManager& Get() { static ResourceManager rm; return rm; }
   //! Destroy loaded resource objects

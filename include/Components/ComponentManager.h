@@ -1,6 +1,8 @@
 #pragma once
 #include "IComponent.h"
 
+class Entity;
+
 template <typename T = IComponent>
 class ComponentManager
 {

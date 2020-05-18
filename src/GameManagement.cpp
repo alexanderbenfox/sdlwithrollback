@@ -84,7 +84,7 @@ Font& ResourceManager::GetFont(const std::string& file)
   return _loadedFonts[fileToLoad];
 }
 
-//
+//______________________________________________________________________________
 TextResource& ResourceManager::GetText(const char* text, const std::string& fontFile)
 {
   Font& font = GetFont(fontFile);
@@ -240,7 +240,7 @@ Rect<double> ResourceManager::FindRect(Texture& texture, Vector2<int> frameSize,
 //______________________________________________________________________________
 void GameManager::Initialize()
 {
-  SDL_Init(SDL_INIT_EVERYTHING);
+  SDL_Init( SDL_INIT_EVERYTHING | SDL_INIT_GAMECONTROLLER  | SDL_INIT_JOYSTICK );
   TTF_Init();
 
   _window = SDL_CreateWindow(Title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
@@ -250,32 +250,32 @@ void GameManager::Initialize()
   _renderer = SDL_CreateRenderer(_window, -1, SDL_RENDERER_ACCELERATED);
   SDL_SetRenderDrawBlendMode(_renderer, SDL_BLENDMODE_BLEND);
 
-  auto bottomBorder = CreateEntity<Transform, GraphicRenderer, RectColliderD>();
-  bottomBorder->GetComponent<Transform>()->position.x = 0.0;
-  bottomBorder->GetComponent<Transform>()->position.y = m_nativeHeight - 40;
+  auto bottomBorder = CreateEntity<Transform, GraphicRenderer, StaticCollider>();
+  bottomBorder->GetComponent<Transform>()->position.x = (float)m_nativeWidth / 2.0f;
+  bottomBorder->GetComponent<Transform>()->position.y = m_nativeHeight;
   bottomBorder->GetComponent<GraphicRenderer>()->Init(ResourceManager::Get().GetTexture("spritesheets\\ryu.png"));
-  bottomBorder->GetComponent<RectColliderD>()->Init(Vector2<double>(0, m_nativeHeight - 40), Vector2<double>(m_nativeWidth, m_nativeHeight + 5000.0f));
-  bottomBorder->GetComponent<RectColliderD>()->SetStatic(true);
+  bottomBorder->GetComponent<StaticCollider>()->Init(Vector2<double>(0, m_nativeHeight - 40), Vector2<double>(m_nativeWidth, m_nativeHeight + 40.0f));
+  bottomBorder->GetComponent<StaticCollider>()->MoveToTransform(*bottomBorder->GetComponent<Transform>());
 
-  auto leftBorder = CreateEntity<Transform, GraphicRenderer, RectColliderD>();
-  leftBorder->GetComponent<Transform>()->position.x = -200;
-  leftBorder->GetComponent<Transform>()->position.y = 0;
+  auto leftBorder = CreateEntity<Transform, GraphicRenderer, StaticCollider>();
+  leftBorder->GetComponent<Transform>()->position.x = -100;
+  leftBorder->GetComponent<Transform>()->position.y = (float)m_nativeHeight/ 2.0f;
   leftBorder->GetComponent<GraphicRenderer>()->Init(ResourceManager::Get().GetTexture("spritesheets\\ryu.png"));
-  leftBorder->GetComponent<RectColliderD>()->Init(Vector2<double>(-200, 0), Vector2<double>(0, m_nativeHeight));
-  leftBorder->GetComponent<RectColliderD>()->SetStatic(true);
+  leftBorder->GetComponent<StaticCollider>()->Init(Vector2<double>(-200, 0), Vector2<double>(0, m_nativeHeight));
+  leftBorder->GetComponent<StaticCollider>()->MoveToTransform(*leftBorder->GetComponent<Transform>());
 
-  auto rightBorder = CreateEntity<Transform, GraphicRenderer, RectColliderD>();
-  rightBorder->GetComponent<Transform>()->position.x = m_nativeWidth;
-  rightBorder->GetComponent<Transform>()->position.y = 0;
+  auto rightBorder = CreateEntity<Transform, GraphicRenderer, StaticCollider>();
+  rightBorder->GetComponent<Transform>()->position.x = (float)m_nativeWidth + 100.0f;
+  rightBorder->GetComponent<Transform>()->position.y = (float)m_nativeHeight/ 2.0f;
   rightBorder->GetComponent<GraphicRenderer>()->Init(ResourceManager::Get().GetTexture("spritesheets\\ryu.png"));
-  rightBorder->GetComponent<RectColliderD>()->Init(Vector2<double>(m_nativeWidth, 0), Vector2<double>(m_nativeWidth + 200, m_nativeHeight));
-  rightBorder->GetComponent<RectColliderD>()->SetStatic(true);
+  rightBorder->GetComponent<StaticCollider>()->Init(Vector2<double>(m_nativeWidth, 0), Vector2<double>(m_nativeWidth + 200, m_nativeHeight));
+  rightBorder->GetComponent<StaticCollider>()->MoveToTransform(*rightBorder->GetComponent<Transform>());
 
   //auto randomAssRenderedText = CreateEntity<Transform, GraphicRenderer, RenderProperties>();
   //randomAssRenderedText->GetComponent<GraphicRenderer>()->Init(ResourceManager::Get().GetText("TEZT", "fonts\\Eurostile.ttf"));
 
-  auto p1 = EntityCreation::CreateLocalPlayer(0);
-  auto p2 = EntityCreation::CreateLocalPlayer(150);
+  auto p1 = EntityCreation::CreateLocalPlayer(100);
+  auto p2 = EntityCreation::CreateLocalPlayer(400);
 
   auto kb2 = p2->GetComponent<KeyboardInputHandler>();
   kb2->SetKey(SDLK_UP, InputState::UP);
@@ -285,6 +285,9 @@ void GameManager::Initialize()
   kb2->SetKey(SDLK_j, InputState::BTN1);
   kb2->SetKey(SDLK_k, InputState::BTN2);
   kb2->SetKey(SDLK_l, InputState::BTN3);
+
+  p2->RemoveComponent<KeyboardInputHandler>();
+  p2->AddComponent<GamepadInputHandler>();
 
   _camera = EntityCreation::CreateCamera();
 
@@ -321,8 +324,12 @@ void GameManager::BeginGameLoop()
   std::thread debuggerThread;
   RunScripter(debuggerThread, programRunning);
 
+  int frameCount = 0;
   for (;;)
   {
+    if(frameCount == 0)
+      std::cout << "Update time: " << _clock.GetUpdateTime() << "\n";
+
     //! Collect inputs from controllers (this means AI controllers as well as Player controllers)
     //UpdateInput();
     //InputSystem::DoTick(0);
@@ -337,6 +344,8 @@ void GameManager::BeginGameLoop()
 
     //! Finally render the scene
     Draw();
+
+    frameCount = (++frameCount) % 60;
   }
 
   programRunning = false;
@@ -353,6 +362,7 @@ Camera* GameManager::GetMainCamera()
 void GameManager::CheckAgainstSystems(Entity* entity)
 {
   InputSystem::Check(entity);
+  GamepadInputSystem::Check(entity);
   PhysicsSystem::Check(entity);
   AnimationSystem::Check(entity);
   MoveSystemRect::Check(entity);
@@ -361,9 +371,8 @@ void GameManager::CheckAgainstSystems(Entity* entity)
   HitSystem::Check(entity);
   TimerSystem::Check(entity);
   FrameAdvantageSystem::Check(entity);
-  StrikeVectorSystem::Check(entity);
   DrawSystem::Check(entity);
-  SendHittingStateSystem::Check(entity);
+  PlayerSideSystem::Check(entity);
 }
 
 //______________________________________________________________________________
@@ -378,10 +387,11 @@ void GameManager::Update(float deltaTime)
   UpdateInput();
   
   TimerSystem::DoTick(deltaTime);
-  StrikeVectorSystem::DoTick(deltaTime);
   HitSystem::DoTick(deltaTime);
-  SendHittingStateSystem::DoTick(deltaTime);
+
+  PlayerSideSystem::DoTick(deltaTime);
   InputSystem::DoTick(deltaTime);
+  GamepadInputSystem::DoTick(deltaTime);
   
   FrameAdvantageSystem::DoTick(deltaTime);
   // resolve collisions

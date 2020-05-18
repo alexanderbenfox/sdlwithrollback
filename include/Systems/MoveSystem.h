@@ -3,7 +3,7 @@
 
 #include "Components/Transform.h"
 #include "Components/Camera.h"
-#include "Components/Collider.h"
+#include "Components/Rigidbody.h"
 
 class MoveSystemCamera : public ISystem<Transform, Camera>
 {
@@ -21,7 +21,7 @@ public:
   }
 };
 
-class MoveSystemRect : public ISystem<Transform, RectColliderD, Hurtbox>
+class MoveSystemRect : public ISystem<Transform, DynamicCollider, Hurtbox>
 {
 public:
   static void DoTick(float dt)
@@ -29,7 +29,7 @@ public:
     for (auto tuple : Tuples)
     {
       Transform* transform = std::get<Transform*>(tuple.second);
-      RectColliderD* rect = std::get<RectColliderD*>(tuple.second);
+      DynamicCollider* rect = std::get<DynamicCollider*>(tuple.second);
       Hurtbox* hurtbox = std::get<Hurtbox*>(tuple.second);
 
       rect->MoveToTransform(*transform);

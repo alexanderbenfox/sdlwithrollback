@@ -32,7 +32,6 @@ CollisionSide operator~(CollisionSide og)
   return (CollisionSide)~((unsigned char)og);
 }
 
-
 //______________________________________________________________________________
 template <typename T>
 Vector2<T> Vector2<T>::Unit()

@@ -4,6 +4,36 @@
 
 typedef std::function<void(float)> UpdateFunction;
 
+class AvgCounter
+{
+public:
+  void Add(long long value)
+  {
+    const int totalSize = 200;
+
+    _total += value;
+    if(_updateCount >= (totalSize - 1) || _filled)
+    {
+      _filled = true;
+      _total -= _lru[_updateCount % totalSize];
+    }
+    _lru[_updateCount % totalSize] = value;
+
+    _updateCount = (++_updateCount) % totalSize;
+  }
+
+  long long Count()
+  {
+    return _filled ? _total / (long long)200 : _updateCount == 0 ? 0 : _total / (long long)_updateCount;
+  }
+private:
+  int _updateCount = 0;
+  long long _total;
+  long long _lru[200];
+  bool _filled = false;
+
+};
+
 // is there any point to this being an interface...
 struct IClock
 {
@@ -47,7 +77,7 @@ class Timer
 {
 public:
   //! Constructor
-  Timer() : _frames(0.0f), _fixedTimeStep(true), _lastFrameTime(_mainClock.now()){}
+  Timer() : _frames(0.0f), _fixedTimeStep(true), _lastFrameTime(_mainClock.now()) {}
   //! Start function gets the FPS from internal hardward
   void Start();
   //! Begins pause coroutine on this clock for the given time
@@ -56,6 +86,8 @@ public:
   void BeginCoroutine(float seconds, UpdateFunction function);
   //! Updates timer and runs the user specified update function
   void Update(UpdateFunction& updateFunction);
+  //! Gets average update time in nanoseconds
+  long long GetUpdateTime() { return _perfCounter.Count(); }
 
 private:
   //! coroutine class 
@@ -98,5 +130,7 @@ private:
   };
   //! Main clock
   SDLClock _mainClock;
+  //!
+  AvgCounter _perfCounter;
 
 };

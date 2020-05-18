@@ -74,7 +74,8 @@ private:
 // simple move dict to test this out
 const TrieNode<InputState, SpecialMoveState> UnivSpecMoveDict
 {
-  std::make_pair(std::list<InputState>{InputState::DOWN, InputState::DOWN | InputState::RIGHT, InputState::RIGHT}, SpecialMoveState::QCF)
+  std::make_pair(std::list<InputState>{InputState::DOWN, InputState::DOWN | InputState::RIGHT, InputState::RIGHT}, SpecialMoveState::QCF),
+  std::make_pair(std::list<InputState>{InputState::DOWN, InputState::DOWN | InputState::LEFT, InputState::LEFT}, SpecialMoveState::QCB)
 };
 
 //______________________________________________________________________________
@@ -139,6 +140,31 @@ private:
   const int _joyStickID = 0;
   //!
   ConfigMap<uint8_t, InputState> _config;
+  
+};
+
+
+//______________________________________________________________________________
+//!
+class GamepadInputHandler : public IInputHandler
+{
+public:
+  //!
+  GamepadInputHandler(std::shared_ptr<Entity> owner);
+  //!
+  ~GamepadInputHandler();
+  //!
+  virtual InputBuffer const& CollectInputState() final;
+
+private:
+  //!
+  SDL_GameController* _gameController = nullptr;
+  //!
+  SDL_Joystick* _joyStick;
+  //!
+  const int _joyStickID = 0;
+  //!
+  ConfigMap<SDL_GameControllerButton, InputState> _config;
   
 };
 

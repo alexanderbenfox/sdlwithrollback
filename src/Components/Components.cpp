@@ -21,14 +21,14 @@ void Camera::Init(int w, int h)
 }
 
 //______________________________________________________________________________
-void Camera::ConvScreenSpace(ResourceManager::BlitOperation* entity)
+void Camera::ConvScreenSpace(BlitOperation* entity)
 {
   entity->_displayRect.x -= rect.x;
   entity->_displayRect.y -= rect.y;
 }
 
 //______________________________________________________________________________
-bool Camera::EntityInDisplay(const ResourceManager::BlitOperation* entity)
+bool Camera::EntityInDisplay(const BlitOperation* entity)
 {
   return SDLRectOverlap(rect, entity->_displayRect);
 }
@@ -37,7 +37,7 @@ bool Camera::EntityInDisplay(const ResourceManager::BlitOperation* entity)
 template <typename T>
 void RectCollider<T>::Init(Vector2<T> beg, Vector2<T> end)
 {
-  rect = Rect<T>(beg, end);
+  rect = unscaledRect = Rect<T>(beg, end);
 }
 
 //______________________________________________________________________________
@@ -122,10 +122,15 @@ void GameActor::BeginNewAction(IAction* action)
     std::string comboText = "Combo: " + std::to_string(_comboCounter);
     _counterText->GetComponent<GraphicRenderer>()->Init(ResourceManager::Get().GetText(comboText.c_str(), "fonts\\Eurostile.ttf"));
   }
+
+
   if (_currentAction != nullptr)
+  {
+    if(_currentAction->CheckInputsOnFollowUp())
+      _newState = true;
     delete _currentAction;
+  }
   
-  _newState = true;
   _currentAction = action;
 
   _currentAction->ChangeListener(this);
@@ -133,32 +138,25 @@ void GameActor::BeginNewAction(IAction* action)
 }
 
 //______________________________________________________________________________
-void GameActor::EvaluateInputContext(const InputBuffer& input, const GameContext& context, float dt)
+void GameActor::EvaluateInputContext(const InputBuffer& input, const StateComponent* stateInfo, float dt)
 {
-  if (!_newState && input.Latest() == _lastInput && context == _lastContext)
-    return;
-
-  _newState = false;
-
-  GameContext contextToEval = context + mergeContext;
-
-  // so freakin clunky......
-  if (dt > 0 && _lastContext.hitting)
-    mergeContext.hitting = false;
-
-  IAction* prevAction = _currentAction;
-  IAction* nextAction = _currentAction->HandleInput(input, contextToEval);
-
-  if (nextAction && (nextAction != prevAction))
+  StateComponent currentState = *stateInfo;
+  if (_newState || input.Latest() != _lastInput || currentState != _lastState)
   {
-    if(nextAction->GetAction() == ActionState::HITSTUN)
-      _comboCounter++;
-    // update last context
+    _newState = false;
     _lastInput = input.Latest();
-    _lastContext = contextToEval;
+    _lastState = currentState;
 
-    //OnActionComplete(prevAction);
-    BeginNewAction(nextAction);
+    IAction* prevAction = _currentAction;
+    IAction* nextAction = _currentAction->HandleInput(input, currentState);
+
+    if (nextAction && (nextAction != prevAction))
+    {
+      if(nextAction->GetAction() == ActionState::HITSTUN)
+        _comboCounter++;
+      //OnActionComplete(prevAction);
+      BeginNewAction(nextAction);
+    }
   }
 }
 
@@ -212,7 +210,7 @@ std::istream& operator>>(std::istream& is, Animator& animator)
   is >> animator.accumulatedTime;
   is >> animator.frame;
   is >> animator.currentAnimationName;
-  animator._currentAnimation = animator._animations.find(animator.currentAnimationName);
+  //animator._currentAnimation = _animations.GetAnimation(animator.currentAnimationName);
 
   return is;
 }

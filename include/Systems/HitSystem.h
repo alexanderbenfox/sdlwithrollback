@@ -1,87 +1,62 @@
 #pragma once
 #include "Systems/ISystem.h"
 #include "Components/Hitbox.h"
-#include "Components/GameActor.h"
+#include "Components/StateComponent.h"
 
-//!
-//const float secPerFrame = 1.0f / animation_fps;
-
-class HitSystem : public ISystem<Hurtbox, GameActor>
+class HitSystem : public IMultiSystem<SysComponents<Hurtbox, StateComponent>, SysComponents<Hitbox, Hurtbox, StateComponent>>
 {
 public:
   static void DoTick(float dt)
   {
-    for (auto tuple : Tuples)
+    for (auto tuple : MainSystem::Tuples)
     {
-      Hurtbox* hurtbox = std::get<Hurtbox*>(tuple.second);
-      GameActor* hurtboxController = std::get<GameActor*>(tuple.second);
-
+      StateComponent* hurtboxController = std::get<StateComponent*>(tuple.second);
       // reset the merge context
-      hurtboxController->mergeContext.hitThisFrame = false;
-      hurtboxController->mergeContext.hitOnLeftSide = false;
+      hurtboxController->hitThisFrame = false;
+      hurtboxController->hitOnLeftSide = false;
+    }
 
-      for (auto hitbox : ComponentManager<Hitbox>::Get().All())
+    if(dt <= 0)
+      return;
+
+    for (auto tuple : MainSystem::Tuples)
+    {
+      StateComponent* hurtboxController = std::get<StateComponent*>(tuple.second);
+      Hurtbox* hurtbox = std::get<Hurtbox*>(tuple.second);
+      
+      for(auto subTuple : SubSystem::Tuples)
       {
-        // if the hitbox has hit something (will change this to checking if it has hit the entity?)
-        if(hitbox->hit)
+        Hitbox* hitbox = std::get<Hitbox*>(subTuple.second);
+        StateComponent* hitboxController = std::get<StateComponent*>(subTuple.second);
+        Hurtbox* hitterHurtbox = std::get<Hurtbox*>(subTuple.second);
+
+        if (hurtboxController == hitboxController)
           continue;
 
-        if (!hitbox->ShareOwner(hurtbox) && hitbox->rect.Collides(hurtbox->rect))
+        hitboxController->hitting = false;
+
+        // if the hitbox has hit something (will change this to checking if it has hit the entity?)
+        if (hitbox->hit)
+          continue;
+
+        if (hitbox->rect.Collides(hurtbox->rect))
         {
+          // do hitbox stuff first
           hitbox->hit = true;
-          hitbox->hitting = true;
+          hitboxController->hitting = true;
+          int strikeDir = hitbox->rect.GetCenter().x > hitterHurtbox->rect.GetCenter().x ? 1 : -1;
+
           // change the state variable that will be evaluated on the processing of inputs. probably a better way to do this...
-          hurtboxController->mergeContext.hitThisFrame = true;
-
-          // calculate the strike vector
-          hurtboxController->mergeContext.hitOnLeftSide =  hitbox->strikeVector.x > 0;
-
-          hurtboxController->mergeContext.frameData = hitbox->frameData;
+          hurtboxController->hitThisFrame = true;
+          hurtboxController->frameData = hitbox->frameData;
 
           // this needs to be made better
-          if(hitbox->strikeVector.x < 0)
-            hurtboxController->mergeContext.frameData.knockback.x = -hitbox->frameData.knockback.x;
+          if (strikeDir < 0)
+            hurtboxController->frameData.knockback.x = -hitbox->frameData.knockback.x;
 
           GameManager::Get().ActivateHitStop(hitbox->frameData.hitstop);
         }
       }
-    }
-  }
-};
-
-class StrikeVectorSystem : public ISystem<Hitbox, Hurtbox>
-{
-public:
-  static void DoTick(float dt)
-  {
-    for (auto tuple : Tuples)
-    {
-      Hitbox* hitbox = std::get<Hitbox*>(tuple.second);
-      Hurtbox* hurtbox = std::get<Hurtbox*>(tuple.second);
-
-      int strikeDir = hitbox->rect.GetCenter().x > hurtbox->rect.GetCenter().x ? 1 : -1;
-      hitbox->strikeVector = Vector2<int>(strikeDir, 0);
-    }
-  }
-};
-
-// don't know what else to do for this so this is probably stupid
-class SendHittingStateSystem : public ISystem<Hitbox, GameActor>
-{
-public:
-  static void DoTick(float dt)
-  {
-    // only update this on active frames
-    if (dt == 0)
-      return;
-
-    for (auto tuple : Tuples)
-    {
-      Hitbox* hitbox = std::get<Hitbox*>(tuple.second);
-      GameActor* hitboxController = std::get<GameActor*>(tuple.second);
-
-      hitboxController->mergeContext.hitting = hitbox->hitting;
-      hitbox->hitting = false;
     }
   }
 };

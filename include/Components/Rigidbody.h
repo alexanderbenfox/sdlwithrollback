@@ -37,11 +37,23 @@ private:
 };
 
 //!
+struct DynamicCollider : public RectColliderD
+{
+  DynamicCollider(std::shared_ptr<Entity> entity) : RectColliderD(entity) {}
+};
+
+//!
+struct StaticCollider : public RectColliderD
+{
+  StaticCollider(std::shared_ptr<Entity> entity) : RectColliderD(entity) {}
+};
+
+//!
 class Rigidbody : public IComponent
 {
 public:
   //!
-  Rigidbody(std::shared_ptr<Entity> entity) : _useGravity(false), IComponent(entity) {}
+  Rigidbody(std::shared_ptr<Entity> entity) : _useGravity(false), elasticCollisions(false), IComponent(entity) {}
   //!
   void Init(bool useGravity)
   {
@@ -58,6 +70,8 @@ public:
   float _addedAccel;
   //!
   bool _useGravity;
+  //!
+  bool elasticCollisions;
 
   friend std::ostream& operator<<(std::ostream& os, const Rigidbody& rb);
   friend std::istream& operator>>(std::istream& is, Rigidbody& rb);
