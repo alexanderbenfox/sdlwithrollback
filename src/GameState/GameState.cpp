@@ -51,7 +51,7 @@ AnimationCollection EntityCreation::RyuAnimations()
   ryuAnimations.RegisterAnimation("Crouch", "spritesheets\\crouching.png", 4, 5, 12, 5, AnchorPoint::BL);
 
   ryuAnimations.RegisterAnimation("CrouchingLight", "spritesheets\\grounded_attacks.png", 8, 10, 9, 7, AnchorPoint::BL);
-  FrameData cLP{4, 3, 5, 3, 3, 1, Vector2<float>(120.0f, -100.0f), GameManager::Get().hitstopLight };
+  FrameData cLP{4, 3, 7, 3, 3, 1, Vector2<float>(120.0f, -100.0f), GameManager::Get().hitstopLight };
   ryuAnimations.AddHitboxEvents("CrouchingLight", "spritesheets\\grounded_attacks_hitboxes.png", cLP);
 
   ryuAnimations.RegisterAnimation("CrouchingMedium", "spritesheets\\grounded_attacks.png", 8, 10, 16, 11, AnchorPoint::BL);

@@ -30,13 +30,16 @@ public:
         StateComponent* hitboxController = std::get<StateComponent*>(subTuple.second);
         Hurtbox* hitterHurtbox = std::get<Hurtbox*>(subTuple.second);
 
+        if (hurtboxController == hitboxController)
+          continue;
+
         hitboxController->hitting = false;
 
         // if the hitbox has hit something (will change this to checking if it has hit the entity?)
         if (hitbox->hit)
           continue;
 
-        if (hurtboxController != hitboxController && hitbox->rect.Collides(hurtbox->rect))
+        if (hitbox->rect.Collides(hurtbox->rect))
         {
           // do hitbox stuff first
           hitbox->hit = true;

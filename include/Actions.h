@@ -300,9 +300,11 @@ inline IAction* StateLockedAnimatedAction<State, Action>::HandleInput(const Inpu
   //!!!! TESTING SPECIAL CANCELS HERE
   bool qcf = rawInput.Evaluate(UnivSpecMoveDict) == SpecialMoveState::QCF && context.onLeftSide;
   bool qcb = rawInput.Evaluate(UnivSpecMoveDict) == SpecialMoveState::QCB && !context.onLeftSide;
-  if (context.hitting && HasState(rawInput.Latest(), InputState::BTN1) && (qcf || qcb))
-    return new GroundedStaticAttack<StanceState::STANDING, ActionState::NONE>("SpecialMove1", context.onLeftSide);
-
+  if (HasState(rawInput.Latest(), InputState::BTN1))
+  {
+    if (context.hitting && (qcf || qcb))
+      return new GroundedStaticAttack<StanceState::STANDING, ActionState::NONE>("SpecialMove1", context.onLeftSide);
+  }
   if(AnimatedAction<State, Action>::_complete)
   {
     return GetFollowUpAction(rawInput, context);

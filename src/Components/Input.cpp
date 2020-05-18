@@ -245,10 +245,14 @@ GamepadInputHandler::GamepadInputHandler(std::shared_ptr<Entity> owner) : IInput
     }
   }
 
-  _config[SDL_CONTROLLER_BUTTON_A] = InputState::BTN1;
-  _config[SDL_CONTROLLER_BUTTON_B] = InputState::BTN2;
-  _config[SDL_CONTROLLER_BUTTON_X] = InputState::BTN3;
-  _config[SDL_CONTROLLER_BUTTON_Y] = InputState::BTN4;
+  _config[SDL_CONTROLLER_BUTTON_X] = InputState::BTN1;
+  _config[SDL_CONTROLLER_BUTTON_Y] = InputState::BTN2;
+  _config[SDL_CONTROLLER_BUTTON_A] = InputState::BTN3;
+  _config[SDL_CONTROLLER_BUTTON_B] = InputState::BTN4;
+  _config[SDL_CONTROLLER_BUTTON_DPAD_UP] = InputState::UP;
+  _config[SDL_CONTROLLER_BUTTON_DPAD_DOWN] = InputState::DOWN;
+  _config[SDL_CONTROLLER_BUTTON_DPAD_LEFT] = InputState::LEFT;
+  _config[SDL_CONTROLLER_BUTTON_DPAD_RIGHT] = InputState::RIGHT;
 }
 
 GamepadInputHandler::~GamepadInputHandler()
@@ -266,9 +270,6 @@ InputBuffer const& GamepadInputHandler::CollectInputState()
 {
   InputState frameState = _inputBuffer.Latest();
 
-  //reset movement state
-  frameState &= ~((InputState)(0xf0));
-
   const SDL_Event& input = GameManager::Get().GetLocalInput();
   switch (input.type)
   {
@@ -282,34 +283,79 @@ InputBuffer const& GamepadInputHandler::CollectInputState()
       frameState &= (~(InputState)_config[(SDL_GameControllerButton)input.cbutton.button]);
       break;
     }
+
     case SDL_CONTROLLERAXISMOTION:
     {
-            //movement on x axis
-      if(input.caxis.axis == 0)
+      if (input.caxis.axis == SDL_CONTROLLER_AXIS_LEFTX)
       {
-        if(input.caxis.value < -JOYSTICK_DEAD_ZONE)
+        if (input.caxis.value > JOYSTICK_DEAD_ZONE)
         {
           frameState |= InputState::RIGHT;
+          frameState &= ~InputState::LEFT;
         }
-        else if (input.caxis.value > JOYSTICK_DEAD_ZONE)
+        else if (input.caxis.value < -JOYSTICK_DEAD_ZONE)
         {
           frameState |= InputState::LEFT;
+          frameState &= ~InputState::RIGHT;
+        }
+        else
+        {
+          frameState &= ~InputState::RIGHT;
+          frameState &= ~InputState::LEFT;
         }
       }
-      if (input.caxis.axis == 1)
+      if (input.caxis.axis == SDL_CONTROLLER_AXIS_LEFTY)
       {
-        if(input.caxis.value < -JOYSTICK_DEAD_ZONE)
+        if (input.caxis.value > JOYSTICK_DEAD_ZONE)
         {
           frameState |= InputState::DOWN;
+          frameState &= ~InputState::UP;
         }
-        else if (input.caxis.value > JOYSTICK_DEAD_ZONE)
+        else if (input.caxis.value < -JOYSTICK_DEAD_ZONE)
         {
           frameState |= InputState::UP;
+          frameState &= ~InputState::DOWN;
+        }
+        else
+        {
+          frameState &= ~InputState::UP;
+          frameState &= ~InputState::DOWN;
         }
       }
-      break;
     }
+    break;
   }
+
+
+ /* Sint16 value = SDL_GameControllerGetAxis(_gameController, SDL_GameControllerAxis::SDL_CONTROLLER_AXIS_RIGHTX);
+  if (value < -JOYSTICK_DEAD_ZONE)
+  {
+    frameState |= InputState::LEFT;
+  }
+  else if (value > JOYSTICK_DEAD_ZONE)
+  {
+    frameState |= InputState::RIGHT;
+  }
+
+  value = SDL_GameControllerGetAxis(_gameController, SDL_GameControllerAxis::SDL_CONTROLLER_AXIS_LEFTX);
+  if (value < -JOYSTICK_DEAD_ZONE)
+  {
+    frameState |= InputState::LEFT;
+  }
+  else if (value > JOYSTICK_DEAD_ZONE)
+  {
+    frameState |= InputState::RIGHT;
+  }
+
+  value = SDL_GameControllerGetAxis(_gameController, SDL_GameControllerAxis::SDL_CONTROLLER_AXIS_RIGHTY);
+  if (value < -JOYSTICK_DEAD_ZONE)
+  {
+    frameState |= InputState::DOWN;
+  }
+  else if (value > JOYSTICK_DEAD_ZONE)
+  {
+    frameState |= InputState::UP;
+  }*/
 
   _inputBuffer.Push(frameState);
   return _inputBuffer;

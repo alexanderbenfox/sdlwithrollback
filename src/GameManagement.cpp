@@ -240,7 +240,7 @@ Rect<double> ResourceManager::FindRect(Texture& texture, Vector2<int> frameSize,
 //______________________________________________________________________________
 void GameManager::Initialize()
 {
-  SDL_Init(SDL_INIT_EVERYTHING);
+  SDL_Init( SDL_INIT_EVERYTHING | SDL_INIT_GAMECONTROLLER  | SDL_INIT_JOYSTICK );
   TTF_Init();
 
   _window = SDL_CreateWindow(Title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
@@ -289,6 +289,7 @@ void GameManager::Initialize()
   kb2->SetKey(SDLK_k, InputState::BTN2);
   kb2->SetKey(SDLK_l, InputState::BTN3);
 
+  p2->RemoveComponent<KeyboardInputHandler>();
   p2->AddComponent<GamepadInputHandler>();
 
   _camera = EntityCreation::CreateCamera();
@@ -374,6 +375,7 @@ void GameManager::CheckAgainstSystems(Entity* entity)
   TimerSystem::Check(entity);
   FrameAdvantageSystem::Check(entity);
   DrawSystem::Check(entity);
+  PlayerSideSystem::Check(entity);
 }
 
 //______________________________________________________________________________
@@ -389,6 +391,8 @@ void GameManager::Update(float deltaTime)
   
   TimerSystem::DoTick(deltaTime);
   HitSystem::DoTick(deltaTime);
+
+  PlayerSideSystem::DoTick(deltaTime);
   InputSystem::DoTick(deltaTime);
   GamepadInputSystem::DoTick(deltaTime);
   
