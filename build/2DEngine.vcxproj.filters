@@ -125,9 +125,6 @@
     <ClInclude Include="..\include\Actions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\StateControl.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\Utils.h">
       <Filter>Header Files</Filter>
     </ClInclude>

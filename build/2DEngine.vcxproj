@@ -61,7 +61,6 @@
     <ClInclude Include="..\include\Geometry.h" />
     <ClInclude Include="..\include\ListenerInterfaces.h" />
     <ClInclude Include="..\include\ResourceManager.h" />
-    <ClInclude Include="..\include\StateControl.h" />
     <ClInclude Include="..\include\Systems\AnimationSystem.h" />
     <ClInclude Include="..\include\Systems\HitSystem.h" />
     <ClInclude Include="..\include\Systems\InputSystem.h" />
