@@ -77,14 +77,15 @@ std::string Entity::GetIdentifier()
 void Entity::SetScale(Vector2<float> scale)
 {
   Transform& transform = *GetComponent<Transform>();
-  if (auto collider = GetComponent<RectColliderD>())
+
+  for(auto& component : _components)
   {
-    collider->rect.Scale(transform.scale, scale);
+    if(RectColliderD* collider = dynamic_cast<RectColliderD*>(component.second.get()))
+    {
+      collider->rect.Scale(transform.scale, scale);
+    }
   }
-  if (auto collider = GetComponent<Hurtbox>())
-  {
-    collider->rect.Scale(transform.scale, scale);
-  }
+  
   transform.rect.Scale(transform.scale, scale);
   transform.scale.x = scale.x;
   transform.scale.y = scale.y;

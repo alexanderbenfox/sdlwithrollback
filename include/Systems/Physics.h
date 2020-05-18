@@ -8,7 +8,7 @@
 #include "Components/Transform.h"
 #include "Components/GameActor.h"
 
-class PhysicsSystem : public ISystem<RectColliderD, Rigidbody, Transform>
+class PhysicsSystem : public ISystem<DynamicCollider, Rigidbody, Transform>
 {
 public:
   friend class Rigidbody;

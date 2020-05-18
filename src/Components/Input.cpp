@@ -326,37 +326,6 @@ InputBuffer const& GamepadInputHandler::CollectInputState()
     break;
   }
 
-
- /* Sint16 value = SDL_GameControllerGetAxis(_gameController, SDL_GameControllerAxis::SDL_CONTROLLER_AXIS_RIGHTX);
-  if (value < -JOYSTICK_DEAD_ZONE)
-  {
-    frameState |= InputState::LEFT;
-  }
-  else if (value > JOYSTICK_DEAD_ZONE)
-  {
-    frameState |= InputState::RIGHT;
-  }
-
-  value = SDL_GameControllerGetAxis(_gameController, SDL_GameControllerAxis::SDL_CONTROLLER_AXIS_LEFTX);
-  if (value < -JOYSTICK_DEAD_ZONE)
-  {
-    frameState |= InputState::LEFT;
-  }
-  else if (value > JOYSTICK_DEAD_ZONE)
-  {
-    frameState |= InputState::RIGHT;
-  }
-
-  value = SDL_GameControllerGetAxis(_gameController, SDL_GameControllerAxis::SDL_CONTROLLER_AXIS_RIGHTY);
-  if (value < -JOYSTICK_DEAD_ZONE)
-  {
-    frameState |= InputState::DOWN;
-  }
-  else if (value > JOYSTICK_DEAD_ZONE)
-  {
-    frameState |= InputState::UP;
-  }*/
-
   _inputBuffer.Push(frameState);
   return _inputBuffer;
 }

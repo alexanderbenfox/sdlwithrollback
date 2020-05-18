@@ -6,21 +6,22 @@
 #include "Components/Transform.h"
 #include "Components/Rigidbody.h"
 
-class PlayerSideSystem : public ISystem<RectColliderD, StateComponent>
+class PlayerSideSystem : public ISystem<Transform, StateComponent>
 {
 public:
   static void DoTick(float dt)
   {
     for (auto& tuple : Tuples)
     {
-      RectColliderD* collider = std::get<RectColliderD*>(tuple.second);
+      Transform* transform = std::get<Transform*>(tuple.second);
       StateComponent* state = std::get<StateComponent*>(tuple.second);
 
       for (auto& other : Tuples)
       {
         if (other != tuple)
         {
-          state->onLeftSide = collider->rect.GetCenter().x < std::get<RectColliderD*>(other.second)->rect.GetCenter().x;
+          Transform* otherTranform = std::get<Transform*>(other.second);
+          state->onLeftSide = transform->position.x < otherTranform->position.x;
         }
       }
     }

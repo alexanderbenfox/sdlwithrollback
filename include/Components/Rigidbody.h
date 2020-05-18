@@ -37,6 +37,18 @@ private:
 };
 
 //!
+struct DynamicCollider : public RectColliderD
+{
+  DynamicCollider(std::shared_ptr<Entity> entity) : RectColliderD(entity) {}
+};
+
+//!
+struct StaticCollider : public RectColliderD
+{
+  StaticCollider(std::shared_ptr<Entity> entity) : RectColliderD(entity) {}
+};
+
+//!
 class Rigidbody : public IComponent
 {
 public:

@@ -100,7 +100,7 @@ std::shared_ptr<Entity> EntityCreation::CreateLocalPlayer(float xOffset)
   Vector2<int> textureSize = ResourceManager::Get().GetTextureWidthAndHeight("spritesheets\\ryu.png");
   Vector2<double> entitySize(static_cast<double>(textureSize.x)*.75, static_cast<double>(textureSize.y) * .95);
 
-  auto player = GameManager::Get().CreateEntity<Transform, KeyboardInputHandler, Animator, GraphicRenderer, RenderProperties, Rigidbody, GameActor, RectColliderD, Hurtbox, StateComponent>();
+  auto player = GameManager::Get().CreateEntity<Transform, KeyboardInputHandler, Animator, GraphicRenderer, RenderProperties, Rigidbody, GameActor, DynamicCollider, Hurtbox, StateComponent>();
 
   player->GetComponent<Rigidbody>()->Init(true);
   player->GetComponent<Animator>()->SetAnimations(RyuAnimations());
@@ -109,16 +109,13 @@ std::shared_ptr<Entity> EntityCreation::CreateLocalPlayer(float xOffset)
   player->GetComponent<RenderProperties>()->baseRenderOffset = (entitySize * (-1.0/2.0));
   player->GetComponent<RenderProperties>()->baseRenderOffset.y -= (static_cast<double>(textureSize.y) * .05);
 
-  player->GetComponent<RectColliderD>()->Init(Vector2<double>::Zero, entitySize);
-  player->GetComponent<RectColliderD>()->SetStatic(false);
-
+  player->GetComponent<DynamicCollider>()->Init(Vector2<double>::Zero, entitySize);
   player->GetComponent<Hurtbox>()->Init(Vector2<double>::Zero, entitySize);
-  player->GetComponent<Hurtbox>()->SetStatic(false);
 
   player->SetScale(Vector2<float>(1.4f, 1.7f));
   player->GetComponent<Transform>()->position.x = xOffset;
 
-  player->GetComponent<RectColliderD>()->MoveToTransform(*player->GetComponent<Transform>());
+  player->GetComponent<DynamicCollider>()->MoveToTransform(*player->GetComponent<Transform>());
   player->GetComponent<Hurtbox>()->MoveToTransform(*player->GetComponent<Transform>());
 
   return player;
