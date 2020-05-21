@@ -68,7 +68,9 @@ void RectCollider<T>::Draw()
 GameActor::GameActor(std::shared_ptr<Entity> owner) : _currentAction(nullptr), _newState(true), _lastInput(InputState::NONE), _comboCounter(0), IComponent(owner)
 {
   BeginNewAction(new LoopedAction<StanceState::STANDING, ActionState::NONE>("Idle", owner.get()));
-  _counterText = GameManager::Get().CreateEntity<Transform, GraphicRenderer>();
+  //_counterText = GameManager::Get().CreateEntity<Transform, GraphicRenderer>();
+  _counterText = GameManager::Get().CreateEntity<Transform, TextRenderer>();
+  _counterText->GetComponent<TextRenderer>()->SetFont(ResourceManager::Get().GetFontWriter("fonts\\Eurostile.ttf", 28));
   //_counterText->GetComponent<GraphicRenderer>()->Init(ResourceManager::Get().GetText("Combo: 0", "fonts\\Eurostile.ttf"));
   
 
@@ -120,7 +122,8 @@ void GameActor::BeginNewAction(IAction* action)
       _counterText->AddComponent<RenderProperties>();
     }
     std::string comboText = "Combo: " + std::to_string(_comboCounter);
-    _counterText->GetComponent<GraphicRenderer>()->Init(ResourceManager::Get().GetText(comboText.c_str(), "fonts\\Eurostile.ttf"));
+    //_counterText->GetComponent<GraphicRenderer>()->Init(ResourceManager::Get().GetText(comboText.c_str(), "fonts\\Eurostile.ttf"));
+    _counterText->GetComponent<TextRenderer>()->SetText(comboText);
   }
 
 

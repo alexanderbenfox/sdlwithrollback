@@ -3,6 +3,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
+#include "Rendering/GLTexture.h"
 
 #include <string>
 #include <memory>
@@ -16,6 +17,14 @@ template <> struct ResourceTraits<SDL_Texture>
   int mPitch, mWidth, mHeight;
   std::unique_ptr<unsigned char> pixels;
   Uint32 transparent;
+
+};
+
+template <> struct ResourceTraits<GLTexture>
+{
+  ResourceTraits() : mPitch(0), mWidth(0), mHeight(0) {}
+  int mPitch, mWidth, mHeight;
+
 };
 
 template <typename T>

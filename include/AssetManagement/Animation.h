@@ -61,6 +61,8 @@ public:
   Vector2<int> GetFrameWH() const { return _frameSize; }
   //!
   Texture& GetSheetTexture() const;
+  //!
+  Resource<GLTexture>& GLGetSheetTexture() const;
   //! Gets first non-transparent pixel from the top left and bottom left
   Vector2<int> FindAnchorPoint(AnchorPoint anchorType, bool fromFirstFrame) const;
   //!

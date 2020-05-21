@@ -4,6 +4,7 @@
 #include "Entity.h"
 #include "Components/IComponent.h"
 #include "Timer.h"
+#include "Rendering/RenderCopy.h"
 
 #include <thread>
 #include <mutex>
@@ -74,6 +75,10 @@ private:
   SDL_Renderer* _renderer;
   //! Window object
   SDL_Window* _window;
+  //!
+  std::unique_ptr<GraphicsProgram> _shaderProgram;
+  //!
+  SDL_GLContext _glContext;
   //!
   SDL_Event _localInput;
   //!

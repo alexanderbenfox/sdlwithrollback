@@ -11,7 +11,7 @@ struct BlitOperation
   bool valid = false;
   SDL_Rect _textureRect;
   SDL_Rect _displayRect;
-  Texture* _textureResource;
+  Resource<GLTexture>* _textureResource;
   SDL_RendererFlip _flip;
   SDL_Color _displayColor;
 };

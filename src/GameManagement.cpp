@@ -20,6 +20,8 @@
 
 #include "Systems/Physics.h"
 
+#include "Rendering/RenderCopy.h"
+
 #ifdef _DEBUG
 //used for debugger
 #include <thread>
@@ -66,6 +68,25 @@ Texture& ResourceManager::GetTexture(const std::string& file)
 }
 
 //______________________________________________________________________________
+Resource<GLTexture>& ResourceManager::GetGLTexture(const std::string& file)
+{
+  auto fileToLoad = file;
+
+#ifndef _WIN32
+  auto split = StringUtils::Split(file, '\\');
+  if (split.size() > 1)
+    fileToLoad = StringUtils::Connect(split.begin(), split.end(), '/');
+#endif
+
+  if (_loadedGLTextures.find(fileToLoad) == _loadedGLTextures.end())
+  {
+    _loadedGLTextures.insert(std::make_pair(fileToLoad, Resource<GLTexture>(_resourcePath + fileToLoad)));
+  }
+  _loadedGLTextures[fileToLoad].Load();
+  return _loadedGLTextures[fileToLoad];
+}
+
+//______________________________________________________________________________
 Font& ResourceManager::GetFont(const std::string& file)
 {
   auto fileToLoad = file;
@@ -98,6 +119,19 @@ TextResource& ResourceManager::GetText(const char* text, const std::string& font
 }
 
 //______________________________________________________________________________
+LetterCase& ResourceManager::GetFontWriter(const std::string& fontFile, size_t size)
+{
+  const FontKey key{ size, fontFile.c_str() };
+
+  if (_loadedLetterCases.find(key) == _loadedLetterCases.end())
+  {
+    Font& font = GetFont(fontFile);
+    _loadedLetterCases.emplace(std::piecewise_construct, std::make_tuple(key), std::make_tuple(font.Get(), size));
+  }
+  return _loadedLetterCases[key];
+}
+
+//______________________________________________________________________________
 Vector2<int> ResourceManager::GetTextureWidthAndHeight(const std::string& file)
 {
   auto fileToQuery = file;
@@ -127,7 +161,7 @@ void ResourceManager::DeregisterBlitOp()
 }
 
 //______________________________________________________________________________
-void ResourceManager::BlitSprites()
+void ResourceManager::BlitSprites(GraphicsProgram* program)
 {
   auto blit = [](BlitOperation* operation)
   {
@@ -142,13 +176,7 @@ void ResourceManager::BlitSprites()
       
       try
       {
-        if (SDL_QueryTexture(operation->_textureResource->Get(), NULL, NULL, &w, &h) == 0)
-        {
-          //SDL_SetRenderDrawColor(GameManager::Get().GetRenderer(), operation->_displayColor.r, operation->_displayColor.g, operation->_displayColor.b, operation->_displayColor.a);
-          SDL_SetTextureColorMod(operation->_textureResource->Get(), operation->_displayColor.r, operation->_displayColor.g, operation->_displayColor.b);
-          SDL_RenderCopyEx(GameManager::Get().GetRenderer(), srcTexture,
-            &operation->_textureRect, &operation->_displayRect, rotation, nullptr, operation->_flip);
-        }
+        GL_RenderCopyEx(srcTexture, &operation->_textureRect, &operation->_displayRect, rotation, nullptr, operation->_flip);
       }
       catch (std::exception &e)
       {
@@ -157,14 +185,55 @@ void ResourceManager::BlitSprites()
     }
   };
 
+  if(program)
+    program->RenderPresent();
   // only draw sprites that have been registered for this draw cycle
   for(int i = 0; i < opIndex; i++)
   {
     blit(&_registeredSprites[i]);
   }
+  if(program)
+    program->EndPresent();
 
   //reset available ops for next draw cycle
   opIndex = 0;
+}
+
+//______________________________________________________________________________
+void ResourceManager::RenderGL()
+{
+  auto blit = [](float x, float y, float lh, GLTexture* texture)
+  {
+    float lw = texture->width * (lh / texture->height);
+
+    glBindTexture(GL_TEXTURE_2D, texture->id);
+    glEnable(GL_TEXTURE_2D);
+
+    glPushMatrix();
+    glTranslatef(x, y, 0);
+
+    glBegin(GL_QUADS);
+    glTexCoord2i(0, 0);  glVertex2f(0, 0);
+    glTexCoord2i(1, 0);  glVertex2f(lw, 0);
+    glTexCoord2i(1, 1);  glVertex2f(lw, lh);
+    glTexCoord2i(0, 1);  glVertex2f(0, lh);
+    glEnd();
+
+    glTranslatef(-x, -y, 0);
+    glPopMatrix();
+
+    glDisable(GL_TEXTURE_2D);
+    glDisableClientState(GL_VERTEX_ARRAY);
+  };
+
+  for (auto& renderOp : _glTexturesToDraw)
+  {
+    blit(renderOp.x, renderOp.y, renderOp.lh, renderOp.texture);
+  }
+
+  _glTexturesToDraw.clear();
+
+  //SDL_Delay(10);
 }
 
 //______________________________________________________________________________
@@ -250,6 +319,20 @@ void GameManager::Initialize()
   _renderer = SDL_CreateRenderer(_window, -1, SDL_RENDERER_ACCELERATED);
   SDL_SetRenderDrawBlendMode(_renderer, SDL_BLENDMODE_BLEND);
 
+  // init the gl context
+  _glContext = SDL_GL_CreateContext(_window);
+  SDL_GL_SetSwapInterval(1);
+
+  glClearColor(0.0, 0.0, 0.0, 0.0);
+  glMatrixMode(GL_PROJECTION);
+  glLoadIdentity();
+  glOrtho(0, m_nativeWidth, m_nativeHeight, 0, 0, 16);
+  glEnable(GL_BLEND);
+  glEnable(GL_TEXTURE_2D);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+  //_shaderProgram = std::unique_ptr<GraphicsProgram>(new GraphicsProgram);
+
   auto bottomBorder = CreateEntity<Transform, GraphicRenderer, StaticCollider>();
   bottomBorder->GetComponent<Transform>()->position.x = (float)m_nativeWidth / 2.0f;
   bottomBorder->GetComponent<Transform>()->position.y = m_nativeHeight;
@@ -299,6 +382,7 @@ void GameManager::Destroy()
 {
   SDL_DestroyRenderer(_renderer);
   SDL_DestroyWindow(_window);
+  SDL_GL_DeleteContext(_glContext);
 
   _renderer = nullptr;
   _window = nullptr;
@@ -341,6 +425,7 @@ void GameManager::BeginGameLoop()
 
     // do once per frame system calls
     DrawSystem::PostUpdate();
+    GLDrawSystem::PostUpdate();
 
     //! Finally render the scene
     Draw();
@@ -372,6 +457,7 @@ void GameManager::CheckAgainstSystems(Entity* entity)
   TimerSystem::Check(entity);
   FrameAdvantageSystem::Check(entity);
   DrawSystem::Check(entity);
+  GLDrawSystem::Check(entity);
   PlayerSideSystem::Check(entity);
 }
 
@@ -430,17 +516,31 @@ void GameManager::UpdateInput()
 void GameManager::Draw()
 {
   //clear last frame graphics
-  SDL_RenderClear(_renderer);
+  //SDL_RenderClear(_renderer);
+
+  // finally, render gl on top
+
+    // clear previous render
+  glClearColor(0.0, 0.0, 0.0, 1);
+  glClear(GL_COLOR_BUFFER_BIT);
+
+  // change display color
+  glColor4f(1.0, 1.0, 1.0, 1.0);
 
   // resource manager draw here?
-  ResourceManager::Get().BlitSprites();
+  ResourceManager::Get().BlitSprites(_shaderProgram.get());
 
   // draw debug rects
   ComponentManager<Hurtbox>::Get().Draw();
   ComponentManager<Hitbox>::Get().Draw();
 
+  // render the textures
+  ResourceManager::Get().RenderGL();
+
+  // render all gl textures
   //present this frame
-  SDL_RenderPresent(_renderer);
+  //SDL_RenderPresent(_renderer);
+  SDL_GL_SwapWindow(GameManager::Get().GetWindow());
 }
 
 //______________________________________________________________________________

@@ -87,4 +87,27 @@ template <> void Resource<TTF_Font>::Load()
   if (_resource) _loaded = true;
 }
 
+
+template <> void Resource<GLTexture>::Load()
+{
+  if (_loaded) return;
+
+  SDL_Surface* surface = IMG_Load(_pathToResource.c_str());
+  if (surface)
+  {
+    _info.mHeight = surface->h;
+    _info.mWidth = surface->w;
+
+    _resource = std::shared_ptr<GLTexture>(new GLTexture(surface));
+    if (_resource)
+    {
+      _loaded = true;
+      _resource->blendMode = SDL_BLENDMODE_BLEND;
+    }
+
+    SDL_FreeSurface(surface);
+    surface = NULL;
+  }
+}
+
 //template <> class Resource<SDL_Texture>;

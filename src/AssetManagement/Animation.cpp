@@ -173,6 +173,12 @@ Texture& Animation::GetSheetTexture() const
 }
 
 //______________________________________________________________________________
+Resource<GLTexture>& Animation::GLGetSheetTexture() const
+{
+  return ResourceManager::Get().GetGLTexture(_src);
+}
+
+//______________________________________________________________________________
 Vector2<int> Animation::FindAnchorPoint(AnchorPoint anchorType, bool fromFirstFrame) const
 {
   Texture& sheetTexture = ResourceManager::Get().GetTexture(_src);

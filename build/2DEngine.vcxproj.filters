@@ -37,6 +37,9 @@
     <Filter Include="Source Files\Systems">
       <UniqueIdentifier>{c67b749f-5c17-4550-b806-903bec54e0b8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Rendering">
+      <UniqueIdentifier>{692489a8-09a8-4b84-8e1a-0706b56206f8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\2DEngine.cpp">
@@ -188,5 +191,17 @@
     <ClInclude Include="..\include\ComponentConst.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\AssetManagement\LetterCase.h">
+      <Filter>Header Files\AssetManagement</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Rendering\RenderCopy.h">
+      <Filter>Header Files\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Rendering\GLTexture.h">
+      <Filter>Header Files\Rendering</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>

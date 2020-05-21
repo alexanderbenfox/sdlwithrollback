@@ -122,6 +122,16 @@ void AnimatedAction<Stance, Action>::Enact(Entity* actor)
           renderer->sourceRect = actionAnimation->GetFrameSrcRect(0);
         }
       }
+
+      if (auto renderer = actor->GetComponent<GLGraphicRenderer>())
+      {
+        if (actionAnimation)
+        {
+          // render from the sheet of the new animation
+          renderer->SetRenderResource(actionAnimation->GLGetSheetTexture());
+          renderer->sourceRect = actionAnimation->GetFrameSrcRect(0);
+        }
+      }
     }
     else
     {
