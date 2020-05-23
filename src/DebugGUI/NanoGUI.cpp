@@ -1,5 +1,4 @@
 #include "DebugGUI/NanoGUI.h"
-#include "DebugGUI/SimpleDebugWindow.h"
 
 #if defined(_WIN32)
 #  pragma warning(push)
@@ -22,18 +21,31 @@
 #  include <windows.h>
 #endif
 
-bool NanoGUI::Init()
+void NanoGUI::BeginGUIThread(std::thread& guiThread)
+{
+  guiThread = std::thread([this]()
+    {
+      InitGUIWindows();
+    });
+}
+
+bool NanoGUI::InitGUIWindows()
 {
   // init nanogui
   try
   {
     nanogui::init();
 
+    // add window
+    _windows.insert(std::make_pair("Test", nanogui::ref(new SimpleDebugWindow(100, 100, "Test"))));
+
     /* scoped variables */
     {
-      nanogui::ref<SimpleDebugWindow> app = new SimpleDebugWindow(100, 100, "Test");
-      app->drawAll();
-      app->setVisible(true);
+      for (auto& app : _windows)
+      {
+        app.second->drawAll();
+        app.second->setVisible(true);
+      }
       nanogui::mainloop();
     }
     nanogui::shutdown();

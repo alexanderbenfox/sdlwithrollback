@@ -252,8 +252,6 @@ void GameManager::Initialize()
   _renderer = SDL_CreateRenderer(_window, -1, SDL_RENDERER_ACCELERATED);
   SDL_SetRenderDrawBlendMode(_renderer, SDL_BLENDMODE_BLEND);
 
-  NanoGUI::Get();
-
   auto bottomBorder = CreateEntity<Transform, GraphicRenderer, StaticCollider>();
   bottomBorder->GetComponent<Transform>()->position.x = (float)m_nativeWidth / 2.0f;
   bottomBorder->GetComponent<Transform>()->position.y = m_nativeHeight;
@@ -326,7 +324,8 @@ void GameManager::BeginGameLoop()
 
   bool programRunning = true;
   std::thread debuggerThread;
-  RunScripter(debuggerThread, programRunning);
+  //RunScripter(debuggerThread, programRunning);
+  NanoGUI::Get().BeginGUIThread(debuggerThread);
 
   int frameCount = 0;
   for (;;)
