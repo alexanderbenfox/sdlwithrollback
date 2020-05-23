@@ -1,6 +1,8 @@
 #pragma once
 #include <Windows.h>
+#include <gl/glew.h>
 #include <gl/GL.h>
+
 #include <nanogui/opengl.h>
 #include <nanogui/glutil.h>
 
