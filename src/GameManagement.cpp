@@ -19,6 +19,7 @@
 #include "Systems/TimerSystem.h"
 
 #include "Systems/Physics.h"
+#include "DebugGUI/NanoGUI.h"
 
 #ifdef _DEBUG
 //used for debugger
@@ -240,6 +241,7 @@ Rect<double> ResourceManager::FindRect(Texture& texture, Vector2<int> frameSize,
 //______________________________________________________________________________
 void GameManager::Initialize()
 {
+  // init sdl
   SDL_Init( SDL_INIT_EVERYTHING | SDL_INIT_GAMECONTROLLER  | SDL_INIT_JOYSTICK );
   TTF_Init();
 
@@ -249,6 +251,8 @@ void GameManager::Initialize()
 
   _renderer = SDL_CreateRenderer(_window, -1, SDL_RENDERER_ACCELERATED);
   SDL_SetRenderDrawBlendMode(_renderer, SDL_BLENDMODE_BLEND);
+
+  NanoGUI::Get();
 
   auto bottomBorder = CreateEntity<Transform, GraphicRenderer, StaticCollider>();
   bottomBorder->GetComponent<Transform>()->position.x = (float)m_nativeWidth / 2.0f;

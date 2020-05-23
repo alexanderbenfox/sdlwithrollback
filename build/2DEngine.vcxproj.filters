@@ -37,6 +37,12 @@
     <Filter Include="Source Files\Systems">
       <UniqueIdentifier>{c67b749f-5c17-4550-b806-903bec54e0b8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\DebugGUI">
+      <UniqueIdentifier>{2f6d95fc-3ca4-4327-845f-87bb098ba8c3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\DebugGUI">
+      <UniqueIdentifier>{771c4c91-eeae-4b8a-8d4a-e80a39bc515e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\2DEngine.cpp">
@@ -83,6 +89,12 @@
     </ClCompile>
     <ClCompile Include="..\src\AssetManagement\Animation.cpp">
       <Filter>Source Files\AssetManagement</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\DebugGUI\NanoGUI.cpp">
+      <Filter>Source Files\DebugGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\DebugGUI\SimpleDebugWindow.cpp">
+      <Filter>Source Files\DebugGUI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -187,6 +199,12 @@
     </ClInclude>
     <ClInclude Include="..\include\ComponentConst.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\DebugGUI\SimpleDebugWindow.h">
+      <Filter>Header Files\DebugGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\DebugGUI\NanoGUI.h">
+      <Filter>Header Files\DebugGUI</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

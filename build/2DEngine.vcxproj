@@ -27,6 +27,8 @@
     <ClCompile Include="..\src\Components\Animator.cpp" />
     <ClCompile Include="..\src\Components\Components.cpp" />
     <ClCompile Include="..\src\Components\Input.cpp" />
+    <ClCompile Include="..\src\DebugGUI\NanoGUI.cpp" />
+    <ClCompile Include="..\src\DebugGUI\SimpleDebugWindow.cpp" />
     <ClCompile Include="..\src\Entity.cpp" />
     <ClCompile Include="..\src\GameManagement.cpp" />
     <ClCompile Include="..\src\GameState\GameState.cpp" />
@@ -54,6 +56,8 @@
     <ClInclude Include="..\include\Components\Rigidbody.h" />
     <ClInclude Include="..\include\Components\Sprite.h" />
     <ClInclude Include="..\include\Components\Transform.h" />
+    <ClInclude Include="..\include\DebugGUI\NanoGUI.h" />
+    <ClInclude Include="..\include\DebugGUI\SimpleDebugWindow.h" />
     <ClInclude Include="..\include\Entity.h" />
     <ClInclude Include="..\include\GameManagement.h" />
     <ClInclude Include="..\include\GameState\GameState.h" />
@@ -166,17 +170,18 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>external\ggpo\include;..\include;external\sdl2-ttf_x64-windows\include;external\sdl2-image_x64-windows\include;external\sdl2_x64-windows\include\SDL2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>external\ggpo\include;..\include;external\sdl2-ttf_x64-windows\include;external\sdl2-image_x64-windows\include;external\sdl2_x64-windows\include\SDL2;external\nanogui_x64-windows\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>external\ggpo\debug;external\sdl2-ttf_x64-windows\debug\lib;external\sdl2-image_x64-windows\debug\lib;external\sdl2_x64-windows\debug\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>external\ggpo\debug;external\sdl2-ttf_x64-windows\debug\lib;external\sdl2-image_x64-windows\debug\lib;external\nanogui_x64-windows\debug;external\sdl2_x64-windows\debug\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <EntryPointSymbol>
       </EntryPointSymbol>
-      <AdditionalDependencies>ws2_32.lib;user32.lib;winmm.lib;GGPO.lib;SDL2d.lib;SDL2_image.lib;SDL2_ttf.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;nanogui.lib;ws2_32.lib;user32.lib;winmm.lib;GGPO.lib;SDL2d.lib;SDL2_image.lib;SDL2_ttf.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <DelayLoadDLLs>nanogui.dll</DelayLoadDLLs>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -210,7 +215,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>external\ggpo\include;..\include;external\sdl2-ttf_x64-windows\include;external\sdl2-image_x64-windows\include;external\sdl2_x64-windows\include\SDL2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>external\ggpo\include;..\include;external\sdl2-ttf_x64-windows\include;external\sdl2-image_x64-windows\include;external\sdl2_x64-windows\include\SDL2;external\nanogui_x64-windows\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
@@ -219,10 +224,11 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>external\ggpo\release;external\sdl2-ttf_x64-windows\lib;external\sdl2-image_x64-windows\lib;external\sdl2_x64-windows\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>external\ggpo\release;external\sdl2-ttf_x64-windows\lib;external\sdl2-image_x64-windows\lib;external\sdl2_x64-windows\lib;external\nanogui_x64-windows\release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <EntryPointSymbol>
       </EntryPointSymbol>
-      <AdditionalDependencies>ws2_32.lib;user32.lib;winmm.lib;GGPO.lib;SDL2.lib;SDL2_image.lib;SDL2_ttf.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;nanogui.lib;ws2_32.lib;user32.lib;winmm.lib;GGPO.lib;SDL2.lib;SDL2_image.lib;SDL2_ttf.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <DelayLoadDLLs>nanogui.dll</DelayLoadDLLs>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
