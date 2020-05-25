@@ -19,7 +19,7 @@
 #include "Systems/TimerSystem.h"
 
 #include "Systems/Physics.h"
-#include "DebugGUI/NanoGUI.h"
+#include "DebugGUI/GUIController.h"
 
 #ifdef _DEBUG
 //used for debugger
@@ -325,7 +325,8 @@ void GameManager::BeginGameLoop()
   bool programRunning = true;
   std::thread debuggerThread;
   //RunScripter(debuggerThread, programRunning);
-  NanoGUI::Get().BeginGUIThread(debuggerThread);
+  GUIController::Get().InitSDLWindow();
+  GUIController::Get().InitImGUI();
 
   int frameCount = 0;
   for (;;)
@@ -348,9 +349,17 @@ void GameManager::BeginGameLoop()
     //! Finally render the scene
     Draw();
 
+    //! update gui
+    GUIController::Get().MainLoop(_localInput);
+    GUIController::Get().RenderFrame();
+
+    if (_localInput.type == SDL_QUIT)
+      break;
+
     frameCount = (++frameCount) % 60;
   }
 
+  GUIController::Get().CleanUp();
   programRunning = false;
 }
 
@@ -412,10 +421,6 @@ void GameManager::UpdateInput()
   // Process local input first
   //! Check for quit
   if (SDL_PollEvent(&_localInput)) {
-    if (_localInput.type == SDL_QUIT)
-    {
-      return;
-    }
     if (_localInput.type == SDL_WINDOWEVENT)
     {
       if (_localInput.window.event == SDL_WINDOWEVENT_RESIZED)
