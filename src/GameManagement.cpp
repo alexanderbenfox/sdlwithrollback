@@ -328,6 +328,9 @@ void GameManager::BeginGameLoop()
   GUIController::Get().InitSDLWindow();
   GUIController::Get().InitImGUI();
 
+  // set focus back to main game window
+  SDL_RaiseWindow(_window);
+
   int frameCount = 0;
   for (;;)
   {
@@ -425,10 +428,13 @@ void GameManager::UpdateInput()
     {
       if (_localInput.window.event == SDL_WINDOWEVENT_RESIZED)
       {
-        Vector2<int> newWindowSize(_localInput.window.data1, _localInput.window.data2);
-        widthToScreenWidth = static_cast<double>(newWindowSize.x) / static_cast<double>(m_nativeWidth);
-        heightToScreenHeight = static_cast<double>(newWindowSize.y) / static_cast<double>(m_nativeHeight);
-        SDL_RenderSetScale(_renderer, static_cast<float>(widthToScreenWidth), static_cast<float>(heightToScreenHeight));
+        if(_localInput.window.windowID == SDL_GetWindowID(_window))
+        {
+          Vector2<int> newWindowSize(_localInput.window.data1, _localInput.window.data2);
+          widthToScreenWidth = static_cast<double>(newWindowSize.x) / static_cast<double>(m_nativeWidth);
+          heightToScreenHeight = static_cast<double>(newWindowSize.y) / static_cast<double>(m_nativeHeight);
+          SDL_RenderSetScale(_renderer, static_cast<float>(widthToScreenWidth), static_cast<float>(heightToScreenHeight));
+        }
       }
     }
   }
