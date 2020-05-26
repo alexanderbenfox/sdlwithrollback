@@ -331,15 +331,29 @@ void GameManager::BeginGameLoop()
   // set focus back to main game window
   SDL_RaiseWindow(_window);
 
+  AvgCounter tracker;
+
+  std::function<void()> imguiWindowFunc = [this, &tracker]()
+  {
+    ImGui::Begin("Update function timer");
+    ImGui::Text("Update function time average %.3f ms/frame", (double)_clock.GetUpdateTime() / 1000000.0);
+    ImGui::PlotLines("Update speed over time (ms/frame) - updated every 10 frames", [](void* data, int idx) { return (float)((long long*)data)[idx]/ 1000000.0f; }, tracker.GetValues(), tracker.NumValues(), 0, nullptr, FLT_MAX, FLT_MAX, ImVec2(200, 100));
+    ImGui::End();
+  };
+
+  GUIController::Get().AddImguiWindowFunction(imguiWindowFunc);
+
   int frameCount = 0;
   for (;;)
   {
-    if(frameCount == 0)
-      std::cout << "Update time: " << _clock.GetUpdateTime() << "\n";
-
     //! Collect inputs from controllers (this means AI controllers as well as Player controllers)
     //UpdateInput();
     //InputSystem::DoTick(0);
+
+    if (frameCount == 0)
+    {
+      tracker.Add(_clock.GetUpdateTime());
+    }
 
     std::lock_guard<std::mutex> lock(_debugMutex);
 
@@ -359,7 +373,7 @@ void GameManager::BeginGameLoop()
     if (_localInput.type == SDL_QUIT)
       break;
 
-    frameCount = (++frameCount) % 60;
+    frameCount = (++frameCount) % 10;
   }
 
   GUIController::Get().CleanUp();

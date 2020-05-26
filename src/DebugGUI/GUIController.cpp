@@ -96,6 +96,11 @@ void GUIController::MainLoop(SDL_Event& event)
         show_another_window = false;
       ImGui::End();
     }
+
+    for (auto& func : _imguiWindowFunctions)
+    {
+      func();
+    }
   }
 }
 

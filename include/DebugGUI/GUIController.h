@@ -5,6 +5,8 @@
 #include <SDL2/SDL_opengl.h>
 
 #include <thread>
+#include <vector>
+#include <functional>
 
 // nano gui singleton
 class GUIController
@@ -22,6 +24,11 @@ public:
   void RenderFrame();
   void CleanUp();
 
+  void AddImguiWindowFunction(std::function<void()>& function)
+  {
+    _imguiWindowFunctions.push_back(function);
+  }
+
 private:
   GUIController() = default;
   GUIController(const GUIController&) = delete;
@@ -30,5 +37,7 @@ private:
   SDL_Window* _window;
   SDL_GLContext _glContext;
   bool _done;
+
+  std::vector<std::function<void()>> _imguiWindowFunctions;
 
 };
