@@ -275,7 +275,7 @@ void GameManager::Initialize()
 
   //auto randomAssRenderedText = CreateEntity<Transform, GraphicRenderer, RenderProperties>();
   //randomAssRenderedText->GetComponent<GraphicRenderer>()->Init(ResourceManager::Get().GetText("TEZT", "fonts\\Eurostile.ttf"));
-
+  
   auto p1 = EntityCreation::CreateLocalPlayer(100);
   auto p2 = EntityCreation::CreateLocalPlayer(400);
 

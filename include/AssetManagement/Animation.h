@@ -11,11 +11,6 @@
 const float secPerFrame = 1.0f / 60.0f;
 const float gameFramePerAnimationFrame = (1.0f / secPerFrame) / animation_fps;
 
-enum class AnchorPoint
-{
-  TL, TR, BL, BR, Size
-};
-
 class Animation;
 
 //______________________________________________________________________________
@@ -51,7 +46,7 @@ class Animation
 public:
   Animation(const char* sheet, int rows, int columns, int startIndexOnSheet, int frames, AnchorPoint anchor);
 
-  EventInitParams CreateHitboxEvent(const char* hitboxesSheet, FrameData frameData);
+  EventInitParams GenerateAttackEvent(const char* hitboxesSheet, FrameData frameData);
 
   //! Translates anim frame to the frame on spritesheet
   SDL_Rect GetFrameSrcRect(int animFrame) const;
@@ -94,7 +89,7 @@ class AnimationCollection
 public:
   AnimationCollection() = default;
   void RegisterAnimation(const std::string& animationName, const char* sheet, int rows, int columns, int startIndexOnSheet, int frames, AnchorPoint anchor);
-  void AddHitboxEvents(const std::string& animationName, const char* hitboxesSheet, FrameData frameData);
+  void SetHitboxEvents(const std::string& animationName, const char* hitboxesSheet, FrameData frameData);
 
 
   Vector2<int> GetRenderOffset(const std::string& animationName, bool flipped, int transformWidth) const;

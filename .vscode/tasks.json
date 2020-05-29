@@ -14,6 +14,7 @@
         "src/*.cpp",
         "src/Components/*.cpp",
         "src/AssetManagement/*.cpp",
+        "src/AssetManagement/StaticAssets/*.cpp",
         "src/GameState/*.cpp",
         "src/Systems/*.cpp",
         "src/DebugGUI/*.cpp",

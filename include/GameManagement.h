@@ -55,10 +55,6 @@ public:
 
   void ActivateHitStop(int frames);
 
-  const int hitstopLight = 10;
-  const int hitstopMedium = 10;
-  const int hitstopHeavy = 10;
-
 private:
   //! Updates all components in specified order
   void Update(float deltaTime);

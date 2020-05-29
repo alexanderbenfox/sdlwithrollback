@@ -27,7 +27,7 @@ Animation::Animation(const char* sheet, int rows, int columns, int startIndexOnS
 }
 
 //______________________________________________________________________________
-EventInitParams Animation::CreateHitboxEvent(const char* hitboxesSheet, FrameData frameData)
+EventInitParams Animation::GenerateAttackEvent(const char* hitboxesSheet, FrameData frameData)
 {
   auto DespawnHitbox = [](Transform* trans)
   {
@@ -251,13 +251,21 @@ void AnimationCollection::RegisterAnimation(const std::string& name, const char*
 }
 
 //______________________________________________________________________________
-void AnimationCollection::AddHitboxEvents(const std::string& animationName, const char* hitboxesSheet, FrameData frameData)
+void AnimationCollection::SetHitboxEvents(const std::string& animationName, const char* hitboxesSheet, FrameData frameData)
 {
   if (_animations.find(animationName) != _animations.end())
   {
     Animation& animation = _animations.find(animationName)->second;
-    _events.emplace(std::make_pair(animationName, std::make_shared<EventList>()));
-    _events[animationName]->emplace(std::piecewise_construct, std::make_tuple(frameData.startUp - 1), animation.CreateHitboxEvent(hitboxesSheet, frameData));
+    if(_events.find(animationName) == _events.end())
+    {
+      _events.emplace(std::make_pair(animationName, std::make_shared<EventList>()));
+      _events[animationName]->emplace(std::piecewise_construct, std::make_tuple(frameData.startUp - 1), animation.GenerateAttackEvent(hitboxesSheet, frameData));
+    }
+    else
+    {
+      //for now just replace
+      _events[animationName]->emplace(std::piecewise_construct, std::make_tuple(frameData.startUp - 1), animation.GenerateAttackEvent(hitboxesSheet, frameData));
+    }
   }
 }
 

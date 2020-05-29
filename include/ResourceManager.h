@@ -63,3 +63,14 @@ private:
   ResourceManager operator=(ResourceManager&) = delete;
 
 };
+
+class AnimationResources
+{
+public:
+  static AnimationCollection& RyuAnimations();
+
+private:
+  static bool _ryuAnimLoaded;
+  static AnimationCollection _ryuAnimations;
+  static AnimationCollection LoadRyuAnimations();
+};

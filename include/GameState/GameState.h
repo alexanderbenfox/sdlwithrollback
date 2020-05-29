@@ -20,7 +20,6 @@ public:
 class EntityCreation
 {
 public:
-  static AnimationCollection RyuAnimations();
   static std::shared_ptr<Entity> CreateLocalPlayer(float xOffset);
   #ifdef _WIN32
   static std::shared_ptr<Entity> CreateNetworkPlayer(float xOffset);
