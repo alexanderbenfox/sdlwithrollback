@@ -49,6 +49,12 @@
     <Filter Include="ImGui\impl">
       <UniqueIdentifier>{6850317c-edff-4340-b70b-f3d8f598be4f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\AssetManagement\StaticAssets">
+      <UniqueIdentifier>{2b286bc1-2c40-4340-8f8c-6a95bd8deb93}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\AssetManagement\StaticAssets">
+      <UniqueIdentifier>{d8d3905d-19a5-4f9e-8449-04f967f27ae2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\2DEngine.cpp">
@@ -119,6 +125,12 @@
     </ClCompile>
     <ClCompile Include="..\src\DebugGUI\GUIController.cpp">
       <Filter>Source Files\DebugGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\AssetManagement\AnimationAsset.cpp">
+      <Filter>Source Files\AssetManagement</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\AssetManagement\StaticAssets\CharacterConfig.cpp">
+      <Filter>Source Files\AssetManagement\StaticAssets</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -255,6 +267,12 @@
       <Filter>ImGui\impl</Filter>
     </ClInclude>
     <ClInclude Include="..\include\DebugGUI\GUIController.h">
+      <Filter>Header Files\DebugGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\AssetManagement\StaticAssets\CharacterConfig.h">
+      <Filter>Header Files\AssetManagement\StaticAssets</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\DebugGUI\GLTexture.h">
       <Filter>Header Files\DebugGUI</Filter>
     </ClInclude>
   </ItemGroup>

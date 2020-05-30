@@ -7,6 +7,7 @@
 #include <thread>
 #include <vector>
 #include <functional>
+#include <unordered_map>
 
 // nano gui singleton
 class GUIController
@@ -24,9 +25,14 @@ public:
   void RenderFrame();
   void CleanUp();
 
-  void AddImguiWindowFunction(std::function<void()>& function)
+  void AddImguiWindowFunction(const std::string& group, std::function<void()>& function)
   {
-    _imguiWindowFunctions.push_back(function);
+    auto it = _imguiWindowGroups.find(group);
+    if (it == _imguiWindowGroups.end())
+    {
+      _imguiWindowGroups.emplace(group, std::vector<std::function<void()>>());
+    }
+    _imguiWindowGroups[group].push_back(function);
   }
 
 private:
@@ -38,6 +44,6 @@ private:
   SDL_GLContext _glContext;
   bool _done;
 
-  std::vector<std::function<void()>> _imguiWindowFunctions;
+  std::unordered_map<std::string , std::vector<std::function<void()>>> _imguiWindowGroups;
 
 };

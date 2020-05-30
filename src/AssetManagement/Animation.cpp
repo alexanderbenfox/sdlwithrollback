@@ -2,6 +2,7 @@
 #include "Components/Hitbox.h"
 #include "GameManagement.h"
 #include "ResourceManager.h"
+#include "DebugGUI/GUIController.h"
 #include <math.h>
 
 //______________________________________________________________________________
@@ -232,6 +233,30 @@ Vector2<int> Animation::FindAnchorPoint(AnchorPoint anchorType, bool fromFirstFr
 }
 
 //______________________________________________________________________________
+void Animation::DisplayDebugFrame(Vector2<int> displaySize, int animFrame)
+{
+  Resource<GLTexture>& texResource = ResourceManager::Get().GetGLTexture(_src);
+
+  int frame = _animFrameToSheetFrame[animFrame];
+
+  //if invalid frame
+  if (frame >= _frames || frame < 0)
+    return;
+
+  int x = (_startIdx + frame) % _columns;
+  int y = (_startIdx + frame) / _columns;
+
+  auto sheetSize = ResourceManager::Get().GetTextureWidthAndHeight(_src);
+
+  float u0 = ((float)x * (float)_frameSize.x) / (float)sheetSize.x;
+  float v0 = ((float)y * (float)_frameSize.y) / (float)sheetSize.y;
+  float u1 = u0 + ((float)_frameSize.x / (float)sheetSize.x);
+  float v1 = v0 + ((float)_frameSize.y / (float)sheetSize.y);
+
+  ImGui::Image((void*)(intptr_t)texResource.Get()->texture(), ImVec2(displaySize.x, displaySize.y), ImVec2(u0, v0), ImVec2(u1, v1));
+}
+
+//______________________________________________________________________________
 void AnimationCollection::RegisterAnimation(const std::string& name, const char* sheet, int rows, int columns, int startIndexOnSheet, int frames, AnchorPoint anchor)
 {
   if (_animations.find(name) == _animations.end())
@@ -264,6 +289,7 @@ void AnimationCollection::SetHitboxEvents(const std::string& animationName, cons
     else
     {
       //for now just replace
+      _events[animationName] = std::make_shared<EventList>();
       _events[animationName]->emplace(std::piecewise_construct, std::make_tuple(frameData.startUp - 1), animation.GenerateAttackEvent(hitboxesSheet, frameData));
     }
   }

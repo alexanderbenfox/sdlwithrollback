@@ -1,5 +1,6 @@
 #include "AssetManagement/Resource.h"
 #include "GameManagement.h"
+#include "DebugGUI/GLTexture.h"
 
 #include <SDL2/SDL.h>
 
@@ -85,6 +86,16 @@ template <> void Resource<TTF_Font>::Load()
 
   _resource = std::shared_ptr<TTF_Font>(TTF_OpenFont(_pathToResource.c_str(), 25), TTF_CloseFont);
   if (_resource) _loaded = true;
+}
+
+
+template <> void Resource<GLTexture>::Load()
+{
+  if (_loaded) return;
+
+  _resource = std::shared_ptr<GLTexture>(new GLTexture);
+  _resource->load(_pathToResource);
+  _loaded = true;
 }
 
 //template <> class Resource<SDL_Texture>;

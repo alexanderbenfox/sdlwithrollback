@@ -45,8 +45,8 @@ void GUIController::MainLoop(SDL_Event& event)
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
     // Our state
-    bool show_demo_window = true;
-    bool show_another_window = false;
+    //bool show_demo_window = true;
+    //bool show_another_window = false;
 
     // Poll and handle events (inputs, window resize, etc.)
     // You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if dear imgui wants to use your inputs.
@@ -61,7 +61,7 @@ void GUIController::MainLoop(SDL_Event& event)
     ImGui::NewFrame();
 
     // 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
-    if (show_demo_window)
+    /*if (show_demo_window)
       ImGui::ShowDemoWindow(&show_demo_window);
 
     // 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
@@ -95,11 +95,16 @@ void GUIController::MainLoop(SDL_Event& event)
       if (ImGui::Button("Close Me"))
         show_another_window = false;
       ImGui::End();
-    }
+    }*/
 
-    for (auto& func : _imguiWindowFunctions)
+    for (auto& group : _imguiWindowGroups)
     {
-      func();
+      ImGui::Begin(group.first.c_str());
+      for (auto& func : group.second)
+      {
+        func();
+      }
+      ImGui::End();
     }
   }
 }

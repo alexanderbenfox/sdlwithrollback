@@ -67,6 +67,25 @@ Texture& ResourceManager::GetTexture(const std::string& file)
 }
 
 //______________________________________________________________________________
+Resource<GLTexture>& ResourceManager::GetGLTexture(const std::string& file)
+{
+  auto fileToLoad = file;
+
+#ifndef _WIN32
+  auto split = StringUtils::Split(file, '\\');
+  if (split.size() > 1)
+    fileToLoad = StringUtils::Connect(split.begin(), split.end(), '/');
+#endif
+
+  if (_loadedGLTextures.find(fileToLoad) == _loadedGLTextures.end())
+  {
+    _loadedGLTextures.insert(std::make_pair(fileToLoad, Resource<GLTexture>(_resourcePath + fileToLoad)));
+  }
+  _loadedGLTextures[fileToLoad].Load();
+  return _loadedGLTextures[fileToLoad];
+}
+
+//______________________________________________________________________________
 Font& ResourceManager::GetFont(const std::string& file)
 {
   auto fileToLoad = file;
@@ -335,13 +354,13 @@ void GameManager::BeginGameLoop()
 
   std::function<void()> imguiWindowFunc = [this, &tracker]()
   {
-    ImGui::Begin("Update function timer");
+    ImGui::BeginChild("Update function timer");
     ImGui::Text("Update function time average %.3f ms/frame", (double)_clock.GetUpdateTime() / 1000000.0);
     ImGui::PlotLines("Update speed over time (ms/frame) - updated every 10 frames", [](void* data, int idx) { return (float)((long long*)data)[idx]/ 1000000.0f; }, tracker.GetValues(), tracker.NumValues(), 0, nullptr, FLT_MAX, FLT_MAX, ImVec2(200, 100));
-    ImGui::End();
+    ImGui::EndChild();
   };
 
-  GUIController::Get().AddImguiWindowFunction(imguiWindowFunc);
+  GUIController::Get().AddImguiWindowFunction("Engine Stats", imguiWindowFunc);
 
   int frameCount = 0;
   for (;;)

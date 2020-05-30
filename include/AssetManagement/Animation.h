@@ -63,6 +63,8 @@ public:
 
   int GetFlipMargin() const { return _frameSize.x - _lMargin; }
 
+  void DisplayDebugFrame(Vector2<int> displaySize, int animFrame);
+
 protected:
   //!
   int _rows, _columns, _frames, _startIdx;

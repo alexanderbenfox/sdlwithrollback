@@ -2,6 +2,7 @@
 #include "Geometry.h"
 #include "AssetManagement/BlitOperation.h"
 #include "AssetManagement/Animation.h"
+#include "DebugGUI/GLTexture.h"
 
 #include <unordered_map>
 #include <vector>
@@ -20,6 +21,7 @@ public:
   void Initialize();
   //! Loads texture if unloaded and returns the SDL_Texture resource
   Texture& GetTexture(const std::string& file);
+  Resource<GLTexture>& GetGLTexture(const std::string& file);
   //! Loads font from .ttf file and returns resource
   Font& GetFont(const std::string& file);
   //!
@@ -44,6 +46,8 @@ private:
 
   //! All loaded texture resources
   std::unordered_map<std::string, Texture> _loadedTextures;
+  //!
+  std::unordered_map<std::string, Resource<GLTexture>> _loadedGLTextures;
   //! All loaded font resources
   std::unordered_map<std::string, Font> _loadedFonts;
   //! All loaded font resources
@@ -72,5 +76,5 @@ public:
 private:
   static bool _ryuAnimLoaded;
   static AnimationCollection _ryuAnimations;
-  static AnimationCollection LoadRyuAnimations();
+  static void LoadRyuAnimations();
 };
