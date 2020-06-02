@@ -1,5 +1,6 @@
 #include "AssetManagement/Resource.h"
 #include "GameManagement.h"
+#include "DebugGUI/GLTexture.h"
 
 #include <SDL2/SDL.h>
 
@@ -15,12 +16,8 @@ void Resource<T>::Unload()
 template <> void Resource<SDL_Texture>::Load()
 {
   if (_loaded) return;
-
-#ifndef _WIN32
-  Uint32 windowFormat = SDL_GetWindowPixelFormat(GameManager::Get().GetWindow());
-#else
-  Uint32 windowFormat = SDL_PIXELFORMAT_RGBA8888;
-#endif
+  
+  Uint32 windowFormat = GameManager::Get().GetWindowFormat();
 
   SDL_Surface* surface = IMG_Load(_pathToResource.c_str());
   if (surface)
@@ -85,6 +82,16 @@ template <> void Resource<TTF_Font>::Load()
 
   _resource = std::shared_ptr<TTF_Font>(TTF_OpenFont(_pathToResource.c_str(), 25), TTF_CloseFont);
   if (_resource) _loaded = true;
+}
+
+
+template <> void Resource<GLTexture>::Load()
+{
+  if (_loaded) return;
+
+  _resource = std::shared_ptr<GLTexture>(new GLTexture);
+  _resource->LoadFromFile(_pathToResource);
+  _loaded = true;
 }
 
 //template <> class Resource<SDL_Texture>;

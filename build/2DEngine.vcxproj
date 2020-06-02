@@ -19,14 +19,25 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\imgui\imgui.cpp" />
+    <ClCompile Include="..\imgui\imgui_demo.cpp" />
+    <ClCompile Include="..\imgui\imgui_draw.cpp" />
+    <ClCompile Include="..\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="..\imgui\impl\imgui_impl_opengl2.cpp" />
+    <ClCompile Include="..\imgui\impl\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="..\imgui\impl\imgui_impl_sdl.cpp" />
     <ClCompile Include="..\src\2DEngine.cpp" />
     <ClCompile Include="..\src\Actions.cpp" />
     <ClCompile Include="..\src\AssetManagement\Animation.cpp" />
+    <ClCompile Include="..\src\AssetManagement\AnimationAsset.cpp" />
     <ClCompile Include="..\src\AssetManagement\Resource.cpp" />
+    <ClCompile Include="..\src\AssetManagement\StaticAssets\CharacterConfig.cpp" />
     <ClCompile Include="..\src\AssetManagement\Text.cpp" />
     <ClCompile Include="..\src\Components\Animator.cpp" />
     <ClCompile Include="..\src\Components\Components.cpp" />
     <ClCompile Include="..\src\Components\Input.cpp" />
+    <ClCompile Include="..\src\DebugGUI\GLTexture.cpp" />
+    <ClCompile Include="..\src\DebugGUI\GUIController.cpp" />
     <ClCompile Include="..\src\Entity.cpp" />
     <ClCompile Include="..\src\GameManagement.cpp" />
     <ClCompile Include="..\src\GameState\GameState.cpp" />
@@ -36,10 +47,22 @@
     <ClCompile Include="..\src\Timer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\imgui\imconfig.h" />
+    <ClInclude Include="..\imgui\imgui.h" />
+    <ClInclude Include="..\imgui\imgui_internal.h" />
+    <ClInclude Include="..\imgui\impl\imgui_impl_opengl2.h" />
+    <ClInclude Include="..\imgui\impl\imgui_impl_opengl3.h" />
+    <ClInclude Include="..\imgui\impl\imgui_impl_osx.h" />
+    <ClInclude Include="..\imgui\impl\imgui_impl_sdl.h" />
+    <ClInclude Include="..\imgui\imstb_rectpack.h" />
+    <ClInclude Include="..\imgui\imstb_textedit.h" />
+    <ClInclude Include="..\imgui\imstb_truetype.h" />
     <ClInclude Include="..\include\Actions.h" />
     <ClInclude Include="..\include\AssetManagement\Animation.h" />
+    <ClInclude Include="..\include\AssetManagement\AnimationAsset.h" />
     <ClInclude Include="..\include\AssetManagement\BlitOperation.h" />
     <ClInclude Include="..\include\AssetManagement\Resource.h" />
+    <ClInclude Include="..\include\AssetManagement\StaticAssets\CharacterConfig.h" />
     <ClInclude Include="..\include\AssetManagement\Text.h" />
     <ClInclude Include="..\include\ComponentConst.h" />
     <ClInclude Include="..\include\Components\Animator.h" />
@@ -54,6 +77,8 @@
     <ClInclude Include="..\include\Components\Rigidbody.h" />
     <ClInclude Include="..\include\Components\Sprite.h" />
     <ClInclude Include="..\include\Components\Transform.h" />
+    <ClInclude Include="..\include\DebugGUI\GLTexture.h" />
+    <ClInclude Include="..\include\DebugGUI\GUIController.h" />
     <ClInclude Include="..\include\Entity.h" />
     <ClInclude Include="..\include\GameManagement.h" />
     <ClInclude Include="..\include\GameState\GameState.h" />
@@ -70,6 +95,10 @@
     <ClInclude Include="..\include\Systems\TimerSystem.h" />
     <ClInclude Include="..\include\Timer.h" />
     <ClInclude Include="..\include\Utils.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\imgui\impl\imgui_impl_osx.mm" />
+    <None Include="packages.config" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
@@ -176,7 +205,9 @@
       <AdditionalLibraryDirectories>external\ggpo\debug;external\sdl2-ttf_x64-windows\debug\lib;external\sdl2-image_x64-windows\debug\lib;external\sdl2_x64-windows\debug\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <EntryPointSymbol>
       </EntryPointSymbol>
-      <AdditionalDependencies>ws2_32.lib;user32.lib;winmm.lib;GGPO.lib;SDL2d.lib;SDL2_image.lib;SDL2_ttf.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ws2_32.lib;user32.lib;winmm.lib;GGPO.lib;opengl32.lib;SDL2d.lib;SDL2_image.lib;SDL2_ttf.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <DelayLoadDLLs>
+      </DelayLoadDLLs>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -222,10 +253,21 @@
       <AdditionalLibraryDirectories>external\ggpo\release;external\sdl2-ttf_x64-windows\lib;external\sdl2-image_x64-windows\lib;external\sdl2_x64-windows\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <EntryPointSymbol>
       </EntryPointSymbol>
-      <AdditionalDependencies>ws2_32.lib;user32.lib;winmm.lib;GGPO.lib;SDL2.lib;SDL2_image.lib;SDL2_ttf.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ws2_32.lib;user32.lib;winmm.lib;GGPO.lib;opengl32.lib;SDL2.lib;SDL2_image.lib;SDL2_ttf.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <DelayLoadDLLs>
+      </DelayLoadDLLs>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
+    <Import Project="packages\nupengl.core.redist.0.1.0.1\build\native\nupengl.core.redist.targets" Condition="Exists('packages\nupengl.core.redist.0.1.0.1\build\native\nupengl.core.redist.targets')" />
+    <Import Project="packages\nupengl.core.0.1.0.1\build\native\nupengl.core.targets" Condition="Exists('packages\nupengl.core.0.1.0.1\build\native\nupengl.core.targets')" />
   </ImportGroup>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('packages\nupengl.core.redist.0.1.0.1\build\native\nupengl.core.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\nupengl.core.redist.0.1.0.1\build\native\nupengl.core.redist.targets'))" />
+    <Error Condition="!Exists('packages\nupengl.core.0.1.0.1\build\native\nupengl.core.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\nupengl.core.0.1.0.1\build\native\nupengl.core.targets'))" />
+  </Target>
 </Project>

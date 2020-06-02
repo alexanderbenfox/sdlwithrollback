@@ -49,15 +49,16 @@ public:
     return _localInput;
   }
 
+  Uint32 const& GetWindowFormat()
+  {
+    return _sdlWindowFormat;
+  }
+
   std::shared_ptr<Entity> GetEntityByID(int id) { return _gameEntities[id]; }
 
   void CheckAgainstSystems(Entity* entity);
 
   void ActivateHitStop(int frames);
-
-  const int hitstopLight = 10;
-  const int hitstopMedium = 10;
-  const int hitstopHeavy = 10;
 
 private:
   //! Updates all components in specified order
@@ -76,6 +77,8 @@ private:
   SDL_Window* _window;
   //!
   SDL_Event _localInput;
+  //!
+  Uint32 _sdlWindowFormat;
   //!
   Timer _clock;
   //!
@@ -98,7 +101,9 @@ private:
   //!
   GameManager();
   GameManager(const GameManager&) = delete;
-  GameManager operator=(GameManager&) = delete;
+  GameManager(GameManager&&) = delete;
+  GameManager operator=(const GameManager&) = delete;
+  GameManager operator=(GameManager&&) = delete;
 
 };
 

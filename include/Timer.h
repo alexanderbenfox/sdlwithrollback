@@ -26,6 +26,17 @@ public:
   {
     return _filled ? _total / (long long)200 : _updateCount == 0 ? 0 : _total / (long long)_updateCount;
   }
+
+  long long* GetValues()
+  {
+    return _lru;
+  }
+
+  int NumValues()
+  {
+    return _filled ? 200 : _updateCount;
+  }
+
 private:
   int _updateCount = 0;
   long long _total;

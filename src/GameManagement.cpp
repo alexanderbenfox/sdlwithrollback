@@ -19,6 +19,7 @@
 #include "Systems/TimerSystem.h"
 
 #include "Systems/Physics.h"
+#include "DebugGUI/GUIController.h"
 
 #ifdef _DEBUG
 //used for debugger
@@ -63,6 +64,25 @@ Texture& ResourceManager::GetTexture(const std::string& file)
   }
   _loadedTextures[fileToLoad].Load();
   return _loadedTextures[fileToLoad];
+}
+
+//______________________________________________________________________________
+Resource<GLTexture>& ResourceManager::GetGLTexture(const std::string& file)
+{
+  auto fileToLoad = file;
+
+#ifndef _WIN32
+  auto split = StringUtils::Split(file, '\\');
+  if (split.size() > 1)
+    fileToLoad = StringUtils::Connect(split.begin(), split.end(), '/');
+#endif
+
+  if (_loadedGLTextures.find(fileToLoad) == _loadedGLTextures.end())
+  {
+    _loadedGLTextures.insert(std::make_pair(fileToLoad, Resource<GLTexture>(_resourcePath + fileToLoad)));
+  }
+  _loadedGLTextures[fileToLoad].Load();
+  return _loadedGLTextures[fileToLoad];
 }
 
 //______________________________________________________________________________
@@ -240,6 +260,7 @@ Rect<double> ResourceManager::FindRect(Texture& texture, Vector2<int> frameSize,
 //______________________________________________________________________________
 void GameManager::Initialize()
 {
+  // init sdl
   SDL_Init( SDL_INIT_EVERYTHING | SDL_INIT_GAMECONTROLLER  | SDL_INIT_JOYSTICK );
   TTF_Init();
 
@@ -249,6 +270,12 @@ void GameManager::Initialize()
 
   _renderer = SDL_CreateRenderer(_window, -1, SDL_RENDERER_ACCELERATED);
   SDL_SetRenderDrawBlendMode(_renderer, SDL_BLENDMODE_BLEND);
+
+#ifndef _WIN32
+  _sdlWindowFormat = SDL_GetWindowPixelFormat(_window);
+#else
+  _sdlWindowFormat = SDL_PIXELFORMAT_RGBA8888;
+#endif
 
   auto bottomBorder = CreateEntity<Transform, GraphicRenderer, StaticCollider>();
   bottomBorder->GetComponent<Transform>()->position.x = (float)m_nativeWidth / 2.0f;
@@ -273,7 +300,7 @@ void GameManager::Initialize()
 
   //auto randomAssRenderedText = CreateEntity<Transform, GraphicRenderer, RenderProperties>();
   //randomAssRenderedText->GetComponent<GraphicRenderer>()->Init(ResourceManager::Get().GetText("TEZT", "fonts\\Eurostile.ttf"));
-
+  
   auto p1 = EntityCreation::CreateLocalPlayer(100);
   auto p2 = EntityCreation::CreateLocalPlayer(400);
 
@@ -322,17 +349,36 @@ void GameManager::BeginGameLoop()
 
   bool programRunning = true;
   std::thread debuggerThread;
-  RunScripter(debuggerThread, programRunning);
+  //RunScripter(debuggerThread, programRunning);
+  GUIController::Get().InitSDLWindow();
+  GUIController::Get().InitImGUI();
+
+  // set focus back to main game window
+  SDL_RaiseWindow(_window);
+
+  AvgCounter tracker;
+
+  std::function<void()> imguiWindowFunc = [this, &tracker]()
+  {
+    ImGui::BeginGroup();
+    ImGui::Text("Update function time average %.3f ms/frame", (double)_clock.GetUpdateTime() / 1000000.0);
+    ImGui::PlotLines("Update speed over time (ms/frame) - updated every 10 frames", [](void* data, int idx) { return (float)((long long*)data)[idx]/ 1000000.0f; }, tracker.GetValues(), tracker.NumValues(), 0, nullptr, FLT_MAX, FLT_MAX, ImVec2(200, 100));
+    ImGui::EndGroup();
+  };
+  GUIController::Get().AddImguiWindowFunction("Engine Stats", imguiWindowFunc);
+  
 
   int frameCount = 0;
   for (;;)
   {
-    if(frameCount == 0)
-      std::cout << "Update time: " << _clock.GetUpdateTime() << "\n";
-
     //! Collect inputs from controllers (this means AI controllers as well as Player controllers)
     //UpdateInput();
     //InputSystem::DoTick(0);
+
+    if (frameCount == 0)
+    {
+      tracker.Add(_clock.GetUpdateTime());
+    }
 
     std::lock_guard<std::mutex> lock(_debugMutex);
 
@@ -345,9 +391,17 @@ void GameManager::BeginGameLoop()
     //! Finally render the scene
     Draw();
 
-    frameCount = (++frameCount) % 60;
+    //! update gui
+    GUIController::Get().MainLoop(_localInput);
+    GUIController::Get().RenderFrame();
+
+    if (_localInput.type == SDL_QUIT)
+      break;
+
+    frameCount = (++frameCount) % 10;
   }
 
+  GUIController::Get().CleanUp();
   programRunning = false;
 }
 
@@ -409,18 +463,17 @@ void GameManager::UpdateInput()
   // Process local input first
   //! Check for quit
   if (SDL_PollEvent(&_localInput)) {
-    if (_localInput.type == SDL_QUIT)
-    {
-      return;
-    }
     if (_localInput.type == SDL_WINDOWEVENT)
     {
       if (_localInput.window.event == SDL_WINDOWEVENT_RESIZED)
       {
-        Vector2<int> newWindowSize(_localInput.window.data1, _localInput.window.data2);
-        widthToScreenWidth = static_cast<double>(newWindowSize.x) / static_cast<double>(m_nativeWidth);
-        heightToScreenHeight = static_cast<double>(newWindowSize.y) / static_cast<double>(m_nativeHeight);
-        SDL_RenderSetScale(_renderer, static_cast<float>(widthToScreenWidth), static_cast<float>(heightToScreenHeight));
+        if(_localInput.window.windowID == SDL_GetWindowID(_window))
+        {
+          Vector2<int> newWindowSize(_localInput.window.data1, _localInput.window.data2);
+          widthToScreenWidth = static_cast<double>(newWindowSize.x) / static_cast<double>(m_nativeWidth);
+          heightToScreenHeight = static_cast<double>(newWindowSize.y) / static_cast<double>(m_nativeHeight);
+          SDL_RenderSetScale(_renderer, static_cast<float>(widthToScreenWidth), static_cast<float>(heightToScreenHeight));
+        }
       }
     }
   }
@@ -441,6 +494,9 @@ void GameManager::Draw()
 
   //present this frame
   SDL_RenderPresent(_renderer);
+
+  //present to imgui
+  GUIController::Get().RenderToMainWindow(_renderer);
 }
 
 //______________________________________________________________________________

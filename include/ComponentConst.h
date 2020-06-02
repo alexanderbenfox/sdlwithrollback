@@ -6,6 +6,10 @@ const float third_strike_fps = 16.0f;
 
 const float animation_fps = third_strike_fps;
 
+const int hitstopLight = 10;
+const int hitstopMedium = 10;
+const int hitstopHeavy = 10;
+
 struct FrameData
 {
   // Member initialization
@@ -20,6 +24,20 @@ struct FrameData
   Vector2<float> knockback;
   // number of frames of action pause
   int hitstop;
+};
+
+enum class AnchorPoint
+{
+  TL, TR, BL, BR, Size
+};
+
+struct AnimationInfo
+{
+  std::string sheet;
+  int rows, columns;
+  int startIndexOnSheet;
+  int frames;
+  AnchorPoint anchor;
 };
 
 class ConstComponentIDGenerator

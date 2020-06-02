@@ -2,6 +2,7 @@
 #include "Components/Hitbox.h"
 #include "GameManagement.h"
 #include "ResourceManager.h"
+#include "DebugGUI/GUIController.h"
 #include <math.h>
 
 //______________________________________________________________________________
@@ -27,7 +28,7 @@ Animation::Animation(const char* sheet, int rows, int columns, int startIndexOnS
 }
 
 //______________________________________________________________________________
-EventInitParams Animation::CreateHitboxEvent(const char* hitboxesSheet, FrameData frameData)
+EventInitParams Animation::GenerateAttackEvent(const char* hitboxesSheet, FrameData frameData)
 {
   auto DespawnHitbox = [](Transform* trans)
   {
@@ -232,6 +233,32 @@ Vector2<int> Animation::FindAnchorPoint(AnchorPoint anchorType, bool fromFirstFr
 }
 
 //______________________________________________________________________________
+void Animation::DisplayDebugFrame(int displayHeight, int animFrame)
+{
+  Resource<GLTexture>& texResource = ResourceManager::Get().GetGLTexture(_src);
+
+  int frame = _animFrameToSheetFrame[animFrame];
+
+  //if invalid frame
+  if (frame >= _frames || frame < 0)
+    return;
+
+  int x = (_startIdx + frame) % _columns;
+  int y = (_startIdx + frame) / _columns;
+
+  auto sheetSize = ResourceManager::Get().GetTextureWidthAndHeight(_src);
+
+  float u0 = ((float)x * (float)_frameSize.x) / (float)sheetSize.x;
+  float v0 = ((float)y * (float)_frameSize.y) / (float)sheetSize.y;
+  float u1 = u0 + ((float)_frameSize.x / (float)sheetSize.x);
+  float v1 = v0 + ((float)_frameSize.y / (float)sheetSize.y);
+
+  int displayWidth = (float)_frameSize.x/(float)_frameSize.y * displayHeight;
+
+  ImGui::Image((void*)(intptr_t)texResource.Get()->texture(), ImVec2(displayWidth, displayHeight), ImVec2(u0, v0), ImVec2(u1, v1));
+}
+
+//______________________________________________________________________________
 void AnimationCollection::RegisterAnimation(const std::string& name, const char* sheet, int rows, int columns, int startIndexOnSheet, int frames, AnchorPoint anchor)
 {
   if (_animations.find(name) == _animations.end())
@@ -251,13 +278,22 @@ void AnimationCollection::RegisterAnimation(const std::string& name, const char*
 }
 
 //______________________________________________________________________________
-void AnimationCollection::AddHitboxEvents(const std::string& animationName, const char* hitboxesSheet, FrameData frameData)
+void AnimationCollection::SetHitboxEvents(const std::string& animationName, const char* hitboxesSheet, FrameData frameData)
 {
   if (_animations.find(animationName) != _animations.end())
   {
     Animation& animation = _animations.find(animationName)->second;
-    _events.emplace(std::make_pair(animationName, std::make_shared<EventList>()));
-    _events[animationName]->emplace(std::piecewise_construct, std::make_tuple(frameData.startUp - 1), animation.CreateHitboxEvent(hitboxesSheet, frameData));
+    if(_events.find(animationName) == _events.end())
+    {
+      _events.emplace(std::make_pair(animationName, std::make_shared<EventList>()));
+      _events[animationName]->emplace(std::piecewise_construct, std::make_tuple(frameData.startUp - 1), animation.GenerateAttackEvent(hitboxesSheet, frameData));
+    }
+    else
+    {
+      //for now just replace
+      _events[animationName] = std::make_shared<EventList>();
+      _events[animationName]->emplace(std::piecewise_construct, std::make_tuple(frameData.startUp - 1), animation.GenerateAttackEvent(hitboxesSheet, frameData));
+    }
   }
 }
 
