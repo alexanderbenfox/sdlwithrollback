@@ -1,10 +1,10 @@
+#include "DebugGUI/GLTexture.h"
+#include "AssetManagement/AnimationAsset.h"
 #include "GameManagement.h"
-#include "ResourceManager.h"
 #include "AssetManagement/StaticAssets/CharacterConfig.h"
 #include "DebugGUI/GUIController.h"
-#include "DebugGUI/GLTexture.h"
 
-AnimationCollection& AnimationResources::RyuAnimations()
+AnimationCollection& AnimationAsset::RyuAnimations()
 {
   if(!_ryuAnimLoaded)
   {
@@ -14,11 +14,11 @@ AnimationCollection& AnimationResources::RyuAnimations()
   return _ryuAnimations;
 }
 
-bool AnimationResources::_ryuAnimLoaded = false;
+bool AnimationAsset::_ryuAnimLoaded = false;
 
-AnimationCollection AnimationResources::_ryuAnimations;
+AnimationCollection AnimationAsset::_ryuAnimations;
 
-void AnimationResources::LoadRyuAnimations()
+void AnimationAsset::LoadRyuAnimations()
 {
   //hack cause i suck
   auto it = RyuConfig::normalAnimations.find("Idle");

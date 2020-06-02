@@ -6,6 +6,7 @@
 #include "Components/Rigidbody.h"
 #include "Components/Camera.h"
 #include "Components/StateComponent.h"
+#include "AssetManagement/AnimationAsset.h"
 
 void LocalMatch::ProcessRawInputs(SDL_Event* localInput)
 {
@@ -26,7 +27,7 @@ std::shared_ptr<Entity> EntityCreation::CreateLocalPlayer(float xOffset)
   auto player = GameManager::Get().CreateEntity<Transform, KeyboardInputHandler, Animator, GraphicRenderer, RenderProperties, Rigidbody, GameActor, DynamicCollider, Hurtbox, StateComponent>();
 
   player->GetComponent<Rigidbody>()->Init(true);
-  player->GetComponent<Animator>()->SetAnimations(&AnimationResources::RyuAnimations());
+  player->GetComponent<Animator>()->SetAnimations(&AnimationAsset::RyuAnimations());
 
   player->GetComponent<Transform>()->SetWidthAndHeight(entitySize.x, entitySize.y);
   player->GetComponent<RenderProperties>()->baseRenderOffset = (entitySize * (-1.0/2.0));

@@ -132,6 +132,9 @@
     <ClCompile Include="..\src\AssetManagement\StaticAssets\CharacterConfig.cpp">
       <Filter>Source Files\AssetManagement\StaticAssets</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\DebugGUI\GLTexture.cpp">
+      <Filter>Source Files\DebugGUI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\AssetManagement\Resource.h">
@@ -274,6 +277,9 @@
     </ClInclude>
     <ClInclude Include="..\include\DebugGUI\GLTexture.h">
       <Filter>Header Files\DebugGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\AssetManagement\AnimationAsset.h">
+      <Filter>Header Files\AssetManagement</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

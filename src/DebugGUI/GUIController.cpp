@@ -1,6 +1,15 @@
+#include "DebugGUI/GLTexture.h"
 #include "DebugGUI/GUIController.h"
 #include "../imgui/imgui.h"
 #include <stdio.h>
+
+#include "GameManagement.h"
+
+GUIController::~GUIController()
+{
+  if (_mainWindowTexture)
+    delete _mainWindowTexture;
+}
 
 bool GUIController::InitSDLWindow()
 {
@@ -10,10 +19,17 @@ bool GUIController::InitSDLWindow()
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
   SDL_WindowFlags window_flags = (SDL_WindowFlags)(SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
+
   _window = SDL_CreateWindow("Dear ImGui SDL2+OpenGL example", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1280, 720, window_flags);
-  SDL_GLContext gl_context = SDL_GL_CreateContext(_window);
-  SDL_GL_MakeCurrent(_window, gl_context);
-  SDL_GL_SetSwapInterval(1); // Enable vsync
+  _glContext = SDL_GL_CreateContext(_window);
+  SDL_GL_MakeCurrent(_window, _glContext);
+
+  // Enable vsync
+  SDL_GL_SetSwapInterval(1); 
+
+  _mainWindowTexture = new GLTexture;
+  _mainWindowTexture->CreateEmpty(m_nativeWidth, m_nativeHeight);
+
   return true;
 }
 
@@ -39,73 +55,32 @@ bool GUIController::InitImGUI()
 
 void GUIController::MainLoop(SDL_Event& event)
 {
-  if (!_done)
+  ImGuiIO& io = ImGui::GetIO();
+  ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+
+  // Poll and handle events (inputs, window resize, etc.)
+  ImGui_ImplSDL2_ProcessEvent(&event);
+
+  // Start the Dear ImGui frame
+  ImGui_ImplOpenGL2_NewFrame();
+  ImGui_ImplSDL2_NewFrame(_window);
+  ImGui::NewFrame();
+
+  // render the "main window"
   {
-    ImGuiIO& io = ImGui::GetIO();
-    ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+    ImGui::Begin("Game Window");
+    ImGui::Image((void*)(intptr_t)_mainWindowTexture->texture(), ImVec2(m_nativeWidth, m_nativeHeight));
+    ImGui::End();
+  }
 
-    // Our state
-    //bool show_demo_window = true;
-    //bool show_another_window = false;
-
-    // Poll and handle events (inputs, window resize, etc.)
-    // You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if dear imgui wants to use your inputs.
-    // - When io.WantCaptureMouse is true, do not dispatch mouse input data to your main application.
-    // - When io.WantCaptureKeyboard is true, do not dispatch keyboard input data to your main application.
-    // Generally you may always pass all inputs to dear imgui, and hide them from your application based on those two flags.
-    ImGui_ImplSDL2_ProcessEvent(&event);
-
-    // Start the Dear ImGui frame
-    ImGui_ImplOpenGL2_NewFrame();
-    ImGui_ImplSDL2_NewFrame(_window);
-    ImGui::NewFrame();
-
-    // 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
-    /*if (show_demo_window)
-      ImGui::ShowDemoWindow(&show_demo_window);
-
-    // 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
+  for (auto& group : _imguiWindowGroups)
+  {
+    ImGui::Begin(group.first.c_str());
+    for (auto& func : group.second)
     {
-      static float f = 0.0f;
-      static int counter = 0;
-
-      ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
-
-      ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
-      ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
-      ImGui::Checkbox("Another Window", &show_another_window);
-
-      ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-      ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
-
-      if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
-        counter++;
-      ImGui::SameLine();
-      ImGui::Text("counter = %d", counter);
-
-      ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-      ImGui::End();
+      func();
     }
-
-    // 3. Show another simple window.
-    if (show_another_window)
-    {
-      ImGui::Begin("Another Window", &show_another_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
-      ImGui::Text("Hello from another window!");
-      if (ImGui::Button("Close Me"))
-        show_another_window = false;
-      ImGui::End();
-    }*/
-
-    for (auto& group : _imguiWindowGroups)
-    {
-      ImGui::Begin(group.first.c_str());
-      for (auto& func : group.second)
-      {
-        func();
-      }
-      ImGui::End();
-    }
+    ImGui::End();
   }
 }
 
@@ -115,6 +90,25 @@ void GUIController::CleanUp()
   ImGui_ImplOpenGL2_Shutdown();
   ImGui_ImplSDL2_Shutdown();
   ImGui::DestroyContext();
+}
+
+
+void GUIController::AddImguiWindowFunction(const std::string& group, std::function<void()>& function)
+{
+  auto it = _imguiWindowGroups.find(group);
+  if (it == _imguiWindowGroups.end())
+  {
+    _imguiWindowGroups.emplace(group, std::vector<std::function<void()>>());
+  }
+  _imguiWindowGroups[group].push_back(function);
+}
+
+void GUIController::RenderToMainWindow(SDL_Renderer* renderer)
+{
+  SDL_Rect screenRect{ 0, 0, m_nativeWidth, m_nativeHeight };
+  unsigned char buffer[m_nativeWidth * m_nativeHeight * 4];
+  SDL_RenderReadPixels(renderer, &screenRect, GameManager::Get().GetWindowFormat(), buffer, 4 * m_nativeWidth);
+  _mainWindowTexture->Update(buffer);
 }
 
 void GUIController::RenderFrame()

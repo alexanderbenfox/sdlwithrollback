@@ -36,6 +36,7 @@
     <ClCompile Include="..\src\Components\Animator.cpp" />
     <ClCompile Include="..\src\Components\Components.cpp" />
     <ClCompile Include="..\src\Components\Input.cpp" />
+    <ClCompile Include="..\src\DebugGUI\GLTexture.cpp" />
     <ClCompile Include="..\src\DebugGUI\GUIController.cpp" />
     <ClCompile Include="..\src\Entity.cpp" />
     <ClCompile Include="..\src\GameManagement.cpp" />
@@ -58,6 +59,7 @@
     <ClInclude Include="..\imgui\imstb_truetype.h" />
     <ClInclude Include="..\include\Actions.h" />
     <ClInclude Include="..\include\AssetManagement\Animation.h" />
+    <ClInclude Include="..\include\AssetManagement\AnimationAsset.h" />
     <ClInclude Include="..\include\AssetManagement\BlitOperation.h" />
     <ClInclude Include="..\include\AssetManagement\Resource.h" />
     <ClInclude Include="..\include\AssetManagement\StaticAssets\CharacterConfig.h" />
