@@ -4,6 +4,7 @@
 #include "Entity.h"
 #include "Components/IComponent.h"
 #include "Timer.h"
+#include "DebugGUI/GLTexture.h"
 
 #include <thread>
 #include <mutex>
@@ -79,6 +80,8 @@ private:
   //!
   //std::unique_ptr<IGameState> _gameState;
   std::shared_ptr<Camera> _camera; 
+  //
+  GLTexture _renderTexture;
 
   //______________________________________________________________________________
 

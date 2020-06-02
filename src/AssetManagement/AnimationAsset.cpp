@@ -62,7 +62,23 @@ void AnimationResources::LoadRyuAnimations()
         ImGui::InputInt("Hit stop", &frameData.hitstop);
         ImGui::EndGroup();
 
-        _ryuAnimations.GetAnimation(animName)->DisplayDebugFrame(Vector2<int>(256, 256), 0);
+        static int frame = 0;
+        _ryuAnimations.GetAnimation(animName)->DisplayDebugFrame(128, frame);
+        
+        int nFrames = _ryuAnimations.GetAnimation(animName)->GetFrameCount();
+        ImGui::BeginGroup();
+        if(ImGui::Button("Back"))
+        {
+          frame = frame == 0 ? nFrames - 1 : frame - 1;
+        }
+        ImGui::SameLine();
+        if(ImGui::Button("Forward"))
+        {
+          frame = (frame + 1) % nFrames;
+        }
+        ImGui::SameLine();
+        ImGui::Text("%d", frame);
+        ImGui::EndGroup();
 
         if (ImGui::Button("Set Frame Data"))
         {

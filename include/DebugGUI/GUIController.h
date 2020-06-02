@@ -4,6 +4,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_opengl.h>
 
+#include <string>
 #include <thread>
 #include <vector>
 #include <functional>
@@ -44,6 +45,6 @@ private:
   SDL_GLContext _glContext;
   bool _done;
 
-  std::unordered_map<std::string , std::vector<std::function<void()>>> _imguiWindowGroups;
+  std::unordered_map<std::string, std::vector<std::function<void()>>> _imguiWindowGroups;
 
 };

@@ -354,13 +354,22 @@ void GameManager::BeginGameLoop()
 
   std::function<void()> imguiWindowFunc = [this, &tracker]()
   {
-    ImGui::BeginChild("Update function timer");
+    ImGui::BeginGroup();
     ImGui::Text("Update function time average %.3f ms/frame", (double)_clock.GetUpdateTime() / 1000000.0);
     ImGui::PlotLines("Update speed over time (ms/frame) - updated every 10 frames", [](void* data, int idx) { return (float)((long long*)data)[idx]/ 1000000.0f; }, tracker.GetValues(), tracker.NumValues(), 0, nullptr, FLT_MAX, FLT_MAX, ImVec2(200, 100));
-    ImGui::EndChild();
+    ImGui::EndGroup();
   };
 
+  std::function<void()> renderGameScreen = [this]()
+  {
+    ImGui::BeginGroup();
+    ImGui::Image((void*)(intptr_t)_renderTexture.texture(), ImVec2(m_nativeWidth, m_nativeHeight));
+    ImGui::EndGroup();
+  };
+
+  _renderTexture.create(m_nativeWidth, m_nativeHeight);
   GUIController::Get().AddImguiWindowFunction("Engine Stats", imguiWindowFunc);
+  GUIController::Get().AddImguiWindowFunction("Game", renderGameScreen);
 
   int frameCount = 0;
   for (;;)
@@ -488,6 +497,12 @@ void GameManager::Draw()
 
   //present this frame
   SDL_RenderPresent(_renderer);
+
+  SDL_Rect screenRect{0, 0, m_nativeWidth, m_nativeHeight};
+  unsigned char buffer[m_nativeWidth * m_nativeHeight * 4];
+  SDL_RenderReadPixels(_renderer, &screenRect, SDL_PIXELFORMAT_RGBA8888, buffer, 4 * m_nativeWidth);
+  _renderTexture.update(buffer);
+
 }
 
 //______________________________________________________________________________

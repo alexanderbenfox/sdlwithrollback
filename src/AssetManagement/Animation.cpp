@@ -233,7 +233,7 @@ Vector2<int> Animation::FindAnchorPoint(AnchorPoint anchorType, bool fromFirstFr
 }
 
 //______________________________________________________________________________
-void Animation::DisplayDebugFrame(Vector2<int> displaySize, int animFrame)
+void Animation::DisplayDebugFrame(int displayHeight, int animFrame)
 {
   Resource<GLTexture>& texResource = ResourceManager::Get().GetGLTexture(_src);
 
@@ -253,7 +253,9 @@ void Animation::DisplayDebugFrame(Vector2<int> displaySize, int animFrame)
   float u1 = u0 + ((float)_frameSize.x / (float)sheetSize.x);
   float v1 = v0 + ((float)_frameSize.y / (float)sheetSize.y);
 
-  ImGui::Image((void*)(intptr_t)texResource.Get()->texture(), ImVec2(displaySize.x, displaySize.y), ImVec2(u0, v0), ImVec2(u1, v1));
+  int displayWidth = (float)_frameSize.x/(float)_frameSize.y * displayHeight;
+
+  ImGui::Image((void*)(intptr_t)texResource.Get()->texture(), ImVec2(displayWidth, displayHeight), ImVec2(u0, v0), ImVec2(u1, v1));
 }
 
 //______________________________________________________________________________
