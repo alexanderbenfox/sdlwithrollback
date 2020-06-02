@@ -35,13 +35,14 @@ void AnimationResources::LoadRyuAnimations()
     std::string hitboxSheet = std::get<2>(anim.second);
     AnimationInfo& params = std::get<AnimationInfo>(anim.second);
     FrameData& frameData = std::get<1>(anim.second);
+    AnimationDebuggingInfo& debug = std::get<AnimationDebuggingInfo>(anim.second);
 
     _ryuAnimations.RegisterAnimation(anim.first, params.sheet.c_str(), params.rows, params.columns, params.startIndexOnSheet, params.frames, params.anchor);
     _ryuAnimations.SetHitboxEvents(anim.first, hitboxSheet.c_str(), frameData); 
 
     std::string spriteSheetFile = params.sheet;
 
-    std::function<void()> ModFrameData = [animName, hitboxSheet, spriteSheetFile, &frameData]()
+    std::function<void()> ModFrameData = [animName, hitboxSheet, spriteSheetFile, &frameData, &debug]()
     {
       if (ImGui::CollapsingHeader(animName.c_str()))
       {
@@ -62,7 +63,7 @@ void AnimationResources::LoadRyuAnimations()
         ImGui::InputInt("Hit stop", &frameData.hitstop);
         ImGui::EndGroup();
 
-        static int frame = 0;
+        int& frame = debug.frame;
         _ryuAnimations.GetAnimation(animName)->DisplayDebugFrame(128, frame);
         
         int nFrames = _ryuAnimations.GetAnimation(animName)->GetFrameCount();

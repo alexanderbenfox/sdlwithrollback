@@ -50,6 +50,11 @@ public:
     return _localInput;
   }
 
+  Uint32 const& GetWindowFormat()
+  {
+    return _sdlWindowFormat;
+  }
+
   std::shared_ptr<Entity> GetEntityByID(int id) { return _gameEntities[id]; }
 
   void CheckAgainstSystems(Entity* entity);
@@ -74,6 +79,8 @@ private:
   //!
   SDL_Event _localInput;
   //!
+  Uint32 _sdlWindowFormat;
+  //!
   Timer _clock;
   //!
   std::mutex _debugMutex;
@@ -97,7 +104,9 @@ private:
   //!
   GameManager();
   GameManager(const GameManager&) = delete;
-  GameManager operator=(GameManager&) = delete;
+  GameManager(GameManager&&) = delete;
+  GameManager operator=(const GameManager&) = delete;
+  GameManager operator=(GameManager&&) = delete;
 
 };
 

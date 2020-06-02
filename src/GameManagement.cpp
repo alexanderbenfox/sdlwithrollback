@@ -271,6 +271,12 @@ void GameManager::Initialize()
   _renderer = SDL_CreateRenderer(_window, -1, SDL_RENDERER_ACCELERATED);
   SDL_SetRenderDrawBlendMode(_renderer, SDL_BLENDMODE_BLEND);
 
+#ifndef _WIN32
+  _sdlWindowFormat = SDL_GetWindowPixelFormat(_window);
+#else
+  _sdlWindowFormat = SDL_PIXELFORMAT_RGBA8888;
+#endif
+
   auto bottomBorder = CreateEntity<Transform, GraphicRenderer, StaticCollider>();
   bottomBorder->GetComponent<Transform>()->position.x = (float)m_nativeWidth / 2.0f;
   bottomBorder->GetComponent<Transform>()->position.y = m_nativeHeight;
@@ -367,7 +373,7 @@ void GameManager::BeginGameLoop()
     ImGui::EndGroup();
   };
 
-  _renderTexture.create(m_nativeWidth, m_nativeHeight);
+  _renderTexture.CreateEmpty(m_nativeWidth, m_nativeHeight);
   GUIController::Get().AddImguiWindowFunction("Engine Stats", imguiWindowFunc);
   GUIController::Get().AddImguiWindowFunction("Game", renderGameScreen);
 
@@ -500,8 +506,8 @@ void GameManager::Draw()
 
   SDL_Rect screenRect{0, 0, m_nativeWidth, m_nativeHeight};
   unsigned char buffer[m_nativeWidth * m_nativeHeight * 4];
-  SDL_RenderReadPixels(_renderer, &screenRect, SDL_PIXELFORMAT_RGBA8888, buffer, 4 * m_nativeWidth);
-  _renderTexture.update(buffer);
+  SDL_RenderReadPixels(_renderer, &screenRect, _sdlWindowFormat, buffer, 4 * m_nativeWidth);
+  _renderTexture.Update(buffer);
 
 }
 

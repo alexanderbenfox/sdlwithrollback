@@ -24,48 +24,48 @@ std::unordered_map<std::string, AnimationInfo> RyuConfig::normalAnimations =
   {"LaunchHitstun", {"spritesheets\\block_mid_hitstun.png", 8, 7, 27, 9, AnchorPoint::BL}}
 };
 
-std::unordered_map<std::string, std::tuple<AnimationInfo, FrameData, std::string>> RyuConfig::attackAnimations = 
+std::unordered_map<std::string, std::tuple<AnimationInfo, FrameData, std::string, AnimationDebuggingInfo>> RyuConfig::attackAnimations = 
 {
   { "CrouchingLight",
     std::make_tuple(
       AnimationInfo{"spritesheets\\grounded_attacks.png", 8, 10, 9, 7, AnchorPoint::BL},
       FrameData{4, 3, 7, 3, 3, 1, Vector2<float>(120.0f, -100.0f), hitstopLight},
-      "spritesheets\\grounded_attacks_hitboxes.png")
+      "spritesheets\\grounded_attacks_hitboxes.png", AnimationDebuggingInfo{0})
   },
   { "CrouchingMedium",
     std::make_tuple(
       AnimationInfo{"spritesheets\\grounded_attacks.png", 8, 10, 16, 11, AnchorPoint::BL},
       FrameData{10, 3, 13, 5, 0, 1, Vector2<float>(120.0f, -600.0f), hitstopMedium},
-      "spritesheets\\grounded_attacks_hitboxes.png")
+      "spritesheets\\grounded_attacks_hitboxes.png", AnimationDebuggingInfo{0})
   },
   { "CrouchingHeavy",
     std::make_tuple(
       AnimationInfo{"spritesheets\\grounded_attacks.png", 8, 10, 27, 11, AnchorPoint::BL},
       FrameData{6, 4, 24, 5, 2, 1, Vector2<float>(120.0f, -900.0f), hitstopHeavy},
-      "spritesheets\\grounded_attacks_hitboxes.png")
+      "spritesheets\\grounded_attacks_hitboxes.png", AnimationDebuggingInfo{0})
   },
   { "StandingLight",
     std::make_tuple(
       AnimationInfo{"spritesheets\\grounded_attacks.png", 8, 10, 38, 7, AnchorPoint::BL},
       FrameData{4, 2, 7, 3, -2, 1, Vector2<float>(120.0f, -100.0f), hitstopLight},
-      "spritesheets\\grounded_attacks_hitboxes.png")
+      "spritesheets\\grounded_attacks_hitboxes.png", AnimationDebuggingInfo{0})
   },
   { "StandingMedium",
     std::make_tuple(
       AnimationInfo{"spritesheets\\grounded_attacks.png", 8, 10, 45, 9, AnchorPoint::BL},
       FrameData{7, 3, 12, 4, 2, 1, Vector2<float>(120.0f, -100.0f), hitstopMedium},
-      "spritesheets\\grounded_attacks_hitboxes.png")
+      "spritesheets\\grounded_attacks_hitboxes.png", AnimationDebuggingInfo{0})
   },
   { "StandingHeavy", 
     std::make_tuple(
       AnimationInfo{"spritesheets\\grounded_attacks.png", 8, 10, 53, 12, AnchorPoint::BL},
       FrameData{ 8, 3, 20, 7, -6, 1, Vector2<float>(120.0f, -400.0f), hitstopHeavy},
-      "spritesheets\\grounded_attacks_hitboxes.png")
+      "spritesheets\\grounded_attacks_hitboxes.png", AnimationDebuggingInfo{0})
   },
   { "SpecialMove1",
     std::make_tuple(
       AnimationInfo{"spritesheets\\grounded_attacks.png", 8, 10, 65, 14, AnchorPoint::BL},
       FrameData{ 11, 3, 28, -3, -6, 1, Vector2<float>(400.0f, 100.0f), hitstopHeavy },
-      "spritesheets\\grounded_attacks_hitboxes.png")
+      "spritesheets\\grounded_attacks_hitboxes.png", AnimationDebuggingInfo{0})
   }
 };
