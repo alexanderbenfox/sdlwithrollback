@@ -1,35 +1,20 @@
-#include "DebugGUI/GLTexture.h"
-#include "AssetManagement/AnimationAsset.h"
-#include "GameManagement.h"
-#include "AssetManagement/StaticAssets/CharacterConfig.h"
+#include "AssetManagement/StaticAssets/StaticAssetUtils.h"
 #include "DebugGUI/GUIController.h"
 
-AnimationCollection& AnimationAsset::RyuAnimations()
-{
-  if(!_ryuAnimLoaded)
-  {
-    LoadRyuAnimations();
-    _ryuAnimLoaded = true;
-  }
-  return _ryuAnimations;
-}
-
-bool AnimationAsset::_ryuAnimLoaded = false;
-
-AnimationCollection AnimationAsset::_ryuAnimations;
-
-void AnimationAsset::LoadRyuAnimations()
+void StaticAssetUtils::LoadAnimations(std::unordered_map<std::string, AnimationInfo>& normalAnimations, 
+  std::unordered_map<std::string, std::tuple<AnimationInfo, FrameData, std::string, AnimationDebuggingInfo>>& attackAnimations,
+  AnimationCollection& collection)
 {
   //hack cause i suck
-  auto it = RyuConfig::normalAnimations.find("Idle");
-  _ryuAnimations.RegisterAnimation("Idle", it->second.sheet.c_str(), it->second.rows, it->second.columns, it->second.startIndexOnSheet, it->second.frames, it->second.anchor);
+  auto it = normalAnimations.find("Idle");
+  collection.RegisterAnimation("Idle", it->second.sheet.c_str(), it->second.rows, it->second.columns, it->second.startIndexOnSheet, it->second.frames, it->second.anchor);
 
-  for(auto& anim : RyuConfig::normalAnimations)
+  for (auto& anim : normalAnimations)
   {
     AnimationInfo& params = anim.second;
-    _ryuAnimations.RegisterAnimation(anim.first, params.sheet.c_str(), params.rows, params.columns, params.startIndexOnSheet, params.frames, params.anchor);
+    collection.RegisterAnimation(anim.first, params.sheet.c_str(), params.rows, params.columns, params.startIndexOnSheet, params.frames, params.anchor);
   }
-  for(auto& anim : RyuConfig::attackAnimations)
+  for (auto& anim : attackAnimations)
   {
     std::string animName = anim.first;
     std::string hitboxSheet = std::get<2>(anim.second);
@@ -37,12 +22,12 @@ void AnimationAsset::LoadRyuAnimations()
     FrameData& frameData = std::get<1>(anim.second);
     AnimationDebuggingInfo& debug = std::get<AnimationDebuggingInfo>(anim.second);
 
-    _ryuAnimations.RegisterAnimation(anim.first, params.sheet.c_str(), params.rows, params.columns, params.startIndexOnSheet, params.frames, params.anchor);
-    _ryuAnimations.SetHitboxEvents(anim.first, hitboxSheet.c_str(), frameData); 
+    collection.RegisterAnimation(anim.first, params.sheet.c_str(), params.rows, params.columns, params.startIndexOnSheet, params.frames, params.anchor);
+    collection.SetHitboxEvents(anim.first, hitboxSheet.c_str(), frameData);
 
     std::string spriteSheetFile = params.sheet;
 
-    std::function<void()> ModFrameData = [animName, hitboxSheet, spriteSheetFile, &frameData, &debug]()
+    std::function<void()> ModFrameData = [animName, hitboxSheet, spriteSheetFile, &frameData, &debug, &collection]()
     {
       if (ImGui::CollapsingHeader(animName.c_str()))
       {
@@ -64,16 +49,16 @@ void AnimationAsset::LoadRyuAnimations()
         ImGui::EndGroup();
 
         int& frame = debug.frame;
-        _ryuAnimations.GetAnimation(animName)->DisplayDebugFrame(128, frame);
-        
-        int nFrames = _ryuAnimations.GetAnimation(animName)->GetFrameCount();
+        collection.GetAnimation(animName)->DisplayDebugFrame(128, frame);
+
+        int nFrames = collection.GetAnimation(animName)->GetFrameCount();
         ImGui::BeginGroup();
-        if(ImGui::Button("Back"))
+        if (ImGui::Button("Back"))
         {
           frame = frame == 0 ? nFrames - 1 : frame - 1;
         }
         ImGui::SameLine();
-        if(ImGui::Button("Forward"))
+        if (ImGui::Button("Forward"))
         {
           frame = (frame + 1) % nFrames;
         }
@@ -83,7 +68,7 @@ void AnimationAsset::LoadRyuAnimations()
 
         if (ImGui::Button("Set Frame Data"))
         {
-          _ryuAnimations.SetHitboxEvents(animName, hitboxSheet.c_str(), frameData);
+          collection.SetHitboxEvents(animName, hitboxSheet.c_str(), frameData);
         }
       }
     };

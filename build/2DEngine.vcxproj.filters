@@ -78,9 +78,6 @@
     <ClCompile Include="..\src\Actions.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\GameState\GameState.cpp">
-      <Filter>Source Files\GameState</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\GameState\GGPOGameState.cpp">
       <Filter>Source Files\GameState</Filter>
     </ClCompile>
@@ -126,14 +123,17 @@
     <ClCompile Include="..\src\DebugGUI\GUIController.cpp">
       <Filter>Source Files\DebugGUI</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\AssetManagement\AnimationAsset.cpp">
-      <Filter>Source Files\AssetManagement</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\AssetManagement\StaticAssets\CharacterConfig.cpp">
       <Filter>Source Files\AssetManagement\StaticAssets</Filter>
     </ClCompile>
     <ClCompile Include="..\src\DebugGUI\GLTexture.cpp">
       <Filter>Source Files\DebugGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\GameState\BattleScene.cpp">
+      <Filter>Source Files\GameState</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\AssetManagement\StaticAssets\StaticAssetUtils.cpp">
+      <Filter>Source Files\AssetManagement\StaticAssets</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -278,8 +278,11 @@
     <ClInclude Include="..\include\DebugGUI\GLTexture.h">
       <Filter>Header Files\DebugGUI</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\AssetManagement\AnimationAsset.h">
-      <Filter>Header Files\AssetManagement</Filter>
+    <ClInclude Include="..\include\GameState\Scene.h">
+      <Filter>Header Files\GameState</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\AssetManagement\StaticAssets\StaticAssetUtils.h">
+      <Filter>Header Files\AssetManagement\StaticAssets</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

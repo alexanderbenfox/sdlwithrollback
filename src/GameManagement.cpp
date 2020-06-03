@@ -4,13 +4,6 @@
 
 #include "ResourceManager.h"
 
-#include "Components/Camera.h"
-#include "Components/Animator.h"
-#include "Components/GameActor.h"
-#include "Components/Rigidbody.h"
-#include "Components/Collider.h"
-#include "Components/Input.h"
-
 #include "Systems/Physics.h"
 #include "Systems/AnimationSystem.h"
 #include "Systems/MoveSystem.h"
@@ -20,6 +13,8 @@
 
 #include "Systems/Physics.h"
 #include "DebugGUI/GUIController.h"
+
+#include "GameState/Scene.h"
 
 #ifdef _DEBUG
 //used for debugger
@@ -277,48 +272,11 @@ void GameManager::Initialize()
   _sdlWindowFormat = SDL_PIXELFORMAT_RGBA8888;
 #endif
 
-  auto bottomBorder = CreateEntity<Transform, GraphicRenderer, StaticCollider>();
-  bottomBorder->GetComponent<Transform>()->position.x = (float)m_nativeWidth / 2.0f;
-  bottomBorder->GetComponent<Transform>()->position.y = m_nativeHeight;
-  bottomBorder->GetComponent<GraphicRenderer>()->Init(ResourceManager::Get().GetTexture("spritesheets\\ryu.png"));
-  bottomBorder->GetComponent<StaticCollider>()->Init(Vector2<double>(0, m_nativeHeight - 40), Vector2<double>(m_nativeWidth, m_nativeHeight + 40.0f));
-  bottomBorder->GetComponent<StaticCollider>()->MoveToTransform(*bottomBorder->GetComponent<Transform>());
+  //! initialize the scene
+  _currentScene = std::make_unique<BattleScene>();
+  _currentScene->Init();
 
-  auto leftBorder = CreateEntity<Transform, GraphicRenderer, StaticCollider>();
-  leftBorder->GetComponent<Transform>()->position.x = -100;
-  leftBorder->GetComponent<Transform>()->position.y = (float)m_nativeHeight/ 2.0f;
-  leftBorder->GetComponent<GraphicRenderer>()->Init(ResourceManager::Get().GetTexture("spritesheets\\ryu.png"));
-  leftBorder->GetComponent<StaticCollider>()->Init(Vector2<double>(-200, 0), Vector2<double>(0, m_nativeHeight));
-  leftBorder->GetComponent<StaticCollider>()->MoveToTransform(*leftBorder->GetComponent<Transform>());
-
-  auto rightBorder = CreateEntity<Transform, GraphicRenderer, StaticCollider>();
-  rightBorder->GetComponent<Transform>()->position.x = (float)m_nativeWidth + 100.0f;
-  rightBorder->GetComponent<Transform>()->position.y = (float)m_nativeHeight/ 2.0f;
-  rightBorder->GetComponent<GraphicRenderer>()->Init(ResourceManager::Get().GetTexture("spritesheets\\ryu.png"));
-  rightBorder->GetComponent<StaticCollider>()->Init(Vector2<double>(m_nativeWidth, 0), Vector2<double>(m_nativeWidth + 200, m_nativeHeight));
-  rightBorder->GetComponent<StaticCollider>()->MoveToTransform(*rightBorder->GetComponent<Transform>());
-
-  //auto randomAssRenderedText = CreateEntity<Transform, GraphicRenderer, RenderProperties>();
-  //randomAssRenderedText->GetComponent<GraphicRenderer>()->Init(ResourceManager::Get().GetText("TEZT", "fonts\\Eurostile.ttf"));
-  
-  auto p1 = EntityCreation::CreateLocalPlayer(100);
-  auto p2 = EntityCreation::CreateLocalPlayer(400);
-
-  auto kb2 = p2->GetComponent<KeyboardInputHandler>();
-  kb2->SetKey(SDLK_UP, InputState::UP);
-  kb2->SetKey(SDLK_DOWN, InputState::DOWN);
-  kb2->SetKey(SDLK_RIGHT, InputState::RIGHT);
-  kb2->SetKey(SDLK_LEFT, InputState::LEFT);
-  kb2->SetKey(SDLK_j, InputState::BTN1);
-  kb2->SetKey(SDLK_k, InputState::BTN2);
-  kb2->SetKey(SDLK_l, InputState::BTN3);
-
-  p2->RemoveComponent<KeyboardInputHandler>();
-  p2->AddComponent<GamepadInputHandler>();
-
-  _camera = EntityCreation::CreateCamera();
-
-  //_gameState = std::unique_ptr<IGameState>(new LocalMatch(kb1, kb2));
+  _initialized = true;
 }
 
 //______________________________________________________________________________
@@ -408,8 +366,9 @@ void GameManager::BeginGameLoop()
 //______________________________________________________________________________
 Camera* GameManager::GetMainCamera()
 {
-  //return _gameState->GetCamera();
-  return _camera.get();
+  if (_currentScene)
+    return _currentScene->GetCamera();
+  return nullptr;
 }
 
 //______________________________________________________________________________

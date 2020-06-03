@@ -1,4 +1,5 @@
 #include "AssetManagement/StaticAssets/CharacterConfig.h"
+#include "AssetManagement/StaticAssets/StaticAssetUtils.h"
 
 float RyuConfig::moveSpeed;
 float RyuConfig::jumpHeight;
@@ -69,3 +70,18 @@ std::unordered_map<std::string, std::tuple<AnimationInfo, FrameData, std::string
       "spritesheets\\grounded_attacks_hitboxes.png", AnimationDebuggingInfo{0})
   }
 };
+
+
+AnimationCollection& RyuConfig::Animations()
+{
+  if (!_animLoaded)
+  {
+    StaticAssetUtils::LoadAnimations(normalAnimations, attackAnimations, _animations);
+    _animLoaded = true;
+  }
+  return _animations;
+}
+
+bool RyuConfig::_animLoaded = false;
+
+AnimationCollection RyuConfig::_animations;
