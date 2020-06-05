@@ -30,7 +30,8 @@ public:
   void RenderFrame();
   void CleanUp();
 
-  void AddImguiWindowFunction(const std::string& group, std::function<void()>& function);
+  int AddImguiWindowFunction(const std::string& group, std::function<void()>& function);
+  void RemoveImguiWindowFunction(const std::string& group, int index);
 
   void RenderToMainWindow(SDL_Renderer* renderer);
 

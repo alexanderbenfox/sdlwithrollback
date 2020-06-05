@@ -36,6 +36,7 @@
     <ClCompile Include="..\src\Components\Animator.cpp" />
     <ClCompile Include="..\src\Components\Components.cpp" />
     <ClCompile Include="..\src\Components\Input.cpp" />
+    <ClCompile Include="..\src\Components\Hurtbox.cpp" />
     <ClCompile Include="..\src\DebugGUI\GLTexture.cpp" />
     <ClCompile Include="..\src\DebugGUI\GUIController.cpp" />
     <ClCompile Include="..\src\Entity.cpp" />
@@ -76,6 +77,7 @@
     <ClInclude Include="..\include\Components\Input.h" />
     <ClInclude Include="..\include\Components\Rigidbody.h" />
     <ClInclude Include="..\include\Components\Sprite.h" />
+    <ClInclude Include="..\include\Components\StateComponent.h" />
     <ClInclude Include="..\include\Components\Transform.h" />
     <ClInclude Include="..\include\DebugGUI\GLTexture.h" />
     <ClInclude Include="..\include\DebugGUI\GUIController.h" />

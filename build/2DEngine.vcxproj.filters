@@ -135,6 +135,9 @@
     <ClCompile Include="..\src\AssetManagement\StaticAssets\StaticAssetUtils.cpp">
       <Filter>Source Files\AssetManagement\StaticAssets</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\Components\Hurtbox.cpp">
+      <Filter>Source Files\Components</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\AssetManagement\Resource.h">
@@ -283,6 +286,9 @@
     </ClInclude>
     <ClInclude Include="..\include\AssetManagement\StaticAssets\StaticAssetUtils.h">
       <Filter>Header Files\AssetManagement\StaticAssets</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Components\StateComponent.h">
+      <Filter>Header Files\Components</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

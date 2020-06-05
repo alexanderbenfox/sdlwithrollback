@@ -64,5 +64,10 @@ class Hurtbox : public RectColliderD
 {
 public:
   //!
-  Hurtbox(std::shared_ptr<Entity> entity) : RectColliderD(entity) {}
+  Hurtbox(std::shared_ptr<Entity> entity);
+  ~Hurtbox();
+  //! Do we put health here?
+  int hp = 100;
+  int debugID = -1;
+
 };
