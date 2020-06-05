@@ -8,6 +8,13 @@
 #include "Components/Collider.h"
 #include "Components/Input.h"
 
+#include "Systems/Physics.h"
+#include "Systems/AnimationSystem.h"
+#include "Systems/MoveSystem.h"
+#include "Systems/InputSystem.h"
+#include "Systems/HitSystem.h"
+#include "Systems/TimerSystem.h"
+
 #include "AssetManagement/StaticAssets/CharacterConfig.h"
 
 void BattleScene::Init()
@@ -33,8 +40,8 @@ void BattleScene::Init()
   rightBorder->GetComponent<StaticCollider>()->Init(Vector2<double>(m_nativeWidth, 0), Vector2<double>(m_nativeWidth + 200, m_nativeHeight));
   rightBorder->GetComponent<StaticCollider>()->MoveToTransform(*rightBorder->GetComponent<Transform>());
 
-  _p1 = InitCharacter(Vector2(100, 0));
-  _p2 = InitCharacter(Vector2(400, 0));
+  _p1 = InitCharacter(Vector2<int>(100, 0));
+  _p2 = InitCharacter(Vector2<int>(400, 0));
 
   // set up player key config
   auto kb2 = _p2->GetComponent<KeyboardInputHandler>();
@@ -54,6 +61,24 @@ void BattleScene::Init()
   _camera->GetComponent<Camera>()->Init(m_nativeWidth, m_nativeHeight);
 }
 
+void BattleScene::Update(float deltaTime)
+{
+  TimerSystem::DoTick(deltaTime);
+  HitSystem::DoTick(deltaTime);
+
+  PlayerSideSystem::DoTick(deltaTime);
+  InputSystem::DoTick(deltaTime);
+  GamepadInputSystem::DoTick(deltaTime);
+  
+  FrameAdvantageSystem::DoTick(deltaTime);
+  // resolve collisions
+  PhysicsSystem::DoTick(deltaTime);
+  // update the location of the colliders
+  MoveSystem::DoTick(deltaTime);
+
+  AnimationSystem::DoTick(deltaTime);
+  AttackAnimationSystem::DoTick(deltaTime);
+}
 
 Camera* BattleScene::GetCamera()
 {

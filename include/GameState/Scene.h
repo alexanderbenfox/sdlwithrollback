@@ -7,6 +7,7 @@ class IScene
 {
 public:
   virtual void Init() = 0;
+  virtual void Update(float deltaTime) = 0;
   virtual Camera* GetCamera() = 0;
   
 };
@@ -27,6 +28,7 @@ class BattleScene : public IScene
 {
 public:
   virtual void Init() final;
+  virtual void Update(float deltaTime) final;
   virtual Camera* GetCamera() final;
 
 protected:

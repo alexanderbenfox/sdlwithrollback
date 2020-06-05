@@ -71,7 +71,6 @@ std::unordered_map<std::string, std::tuple<AnimationInfo, FrameData, std::string
   }
 };
 
-
 AnimationCollection& RyuConfig::Animations()
 {
   if (!_animLoaded)
