@@ -263,8 +263,17 @@ void GameManager::BeginGameLoop()
   bool programRunning = true;
   std::thread debuggerThread;
   //RunScripter(debuggerThread, programRunning);
-  GUIController::Get().InitSDLWindow();
-  GUIController::Get().InitImGUI();
+
+  if constexpr (std::is_same_v<RenderType, SDL_Texture>)
+  {
+    GUIController::Get().InitSDLWindow();
+    GUIController::Get().InitImGUI();
+  }
+  else
+  {
+    // if we're using gl to render our window, just render imgui in our window
+    GUIController::Get().InitImGUI(GRenderer.GetWindow(), GRenderer.GetGLContext());
+  }
 
   AvgCounter tracker;
 
@@ -293,6 +302,8 @@ void GameManager::BeginGameLoop()
 
     //! Update all components and coroutines
     _clock.Update(update);
+    //! update gui
+    GUIController::Get().MainLoop(_localInput);
 
     // do once per frame system calls
     DrawSystem::PostUpdate();
@@ -301,9 +312,8 @@ void GameManager::BeginGameLoop()
     //! Finally render the scene
     Draw();
 
-    //! update gui
-    GUIController::Get().MainLoop(_localInput);
-    GUIController::Get().RenderFrame();
+    
+    
 
     if (_localInput.type == SDL_QUIT)
       break;
@@ -399,6 +409,9 @@ void GameManager::Draw()
 
   // hack gl render the textures for the font libraries
   ResourceManager::Get().RenderGL();
+
+  // draw debug ui
+  GUIController::Get().RenderFrame();
 
   //present this frame
   GRenderer.Present();

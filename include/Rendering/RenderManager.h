@@ -19,9 +19,11 @@ public:
   void ProcessResizeEvent(const SDL_Event& event);
 
   //!
-  SDL_Renderer* GetRenderer() { return _renderer; }
+  SDL_Renderer* GetRenderer() const { return _renderer; }
   //!
-  SDL_Window* GetWindow() { return _window; }
+  SDL_Window* GetWindow() const { return _window; }
+  //!
+  void* GetGLContext() const { return _glContext; }
 
   //! Adds a new blit op to the list. Only objects registered here will be drawn
   void RegisterBlitOp();

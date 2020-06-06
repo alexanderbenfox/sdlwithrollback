@@ -26,6 +26,8 @@ public:
 
   bool InitSDLWindow();
   bool InitImGUI();
+  bool InitImGUI(SDL_Window* existingWindow, SDL_GLContext existingContext);
+
   void MainLoop(SDL_Event& event);
   void RenderFrame();
   void CleanUp();
@@ -39,6 +41,8 @@ private:
 
   SDL_Window* _window = nullptr;
   SDL_GLContext _glContext = nullptr;
+
+  bool _ownsWindow = false;
 
   std::unordered_map<std::string, std::vector<std::function<void()>>> _imguiWindowGroups;
 

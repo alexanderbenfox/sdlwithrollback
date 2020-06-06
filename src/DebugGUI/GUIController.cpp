@@ -8,10 +8,27 @@
 
 GUIController::~GUIController()
 {
+  if (_ownsWindow)
+  {
+    SDL_DestroyWindow(_window);
+    SDL_GL_DeleteContext(_glContext);
+  }
+
+  _window = nullptr;
+  _glContext = nullptr;
 }
 
 bool GUIController::InitSDLWindow()
 {
+  if (_ownsWindow)
+  {
+    SDL_DestroyWindow(_window);
+    SDL_GL_DeleteContext(_glContext);
+
+    _window = nullptr;
+    _glContext = nullptr;
+  }
+
   SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
   SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
   SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
@@ -25,6 +42,7 @@ bool GUIController::InitSDLWindow()
 
   // Enable vsync
   SDL_GL_SetSwapInterval(1); 
+  _ownsWindow = true;
 
   return true;
 }
@@ -46,6 +64,36 @@ bool GUIController::InitImGUI()
   // Setup Platform/Renderer bindings
   ImGui_ImplSDL2_InitForOpenGL(_window, _glContext);
   ImGui_ImplOpenGL2_Init();
+  return true;
+}
+
+bool GUIController::InitImGUI(SDL_Window* existingWindow, SDL_GLContext existingContext)
+{
+  if (_ownsWindow)
+  {
+    SDL_DestroyWindow(_window);
+    SDL_GL_DeleteContext(_glContext);
+
+    _window = nullptr;
+    _glContext = nullptr;
+  }
+
+  // Setup Dear ImGui context
+  IMGUI_CHECKVERSION();
+  ImGui::CreateContext();
+  ImGuiIO& io = ImGui::GetIO();
+  (void)io;
+
+  // Setup Dear ImGui style
+  //ImGui::StyleColorsClassic();
+
+  // Setup Platform/Renderer bindings
+  ImGui_ImplSDL2_InitForOpenGL(existingWindow, existingContext);
+  ImGui_ImplOpenGL2_Init();
+  _window = existingWindow;
+
+  _ownsWindow = false;
+
   return true;
 }
 
@@ -101,10 +149,16 @@ void GUIController::RenderFrame()
   // Rendering
   ImGui::Render();
   glViewport(0, 0, (int)io.DisplaySize.x, (int)io.DisplaySize.y);
-  glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
-  glClear(GL_COLOR_BUFFER_BIT);
+  if (_ownsWindow)
+  {
+    glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
+    glClear(GL_COLOR_BUFFER_BIT);
+  }
+
   //glUseProgram(0); // You may want this if using this code in an OpenGL 3+ context where shaders may be bound
   ImGui_ImplOpenGL2_RenderDrawData(ImGui::GetDrawData());
-  SDL_GL_SwapWindow(_window);
+
+  if(_ownsWindow)
+    SDL_GL_SwapWindow(_window);
 }
 
