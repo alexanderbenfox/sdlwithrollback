@@ -26,13 +26,13 @@ public:
 
   bool InitSDLWindow();
   bool InitImGUI();
+  bool InitImGUI(SDL_Window* existingWindow, SDL_GLContext existingContext);
+
   void MainLoop(SDL_Event& event);
   void RenderFrame();
   void CleanUp();
 
   void AddImguiWindowFunction(const std::string& group, std::function<void()>& function);
-
-  void RenderToMainWindow(SDL_Renderer* renderer);
 
 private:
   GUIController() = default;
@@ -42,7 +42,7 @@ private:
   SDL_Window* _window = nullptr;
   SDL_GLContext _glContext = nullptr;
 
-  GLTexture* _mainWindowTexture;
+  bool _ownsWindow = false;
 
   std::unordered_map<std::string, std::vector<std::function<void()>>> _imguiWindowGroups;
 

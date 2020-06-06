@@ -2,12 +2,14 @@
 
 #include "Entity.h"
 #include "GameManagement.h"
+#include "ResourceManager.h"
 
 #include "Components/Animator.h"
 #include "Components/Camera.h"
 #include "Components/Collider.h"
 #include "Components/GameActor.h"
 #include "Components/Rigidbody.h"
+#include "Components/RenderComponent.h"
 
 #include <cassert>
 
@@ -21,19 +23,6 @@ void Camera::Init(int w, int h)
 }
 
 //______________________________________________________________________________
-void Camera::ConvScreenSpace(BlitOperation* entity)
-{
-  entity->_displayRect.x -= rect.x;
-  entity->_displayRect.y -= rect.y;
-}
-
-//______________________________________________________________________________
-bool Camera::EntityInDisplay(const BlitOperation* entity)
-{
-  return SDLRectOverlap(rect, entity->_displayRect);
-}
-
-//______________________________________________________________________________
 template <typename T>
 void RectCollider<T>::Init(Vector2<T> beg, Vector2<T> end)
 {
@@ -44,7 +33,7 @@ void RectCollider<T>::Init(Vector2<T> beg, Vector2<T> end)
 template <typename T>
 void RectCollider<T>::Draw()
 {
-  SDL_SetRenderDrawColor(GameManager::Get().GetRenderer(), 255, 255, 255, SDL_ALPHA_OPAQUE);
+  SDL_SetRenderDrawColor(GRenderer.GetRenderer(), 255, 255, 255, SDL_ALPHA_OPAQUE);
 
   int xBeg = static_cast<int>(std::floor(rect.Beg().x));
   int yBeg = static_cast<int>(std::floor(rect.Beg().y));
@@ -60,18 +49,25 @@ void RectCollider<T>::Draw()
     {xBeg, yBeg}
   };
 
-  SDL_RenderDrawLines(GameManager::Get().GetRenderer(), points, 5);
-  SDL_SetRenderDrawColor(GameManager::Get().GetRenderer(), 0, 0, 0, SDL_ALPHA_OPAQUE);
+  SDL_RenderDrawLines(GRenderer.GetRenderer(), points, 5);
+  SDL_SetRenderDrawColor(GRenderer.GetRenderer(), 0, 0, 0, SDL_ALPHA_OPAQUE);
 }
 
 //______________________________________________________________________________
 GameActor::GameActor(std::shared_ptr<Entity> owner) : _currentAction(nullptr), _newState(true), _lastInput(InputState::NONE), _comboCounter(0), IComponent(owner)
 {
   BeginNewAction(new LoopedAction<StanceState::STANDING, ActionState::NONE>("Idle", owner.get()));
-  _counterText = GameManager::Get().CreateEntity<Transform, GraphicRenderer>();
-  //_counterText->GetComponent<GraphicRenderer>()->Init(ResourceManager::Get().GetText("Combo: 0", "fonts\\Eurostile.ttf"));
-  
 
+  if constexpr (std::is_same_v<RenderType, SDL_Texture>)
+  {
+    _counterText = GameManager::Get().CreateEntity<Transform, RenderComponent<SDL_Texture>>();
+    _counterText->GetComponent<RenderComponent<SDL_Texture>>()->Init(ResourceManager::Get().GetText("Combo: 0", "fonts\\Eurostile.ttf"));
+  }
+  else
+  {
+    _counterText = GameManager::Get().CreateEntity<Transform, TextRenderer>();
+    _counterText->GetComponent<TextRenderer>()->SetFont(ResourceManager::Get().GetFontWriter("fonts\\Eurostile.ttf", 28));
+  }
 }
 
 //______________________________________________________________________________
@@ -120,7 +116,14 @@ void GameActor::BeginNewAction(IAction* action)
       _counterText->AddComponent<RenderProperties>();
     }
     std::string comboText = "Combo: " + std::to_string(_comboCounter);
-    _counterText->GetComponent<GraphicRenderer>()->Init(ResourceManager::Get().GetText(comboText.c_str(), "fonts\\Eurostile.ttf"));
+    if constexpr (std::is_same_v<RenderType, SDL_Texture>)
+    {
+      _counterText->GetComponent<RenderComponent<SDL_Texture>>()->Init(ResourceManager::Get().GetText(comboText.c_str(), "fonts\\Eurostile.ttf"));
+    }
+    else
+    {
+      _counterText->GetComponent<TextRenderer>()->SetText(comboText);
+    }
   }
 
 

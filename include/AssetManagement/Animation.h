@@ -3,6 +3,7 @@
 #include "Components/StateComponent.h"
 #include "AssetManagement/BlitOperation.h"
 #include "ComponentConst.h"
+#include "ResourceManager.h"
 
 #include <functional>
 #include <unordered_map>
@@ -44,7 +45,7 @@ typedef std::tuple<int, int, std::function<void(Transform*, StateComponent*)>, s
 class Animation
 {
 public:
-  Animation(const char* sheet, int rows, int columns, int startIndexOnSheet, int frames, AnchorPoint anchor);
+  Animation(const SpriteSheet& sheet, int startIndexOnSheet, int frames, AnchorPoint anchor);
 
   EventInitParams GenerateAttackEvent(const char* hitboxesSheet, FrameData frameData);
 
@@ -53,35 +54,50 @@ public:
 
   const int GetFrameCount() const { return static_cast<int>(_animFrameToSheetFrame.size()); }
 
-  Vector2<int> GetFrameWH() const { return _frameSize; }
+  Vector2<int> GetFrameWH() const { return _spriteSheet.frameSize; }
   //!
-  Texture& GetSheetTexture() const;
+  template <typename Texture>
+  Resource<Texture>& GetSheetTexture() const;
   //! Gets first non-transparent pixel from the top left and bottom left
   Vector2<int> FindAnchorPoint(AnchorPoint anchorType, bool fromFirstFrame) const;
   //!
   std::pair<AnchorPoint, Vector2<int>> const& GetMainAnchor() const { return _anchorPoint; }
 
-  int GetFlipMargin() const { return _frameSize.x - _lMargin; }
+  int GetFlipMargin() const { return _spriteSheet.frameSize.x - _lMargin; }
 
-  void DisplayDebugFrame(int displayHeight, int animFrame);
+  struct ImGuiDisplayParams
+  {
+    void* ptr;
+    Vector2<int> displaySize;
+    Vector2<float> uv0;
+    Vector2<float> uv1;
+
+  };
+  ImGuiDisplayParams GetUVCoordsForFrame(int displayHeight, int animFrame);
 
 protected:
   //!
-  int _rows, _columns, _frames, _startIdx;
+  SpriteSheet _spriteSheet;
   //!
-  Vector2<int> _frameSize;
+  int _frames, _startIdx;
   //! stores the bottom left and top left reference pixels
   //Vector2<int> _anchorPoints[(const int)AnchorPoint::Size];
   //!
   std::vector<int> _animFrameToSheetFrame;
-  //!
-  std::string _src;
+  
   //!
   std::pair<AnchorPoint, Vector2<int>> _anchorPoint;
   //! finding margin from the bottom right now
   int _lMargin, _rMargin, _tMargin;
 
 };
+
+//______________________________________________________________________________
+template <typename Texture>
+inline Resource<Texture>& Animation::GetSheetTexture() const
+{
+  return ResourceManager::Get().GetAsset<Texture>(_spriteSheet.src);
+}
 
 typedef std::unordered_map<int, AnimationEvent> EventList;
 
@@ -90,7 +106,7 @@ class AnimationCollection
 {
 public:
   AnimationCollection() = default;
-  void RegisterAnimation(const std::string& animationName, const char* sheet, int rows, int columns, int startIndexOnSheet, int frames, AnchorPoint anchor);
+  void RegisterAnimation(const std::string& animationName, const SpriteSheet& sheet, int startIndexOnSheet, int frames, AnchorPoint anchor);
   void SetHitboxEvents(const std::string& animationName, const char* hitboxesSheet, FrameData frameData);
 
 

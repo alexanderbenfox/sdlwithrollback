@@ -30,19 +30,21 @@
     <ClCompile Include="..\src\Actions.cpp" />
     <ClCompile Include="..\src\AssetManagement\Animation.cpp" />
     <ClCompile Include="..\src\AssetManagement\AnimationAsset.cpp" />
+    <ClCompile Include="..\src\AssetManagement\LetterCase.cpp" />
     <ClCompile Include="..\src\AssetManagement\Resource.cpp" />
     <ClCompile Include="..\src\AssetManagement\StaticAssets\CharacterConfig.cpp" />
     <ClCompile Include="..\src\AssetManagement\Text.cpp" />
     <ClCompile Include="..\src\Components\Animator.cpp" />
     <ClCompile Include="..\src\Components\Components.cpp" />
     <ClCompile Include="..\src\Components\Input.cpp" />
-    <ClCompile Include="..\src\DebugGUI\GLTexture.cpp" />
     <ClCompile Include="..\src\DebugGUI\GUIController.cpp" />
     <ClCompile Include="..\src\Entity.cpp" />
     <ClCompile Include="..\src\GameManagement.cpp" />
     <ClCompile Include="..\src\GameState\GameState.cpp" />
     <ClCompile Include="..\src\GameState\GGPOGameState.cpp" />
     <ClCompile Include="..\src\Geometry.cpp" />
+    <ClCompile Include="..\src\Rendering\GLTexture.cpp" />
+    <ClCompile Include="..\src\Rendering\RenderManager.cpp" />
     <ClCompile Include="..\src\Systems\Physics.cpp" />
     <ClCompile Include="..\src\Timer.cpp" />
   </ItemGroup>
@@ -61,6 +63,7 @@
     <ClInclude Include="..\include\AssetManagement\Animation.h" />
     <ClInclude Include="..\include\AssetManagement\AnimationAsset.h" />
     <ClInclude Include="..\include\AssetManagement\BlitOperation.h" />
+    <ClInclude Include="..\include\AssetManagement\LetterCase.h" />
     <ClInclude Include="..\include\AssetManagement\Resource.h" />
     <ClInclude Include="..\include\AssetManagement\StaticAssets\CharacterConfig.h" />
     <ClInclude Include="..\include\AssetManagement\Text.h" />
@@ -75,9 +78,8 @@
     <ClInclude Include="..\include\Components\IComponent.h" />
     <ClInclude Include="..\include\Components\Input.h" />
     <ClInclude Include="..\include\Components\Rigidbody.h" />
-    <ClInclude Include="..\include\Components\Sprite.h" />
+    <ClInclude Include="..\include\Components\RenderComponent.h" />
     <ClInclude Include="..\include\Components\Transform.h" />
-    <ClInclude Include="..\include\DebugGUI\GLTexture.h" />
     <ClInclude Include="..\include\DebugGUI\GUIController.h" />
     <ClInclude Include="..\include\Entity.h" />
     <ClInclude Include="..\include\GameManagement.h" />
@@ -85,6 +87,9 @@
     <ClInclude Include="..\include\GameState\GGPOGameState.h" />
     <ClInclude Include="..\include\Geometry.h" />
     <ClInclude Include="..\include\ListenerInterfaces.h" />
+    <ClInclude Include="..\include\Rendering\GLTexture.h" />
+    <ClInclude Include="..\include\Rendering\RenderCopy.h" />
+    <ClInclude Include="..\include\Rendering\RenderManager.h" />
     <ClInclude Include="..\include\ResourceManager.h" />
     <ClInclude Include="..\include\Systems\AnimationSystem.h" />
     <ClInclude Include="..\include\Systems\HitSystem.h" />
@@ -206,8 +211,6 @@
       <EntryPointSymbol>
       </EntryPointSymbol>
       <AdditionalDependencies>ws2_32.lib;user32.lib;winmm.lib;GGPO.lib;opengl32.lib;SDL2d.lib;SDL2_image.lib;SDL2_ttf.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <DelayLoadDLLs>
-      </DelayLoadDLLs>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -254,8 +257,6 @@
       <EntryPointSymbol>
       </EntryPointSymbol>
       <AdditionalDependencies>ws2_32.lib;user32.lib;winmm.lib;GGPO.lib;opengl32.lib;SDL2.lib;SDL2_image.lib;SDL2_ttf.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <DelayLoadDLLs>
-      </DelayLoadDLLs>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

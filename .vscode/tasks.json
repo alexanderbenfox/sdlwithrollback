@@ -18,6 +18,7 @@
         "src/GameState/*.cpp",
         "src/Systems/*.cpp",
         "src/DebugGUI/*.cpp",
+        "src/Rendering/*.cpp",
         "imgui/impl/imgui_impl_sdl.cpp",
         "imgui/impl/imgui_impl_opengl2.cpp",
         "imgui/*.cpp",

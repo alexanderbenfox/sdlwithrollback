@@ -1,8 +1,6 @@
 #pragma once
 #include "Geometry.h"
-#include "AssetManagement/BlitOperation.h"
-#include "AssetManagement/Animation.h"
-#include "DebugGUI/GLTexture.h"
+#include "AssetManagement/LetterCase.h"
 
 #include <unordered_map>
 #include <vector>
@@ -16,50 +14,40 @@ public:
   //! Returns singleton instance of the Resource Manager
   static ResourceManager& Get() { static ResourceManager rm; return rm; }
   //! Destroy loaded resource objects
-  void Destroy() { _loadedTextures.clear(); }
+  void Destroy() {}
   //! Initialize the main resource path
   void Initialize();
   //! Loads texture if unloaded and returns the SDL_Texture resource
-  Texture& GetTexture(const std::string& file);
-  Resource<GLTexture>& GetGLTexture(const std::string& file);
-  //! Loads font from .ttf file and returns resource
-  Font& GetFont(const std::string& file);
+  template <typename AssetType>
+  Resource<AssetType>& GetAsset(const std::string& file);
   //!
   TextResource& GetText(const char* text, const std::string& fontFile);
+  //!
+  LetterCase& GetFontWriter(const std::string& fontFile, size_t size);
   //! Uses SDLQuery to get the width and height of the source texture
   Vector2<int> GetTextureWidthAndHeight(const std::string& file);
-  //! Used by drawn objects to pass their drawing parameters to the resource manager
-  BlitOperation* GetAvailableOp() { return &_registeredSprites[opIndex++]; }
-  //! Adds a new blit op to the list. Only objects registered here will be drawn
-  void RegisterBlitOp();
-  //!
-  void DeregisterBlitOp();
-  //! Preps all the sprites to be presented on screen on the next SDL_RenderPresent call
-  void BlitSprites();
   //! Gets the relative source path for the resources
   const std::string& GetResourcePath() { return _resourcePath; }
 
-  static void CrawlTexture(Texture& texture, Vector2<int> begin, Vector2<int> end, std::function<void(int, int, Uint32)> callback);
-  static Rect<double> FindRect(Texture& texture, Vector2<int> frameSize, Vector2<int> begPx);
+  //////++++ WE NEED TO GET THIS OUTTA HERE - BEGIN
+  static void CrawlTexture(Resource<SDL_Texture>& texture, Vector2<int> begin, Vector2<int> end, std::function<void(int, int, Uint32)> callback);
+  static Rect<double> FindRect(Resource<SDL_Texture>& texture, Vector2<int> frameSize, Vector2<int> begPx);
+  //////++++ WE NEED TO GET THIS OUTTA HERE - END
 
 private:
 
-  //! All loaded texture resources
-  std::unordered_map<std::string, Texture> _loadedTextures;
-  //!
-  std::unordered_map<std::string, Resource<GLTexture>> _loadedGLTextures;
-  //! All loaded font resources
-  std::unordered_map<std::string, Font> _loadedFonts;
-  //! All loaded font resources
-  std::unordered_map<std::string, TextResource> _loadedTexts;
-  //! Number of sprites that will be drawn in the scene
-  int registeredSprites = 0;
-  //! Index of the latest available op spot
-  int opIndex = 0;
-  //! All registered blit ops. Trying to use spatial loading to make drawing faster when there are a lot of object on screen
-  std::vector<BlitOperation> _registeredSprites;
+  //! All loaded assets from file resources
+  template <typename AssetType>
+  static std::unordered_map<std::string, Resource<AssetType>> _fileAssets;
+  //! Loaded FONT resources
+  std::unordered_map<FontKey, LetterCase> _loadedLetterCases;
   //! Relative source path for all of the resources
   std::string _resourcePath;
+
+  //////++++ WE NEED TO GET THIS OUTTA HERE - BEGIN
+ //! All loaded font resources
+  std::unordered_map<std::string, TextResource> _loadedTexts;
+  //////++++ WE NEED TO GET THIS OUTTA HERE - END
 
   //!
   ResourceManager() = default;
@@ -67,3 +55,26 @@ private:
   ResourceManager operator=(ResourceManager&) = delete;
 
 };
+
+template <typename AssetType>
+std::unordered_map<std::string, Resource<AssetType>> ResourceManager::_fileAssets{};
+
+//______________________________________________________________________________
+template <typename AssetType>
+inline Resource<AssetType>& ResourceManager::GetAsset(const std::string& file)
+{
+  auto fileToLoad = file;
+
+#ifndef _WIN32
+  auto split = StringUtils::Split(file, '\\');
+  if (split.size() > 1)
+    fileToLoad = StringUtils::Connect(split.begin(), split.end(), '/');
+#endif
+
+  if (_fileAssets<AssetType>.find(fileToLoad) == _fileAssets<AssetType>.end())
+  {
+    _fileAssets<AssetType>.insert(std::make_pair(fileToLoad, Resource<AssetType>(_resourcePath + fileToLoad)));
+  }
+  _fileAssets<AssetType>[fileToLoad].Load();
+  return _fileAssets<AssetType>[fileToLoad];
+}

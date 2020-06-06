@@ -1,4 +1,4 @@
-#include "DebugGUI/GLTexture.h"
+#include "Rendering/GLTexture.h"
 #include "AssetManagement/AnimationAsset.h"
 #include "GameManagement.h"
 #include "AssetManagement/StaticAssets/CharacterConfig.h"
@@ -22,12 +22,12 @@ void AnimationAsset::LoadRyuAnimations()
 {
   //hack cause i suck
   auto it = RyuConfig::normalAnimations.find("Idle");
-  _ryuAnimations.RegisterAnimation("Idle", it->second.sheet.c_str(), it->second.rows, it->second.columns, it->second.startIndexOnSheet, it->second.frames, it->second.anchor);
+  _ryuAnimations.RegisterAnimation("Idle", SpriteSheet(it->second.sheet.src.c_str(), it->second.sheet.rows, it->second.sheet.columns), it->second.startIndexOnSheet, it->second.frames, it->second.anchor);
 
   for(auto& anim : RyuConfig::normalAnimations)
   {
     AnimationInfo& params = anim.second;
-    _ryuAnimations.RegisterAnimation(anim.first, params.sheet.c_str(), params.rows, params.columns, params.startIndexOnSheet, params.frames, params.anchor);
+    _ryuAnimations.RegisterAnimation(anim.first, SpriteSheet(anim.second.sheet.src.c_str(), anim.second.sheet.rows, anim.second.sheet.columns), params.startIndexOnSheet, params.frames, params.anchor);
   }
   for(auto& anim : RyuConfig::attackAnimations)
   {
@@ -37,10 +37,10 @@ void AnimationAsset::LoadRyuAnimations()
     FrameData& frameData = std::get<1>(anim.second);
     AnimationDebuggingInfo& debug = std::get<AnimationDebuggingInfo>(anim.second);
 
-    _ryuAnimations.RegisterAnimation(anim.first, params.sheet.c_str(), params.rows, params.columns, params.startIndexOnSheet, params.frames, params.anchor);
+    _ryuAnimations.RegisterAnimation(anim.first, SpriteSheet(params.sheet.src.c_str(), params.sheet.rows, params.sheet.columns), params.startIndexOnSheet, params.frames, params.anchor);
     _ryuAnimations.SetHitboxEvents(anim.first, hitboxSheet.c_str(), frameData); 
 
-    std::string spriteSheetFile = params.sheet;
+    std::string spriteSheetFile = params.sheet.src;
 
     std::function<void()> ModFrameData = [animName, hitboxSheet, spriteSheetFile, &frameData, &debug]()
     {
@@ -64,8 +64,10 @@ void AnimationAsset::LoadRyuAnimations()
         ImGui::EndGroup();
 
         int& frame = debug.frame;
-        _ryuAnimations.GetAnimation(animName)->DisplayDebugFrame(128, frame);
-        
+        Animation::ImGuiDisplayParams imParams = _ryuAnimations.GetAnimation(animName)->GetUVCoordsForFrame(128, frame);
+        ImGui::Image((void*)(intptr_t)imParams.ptr, ImVec2(imParams.displaySize.x, imParams.displaySize.y),
+          ImVec2(imParams.uv0.x, imParams.uv0.y), ImVec2(imParams.uv1.x, imParams.uv1.y));
+
         int nFrames = _ryuAnimations.GetAnimation(animName)->GetFrameCount();
         ImGui::BeginGroup();
         if(ImGui::Button("Back"))

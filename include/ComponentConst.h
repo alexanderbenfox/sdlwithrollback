@@ -12,8 +12,6 @@ const int hitstopHeavy = 10;
 
 struct FrameData
 {
-  // Member initialization
-  FrameData() = default;
   // # of start up frames, active frames, and recovery frames
   int startUp, active, recover;
   // # of frames the receiver should be stunned on hit or block after attacker returns to neutral (can be + or -)
@@ -31,10 +29,22 @@ enum class AnchorPoint
   TL, TR, BL, BR, Size
 };
 
+struct SpriteSheet
+{
+  SpriteSheet(const char* src, int rows, int columns);
+  SpriteSheet(const char* src, int rows, int columns, bool dontLoad) : src(src), rows(rows), columns(columns) {}
+  //!
+  std::string src;
+  //!
+  Vector2<int> frameSize;
+  Vector2<int> sheetSize;
+  //!
+  int rows, columns;
+};
+
 struct AnimationInfo
 {
-  std::string sheet;
-  int rows, columns;
+  SpriteSheet sheet;
   int startIndexOnSheet;
   int frames;
   AnchorPoint anchor;

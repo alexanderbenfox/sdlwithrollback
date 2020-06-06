@@ -7,7 +7,7 @@ TextResource::TextResource(Resource<TTF_Font> font, const char* text, SDL_Color 
   _info.mHeight = textSurf->h;
   _info.mWidth = textSurf->w;
 
-  _resource = std::shared_ptr<SDL_Texture>(SDL_CreateTextureFromSurface(GameManager::Get().GetRenderer(), textSurf), SDL_DestroyTexture);
+  _resource = std::shared_ptr<SDL_Texture>(SDL_CreateTextureFromSurface(GRenderer.GetRenderer(), textSurf), SDL_DestroyTexture);
 
   if (_resource) _loaded = true;
 

@@ -6,7 +6,10 @@
 #include "Components/Rigidbody.h"
 #include "Components/Camera.h"
 #include "Components/StateComponent.h"
+#include "Components/RenderComponent.h"
 #include "AssetManagement/AnimationAsset.h"
+
+#include "ResourceManager.h"
 
 void LocalMatch::ProcessRawInputs(SDL_Event* localInput)
 {
@@ -24,7 +27,7 @@ std::shared_ptr<Entity> EntityCreation::CreateLocalPlayer(float xOffset)
   Vector2<int> textureSize = ResourceManager::Get().GetTextureWidthAndHeight("spritesheets\\ryu.png");
   Vector2<double> entitySize(static_cast<double>(textureSize.x)*.75, static_cast<double>(textureSize.y) * .95);
 
-  auto player = GameManager::Get().CreateEntity<Transform, KeyboardInputHandler, Animator, GraphicRenderer, RenderProperties, Rigidbody, GameActor, DynamicCollider, Hurtbox, StateComponent>();
+  auto player = GameManager::Get().CreateEntity<Transform, KeyboardInputHandler, Animator, RenderComponent<RenderType>, RenderProperties, Rigidbody, GameActor, DynamicCollider, Hurtbox, StateComponent>();
 
   player->GetComponent<Rigidbody>()->Init(true);
   player->GetComponent<Animator>()->SetAnimations(&AnimationAsset::RyuAnimations());
