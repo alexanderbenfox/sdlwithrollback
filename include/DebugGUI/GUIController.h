@@ -44,6 +44,8 @@ private:
 
   bool _ownsWindow = false;
 
+  bool _drawComponentDebug = true;
+
   std::unordered_map<std::string, std::vector<std::function<void()>>> _imguiWindowGroups;
 
 };

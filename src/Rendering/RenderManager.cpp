@@ -122,7 +122,6 @@ void RenderManager<TextureType>::Draw()
     GameManager::Get().GetMainCamera()->ConvScreenSpace(operation);
     if (GameManager::Get().GetMainCamera()->EntityInDisplay(operation))
     {
-      int w, h;
       auto srcTexture = operation->_textureResource->Get();
       float rotation = 0;
 
@@ -132,6 +131,7 @@ void RenderManager<TextureType>::Draw()
           GL_RenderCopyEx(srcTexture, &operation->_textureRect, &operation->_displayRect, rotation, nullptr, operation->_flip);
         else if constexpr (std::is_same_v<TextureType, SDL_Texture>)
         {
+          int w, h;
           if (SDL_QueryTexture(operation->_textureResource->Get(), NULL, NULL, &w, &h) == 0)
           {
             SDL_SetTextureColorMod(operation->_textureResource->Get(), operation->_displayColor.r, operation->_displayColor.g, operation->_displayColor.b);

@@ -142,3 +142,17 @@ static int GL_RenderCopyEx(GLTexture* texture, const SDL_Rect* srcrect, const SD
 
   return 0;
 }
+
+static void GL_RenderDrawLines(const SDL_Point* points, const int nPoints)
+{
+  for (int i = 0; i < nPoints; ++i)
+  {
+    int p1Idx = i;
+    int p2Idx = (i + 1) % nPoints;
+
+    glBegin(GL_LINES);
+    glVertex2f(points[p1Idx].x, points[p1Idx].y);
+    glVertex2f(points[p2Idx].x, points[p2Idx].y);
+    glEnd();
+  }
+}

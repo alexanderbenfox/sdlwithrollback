@@ -11,6 +11,8 @@
 #include "Components/Rigidbody.h"
 #include "Components/RenderComponent.h"
 
+#include "Rendering/RenderCopy.h"
+
 #include <cassert>
 
 //______________________________________________________________________________
@@ -33,8 +35,6 @@ void RectCollider<T>::Init(Vector2<T> beg, Vector2<T> end)
 template <typename T>
 void RectCollider<T>::Draw()
 {
-  SDL_SetRenderDrawColor(GRenderer.GetRenderer(), 255, 255, 255, SDL_ALPHA_OPAQUE);
-
   int xBeg = static_cast<int>(std::floor(rect.Beg().x));
   int yBeg = static_cast<int>(std::floor(rect.Beg().y));
   int xEnd = static_cast<int>(std::ceil(rect.End().x));
@@ -49,8 +49,16 @@ void RectCollider<T>::Draw()
     {xBeg, yBeg}
   };
 
-  SDL_RenderDrawLines(GRenderer.GetRenderer(), points, 5);
-  SDL_SetRenderDrawColor(GRenderer.GetRenderer(), 0, 0, 0, SDL_ALPHA_OPAQUE);
+  if constexpr (std::is_same_v<RenderType, SDL_Texture>)
+  {
+    SDL_SetRenderDrawColor(GRenderer.GetRenderer(), 255, 255, 255, SDL_ALPHA_OPAQUE);
+    SDL_RenderDrawLines(GRenderer.GetRenderer(), points, 5);
+    SDL_SetRenderDrawColor(GRenderer.GetRenderer(), 0, 0, 0, SDL_ALPHA_OPAQUE);
+  }
+  else if constexpr (std::is_same_v<RenderType, GLTexture>)
+  {
+    GL_RenderDrawLines(points, 5);
+  }
 }
 
 //______________________________________________________________________________
@@ -66,8 +74,11 @@ GameActor::GameActor(std::shared_ptr<Entity> owner) : _currentAction(nullptr), _
   else
   {
     _counterText = GameManager::Get().CreateEntity<Transform, TextRenderer>();
-    _counterText->GetComponent<TextRenderer>()->SetFont(ResourceManager::Get().GetFontWriter("fonts\\Eurostile.ttf", 28));
+    _counterText->GetComponent<TextRenderer>()->SetFont(ResourceManager::Get().GetFontWriter("fonts\\Eurostile.ttf", 36));
   }
+
+  // offset transform
+  _counterText->GetComponent<Transform>()->position = Vector2<float>(5.0f, 20.0f);
 }
 
 //______________________________________________________________________________

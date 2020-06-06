@@ -290,6 +290,9 @@
     <ClInclude Include="..\include\Rendering\GLTexture.h">
       <Filter>Header Files\Rendering</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\Systems\DrawCallSystems.h">
+      <Filter>Header Files\Systems</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

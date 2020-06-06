@@ -14,6 +14,7 @@
 
 #include "Systems/Physics.h"
 #include "Systems/AnimationSystem.h"
+#include "Systems/DrawCallSystems.h"
 #include "Systems/MoveSystem.h"
 #include "Systems/InputSystem.h"
 #include "Systems/HitSystem.h"
@@ -219,13 +220,7 @@ void GameManager::BeginGameLoop()
   _clock.Start();
 
   //initialize the functions
-  //FrameFunction input = std::bind(&GameManager::UpdateInput, this);
   UpdateFunction update = std::bind(&GameManager::Update, this, std::placeholders::_1);
-  //FrameFunction draw = std::bind(&GameManager::Draw, this);
-
-  bool programRunning = true;
-  std::thread debuggerThread;
-  //RunScripter(debuggerThread, programRunning);
 
   if constexpr (std::is_same_v<RenderType, SDL_Texture>)
   {
@@ -252,25 +247,15 @@ void GameManager::BeginGameLoop()
   int frameCount = 0;
   for (;;)
   {
-    //! Collect inputs from controllers (this means AI controllers as well as Player controllers)
-    //UpdateInput();
-    //InputSystem::DoTick(0);
-
     if (frameCount == 0)
     {
       tracker.Add(_clock.GetUpdateTime());
     }
 
-    std::lock_guard<std::mutex> lock(_debugMutex);
-
     //! Update all components and coroutines
     _clock.Update(update);
-    //! update gui
+    //! update debug gui
     GUIController::Get().MainLoop(_localInput);
-
-    // do once per frame system calls
-    DrawSystem::PostUpdate();
-    UITextDrawSystem::PostUpdate();
 
     //! Finally render the scene
     Draw();
@@ -282,7 +267,6 @@ void GameManager::BeginGameLoop()
   }
 
   GUIController::Get().CleanUp();
-  programRunning = false;
 }
 
 //______________________________________________________________________________
@@ -305,8 +289,8 @@ void GameManager::CheckAgainstSystems(Entity* entity)
   HitSystem::Check(entity);
   TimerSystem::Check(entity);
   FrameAdvantageSystem::Check(entity);
-  DrawSystem::Check(entity);
-  UITextDrawSystem::Check(entity);
+  SpriteDrawCallSystem::Check(entity);
+  UITextDrawCallSystem::Check(entity);
   PlayerSideSystem::Check(entity);
 }
 
@@ -317,10 +301,19 @@ void GameManager::ActivateHitStop(int frames)
 }
 
 //______________________________________________________________________________
+void GameManager::DebugDraws()
+{
+  // draw items in debug layer over top of the drawn scene
+  ComponentManager<Hurtbox>::Get().Draw();
+  ComponentManager<Hitbox>::Get().Draw();
+}
+
+//______________________________________________________________________________
 void GameManager::Update(float deltaTime)
 {
   UpdateInput();
   
+  //! update all systems
   TimerSystem::DoTick(deltaTime);
   HitSystem::DoTick(deltaTime);
 
@@ -341,8 +334,7 @@ void GameManager::Update(float deltaTime)
 //______________________________________________________________________________
 void GameManager::UpdateInput()
 {
-  // Process local input first
-  //! Check for quit
+  // Check for quit or resize and update input object
   if (SDL_PollEvent(&_localInput)) {
     if (_localInput.type == SDL_WINDOWEVENT)
     {
@@ -357,59 +349,21 @@ void GameManager::UpdateInput()
 //______________________________________________________________________________
 void GameManager::Draw()
 {
+  // send draw calls to the renderer
+  SpriteDrawCallSystem::PostUpdate();
+  UITextDrawCallSystem::PostUpdate();
+
   //clear last frame graphics
   GRenderer.Clear();
 
   // draw the scene
   GRenderer.Draw();
 
-  // draw debug rects
-  ComponentManager<Hurtbox>::Get().Draw();
-  ComponentManager<Hitbox>::Get().Draw();
-
-  // hack gl render the textures for the font libraries
-  //ResourceManager::Get().RenderGL();
-
-  // draw debug ui
+  // draw debug imgui ui over that
   GUIController::Get().RenderFrame();
 
   //present this frame
   GRenderer.Present();
-}
-
-//______________________________________________________________________________
-void GameManager::RunScripter(std::thread& t, bool& programRunning)
-{
-#ifdef _DEBUG
-  t = std::thread([this, &programRunning]()
-  {
-    while (programRunning)
-    {
-      std::cout << "Example: 'entity0 transform set scale x 0.5'" << "\n";
-      std::string command;
-      std::getline(std::cin, command);
-
-      auto split = StringUtils::Split(command, ' ');
-      if (split.size() <= 1) continue;
-      auto id = split[0];
-
-      for (auto& entity : _gameEntities)
-      {
-        if (entity->GetIdentifier() == id)
-        {
-          std::lock_guard lock(_debugMutex);
-          entity->ParseCommand(StringUtils::Connect(split.begin() + 1, split.end(), ' '));
-          break;
-        }
-      }
-
-      if (UniversalPhysicsSettings::Get().GetIdentifier() == id)
-      {
-        UniversalPhysicsSettings::Get().ParseCommand(StringUtils::Connect(split.begin() + 1, split.end(), ' '));
-      }
-    }
-  });
-#endif
 }
 
 //______________________________________________________________________________

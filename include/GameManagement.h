@@ -41,11 +41,8 @@ public:
   //! Add entity to game entity list and add components to it
   template <class ... Args>
   std::shared_ptr<Entity> CreateEntity();
-
-  SDL_Event const& GetLocalInput()
-  {
-    return _localInput;
-  }
+  //! Gets the result of the latest SDL_PollEvent
+  SDL_Event const& GetLocalInput() { return _localInput; }
 
   std::shared_ptr<Entity> GetEntityByID(int id) { return _gameEntities[id]; }
 
@@ -53,23 +50,21 @@ public:
 
   void ActivateHitStop(int frames);
 
+  void DebugDraws();
+
 private:
   //! Updates all components in specified order
   void Update(float deltaTime);
-  //! Checks for input based on the event and IInputHandler. If an event is received, send it to the player controlled game actor
+  //! Updates SDL input based on the SDL event system
   void UpdateInput();
   //! Flushes last render frame, draws all objects on the screen, displays all drawn objects
   void Draw();
-  //!
-  void RunScripter(std::thread& t, bool& programRunning);
   //! Flag for whether or not the GM has been initialized
   bool _initialized;
   //!
   SDL_Event _localInput;
   //!
   Timer _clock;
-  //!
-  std::mutex _debugMutex;
   //!
   //std::unique_ptr<IGameState> _gameState;
   std::shared_ptr<Camera> _camera; 

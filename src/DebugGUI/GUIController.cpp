@@ -113,19 +113,19 @@ void GUIController::MainLoop(SDL_Event& event)
   static bool showGUI = true;
   if (ImGui::BeginMainMenuBar())
   {
-      if (ImGui::BeginMenu("File"))
+    if (ImGui::BeginMenu("File"))
+    {
+      if (ImGui::MenuItem("Toggle DebugUI", ""))
       {
-          if (ImGui::MenuItem("Show", ""))
-          {
-            showGUI = true;
-          }
-          if (ImGui::MenuItem("Hide", ""))
-          {
-            showGUI = false;
-          }
-          ImGui::EndMenu();
+        showGUI = !showGUI;
       }
-      ImGui::EndMainMenuBar();
+      if (ImGui::MenuItem("Toggle In Scene Debug", ""))
+      {
+        _drawComponentDebug = !_drawComponentDebug;
+      }
+      ImGui::EndMenu();
+    }
+    ImGui::EndMainMenuBar();
   }
 
   if(showGUI)
@@ -164,6 +164,12 @@ void GUIController::AddImguiWindowFunction(const std::string& group, std::functi
 
 void GUIController::RenderFrame()
 {
+  // draw the "in-game" debug information before drawing the imgui UI
+  if (_drawComponentDebug)
+  {
+    GameManager::Get().DebugDraws();
+  }
+
   ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
   ImGuiIO& io = ImGui::GetIO();
 
