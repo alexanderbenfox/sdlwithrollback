@@ -1,8 +1,8 @@
 #include "Rendering/GLTexture.h"
 #include "DebugGUI/GUIController.h"
 #include "../imgui/imgui.h"
-#include <stdio.h>
 
+#include <stdio.h>
 #include "GameManagement.h"
 #include "Rendering/RenderManager.h"
 

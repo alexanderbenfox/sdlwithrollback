@@ -12,8 +12,6 @@ const int hitstopHeavy = 10;
 
 struct FrameData
 {
-  // Member initialization
-  FrameData() = default;
   // # of start up frames, active frames, and recovery frames
   int startUp, active, recover;
   // # of frames the receiver should be stunned on hit or block after attacker returns to neutral (can be + or -)

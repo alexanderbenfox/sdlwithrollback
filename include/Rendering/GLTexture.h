@@ -27,36 +27,6 @@ static GLenum GetScaleQuality()
   }
 }
 
-struct GLTexImageParams
-{
-  GLint internalFormat;
-  GLenum textureFormat;
-  GLenum type;
-};
-
-static GLTexImageParams SDL_PixelFormatToGL(Uint32 format)
-{
-  GLTexImageParams params;
-  switch (format)
-  {
-  case SDL_PIXELFORMAT_ARGB8888:
-    params.internalFormat = GL_RGBA8;
-    params.textureFormat = GL_BGRA;
-    params.type = GL_UNSIGNED_INT_8_8_8_8_REV;
-    break;
-  case SDL_PIXELFORMAT_YV12:
-  case SDL_PIXELFORMAT_IYUV:
-    params.internalFormat = GL_LUMINANCE;
-    params.textureFormat = GL_LUMINANCE;
-    params.type = GL_UNSIGNED_BYTE;
-    break;
-  default:
-    break;
-  }
-  return params;
-}
-
-
 // gl texture class for showing textures in debug ui
 class GLTexture
 {
@@ -64,7 +34,8 @@ public:
   //! default constructor
   GLTexture() = default;
   //! constructor with specific texture id
-  GLTexture(GLint textureId) : _textureId(textureId) {}
+  GLTexture(GLint textureId) : _textureId(textureId),
+  _w(0), _h(0), _type(0), _textureFormat(0), _internalFormat(0), _blendMode(SDL_BLENDMODE_BLEND) {}
 
   //! rvalue copy constructor
   GLTexture(GLTexture&& other) noexcept;
