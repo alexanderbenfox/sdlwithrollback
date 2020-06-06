@@ -7,7 +7,7 @@ Animator::Animator(std::shared_ptr<Entity> owner) :
   _listener(nullptr), playing(false), looping(false), accumulatedTime(0.0f), frame(0), currentAnimationName(""), IComponent(owner)
 {}
 
-void Animator::SetAnimations(const AnimationCollection& animations)
+void Animator::SetAnimations(AnimationCollection* animations)
 {
   _animations = animations;
 }
@@ -16,8 +16,8 @@ Animation* Animator::Play(const std::string& name, bool isLooped, bool horizonta
 {
   // dont play again if we are already playing it
   //if (playing && name == currentAnimationName) return _animations.GetAnimation(currentAnimationName);
-  auto animation = _animations.GetAnimationIt(name);
-  if (_animations.IsValid(animation))
+  auto animation = _animations->GetAnimationIt(name);
+  if (_animations->IsValid(animation))
   {
     currentAnimationName = name;
     _currentAnimation = animation;
@@ -29,5 +29,5 @@ Animation* Animator::Play(const std::string& name, bool isLooped, bool horizonta
 
     looping = isLooped;
   }
-  return _animations.GetAnimation(currentAnimationName);
+  return _animations->GetAnimation(currentAnimationName);
 }

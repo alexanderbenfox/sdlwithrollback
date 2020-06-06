@@ -60,8 +60,8 @@ GameActor::GameActor(std::shared_ptr<Entity> owner) : _currentAction(nullptr), _
 
   if constexpr (std::is_same_v<RenderType, SDL_Texture>)
   {
-    _counterText = GameManager::Get().CreateEntity<Transform, RenderComponent<RenderType>>();
-    _counterText->GetComponent<RenderComponent<RenderType>>()->Init(ResourceManager::Get().GetText("Combo: 0", "fonts\\Eurostile.ttf"));
+    _counterText = GameManager::Get().CreateEntity<Transform, RenderComponent<SDL_Texture>>();
+    _counterText->GetComponent<RenderComponent<SDL_Texture>>()->Init(ResourceManager::Get().GetText("Combo: 0", "fonts\\Eurostile.ttf"));
   }
   else
   {
@@ -118,7 +118,7 @@ void GameActor::BeginNewAction(IAction* action)
     std::string comboText = "Combo: " + std::to_string(_comboCounter);
     if constexpr (std::is_same_v<RenderType, SDL_Texture>)
     {
-      _counterText->GetComponent<RenderComponent<RenderType>>()->Init(ResourceManager::Get().GetText(comboText.c_str(), "fonts\\Eurostile.ttf"));
+      _counterText->GetComponent<RenderComponent<SDL_Texture>>()->Init(ResourceManager::Get().GetText(comboText.c_str(), "fonts\\Eurostile.ttf"));
     }
     else
     {

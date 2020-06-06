@@ -3,6 +3,7 @@
 #include "Rendering/RenderManager.h"
 #include "IComponent.h"
 #include "Transform.h"
+#include "AssetManagement/Text.h"
 
 #include <functional>
 #include <cmath>

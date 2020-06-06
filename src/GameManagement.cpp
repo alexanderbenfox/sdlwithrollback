@@ -20,6 +20,7 @@
 #include "Systems/TimerSystem.h"
 
 #include "Systems/Physics.h"
+#include "DebugGUI/GUIController.h"
 
 #ifdef _DEBUG
 //used for debugger
@@ -28,9 +29,6 @@
 #endif
 
 int ConstComponentIDGenerator::ID = 0;
-
-template <typename AssetType>
-std::unordered_map<std::string, Resource<AssetType>> ResourceManager::_fileAssets{};
 
 //______________________________________________________________________________
 void ResourceManager::Initialize()
@@ -43,26 +41,6 @@ void ResourceManager::Initialize()
     _resourcePath = std::string(basePath) + "resources/";
 #endif
   else _resourcePath = "./";
-}
-
-//______________________________________________________________________________
-template <typename AssetType>
-Resource<AssetType>& ResourceManager::GetAsset(const std::string& file)
-{
-  auto fileToLoad = file;
-
-#ifndef _WIN32
-  auto split = StringUtils::Split(file, '\\');
-  if(split.size() > 1)
-    fileToLoad = StringUtils::Connect(split.begin(), split.end(), '/');
-#endif
-
-  if (_fileAssets<AssetType>.find(fileToLoad) == _fileAssets<AssetType>.end())
-  {
-    _fileAssets<AssetType>.insert(std::make_pair(fileToLoad, Resource<AssetType>(_resourcePath + fileToLoad)));
-  }
-  _fileAssets<AssetType>[fileToLoad].Load();
-  return _fileAssets<AssetType>[fileToLoad];
 }
 
 //______________________________________________________________________________
@@ -107,16 +85,14 @@ Vector2<int> ResourceManager::GetTextureWidthAndHeight(const std::string& file)
   return Vector2<int>(width, height);
 }
 
-
-
 //______________________________________________________________________________
 void ResourceManager::RenderGL()
 {
   auto blit = [](float x, float y, float lh, GLTexture* texture)
   {
-    float lw = texture->width * (lh / texture->height);
+    float lw = texture->w() * (lh / texture->h());
 
-    glBindTexture(GL_TEXTURE_2D, texture->id);
+    glBindTexture(GL_TEXTURE_2D, texture->ID());
     glEnable(GL_TEXTURE_2D);
 
     glPushMatrix();
@@ -244,7 +220,7 @@ void GameManager::Initialize()
 
   //auto randomAssRenderedText = CreateEntity<Transform, GraphicRenderer, RenderProperties>();
   //randomAssRenderedText->GetComponent<GraphicRenderer>()->Init(ResourceManager::Get().GetText("TEZT", "fonts\\Eurostile.ttf"));
-
+  
   auto p1 = EntityCreation::CreateLocalPlayer(100);
   auto p2 = EntityCreation::CreateLocalPlayer(400);
 
@@ -286,17 +262,32 @@ void GameManager::BeginGameLoop()
 
   bool programRunning = true;
   std::thread debuggerThread;
-  RunScripter(debuggerThread, programRunning);
+  //RunScripter(debuggerThread, programRunning);
+  GUIController::Get().InitSDLWindow();
+  GUIController::Get().InitImGUI();
+
+  AvgCounter tracker;
+
+  std::function<void()> imguiWindowFunc = [this, &tracker]()
+  {
+    ImGui::BeginGroup();
+    ImGui::Text("Update function time average %.3f ms/frame", (double)_clock.GetUpdateTime() / 1000000.0);
+    ImGui::PlotLines("Update speed over time (ms/frame) - updated every 10 frames", [](void* data, int idx) { return (float)((long long*)data)[idx]/ 1000000.0f; }, tracker.GetValues(), tracker.NumValues(), 0, nullptr, FLT_MAX, FLT_MAX, ImVec2(200, 100));
+    ImGui::EndGroup();
+  };
+  GUIController::Get().AddImguiWindowFunction("Engine Stats", imguiWindowFunc);
 
   int frameCount = 0;
   for (;;)
   {
-    if(frameCount == 0)
-      std::cout << "Update time: " << _clock.GetUpdateTime() << "\n";
-
     //! Collect inputs from controllers (this means AI controllers as well as Player controllers)
     //UpdateInput();
     //InputSystem::DoTick(0);
+
+    if (frameCount == 0)
+    {
+      tracker.Add(_clock.GetUpdateTime());
+    }
 
     std::lock_guard<std::mutex> lock(_debugMutex);
 
@@ -310,9 +301,17 @@ void GameManager::BeginGameLoop()
     //! Finally render the scene
     Draw();
 
-    frameCount = (++frameCount) % 60;
+    //! update gui
+    GUIController::Get().MainLoop(_localInput);
+    GUIController::Get().RenderFrame();
+
+    if (_localInput.type == SDL_QUIT)
+      break;
+
+    frameCount = (++frameCount) % 10;
   }
 
+  GUIController::Get().CleanUp();
   programRunning = false;
 }
 
@@ -375,10 +374,6 @@ void GameManager::UpdateInput()
   // Process local input first
   //! Check for quit
   if (SDL_PollEvent(&_localInput)) {
-    if (_localInput.type == SDL_QUIT)
-    {
-      return;
-    }
     if (_localInput.type == SDL_WINDOWEVENT)
     {
       if (_localInput.window.event == SDL_WINDOWEVENT_RESIZED)

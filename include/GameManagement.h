@@ -18,7 +18,7 @@ bool constexpr all_base_of()
 }
 
 //! Set our preferred type (SDL or GL) to be rendered by the system
-typedef SDL_Texture RenderType;
+typedef GLTexture RenderType;
 #define GRenderer RenderManager<RenderType>::Get()
 
 //______________________________________________________________________________
@@ -52,10 +52,6 @@ public:
   void CheckAgainstSystems(Entity* entity);
 
   void ActivateHitStop(int frames);
-
-  const int hitstopLight = 10;
-  const int hitstopMedium = 10;
-  const int hitstopHeavy = 10;
 
 private:
   //! Updates all components in specified order
@@ -92,7 +88,9 @@ private:
   //!
   GameManager();
   GameManager(const GameManager&) = delete;
-  GameManager operator=(GameManager&) = delete;
+  GameManager(GameManager&&) = delete;
+  GameManager operator=(const GameManager&) = delete;
+  GameManager operator=(GameManager&&) = delete;
 
 };
 

@@ -12,11 +12,6 @@
 const float secPerFrame = 1.0f / 60.0f;
 const float gameFramePerAnimationFrame = (1.0f / secPerFrame) / animation_fps;
 
-enum class AnchorPoint
-{
-  TL, TR, BL, BR, Size
-};
-
 class Animation;
 
 //______________________________________________________________________________
@@ -46,25 +41,13 @@ private:
 
 typedef std::tuple<int, int, std::function<void(Transform*, StateComponent*)>, std::vector<std::function<void(Transform*, StateComponent*)>>, std::function<void(Transform*)>> EventInitParams;
 
-struct SpriteSheet
-{
-  SpriteSheet(const char* src, int rows, int columns);
-  //!
-  std::string src;
-  //!
-  Vector2<int> frameSize;
-  Vector2<int> sheetSize;
-  //!
-  int rows, columns;
-};
-
 //______________________________________________________________________________
 class Animation
 {
 public:
   Animation(const SpriteSheet& sheet, int startIndexOnSheet, int frames, AnchorPoint anchor);
 
-  EventInitParams CreateHitboxEvent(const char* hitboxesSheet, FrameData frameData);
+  EventInitParams GenerateAttackEvent(const char* hitboxesSheet, FrameData frameData);
 
   //! Translates anim frame to the frame on spritesheet
   SDL_Rect GetFrameSrcRect(int animFrame) const;
@@ -81,6 +64,16 @@ public:
   std::pair<AnchorPoint, Vector2<int>> const& GetMainAnchor() const { return _anchorPoint; }
 
   int GetFlipMargin() const { return _spriteSheet.frameSize.x - _lMargin; }
+
+  struct ImGuiDisplayParams
+  {
+    void* ptr;
+    Vector2<int> displaySize;
+    Vector2<float> uv0;
+    Vector2<float> uv1;
+
+  };
+  ImGuiDisplayParams GetUVCoordsForFrame(int displayHeight, int animFrame);
 
 protected:
   //!
@@ -114,7 +107,7 @@ class AnimationCollection
 public:
   AnimationCollection() = default;
   void RegisterAnimation(const std::string& animationName, const SpriteSheet& sheet, int startIndexOnSheet, int frames, AnchorPoint anchor);
-  void AddHitboxEvents(const std::string& animationName, const char* hitboxesSheet, FrameData frameData);
+  void SetHitboxEvents(const std::string& animationName, const char* hitboxesSheet, FrameData frameData);
 
 
   Vector2<int> GetRenderOffset(const std::string& animationName, bool flipped, int transformWidth) const;

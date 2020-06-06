@@ -32,7 +32,7 @@ Animation::Animation(const SpriteSheet& sheet, int startIndexOnSheet, int frames
 }
 
 //______________________________________________________________________________
-EventInitParams Animation::CreateHitboxEvent(const char* hitboxesSheet, FrameData frameData)
+EventInitParams Animation::GenerateAttackEvent(const char* hitboxesSheet, FrameData frameData)
 {
   auto DespawnHitbox = [](Transform* trans)
   {
@@ -171,6 +171,7 @@ SDL_Rect Animation::GetFrameSrcRect(int animFrame) const
   return OpSysConv::CreateSDLRect(x * _spriteSheet.frameSize.x, y * _spriteSheet.frameSize.y, _spriteSheet.frameSize.x, _spriteSheet.frameSize.y );
 }
 
+
 //______________________________________________________________________________
 Vector2<int> Animation::FindAnchorPoint(AnchorPoint anchorType, bool fromFirstFrame) const
 {
@@ -231,6 +232,30 @@ Vector2<int> Animation::FindAnchorPoint(AnchorPoint anchorType, bool fromFirstFr
 }
 
 //______________________________________________________________________________
+Animation::ImGuiDisplayParams Animation::GetUVCoordsForFrame(int displayHeight, int animFrame)
+{
+  Resource<GLTexture>& texResource = ResourceManager::Get().GetAsset<GLTexture>(_spriteSheet.src);
+
+  int frame = _animFrameToSheetFrame[animFrame];
+
+  //if invalid frame
+  if (frame >= _frames || frame < 0)
+    return ImGuiDisplayParams{ nullptr, Vector2<int>(0, 0), Vector2<float>(0, 0), Vector2<float>(0, 0) };
+
+  int x = (_startIdx + frame) % _spriteSheet.columns;
+  int y = (_startIdx + frame) / _spriteSheet.columns;
+
+  float u0 = ((float)x * (float)_spriteSheet.frameSize.x) / (float)_spriteSheet.sheetSize.x;
+  float v0 = ((float)y * (float)_spriteSheet.frameSize.y) / (float)_spriteSheet.sheetSize.y;
+  float u1 = u0 + ((float)_spriteSheet.frameSize.x / (float)_spriteSheet.sheetSize.x);
+  float v1 = v0 + ((float)_spriteSheet.frameSize.y / (float)_spriteSheet.sheetSize.y);
+
+  int displayWidth = (float)_spriteSheet.frameSize.x/(float)_spriteSheet.frameSize.y * displayHeight;
+
+  return ImGuiDisplayParams{ (void*)(intptr_t)texResource.Get()->ID(), Vector2<int>(displayWidth, displayHeight), Vector2<float>(u0, v0), Vector2<float>(u1, v1) };
+}
+
+//______________________________________________________________________________
 void AnimationCollection::RegisterAnimation(const std::string& animationName, const SpriteSheet& sheet, int startIndexOnSheet, int frames, AnchorPoint anchor)
 {
   if (_animations.find(animationName) == _animations.end())
@@ -250,13 +275,22 @@ void AnimationCollection::RegisterAnimation(const std::string& animationName, co
 }
 
 //______________________________________________________________________________
-void AnimationCollection::AddHitboxEvents(const std::string& animationName, const char* hitboxesSheet, FrameData frameData)
+void AnimationCollection::SetHitboxEvents(const std::string& animationName, const char* hitboxesSheet, FrameData frameData)
 {
   if (_animations.find(animationName) != _animations.end())
   {
     Animation& animation = _animations.find(animationName)->second;
-    _events.emplace(std::make_pair(animationName, std::make_shared<EventList>()));
-    _events[animationName]->emplace(std::piecewise_construct, std::make_tuple(frameData.startUp - 1), animation.CreateHitboxEvent(hitboxesSheet, frameData));
+    if(_events.find(animationName) == _events.end())
+    {
+      _events.emplace(std::make_pair(animationName, std::make_shared<EventList>()));
+      _events[animationName]->emplace(std::piecewise_construct, std::make_tuple(frameData.startUp - 1), animation.GenerateAttackEvent(hitboxesSheet, frameData));
+    }
+    else
+    {
+      //for now just replace
+      _events[animationName] = std::make_shared<EventList>();
+      _events[animationName]->emplace(std::piecewise_construct, std::make_tuple(frameData.startUp - 1), animation.GenerateAttackEvent(hitboxesSheet, frameData));
+    }
   }
 }
 

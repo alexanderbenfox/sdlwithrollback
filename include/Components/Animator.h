@@ -7,7 +7,7 @@ class Animator : public IComponent
 public:
   Animator(std::shared_ptr<Entity> owner);
 
-  void SetAnimations(const AnimationCollection& animations);
+  void SetAnimations(AnimationCollection* animations);
 
   // Setter function
   Animation* Play(const std::string& name, bool isLooped, bool horizontalFlip);
@@ -19,7 +19,7 @@ public:
   //!
   IAnimatorListener* GetListener() { return _listener; }
   //!
-  AnimationCollection& AnimationLib() {return _animations; }
+  AnimationCollection* AnimationLib() {return _animations; }
   // STATE VARIABLES
   //!
   bool playing;
@@ -40,7 +40,7 @@ protected:
   //! Things that need to know when an animation is done
   IAnimatorListener* _listener;
   //! All animations registered to this animator
-  AnimationCollection _animations;
+  AnimationCollection* _animations = nullptr;
   //!
   std::unordered_map<std::string, Animation>::iterator _currentAnimation;
 

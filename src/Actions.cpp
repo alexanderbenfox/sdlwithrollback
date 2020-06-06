@@ -100,7 +100,7 @@ void AnimatedAction<Stance, Action>::Enact(Entity* actor)
   if (auto animator = actor->GetComponent<Animator>())
   {
     animator->ChangeListener(this);
-    if (animator->AnimationLib().GetAnimation(_animation))
+    if (animator->AnimationLib() && animator->AnimationLib()->GetAnimation(_animation))
     {
       Animation* actionAnimation = animator->Play(_animation, _loopedAnimation, !_facingRight);
 
@@ -111,7 +111,7 @@ void AnimatedAction<Stance, Action>::Enact(Entity* actor)
 
         if(auto rect = actor->GetComponent<Hurtbox>())
         {
-          properties->offset = -1 * animator->AnimationLib().GetRenderOffset(_animation, !_facingRight, (int)std::floor(rect->unscaledRect.Width()));
+          properties->offset = -1 * animator->AnimationLib()->GetRenderOffset(_animation, !_facingRight, (int)std::floor(rect->unscaledRect.Width()));
         }
       }
 
@@ -354,10 +354,10 @@ void AttackAction<Stance, Action>::Enact(Entity* actor)
   AnimatedAction<Stance, Action>::Enact(actor);
   if (auto animator = actor->GetComponent<Animator>())
   {
-    if (animator->AnimationLib().GetAnimation(AnimatedAction<Stance, Action>::_animation) && animator->AnimationLib().GetEventList(AnimatedAction<Stance, Action>::_animation))
+    if (animator->AnimationLib()->GetAnimation(AnimatedAction<Stance, Action>::_animation) && animator->AnimationLib()->GetEventList(AnimatedAction<Stance, Action>::_animation))
     {
       actor->AddComponent<AttackStateComponent>();
-      actor->GetComponent<AttackStateComponent>()->Init(animator->AnimationLib().GetAnimation(AnimatedAction<Stance, Action>::_animation), animator->AnimationLib().GetEventList(AnimatedAction<Stance, Action>::_animation));
+      actor->GetComponent<AttackStateComponent>()->Init(animator->AnimationLib()->GetAnimation(AnimatedAction<Stance, Action>::_animation), animator->AnimationLib()->GetEventList(AnimatedAction<Stance, Action>::_animation));
     }
   }
 }

@@ -45,6 +45,12 @@ void RenderManager<TextureType>::Init()
     glEnable(GL_TEXTURE_2D);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   }
+
+#ifndef _WIN32
+  _sdlWindowFormat = SDL_GetWindowPixelFormat(_window);
+#else
+  _sdlWindowFormat = SDL_PIXELFORMAT_RGBA8888;
+#endif
 }
 
 //______________________________________________________________________________

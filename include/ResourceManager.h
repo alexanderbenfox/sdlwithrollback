@@ -63,3 +63,26 @@ private:
   ResourceManager operator=(ResourceManager&) = delete;
 
 };
+
+template <typename AssetType>
+std::unordered_map<std::string, Resource<AssetType>> ResourceManager::_fileAssets{};
+
+//______________________________________________________________________________
+template <typename AssetType>
+inline Resource<AssetType>& ResourceManager::GetAsset(const std::string& file)
+{
+  auto fileToLoad = file;
+
+#ifndef _WIN32
+  auto split = StringUtils::Split(file, '\\');
+  if (split.size() > 1)
+    fileToLoad = StringUtils::Connect(split.begin(), split.end(), '/');
+#endif
+
+  if (_fileAssets<AssetType>.find(fileToLoad) == _fileAssets<AssetType>.end())
+  {
+    _fileAssets<AssetType>.insert(std::make_pair(fileToLoad, Resource<AssetType>(_resourcePath + fileToLoad)));
+  }
+  _fileAssets<AssetType>[fileToLoad].Load();
+  return _fileAssets<AssetType>[fileToLoad];
+}

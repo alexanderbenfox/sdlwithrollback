@@ -15,12 +15,8 @@ void Resource<T>::Unload()
 template <> void Resource<SDL_Texture>::Load()
 {
   if (_loaded) return;
-
-#ifndef _WIN32
-  Uint32 windowFormat = SDL_GetWindowPixelFormat(GameManager::Get().GetWindow());
-#else
+  
   Uint32 windowFormat = SDL_PIXELFORMAT_RGBA8888;
-#endif
 
   SDL_Surface* surface = IMG_Load(_pathToResource.c_str());
   if (surface)
@@ -91,23 +87,13 @@ template <> void Resource<TTF_Font>::Load()
 template <> void Resource<GLTexture>::Load()
 {
   if (_loaded) return;
-
-  SDL_Surface* surface = IMG_Load(_pathToResource.c_str());
-  if (surface)
+  _resource = std::shared_ptr<GLTexture>(new GLTexture);
+  if (_resource)
   {
-    _info.mHeight = surface->h;
-    _info.mWidth = surface->w;
-
-    _resource = std::shared_ptr<GLTexture>(new GLTexture(surface));
-    if (_resource)
+    _resource->LoadFromFile(_pathToResource);
+    if (_resource->ID())
     {
       _loaded = true;
-      _resource->blendMode = SDL_BLENDMODE_BLEND;
     }
-
-    SDL_FreeSurface(surface);
-    surface = NULL;
   }
 }
-
-//template <> class Resource<SDL_Texture>;

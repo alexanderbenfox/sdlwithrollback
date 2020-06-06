@@ -36,7 +36,7 @@ public:
   void Clear();
   void Present();
 
-  
+  Uint32 GetWindowFormat() const { return _sdlWindowFormat; }
 
 private:
 
@@ -56,6 +56,8 @@ private:
   void* _glContext;
   //! Rendering scale for window resize
   Vector2<double> _renderScale;
+  //!
+  Uint32 _sdlWindowFormat;
 
   //! Initialize all sdl pointers to null and set the render scale to 1 (native size)
   RenderManager();
