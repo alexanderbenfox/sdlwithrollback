@@ -164,11 +164,13 @@ void RenderManager<TextureType>::Draw()
   _additionalDraws.clear();
 }
 
+//______________________________________________________________________________
 template <> void RenderManager<SDL_Texture>::Clear()
 {
   SDL_RenderClear(_renderer);
 }
 
+//______________________________________________________________________________
 template <> void RenderManager<GLTexture>::Clear()
 {
   // clear previous render
@@ -179,11 +181,13 @@ template <> void RenderManager<GLTexture>::Clear()
   glColor4f(1.0, 1.0, 1.0, 1.0);
 }
 
+//______________________________________________________________________________
 template <> void RenderManager<SDL_Texture>::Present()
 {
   SDL_RenderPresent(_renderer);
 }
 
+//______________________________________________________________________________
 template <> void RenderManager<GLTexture>::Present()
 {
   SDL_GL_SwapWindow(_window);
