@@ -66,7 +66,8 @@ static void GL_SetBlendMode(RenderContext& context, SDL_BlendMode blendMode)
 static RenderContext renderContext;
 
 //! Renders to the current openGL context
-static int GL_RenderCopyEx(GLTexture* texture, const SDL_Rect* srcrect, const SDL_Rect* dstrect, const double angle, const SDL_Point* center, const SDL_RendererFlip flip)
+static int GL_RenderCopyEx(GLTexture* texture, const SDL_Rect* srcrect, const SDL_Rect* dstrect,
+  const double angle, const SDL_Point* center, const SDL_RendererFlip flip, const SDL_Color color)
 {
   GLfloat minx, miny, maxx, maxy;
   GLfloat centerx, centery;
@@ -121,6 +122,8 @@ static int GL_RenderCopyEx(GLTexture* texture, const SDL_Rect* srcrect, const SD
   glTranslatef((GLfloat)dstrect->x + centerx, (GLfloat)dstrect->y + centery, (GLfloat)0.0);
   glRotated(angle, (GLdouble)0.0, (GLdouble)0.0, (GLdouble)1.0);
 
+  glColor4ub((GLubyte)color.r, (GLubyte)color.g, (GLubyte)color.b, (GLubyte)color.a);
+
   //program->RenderPresent();
   glBegin(GL_TRIANGLE_STRIP);
   glTexCoord2f(minu, minv);
@@ -133,6 +136,8 @@ static int GL_RenderCopyEx(GLTexture* texture, const SDL_Rect* srcrect, const SD
   glVertex2f(maxx, maxy);
   glEnd();
   //program->EndPresent();
+
+  glColor4ub((GLubyte)255, (GLubyte)255, (GLubyte)255, (GLubyte)255);
 
   glTranslatef(-((GLfloat)dstrect->x + centerx), -((GLfloat)dstrect->y + centery), (GLfloat)0.0);
   glPopMatrix();

@@ -128,7 +128,7 @@ void RenderManager<TextureType>::Draw()
       try
       {
         if constexpr (std::is_same_v<TextureType, GLTexture>)
-          GL_RenderCopyEx(srcTexture, &operation->_textureRect, &operation->_displayRect, rotation, nullptr, operation->_flip);
+          GL_RenderCopyEx(srcTexture, &operation->_textureRect, &operation->_displayRect, rotation, nullptr, operation->_flip, operation->_displayColor);
         else if constexpr (std::is_same_v<TextureType, SDL_Texture>)
         {
           int w, h;
