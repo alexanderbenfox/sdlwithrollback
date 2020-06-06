@@ -1,5 +1,4 @@
 #pragma once
-#include "Components/Sprite.h"
 #include "ListenerInterfaces.h"
 #include "AssetManagement/Animation.h"
 

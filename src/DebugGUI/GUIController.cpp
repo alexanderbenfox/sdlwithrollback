@@ -1,18 +1,34 @@
-#include "DebugGUI/GLTexture.h"
+#include "Rendering/GLTexture.h"
 #include "DebugGUI/GUIController.h"
 #include "../imgui/imgui.h"
-#include <stdio.h>
 
+#include <stdio.h>
 #include "GameManagement.h"
+#include "Rendering/RenderManager.h"
 
 GUIController::~GUIController()
 {
-  if (_mainWindowTexture)
-    delete _mainWindowTexture;
+  if (_ownsWindow)
+  {
+    SDL_DestroyWindow(_window);
+    SDL_GL_DeleteContext(_glContext);
+  }
+
+  _window = nullptr;
+  _glContext = nullptr;
 }
 
 bool GUIController::InitSDLWindow()
 {
+  if (_ownsWindow)
+  {
+    SDL_DestroyWindow(_window);
+    SDL_GL_DeleteContext(_glContext);
+
+    _window = nullptr;
+    _glContext = nullptr;
+  }
+
   SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
   SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
   SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
@@ -26,9 +42,7 @@ bool GUIController::InitSDLWindow()
 
   // Enable vsync
   SDL_GL_SetSwapInterval(1); 
-
-  _mainWindowTexture = new GLTexture;
-  _mainWindowTexture->CreateEmpty(m_nativeWidth, m_nativeHeight);
+  _ownsWindow = true;
 
   return true;
 }
@@ -53,6 +67,36 @@ bool GUIController::InitImGUI()
   return true;
 }
 
+bool GUIController::InitImGUI(SDL_Window* existingWindow, SDL_GLContext existingContext)
+{
+  if (_ownsWindow)
+  {
+    SDL_DestroyWindow(_window);
+    SDL_GL_DeleteContext(_glContext);
+
+    _window = nullptr;
+    _glContext = nullptr;
+  }
+
+  // Setup Dear ImGui context
+  IMGUI_CHECKVERSION();
+  ImGui::CreateContext();
+  ImGuiIO& io = ImGui::GetIO();
+  (void)io;
+
+  // Setup Dear ImGui style
+  ImGui::StyleColorsDark();
+
+  // Setup Platform/Renderer bindings
+  ImGui_ImplSDL2_InitForOpenGL(existingWindow, existingContext);
+  ImGui_ImplOpenGL2_Init();
+  _window = existingWindow;
+
+  _ownsWindow = false;
+
+  return true;
+}
+
 void GUIController::MainLoop(SDL_Event& event)
 {
   ImGuiIO& io = ImGui::GetIO();
@@ -66,21 +110,35 @@ void GUIController::MainLoop(SDL_Event& event)
   ImGui_ImplSDL2_NewFrame(_window);
   ImGui::NewFrame();
 
-  // render the "main window"
+  static bool showGUI = true;
+  if (ImGui::BeginMainMenuBar())
   {
-    ImGui::Begin("Game Window");
-    ImGui::Image((void*)(intptr_t)_mainWindowTexture->texture(), ImVec2(m_nativeWidth, m_nativeHeight));
-    ImGui::End();
+    if (ImGui::BeginMenu("File"))
+    {
+      if (ImGui::MenuItem("Toggle DebugUI", ""))
+      {
+        showGUI = !showGUI;
+      }
+      if (ImGui::MenuItem("Toggle In Scene Debug", ""))
+      {
+        _drawComponentDebug = !_drawComponentDebug;
+      }
+      ImGui::EndMenu();
+    }
+    ImGui::EndMainMenuBar();
   }
 
-  for (auto& group : _imguiWindowGroups)
+  if(showGUI)
   {
-    ImGui::Begin(group.first.c_str());
-    for (auto& func : group.second)
+    for (auto& group : _imguiWindowGroups)
     {
-      func();
+      ImGui::Begin(group.first.c_str());
+      for (auto& func : group.second)
+      {
+        func();
+      }
+      ImGui::End();
     }
-    ImGui::End();
   }
 }
 
@@ -115,26 +173,31 @@ void GUIController::RemoveImguiWindowFunction(const std::string& group, int inde
   }
 }
 
-void GUIController::RenderToMainWindow(SDL_Renderer* renderer)
-{
-  SDL_Rect screenRect{ 0, 0, m_nativeWidth, m_nativeHeight };
-  unsigned char buffer[m_nativeWidth * m_nativeHeight * 4];
-  SDL_RenderReadPixels(renderer, &screenRect, GameManager::Get().GetWindowFormat(), buffer, 4 * m_nativeWidth);
-  _mainWindowTexture->Update(buffer);
-}
 
 void GUIController::RenderFrame()
 {
+  // draw the "in-game" debug information before drawing the imgui UI
+  if (_drawComponentDebug)
+  {
+    GameManager::Get().DebugDraws();
+  }
+
   ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
   ImGuiIO& io = ImGui::GetIO();
 
   // Rendering
   ImGui::Render();
   glViewport(0, 0, (int)io.DisplaySize.x, (int)io.DisplaySize.y);
-  glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
-  glClear(GL_COLOR_BUFFER_BIT);
+  if (_ownsWindow)
+  {
+    glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
+    glClear(GL_COLOR_BUFFER_BIT);
+  }
+
   //glUseProgram(0); // You may want this if using this code in an OpenGL 3+ context where shaders may be bound
   ImGui_ImplOpenGL2_RenderDrawData(ImGui::GetDrawData());
-  SDL_GL_SwapWindow(_window);
+
+  if(_ownsWindow)
+    SDL_GL_SwapWindow(_window);
 }
 

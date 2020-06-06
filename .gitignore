@@ -328,3 +328,9 @@ ASALocalRun/
 
 # MFractors (Xamarin productivity tool) working folder 
 .mfractor/
+
+## OSX artifacts
+.DS_Store
+
+## Dear ImGui artifacts
+imgui.ini

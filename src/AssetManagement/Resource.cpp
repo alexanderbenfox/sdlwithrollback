@@ -1,6 +1,5 @@
 #include "AssetManagement/Resource.h"
 #include "GameManagement.h"
-#include "DebugGUI/GLTexture.h"
 
 #include <SDL2/SDL.h>
 
@@ -17,7 +16,7 @@ template <> void Resource<SDL_Texture>::Load()
 {
   if (_loaded) return;
   
-  Uint32 windowFormat = GameManager::Get().GetWindowFormat();
+  Uint32 windowFormat = GRenderer.GetWindowFormat();
 
   SDL_Surface* surface = IMG_Load(_pathToResource.c_str());
   if (surface)
@@ -35,7 +34,7 @@ template <> void Resource<SDL_Texture>::Load()
   }
   if (surface)
   {
-    SDL_Texture* texture = SDL_CreateTexture(GameManager::Get().GetRenderer(), windowFormat, SDL_TEXTUREACCESS_STREAMING, surface->w, surface->h);
+    SDL_Texture* texture = SDL_CreateTexture(GRenderer.GetRenderer(), windowFormat, SDL_TEXTUREACCESS_STREAMING, surface->w, surface->h);
     SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
     void* pixels;
      // Fill out information for the texture
@@ -88,10 +87,13 @@ template <> void Resource<TTF_Font>::Load()
 template <> void Resource<GLTexture>::Load()
 {
   if (_loaded) return;
-
   _resource = std::shared_ptr<GLTexture>(new GLTexture);
-  _resource->LoadFromFile(_pathToResource);
-  _loaded = true;
+  if (_resource)
+  {
+    _resource->LoadFromFile(_pathToResource);
+    if (_resource->ID())
+    {
+      _loaded = true;
+    }
+  }
 }
-
-//template <> class Resource<SDL_Texture>;

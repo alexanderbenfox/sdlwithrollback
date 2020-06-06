@@ -7,12 +7,12 @@ void StaticAssetUtils::LoadAnimations(std::unordered_map<std::string, AnimationI
 {
   //hack cause i suck
   auto it = normalAnimations.find("Idle");
-  collection.RegisterAnimation("Idle", it->second.sheet.c_str(), it->second.rows, it->second.columns, it->second.startIndexOnSheet, it->second.frames, it->second.anchor);
+  collection.RegisterAnimation("Idle", SpriteSheet(it->second.sheet.src.c_str(), it->second.sheet.rows, it->second.sheet.columns), it->second.startIndexOnSheet, it->second.frames, it->second.anchor);
 
   for (auto& anim : normalAnimations)
   {
     AnimationInfo& params = anim.second;
-    collection.RegisterAnimation(anim.first, params.sheet.c_str(), params.rows, params.columns, params.startIndexOnSheet, params.frames, params.anchor);
+    collection.RegisterAnimation(anim.first, SpriteSheet(anim.second.sheet.src.c_str(), anim.second.sheet.rows, anim.second.sheet.columns), params.startIndexOnSheet, params.frames, params.anchor);
   }
   for (auto& anim : attackAnimations)
   {
@@ -22,10 +22,10 @@ void StaticAssetUtils::LoadAnimations(std::unordered_map<std::string, AnimationI
     FrameData& frameData = std::get<1>(anim.second);
     AnimationDebuggingInfo& debug = std::get<AnimationDebuggingInfo>(anim.second);
 
-    collection.RegisterAnimation(anim.first, params.sheet.c_str(), params.rows, params.columns, params.startIndexOnSheet, params.frames, params.anchor);
+    collection.RegisterAnimation(anim.first, SpriteSheet(params.sheet.src.c_str(), params.sheet.rows, params.sheet.columns), params.startIndexOnSheet, params.frames, params.anchor);
     collection.SetHitboxEvents(anim.first, hitboxSheet.c_str(), frameData);
 
-    std::string spriteSheetFile = params.sheet;
+    std::string spriteSheetFile = params.sheet.src;
 
     std::function<void()> ModFrameData = [animName, hitboxSheet, spriteSheetFile, &frameData, &debug, &collection]()
     {
@@ -49,7 +49,9 @@ void StaticAssetUtils::LoadAnimations(std::unordered_map<std::string, AnimationI
         ImGui::EndGroup();
 
         int& frame = debug.frame;
-        collection.GetAnimation(animName)->DisplayDebugFrame(128, frame);
+        Animation::ImGuiDisplayParams imParams = collection.GetAnimation(animName)->GetUVCoordsForFrame(128, frame);
+        ImGui::Image((void*)(intptr_t)imParams.ptr, ImVec2(imParams.displaySize.x, imParams.displaySize.y),
+          ImVec2(imParams.uv0.x, imParams.uv0.y), ImVec2(imParams.uv1.x, imParams.uv1.y));
 
         int nFrames = collection.GetAnimation(animName)->GetFrameCount();
         ImGui::BeginGroup();

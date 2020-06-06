@@ -6,6 +6,7 @@
 
 #include "Systems/Physics.h"
 #include "Systems/AnimationSystem.h"
+#include "Systems/DrawCallSystems.h"
 #include "Systems/MoveSystem.h"
 #include "Systems/InputSystem.h"
 #include "Systems/HitSystem.h"
@@ -21,11 +22,6 @@
 #include <thread>
 #include <iostream>
 #endif
-
-static double widthToScreenWidth = 1.0;
-static double heightToScreenHeight = 1.0f;
-
-const char* Title = "Game Title";
 
 int ConstComponentIDGenerator::ID = 0;
 
@@ -43,66 +39,9 @@ void ResourceManager::Initialize()
 }
 
 //______________________________________________________________________________
-Texture& ResourceManager::GetTexture(const std::string& file)
-{
-  auto fileToLoad = file;
-
-#ifndef _WIN32
-  auto split = StringUtils::Split(file, '\\');
-  if(split.size() > 1)
-    fileToLoad = StringUtils::Connect(split.begin(), split.end(), '/');
-#endif
-
-  if (_loadedTextures.find(fileToLoad) == _loadedTextures.end())
-  {
-    _loadedTextures.insert(std::make_pair(fileToLoad, Texture(_resourcePath + fileToLoad)));
-  }
-  _loadedTextures[fileToLoad].Load();
-  return _loadedTextures[fileToLoad];
-}
-
-//______________________________________________________________________________
-Resource<GLTexture>& ResourceManager::GetGLTexture(const std::string& file)
-{
-  auto fileToLoad = file;
-
-#ifndef _WIN32
-  auto split = StringUtils::Split(file, '\\');
-  if (split.size() > 1)
-    fileToLoad = StringUtils::Connect(split.begin(), split.end(), '/');
-#endif
-
-  if (_loadedGLTextures.find(fileToLoad) == _loadedGLTextures.end())
-  {
-    _loadedGLTextures.insert(std::make_pair(fileToLoad, Resource<GLTexture>(_resourcePath + fileToLoad)));
-  }
-  _loadedGLTextures[fileToLoad].Load();
-  return _loadedGLTextures[fileToLoad];
-}
-
-//______________________________________________________________________________
-Font& ResourceManager::GetFont(const std::string& file)
-{
-  auto fileToLoad = file;
-
-#ifndef _WIN32
-  auto split = StringUtils::Split(file, '\\');
-  if(split.size() > 1)
-    fileToLoad = StringUtils::Connect(split.begin(), split.end(), '/');
-#endif
-
-  if (_loadedFonts.find(fileToLoad) == _loadedFonts.end())
-  {
-    _loadedFonts.insert(std::make_pair(fileToLoad, Font(_resourcePath + fileToLoad)));
-  }
-  _loadedFonts[fileToLoad].Load();
-  return _loadedFonts[fileToLoad];
-}
-
-//______________________________________________________________________________
 TextResource& ResourceManager::GetText(const char* text, const std::string& fontFile)
 {
-  Font& font = GetFont(fontFile);
+  auto& font = GetAsset<TTF_Font>(fontFile);
 
   if (_loadedTexts.find(text) == _loadedTexts.end())
   {
@@ -110,6 +49,19 @@ TextResource& ResourceManager::GetText(const char* text, const std::string& font
   }
   _loadedTexts[text].Load();
   return _loadedTexts[text];
+}
+
+//______________________________________________________________________________
+LetterCase& ResourceManager::GetFontWriter(const std::string& fontFile, size_t size)
+{
+  const FontKey key{ size, fontFile.c_str() };
+
+  if (_loadedLetterCases.find(key) == _loadedLetterCases.end())
+  {
+    auto& font = GetAsset<TTF_Font>(fontFile);
+    _loadedLetterCases.emplace(std::piecewise_construct, std::make_tuple(key), std::make_tuple(font.Get(), size));
+  }
+  return _loadedLetterCases[key];
 }
 
 //______________________________________________________________________________
@@ -124,70 +76,16 @@ Vector2<int> ResourceManager::GetTextureWidthAndHeight(const std::string& file)
 
   int width;
   int height;
-  SDL_QueryTexture(GetTexture(fileToQuery).Get(), nullptr, nullptr, &width, &height);
+  SDL_QueryTexture(GetAsset<SDL_Texture>(fileToQuery).Get(), nullptr, nullptr, &width, &height);
   return Vector2<int>(width, height);
 }
 
 //______________________________________________________________________________
-void ResourceManager::RegisterBlitOp()
-{
-  _registeredSprites.push_back(BlitOperation());
-  _registeredSprites.back().valid = false;
-}
-
-//______________________________________________________________________________
-void ResourceManager::DeregisterBlitOp()
-{
-  _registeredSprites.pop_back();
-}
-
-//______________________________________________________________________________
-void ResourceManager::BlitSprites()
-{
-  auto blit = [](BlitOperation* operation)
-  {
-    if (!operation->valid) return;
-
-    GameManager::Get().GetMainCamera()->ConvScreenSpace(operation);
-    if (GameManager::Get().GetMainCamera()->EntityInDisplay(operation))
-    {
-      int w, h;
-      auto srcTexture = operation->_textureResource->Get();
-      float rotation = 0;
-      
-      try
-      {
-        if (SDL_QueryTexture(operation->_textureResource->Get(), NULL, NULL, &w, &h) == 0)
-        {
-          //SDL_SetRenderDrawColor(GameManager::Get().GetRenderer(), operation->_displayColor.r, operation->_displayColor.g, operation->_displayColor.b, operation->_displayColor.a);
-          SDL_SetTextureColorMod(operation->_textureResource->Get(), operation->_displayColor.r, operation->_displayColor.g, operation->_displayColor.b);
-          SDL_RenderCopyEx(GameManager::Get().GetRenderer(), srcTexture,
-            &operation->_textureRect, &operation->_displayRect, rotation, nullptr, operation->_flip);
-        }
-      }
-      catch (std::exception &e)
-      {
-        std::cout << "I guess this texture isn't valid??" << "\nCaught exception: " << e.what() << "\n";
-      }
-    }
-  };
-
-  // only draw sprites that have been registered for this draw cycle
-  for(int i = 0; i < opIndex; i++)
-  {
-    blit(&_registeredSprites[i]);
-  }
-
-  //reset available ops for next draw cycle
-  opIndex = 0;
-}
-
-//______________________________________________________________________________
-void ResourceManager::CrawlTexture(Texture& texture, Vector2<int> begin, Vector2<int> end, std::function<void(int, int, Uint32)> callback)
+void ResourceManager::CrawlTexture(Resource<SDL_Texture>& texture, Vector2<int> begin, Vector2<int> end, std::function<void(int, int, Uint32)> callback)
 {
   auto& textureData = texture.GetInfo();
   // Get the window format
-  Uint32 windowFormat = SDL_GetWindowPixelFormat(GameManager::Get().GetWindow());
+  Uint32 windowFormat = SDL_GetWindowPixelFormat(GRenderer.GetWindow());
   std::shared_ptr<SDL_PixelFormat> format = std::shared_ptr<SDL_PixelFormat>(SDL_AllocFormat(windowFormat), SDL_FreeFormat);
 
   // Get the pixel data
@@ -210,9 +108,9 @@ void ResourceManager::CrawlTexture(Texture& texture, Vector2<int> begin, Vector2
 }
 
 //______________________________________________________________________________
-Rect<double> ResourceManager::FindRect(Texture& texture, Vector2<int> frameSize, Vector2<int> begPx)
+Rect<double> ResourceManager::FindRect(Resource<SDL_Texture>& texture, Vector2<int> frameSize, Vector2<int> begPx)
 {
-  Uint32 windowFormat = SDL_GetWindowPixelFormat(GameManager::Get().GetWindow());
+  Uint32 windowFormat = SDL_GetWindowPixelFormat(GRenderer.GetWindow());
   std::shared_ptr<SDL_PixelFormat> format = std::shared_ptr<SDL_PixelFormat>(SDL_AllocFormat(windowFormat), SDL_FreeFormat);
 
   Uint32 transparent;
@@ -255,22 +153,7 @@ Rect<double> ResourceManager::FindRect(Texture& texture, Vector2<int> frameSize,
 //______________________________________________________________________________
 void GameManager::Initialize()
 {
-  // init sdl
-  SDL_Init( SDL_INIT_EVERYTHING | SDL_INIT_GAMECONTROLLER  | SDL_INIT_JOYSTICK );
-  TTF_Init();
-
-  _window = SDL_CreateWindow(Title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-    m_nativeWidth, m_nativeHeight,
-    SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
-
-  _renderer = SDL_CreateRenderer(_window, -1, SDL_RENDERER_ACCELERATED);
-  SDL_SetRenderDrawBlendMode(_renderer, SDL_BLENDMODE_BLEND);
-
-#ifndef _WIN32
-  _sdlWindowFormat = SDL_GetWindowPixelFormat(_window);
-#else
-  _sdlWindowFormat = SDL_PIXELFORMAT_RGBA8888;
-#endif
+  GRenderer.Init();
 
   //! initialize the scene
   _currentScene = std::make_unique<BattleScene>();
@@ -282,14 +165,7 @@ void GameManager::Initialize()
 //______________________________________________________________________________
 void GameManager::Destroy()
 {
-  SDL_DestroyRenderer(_renderer);
-  SDL_DestroyWindow(_window);
-
-  _renderer = nullptr;
-  _window = nullptr;
-
-  SDL_Quit();
-  TTF_Quit();
+  GRenderer.Destroy();
 
   _gameEntities.clear();
 }
@@ -301,18 +177,18 @@ void GameManager::BeginGameLoop()
   _clock.Start();
 
   //initialize the functions
-  //FrameFunction input = std::bind(&GameManager::UpdateInput, this);
   UpdateFunction update = std::bind(&GameManager::Update, this, std::placeholders::_1);
-  //FrameFunction draw = std::bind(&GameManager::Draw, this);
 
-  bool programRunning = true;
-  std::thread debuggerThread;
-  //RunScripter(debuggerThread, programRunning);
-  GUIController::Get().InitSDLWindow();
-  GUIController::Get().InitImGUI();
-
-  // set focus back to main game window
-  SDL_RaiseWindow(_window);
+  if constexpr (std::is_same_v<RenderType, SDL_Texture>)
+  {
+    GUIController::Get().InitSDLWindow();
+    GUIController::Get().InitImGUI();
+  }
+  else
+  {
+    // if we're using gl to render our window, just render imgui in our window
+    GUIController::Get().InitImGUI(GRenderer.GetWindow(), GRenderer.GetGLContext());
+  }
 
   AvgCounter tracker;
 
@@ -324,34 +200,22 @@ void GameManager::BeginGameLoop()
     ImGui::EndGroup();
   };
   GUIController::Get().AddImguiWindowFunction("Engine Stats", imguiWindowFunc);
-  
 
   int frameCount = 0;
   for (;;)
   {
-    //! Collect inputs from controllers (this means AI controllers as well as Player controllers)
-    //UpdateInput();
-    //InputSystem::DoTick(0);
-
     if (frameCount == 0)
     {
       tracker.Add(_clock.GetUpdateTime());
     }
 
-    std::lock_guard<std::mutex> lock(_debugMutex);
-
     //! Update all components and coroutines
     _clock.Update(update);
-
-    // do once per frame system calls
-    DrawSystem::PostUpdate();
+    //! update debug gui
+    GUIController::Get().MainLoop(_localInput);
 
     //! Finally render the scene
     Draw();
-
-    //! update gui
-    GUIController::Get().MainLoop(_localInput);
-    GUIController::Get().RenderFrame();
 
     if (_localInput.type == SDL_QUIT)
       break;
@@ -360,7 +224,6 @@ void GameManager::BeginGameLoop()
   }
 
   GUIController::Get().CleanUp();
-  programRunning = false;
 }
 
 //______________________________________________________________________________
@@ -384,7 +247,8 @@ void GameManager::CheckAgainstSystems(Entity* entity)
   HitSystem::Check(entity);
   TimerSystem::Check(entity);
   FrameAdvantageSystem::Check(entity);
-  DrawSystem::Check(entity);
+  SpriteDrawCallSystem::Check(entity);
+  UITextDrawCallSystem::Check(entity);
   PlayerSideSystem::Check(entity);
 }
 
@@ -392,6 +256,14 @@ void GameManager::CheckAgainstSystems(Entity* entity)
 void GameManager::ActivateHitStop(int frames)
 {
   _clock.PauseForTime(static_cast<float>(frames) * secPerFrame);
+}
+
+//______________________________________________________________________________
+void GameManager::DebugDraws()
+{
+  // draw items in debug layer over top of the drawn scene
+  ComponentManager<Hurtbox>::Get().Draw();
+  ComponentManager<Hitbox>::Get().Draw();
 }
 
 //______________________________________________________________________________
@@ -404,20 +276,13 @@ void GameManager::Update(float deltaTime)
 //______________________________________________________________________________
 void GameManager::UpdateInput()
 {
-  // Process local input first
-  //! Check for quit
+  // Check for quit or resize and update input object
   if (SDL_PollEvent(&_localInput)) {
     if (_localInput.type == SDL_WINDOWEVENT)
     {
       if (_localInput.window.event == SDL_WINDOWEVENT_RESIZED)
       {
-        if(_localInput.window.windowID == SDL_GetWindowID(_window))
-        {
-          Vector2<int> newWindowSize(_localInput.window.data1, _localInput.window.data2);
-          widthToScreenWidth = static_cast<double>(newWindowSize.x) / static_cast<double>(m_nativeWidth);
-          heightToScreenHeight = static_cast<double>(newWindowSize.y) / static_cast<double>(m_nativeHeight);
-          SDL_RenderSetScale(_renderer, static_cast<float>(widthToScreenWidth), static_cast<float>(heightToScreenHeight));
-        }
+        RenderManager<RenderType>::Get().ProcessResizeEvent(_localInput);
       }
     }
   }
@@ -426,56 +291,21 @@ void GameManager::UpdateInput()
 //______________________________________________________________________________
 void GameManager::Draw()
 {
+  // send draw calls to the renderer
+  SpriteDrawCallSystem::PostUpdate();
+  UITextDrawCallSystem::PostUpdate();
+
   //clear last frame graphics
-  SDL_RenderClear(_renderer);
+  GRenderer.Clear();
 
-  // resource manager draw here?
-  ResourceManager::Get().BlitSprites();
+  // draw the scene
+  GRenderer.Draw();
 
-  // draw debug rects
-  ComponentManager<Hurtbox>::Get().Draw();
-  ComponentManager<Hitbox>::Get().Draw();
+  // draw debug imgui ui over that
+  GUIController::Get().RenderFrame();
 
   //present this frame
-  SDL_RenderPresent(_renderer);
-
-  //present to imgui
-  GUIController::Get().RenderToMainWindow(_renderer);
-}
-
-//______________________________________________________________________________
-void GameManager::RunScripter(std::thread& t, bool& programRunning)
-{
-#ifdef _DEBUG
-  t = std::thread([this, &programRunning]()
-  {
-    while (programRunning)
-    {
-      std::cout << "Example: 'entity0 transform set scale x 0.5'" << "\n";
-      std::string command;
-      std::getline(std::cin, command);
-
-      auto split = StringUtils::Split(command, ' ');
-      if (split.size() <= 1) continue;
-      auto id = split[0];
-
-      for (auto& entity : _gameEntities)
-      {
-        if (entity->GetIdentifier() == id)
-        {
-          std::lock_guard lock(_debugMutex);
-          entity->ParseCommand(StringUtils::Connect(split.begin() + 1, split.end(), ' '));
-          break;
-        }
-      }
-
-      if (UniversalPhysicsSettings::Get().GetIdentifier() == id)
-      {
-        UniversalPhysicsSettings::Get().ParseCommand(StringUtils::Connect(split.begin() + 1, split.end(), ' '));
-      }
-    }
-  });
-#endif
+  GRenderer.Present();
 }
 
 //______________________________________________________________________________

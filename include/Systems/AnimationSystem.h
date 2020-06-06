@@ -51,7 +51,7 @@ public:
   }
 };
 
-class AnimationSystem : public ISystem<Animator, GraphicRenderer>
+class AnimationSystem : public ISystem<Animator, RenderComponent<RenderType>>
 {
 public:
 
@@ -75,7 +75,7 @@ public:
     for (auto tuple : Tuples)
     {
       Animator* animator = std::get<Animator*>(tuple.second);
-      GraphicRenderer* renderer = std::get<GraphicRenderer*>(tuple.second);
+      RenderComponent<RenderType>* renderer = std::get<RenderComponent<RenderType>*>(tuple.second);
 
       // if playing, do advance time and update frame
       if (animator->playing)
@@ -110,44 +110,6 @@ public:
         }
         animator->accumulatedTime += dt;
       }
-    }
-  }
-};
-
-class DrawSystem : public ISystem<Transform, GraphicRenderer, RenderProperties>
-{
-public:
-  static void PostUpdate()
-  {
-    for (auto tuple : Tuples)
-    {
-      GraphicRenderer* renderer = std::get<GraphicRenderer*>(tuple.second);
-      Transform* transform = std::get<Transform*>(tuple.second);
-      RenderProperties* properties = std::get<RenderProperties*>(tuple.second);
-
-      // if the render resource hasn't been assigned yet, hold off
-      if(!renderer->GetRenderResource()) continue;
-
-      // get a display op to set draw parameters
-      auto displayOp = ResourceManager::Get().GetAvailableOp();
-
-      displayOp->_textureRect = renderer->sourceRect;
-      displayOp->_textureResource = renderer->GetRenderResource();
-
-      Vector2<int> renderOffset = properties->Offset();
-
-      displayOp->_displayRect = OpSysConv::CreateSDLRect(
-        static_cast<int>(std::floor(transform->position.x + renderOffset.x * transform->scale.x)),
-        static_cast<int>(std::floor(transform->position.y + renderOffset.y * transform->scale.y)),
-        (int)(static_cast<float>(renderer->sourceRect.w) * transform->scale.x),
-        (int)(static_cast<float>(renderer->sourceRect.h) * transform->scale.y));
-
-      // set properties
-      displayOp->_flip = properties->horizontalFlip ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
-      // set display color directly
-      displayOp->_displayColor = properties->GetDisplayColor();
-
-      displayOp->valid = true;      
     }
   }
 };

@@ -18,9 +18,26 @@ public:
   //!
   void Init(int w, int h);
   //!
-  void ConvScreenSpace(BlitOperation* entity);
+  template <typename TextureType>
+  void ConvScreenSpace(BlitOperation<TextureType>* entity);
   //!
-  bool EntityInDisplay(const BlitOperation* entity);
+  template <typename TextureType>
+  bool EntityInDisplay(const BlitOperation<TextureType>* entity);
   //!
   SDL_Rect rect;
 };
+
+//______________________________________________________________________________
+template <typename TextureType>
+inline void Camera::ConvScreenSpace(BlitOperation<TextureType>* entity)
+{
+  entity->_displayRect.x -= rect.x;
+  entity->_displayRect.y -= rect.y;
+}
+
+//______________________________________________________________________________
+template <typename TextureType>
+inline bool Camera::EntityInDisplay(const BlitOperation<TextureType>* entity)
+{
+  return SDLRectOverlap(rect, entity->_displayRect);
+}

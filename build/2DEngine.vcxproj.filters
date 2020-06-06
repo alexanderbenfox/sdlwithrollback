@@ -55,6 +55,12 @@
     <Filter Include="Source Files\AssetManagement\StaticAssets">
       <UniqueIdentifier>{d8d3905d-19a5-4f9e-8449-04f967f27ae2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Rendering">
+      <UniqueIdentifier>{692489a8-09a8-4b84-8e1a-0706b56206f8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Rendering">
+      <UniqueIdentifier>{0c431a99-f5e1-486f-9e94-142a25e1fd02}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\2DEngine.cpp">
@@ -126,8 +132,14 @@
     <ClCompile Include="..\src\AssetManagement\StaticAssets\CharacterConfig.cpp">
       <Filter>Source Files\AssetManagement\StaticAssets</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\DebugGUI\GLTexture.cpp">
-      <Filter>Source Files\DebugGUI</Filter>
+    <ClCompile Include="..\src\Rendering\RenderManager.cpp">
+      <Filter>Source Files\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Rendering\GLTexture.cpp">
+      <Filter>Source Files\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\AssetManagement\LetterCase.cpp">
+      <Filter>Source Files\AssetManagement</Filter>
     </ClCompile>
     <ClCompile Include="..\src\GameState\BattleScene.cpp">
       <Filter>Source Files\GameState</Filter>
@@ -168,9 +180,6 @@
       <Filter>Header Files\Components</Filter>
     </ClInclude>
     <ClInclude Include="..\include\Components\IComponent.h">
-      <Filter>Header Files\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\Components\Sprite.h">
       <Filter>Header Files\Components</Filter>
     </ClInclude>
     <ClInclude Include="..\include\ResourceManager.h">
@@ -278,9 +287,6 @@
     <ClInclude Include="..\include\AssetManagement\StaticAssets\CharacterConfig.h">
       <Filter>Header Files\AssetManagement\StaticAssets</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\DebugGUI\GLTexture.h">
-      <Filter>Header Files\DebugGUI</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\GameState\Scene.h">
       <Filter>Header Files\GameState</Filter>
     </ClInclude>
@@ -290,11 +296,32 @@
     <ClInclude Include="..\include\Components\StateComponent.h">
       <Filter>Header Files\Components</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\Rendering\GLTexture.h">
+      <Filter>Header Files\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Systems\DrawCallSystems.h">
+      <Filter>Header Files\Systems</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
     <None Include="..\imgui\impl\imgui_impl_osx.mm">
       <Filter>ImGui\impl</Filter>
     </None>
+    <ClInclude Include="..\include\AssetManagement\LetterCase.h">
+      <Filter>Header Files\AssetManagement</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Rendering\RenderCopy.h">
+      <Filter>Header Files\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Rendering\RenderManager.h">
+      <Filter>Header Files\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Components\RenderComponent.h">
+      <Filter>Header Files\Components</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>
