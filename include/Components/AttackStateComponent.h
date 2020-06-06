@@ -1,5 +1,5 @@
 #pragma once
-
+#include "Components/RenderComponent.h"
 class Animation;
 
 //! Component that indicates the current state of the entity

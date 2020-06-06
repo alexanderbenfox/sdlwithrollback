@@ -2,12 +2,14 @@
 
 #include "Entity.h"
 #include "GameManagement.h"
+#include "ResourceManager.h"
 
 #include "Components/Animator.h"
 #include "Components/Camera.h"
 #include "Components/Collider.h"
 #include "Components/GameActor.h"
 #include "Components/Rigidbody.h"
+#include "Components/RenderComponent.h"
 
 #include <cassert>
 
@@ -21,19 +23,6 @@ void Camera::Init(int w, int h)
 }
 
 //______________________________________________________________________________
-void Camera::ConvScreenSpace(BlitOperation* entity)
-{
-  entity->_displayRect.x -= rect.x;
-  entity->_displayRect.y -= rect.y;
-}
-
-//______________________________________________________________________________
-bool Camera::EntityInDisplay(const BlitOperation* entity)
-{
-  return SDLRectOverlap(rect, entity->_displayRect);
-}
-
-//______________________________________________________________________________
 template <typename T>
 void RectCollider<T>::Init(Vector2<T> beg, Vector2<T> end)
 {
@@ -44,7 +33,7 @@ void RectCollider<T>::Init(Vector2<T> beg, Vector2<T> end)
 template <typename T>
 void RectCollider<T>::Draw()
 {
-  SDL_SetRenderDrawColor(GameManager::Get().GetRenderer(), 255, 255, 255, SDL_ALPHA_OPAQUE);
+  SDL_SetRenderDrawColor(GRenderer.GetRenderer(), 255, 255, 255, SDL_ALPHA_OPAQUE);
 
   int xBeg = static_cast<int>(std::floor(rect.Beg().x));
   int yBeg = static_cast<int>(std::floor(rect.Beg().y));
@@ -60,8 +49,8 @@ void RectCollider<T>::Draw()
     {xBeg, yBeg}
   };
 
-  SDL_RenderDrawLines(GameManager::Get().GetRenderer(), points, 5);
-  SDL_SetRenderDrawColor(GameManager::Get().GetRenderer(), 0, 0, 0, SDL_ALPHA_OPAQUE);
+  SDL_RenderDrawLines(GRenderer.GetRenderer(), points, 5);
+  SDL_SetRenderDrawColor(GRenderer.GetRenderer(), 0, 0, 0, SDL_ALPHA_OPAQUE);
 }
 
 //______________________________________________________________________________

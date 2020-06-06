@@ -32,6 +32,7 @@
     <ClCompile Include="..\src\GameState\GameState.cpp" />
     <ClCompile Include="..\src\GameState\GGPOGameState.cpp" />
     <ClCompile Include="..\src\Geometry.cpp" />
+    <ClCompile Include="..\src\Rendering\RenderManager.cpp" />
     <ClCompile Include="..\src\Systems\Physics.cpp" />
     <ClCompile Include="..\src\Timer.cpp" />
   </ItemGroup>
@@ -53,7 +54,7 @@
     <ClInclude Include="..\include\Components\IComponent.h" />
     <ClInclude Include="..\include\Components\Input.h" />
     <ClInclude Include="..\include\Components\Rigidbody.h" />
-    <ClInclude Include="..\include\Components\Sprite.h" />
+    <ClInclude Include="..\include\Components\RenderComponent.h" />
     <ClInclude Include="..\include\Components\Transform.h" />
     <ClInclude Include="..\include\Entity.h" />
     <ClInclude Include="..\include\GameManagement.h" />
@@ -63,6 +64,7 @@
     <ClInclude Include="..\include\ListenerInterfaces.h" />
     <ClInclude Include="..\include\Rendering\GLTexture.h" />
     <ClInclude Include="..\include\Rendering\RenderCopy.h" />
+    <ClInclude Include="..\include\Rendering\RenderManager.h" />
     <ClInclude Include="..\include\ResourceManager.h" />
     <ClInclude Include="..\include\Systems\AnimationSystem.h" />
     <ClInclude Include="..\include\Systems\HitSystem.h" />

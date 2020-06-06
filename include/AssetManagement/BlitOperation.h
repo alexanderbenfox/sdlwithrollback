@@ -2,16 +2,14 @@
 #include "AssetManagement/Resource.h"
 #include "AssetManagement/Text.h"
 
-typedef Resource<SDL_Texture> Texture;
-typedef Resource<TTF_Font> Font;
-
 //! Drawing parameters drawing sprite objects
+template <typename AssetType>
 struct BlitOperation
 {
   bool valid = false;
-  SDL_Rect _textureRect;
-  SDL_Rect _displayRect;
-  Resource<GLTexture>* _textureResource;
-  SDL_RendererFlip _flip;
-  SDL_Color _displayColor;
+  SDL_Rect _textureRect = { 0, 0, 0, 0 };
+  SDL_Rect _displayRect = { 0, 0, 0, 0 };
+  Resource<AssetType>* _textureResource = nullptr;
+  SDL_RendererFlip _flip = SDL_FLIP_NONE;
+  SDL_Color _displayColor = SDL_Color{ 0, 0, 0, 0 };
 };

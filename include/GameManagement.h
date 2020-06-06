@@ -4,7 +4,7 @@
 #include "Entity.h"
 #include "Components/IComponent.h"
 #include "Timer.h"
-#include "Rendering/RenderCopy.h"
+#include "Rendering/RenderManager.h"
 
 #include <thread>
 #include <mutex>
@@ -17,8 +17,9 @@ bool constexpr all_base_of()
   return (std::is_base_of_v<T, Rest> && ...);
 }
 
-const int m_nativeWidth = 600;
-const int m_nativeHeight = 400;
+//! Set our preferred type (SDL or GL) to be rendered by the system
+typedef SDL_Texture RenderType;
+#define GRenderer RenderManager<RenderType>::Get()
 
 //______________________________________________________________________________
 //! Manager of all things related to whats happening in the game
@@ -35,10 +36,6 @@ public:
   void Destroy();
   //! Starts the game loop. Returns when the game has been ended
   void BeginGameLoop();
-  //! Returns a pointer to the SDL_Renderer object held by the game manager
-  SDL_Renderer* GetRenderer() { return _renderer; }
-  //!
-  SDL_Window* GetWindow() { return _window; }
   //! Gets the camera used by the rendering pipeline to cull game entities
   Camera* GetMainCamera();
   //! Add entity to game entity list and add components to it
@@ -71,14 +68,6 @@ private:
   void RunScripter(std::thread& t, bool& programRunning);
   //! Flag for whether or not the GM has been initialized
   bool _initialized;
-  //! SDL Renderer
-  SDL_Renderer* _renderer;
-  //! Window object
-  SDL_Window* _window;
-  //!
-  std::unique_ptr<GraphicsProgram> _shaderProgram;
-  //!
-  SDL_GLContext _glContext;
   //!
   SDL_Event _localInput;
   //!

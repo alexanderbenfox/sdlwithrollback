@@ -6,6 +6,8 @@
 #include "Components/GameActor.h"
 #include "Components/AttackStateComponent.h"
 
+#include "GameManagement.h"
+
 const float _baseSpeed = 300.0f * 1.5f;
 
 //______________________________________________________________________________
@@ -113,22 +115,12 @@ void AnimatedAction<Stance, Action>::Enact(Entity* actor)
         }
       }
 
-      if(auto renderer = actor->GetComponent<GraphicRenderer>())
+      if(auto renderer = actor->GetComponent<RenderComponent<RenderType>>())
       {
         if(actionAnimation)
         {
           // render from the sheet of the new animation
-          renderer->SetRenderResource(actionAnimation->GetSheetTexture());
-          renderer->sourceRect = actionAnimation->GetFrameSrcRect(0);
-        }
-      }
-
-      if (auto renderer = actor->GetComponent<GLGraphicRenderer>())
-      {
-        if (actionAnimation)
-        {
-          // render from the sheet of the new animation
-          renderer->SetRenderResource(actionAnimation->GLGetSheetTexture());
+          renderer->SetRenderResource(actionAnimation->GetSheetTexture<RenderType>());
           renderer->sourceRect = actionAnimation->GetFrameSrcRect(0);
         }
       }

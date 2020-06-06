@@ -1,6 +1,6 @@
 #pragma once
 #include "AssetManagement/Resource.h"
-#include "ResourceManager.h"
+#include "Rendering/RenderManager.h"
 #include "IComponent.h"
 #include "Transform.h"
 
@@ -17,35 +17,34 @@ private:
   Resource<T>& _resource;
 };
 
-class GraphicRenderer : public IComponent
+template <typename TextureType>
+class RenderComponent : public IComponent
 {
 public:
-
-
-  GraphicRenderer(std::shared_ptr<Entity> owner) : sourceRect{ 0, 0, 0, 0 }, IComponent(owner)
+  RenderComponent(std::shared_ptr<Entity> owner) : sourceRect{ 0, 0, 0, 0 }, IComponent(owner)
   {
-    ResourceManager::Get().RegisterBlitOp();
+    RenderManager<TextureType>::Get().RegisterBlitOp();
   }
 
-  ~GraphicRenderer()
+  ~RenderComponent()
   {
-    ResourceManager::Get().DeregisterBlitOp();
+    RenderManager<TextureType>::Get().DeregisterBlitOp();
   }
 
   //! Init with a resource
-  void Init(Resource<SDL_Texture>& resource)
+  void Init(Resource<TextureType>& resource)
   {
-    _resource = std::unique_ptr<ResourceWrapper<SDL_Texture>>(new ResourceWrapper<SDL_Texture>(resource));
+    _resource = std::unique_ptr<ResourceWrapper<TextureType>>(new ResourceWrapper<TextureType>(resource));
     sourceRect = { 0, 0, resource.GetInfo().mWidth, resource.GetInfo().mHeight };
   }
 
-  void SetRenderResource(Resource<SDL_Texture>& resource)
+  void SetRenderResource(Resource<TextureType>& resource)
   {
     _resource.reset();
-    _resource = std::unique_ptr<ResourceWrapper<SDL_Texture>>(new ResourceWrapper<SDL_Texture>(resource));
+    _resource = std::unique_ptr<ResourceWrapper<TextureType>>(new ResourceWrapper<TextureType>(resource));
   }
 
-  Resource<SDL_Texture>* GetRenderResource()
+  Resource<TextureType>* GetRenderResource()
   {
     if(_resource)
       return &_resource->GetResource();
@@ -57,52 +56,9 @@ public:
     
 protected:
   //!
-  std::unique_ptr<ResourceWrapper<SDL_Texture>> _resource;
+  std::unique_ptr<ResourceWrapper<TextureType>> _resource;
 
 };
-
-class GLGraphicRenderer : public IComponent
-{
-public:
-  GLGraphicRenderer(std::shared_ptr<Entity> owner) : sourceRect{ 0, 0, 0, 0 }, IComponent(owner)
-  {
-    ResourceManager::Get().RegisterBlitOp();
-  }
-
-  ~GLGraphicRenderer()
-  {
-    ResourceManager::Get().DeregisterBlitOp();
-  }
-
-  //! Init with a resource
-  void Init(Resource<GLTexture>& resource)
-  {
-    _resource = std::unique_ptr<ResourceWrapper<GLTexture>>(new ResourceWrapper<GLTexture>(resource));
-    sourceRect = { 0, 0, resource.GetInfo().mWidth, resource.GetInfo().mHeight };
-  }
-
-  void SetRenderResource(Resource<GLTexture>& resource)
-  {
-    _resource.reset();
-    _resource = std::unique_ptr<ResourceWrapper<GLTexture>>(new ResourceWrapper<GLTexture>(resource));
-  }
-
-  Resource<GLTexture>* GetRenderResource()
-  {
-    if (_resource)
-      return &_resource->GetResource();
-    return nullptr;
-  }
-
-  //! Source of display location on texture
-  SDL_Rect sourceRect;
-
-protected:
-  //!
-  std::unique_ptr<ResourceWrapper<GLTexture>> _resource;
-
-};
-
 
 class TextRenderer : public IComponent
 {

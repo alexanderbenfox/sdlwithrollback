@@ -51,7 +51,7 @@ public:
   }
 };
 
-class AnimationSystem : public ISystem<Animator, GLGraphicRenderer>
+class AnimationSystem : public ISystem<Animator, RenderComponent<RenderType>>
 {
 public:
 
@@ -75,7 +75,7 @@ public:
     for (auto tuple : Tuples)
     {
       Animator* animator = std::get<Animator*>(tuple.second);
-      GLGraphicRenderer* renderer = std::get<GLGraphicRenderer*>(tuple.second);
+      RenderComponent<RenderType>* renderer = std::get<RenderComponent<RenderType>*>(tuple.second);
 
       // if playing, do advance time and update frame
       if (animator->playing)
@@ -114,14 +114,14 @@ public:
   }
 };
 
-class DrawSystem : public ISystem<Transform, GLGraphicRenderer, RenderProperties>
+class DrawSystem : public ISystem<Transform, RenderComponent<RenderType>, RenderProperties>
 {
 public:
   static void PostUpdate()
   {
     for (auto tuple : Tuples)
     {
-      GLGraphicRenderer* renderer = std::get<GLGraphicRenderer*>(tuple.second);
+      RenderComponent<RenderType>* renderer = std::get<RenderComponent<RenderType>*>(tuple.second);
       Transform* transform = std::get<Transform*>(tuple.second);
       RenderProperties* properties = std::get<RenderProperties*>(tuple.second);
 
@@ -129,7 +129,7 @@ public:
       if(!renderer->GetRenderResource()) continue;
 
       // get a display op to set draw parameters
-      auto displayOp = ResourceManager::Get().GetAvailableOp();
+      auto displayOp = GRenderer.GetAvailableOp();
 
       displayOp->_textureRect = renderer->sourceRect;
       displayOp->_textureResource = renderer->GetRenderResource();

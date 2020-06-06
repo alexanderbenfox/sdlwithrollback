@@ -38,7 +38,7 @@ template <> void Resource<SDL_Texture>::Load()
   }
   if (surface)
   {
-    SDL_Texture* texture = SDL_CreateTexture(GameManager::Get().GetRenderer(), windowFormat, SDL_TEXTUREACCESS_STREAMING, surface->w, surface->h);
+    SDL_Texture* texture = SDL_CreateTexture(GRenderer.GetRenderer(), windowFormat, SDL_TEXTUREACCESS_STREAMING, surface->w, surface->h);
     SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
     void* pixels;
      // Fill out information for the texture
