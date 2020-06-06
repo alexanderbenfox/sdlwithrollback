@@ -5,7 +5,7 @@ LetterCase::LetterCase() : _fontSize(0)
 {
   for (int i = 0; i < alphabetSize; ++i)
   {
-    glyphs[i] = nullptr;
+    glyphs[i] = Resource<GLTexture>();
   }
 }
 
@@ -22,21 +22,21 @@ LetterCase::LetterCase(TTF_Font* font, size_t size) : _fontSize(size)
     s[0] = i + ' ';
     surf = TTF_RenderText_Blended(font, s, SDL_Color{ 255, 255, 255 });
     surf->refcount++; // SDL2: prevent segfault on free
-    glyphs[i] = new GLTexture;
-    glyphs[i]->LoadFromSurface(surf);
+    glyphs[i] = Resource<GLTexture>(std::shared_ptr<GLTexture>(new GLTexture));
+    glyphs[i].Get()->LoadFromSurface(surf);
     SDL_FreeSurface(surf);
   }
 }
 
 LetterCase::~LetterCase()
 {
-  if (glyphs[0] != nullptr)
+  /*if (glyphs[0] != nullptr)
   {
     for (int i = 0; i < alphabetSize; ++i)
     {
       delete glyphs[i];
     }
-  }
+  }*/
 }
 
 std::vector<GLDrawOperation> LetterCase::CreateStringField(const char* text, int fieldWidth, float lineHeight, float kerning)
@@ -67,7 +67,7 @@ std::vector<GLDrawOperation> LetterCase::CreateStringField(const char* text, int
     // shift to match our letter case indices
     c -= ' ';
 
-    string.textures.push_back({ string.x, string.y, static_cast<float>(_fontSize), glyphs[c] });
+    string.textures.push_back({ string.x, string.y, static_cast<float>(_fontSize), &glyphs[c] });
 
     string.x += glyphs[c]->w() * (_fontSize / glyphs[c]->h()) * kerning;
   }

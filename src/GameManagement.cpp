@@ -86,43 +86,6 @@ Vector2<int> ResourceManager::GetTextureWidthAndHeight(const std::string& file)
 }
 
 //______________________________________________________________________________
-void ResourceManager::RenderGL()
-{
-  auto blit = [](float x, float y, float lh, GLTexture* texture)
-  {
-    float lw = texture->w() * (lh / texture->h());
-
-    glBindTexture(GL_TEXTURE_2D, texture->ID());
-    glEnable(GL_TEXTURE_2D);
-
-    glPushMatrix();
-    glTranslatef(x, y, 0);
-
-    glBegin(GL_QUADS);
-    glTexCoord2i(0, 0);  glVertex2f(0, 0);
-    glTexCoord2i(1, 0);  glVertex2f(lw, 0);
-    glTexCoord2i(1, 1);  glVertex2f(lw, lh);
-    glTexCoord2i(0, 1);  glVertex2f(0, lh);
-    glEnd();
-
-    glTranslatef(-x, -y, 0);
-    glPopMatrix();
-
-    glDisable(GL_TEXTURE_2D);
-    glDisableClientState(GL_VERTEX_ARRAY);
-  };
-
-  for (auto& renderOp : _glTexturesToDraw)
-  {
-    blit(renderOp.x, renderOp.y, renderOp.lh, renderOp.texture);
-  }
-
-  _glTexturesToDraw.clear();
-
-  //SDL_Delay(10);
-}
-
-//______________________________________________________________________________
 void ResourceManager::CrawlTexture(Resource<SDL_Texture>& texture, Vector2<int> begin, Vector2<int> end, std::function<void(int, int, Uint32)> callback)
 {
   auto& textureData = texture.GetInfo();
@@ -307,13 +270,10 @@ void GameManager::BeginGameLoop()
 
     // do once per frame system calls
     DrawSystem::PostUpdate();
-    GLDrawSystem::PostUpdate();
+    UITextDrawSystem::PostUpdate();
 
     //! Finally render the scene
     Draw();
-
-    
-    
 
     if (_localInput.type == SDL_QUIT)
       break;
@@ -346,7 +306,7 @@ void GameManager::CheckAgainstSystems(Entity* entity)
   TimerSystem::Check(entity);
   FrameAdvantageSystem::Check(entity);
   DrawSystem::Check(entity);
-  GLDrawSystem::Check(entity);
+  UITextDrawSystem::Check(entity);
   PlayerSideSystem::Check(entity);
 }
 
@@ -408,7 +368,7 @@ void GameManager::Draw()
   ComponentManager<Hitbox>::Get().Draw();
 
   // hack gl render the textures for the font libraries
-  ResourceManager::Get().RenderGL();
+  //ResourceManager::Get().RenderGL();
 
   // draw debug ui
   GUIController::Get().RenderFrame();

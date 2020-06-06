@@ -26,7 +26,7 @@ void RenderManager<TextureType>::Init()
 
   _window = SDL_CreateWindow(Title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
     m_nativeWidth, m_nativeHeight,
-    SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
+    SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_ALLOW_HIGHDPI);
 
   _renderer = SDL_CreateRenderer(_window, -1, SDL_RENDERER_ACCELERATED);
   SDL_SetRenderDrawBlendMode(_renderer, SDL_BLENDMODE_BLEND);
@@ -34,7 +34,16 @@ void RenderManager<TextureType>::Init()
   // init the gl context and a bunch of other stuff to enable GL
   if constexpr (std::is_same_v<TextureType, GLTexture>)
   {
+    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+    SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
+
     _glContext = SDL_GL_CreateContext(_window);
+    SDL_GL_MakeCurrent(_window, _glContext);
+
+    // Enable vsync
     SDL_GL_SetSwapInterval(1);
 
     glClearColor(0.0, 0.0, 0.0, 0.0);
@@ -44,6 +53,8 @@ void RenderManager<TextureType>::Init()
     glEnable(GL_BLEND);
     glEnable(GL_TEXTURE_2D);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    SDL_RenderSetScale(_renderer, 1.0f, 1.0f);
   }
 
 #ifndef _WIN32
@@ -142,8 +153,15 @@ void RenderManager<TextureType>::Draw()
     blit(&_registeredSprites[i]);
   }
 
-  //reset available ops for next draw cycle
+  for (auto& drawCall : _additionalDraws)
+  {
+    blit(&drawCall);
+  }
+
+  // reset available ops for next draw cycle
   opIndex = 0;
+  // reset additional draw calls for this frame
+  _additionalDraws.clear();
 }
 
 template <> void RenderManager<SDL_Texture>::Clear()

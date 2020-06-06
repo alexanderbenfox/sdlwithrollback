@@ -16,7 +16,7 @@ template <> void Resource<SDL_Texture>::Load()
 {
   if (_loaded) return;
   
-  Uint32 windowFormat = SDL_PIXELFORMAT_RGBA8888;
+  Uint32 windowFormat = GRenderer.GetWindowFormat();
 
   SDL_Surface* surface = IMG_Load(_pathToResource.c_str());
   if (surface)

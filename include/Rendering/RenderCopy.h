@@ -2,7 +2,12 @@
 #include "Rendering/GLTexture.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_opengl.h>
+
+#if defined(_WIN32)
 #include <gl/glu.h>
+#else
+#include <OpenGL/glu.h>
+#endif
 
 struct RenderContext
 {
@@ -12,6 +17,7 @@ struct RenderContext
 
 static void GL_SetBlendMode(RenderContext& context, SDL_BlendMode blendMode)
 {
+#if defined(_WIN32)
   if (!context.glewInit)
   {
     GLint GlewInitResult = glewInit();
@@ -24,6 +30,8 @@ static void GL_SetBlendMode(RenderContext& context, SDL_BlendMode blendMode)
       context.glewInit = true;
     }
   }
+#endif
+
   if (blendMode != context.blendMode) {
     switch (blendMode) {
     case SDL_BLENDMODE_NONE:
@@ -44,6 +52,11 @@ static void GL_SetBlendMode(RenderContext& context, SDL_BlendMode blendMode)
       glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
       glEnable(GL_BLEND);
       glBlendFunc(GL_ZERO, GL_SRC_COLOR);
+      break;
+    case SDL_BLENDMODE_INVALID:
+      throw std::invalid_argument("Invalid blend mode");
+      break;
+    default:
       break;
     }
     context.blendMode = blendMode;

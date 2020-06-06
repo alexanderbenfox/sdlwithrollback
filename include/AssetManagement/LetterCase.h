@@ -1,13 +1,13 @@
 #pragma once
 #include "Resource.h"
+#include "BlitOperation.h"
+#include "Rendering/GLTexture.h"
 #include <vector>
-
-class GLTexture;
 
 struct GLDrawOperation
 {
   float x, y, lh;
-  GLTexture* texture;
+  Resource<GLTexture>* texture;
 };
 
 struct GLRenderString
@@ -30,7 +30,7 @@ struct LetterCase
 
   std::vector<GLDrawOperation> CreateStringField(const char* text, int fieldWidth, float lineHeight = 1.0f, float kerning = 1.0f);
 
-  GLTexture* glyphs[alphabetSize];
+  Resource<GLTexture> glyphs[alphabetSize];
   size_t _fontSize;
 
 };

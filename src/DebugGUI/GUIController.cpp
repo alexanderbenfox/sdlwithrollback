@@ -85,7 +85,7 @@ bool GUIController::InitImGUI(SDL_Window* existingWindow, SDL_GLContext existing
   (void)io;
 
   // Setup Dear ImGui style
-  //ImGui::StyleColorsClassic();
+  ImGui::StyleColorsDark();
 
   // Setup Platform/Renderer bindings
   ImGui_ImplSDL2_InitForOpenGL(existingWindow, existingContext);
@@ -110,14 +110,35 @@ void GUIController::MainLoop(SDL_Event& event)
   ImGui_ImplSDL2_NewFrame(_window);
   ImGui::NewFrame();
 
-  for (auto& group : _imguiWindowGroups)
+  static bool showGUI = true;
+  if (ImGui::BeginMainMenuBar())
   {
-    ImGui::Begin(group.first.c_str());
-    for (auto& func : group.second)
+      if (ImGui::BeginMenu("File"))
+      {
+          if (ImGui::MenuItem("Show", ""))
+          {
+            showGUI = true;
+          }
+          if (ImGui::MenuItem("Hide", ""))
+          {
+            showGUI = false;
+          }
+          ImGui::EndMenu();
+      }
+      ImGui::EndMainMenuBar();
+  }
+
+  if(showGUI)
+  {
+    for (auto& group : _imguiWindowGroups)
     {
-      func();
+      ImGui::Begin(group.first.c_str());
+      for (auto& func : group.second)
+      {
+        func();
+      }
+      ImGui::End();
     }
-    ImGui::End();
   }
 }
 

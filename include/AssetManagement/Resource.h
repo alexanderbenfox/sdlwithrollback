@@ -36,6 +36,10 @@ public:
   {
     _pathToResource = filename;
   }
+  Resource(std::shared_ptr<T>&& ptr) : _loaded(true)
+  {
+    _resource = std::move(ptr);
+  }
 
   virtual void Load();
   void Unload();
@@ -44,6 +48,8 @@ public:
   bool IsLoaded() {return _loaded;}
 
   ResourceTraits<T>& GetInfo() { return _info; }
+
+  T* operator->() const { return _resource.get(); }
 
 protected:
   bool _loaded;

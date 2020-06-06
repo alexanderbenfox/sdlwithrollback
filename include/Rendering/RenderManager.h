@@ -40,6 +40,8 @@ public:
 
   Uint32 GetWindowFormat() const { return _sdlWindowFormat; }
 
+  void AppendDrawOp(BlitOperation<TextureType>&& op) { _additionalDraws.emplace_back(op); }
+
 private:
 
   //! Number of sprites that will be drawn in the scene
@@ -49,6 +51,9 @@ private:
   //! All registered blit ops. Trying to use spatial loading to make drawing faster when there are a lot of object on screen
   //! texture types are sdl textures or gl textures
   std::vector<BlitOperation<TextureType>> _registeredSprites;
+
+  //! Kind of a hack to get multi draws in
+  std::vector<BlitOperation<TextureType>> _additionalDraws;
 
   //! SDL Renderer pointer
   SDL_Renderer* _renderer;
