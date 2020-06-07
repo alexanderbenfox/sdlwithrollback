@@ -1,4 +1,4 @@
-#include "Components/Collider.h"
+#include "Components/Hurtbox.h"
 #include "DebugGUI/GUIController.h"
 #include "Entity.h"
 

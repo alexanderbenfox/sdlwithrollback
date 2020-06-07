@@ -332,6 +332,9 @@
     <ClInclude Include="..\include\Core\Math\Matrix4.h">
       <Filter>Header Files\Core\Math</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\Components\Hurtbox.h">
+      <Filter>Header Files\Components</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

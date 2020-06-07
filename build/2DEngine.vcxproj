@@ -76,6 +76,7 @@
     <ClInclude Include="..\include\Components\ComponentManager.h" />
     <ClInclude Include="..\include\Components\GameActor.h" />
     <ClInclude Include="..\include\Components\Hitbox.h" />
+    <ClInclude Include="..\include\Components\Hurtbox.h" />
     <ClInclude Include="..\include\Components\IComponent.h" />
     <ClInclude Include="..\include\Components\Input.h" />
     <ClInclude Include="..\include\Components\Rigidbody.h" />
