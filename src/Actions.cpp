@@ -5,6 +5,7 @@
 #include "Components/Rigidbody.h"
 #include "Components/GameActor.h"
 #include "Components/AttackStateComponent.h"
+#include "Components/Hurtbox.h"
 
 #include "GameManagement.h"
 

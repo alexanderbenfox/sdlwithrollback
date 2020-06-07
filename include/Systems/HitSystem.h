@@ -1,6 +1,7 @@
 #pragma once
 #include "Systems/ISystem.h"
 #include "Components/Hitbox.h"
+#include "Components/Hurtbox.h"
 #include "Components/StateComponent.h"
 
 class HitSystem : public IMultiSystem<SysComponents<Hurtbox, StateComponent>, SysComponents<Hitbox, Hurtbox, StateComponent>>

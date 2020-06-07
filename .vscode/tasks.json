@@ -19,6 +19,7 @@
         "src/Systems/*.cpp",
         "src/DebugGUI/*.cpp",
         "src/Rendering/*.cpp",
+        "src/Core/Geometry2D/*.cpp",
         "imgui/impl/imgui_impl_sdl.cpp",
         "imgui/impl/imgui_impl_opengl2.cpp",
         "imgui/*.cpp",
