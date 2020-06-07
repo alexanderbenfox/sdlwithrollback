@@ -1,5 +1,6 @@
 #pragma once
 #include "IComponent.h"
+#include "Core/Geometry2D/RectHelper.h"
 
 //! hitbox is the area that will hit the opponent
 class StateComponent : public IComponent

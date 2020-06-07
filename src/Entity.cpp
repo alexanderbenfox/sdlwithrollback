@@ -3,22 +3,6 @@
 #include "Components/Collider.h"
 #include "GameManagement.h"
 
-std::ostream& operator<<(std::ostream& os, const Transform& transform)
-{
-  os << transform.position;
-  os << transform.scale;
-  os << transform.rotation;
-  return os;
-}
-
-std::istream& operator>>(std::istream& is, Transform& transform)
-{
-  is >> transform.position;
-  is >> transform.rotation;
-  is >> transform.scale;
-  return is;
-}
-
 void Entity::ParseCommand(const std::string& command)
 {
   auto split = StringUtils::Split(command, ' ');

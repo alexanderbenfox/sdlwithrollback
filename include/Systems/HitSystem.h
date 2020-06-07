@@ -39,7 +39,7 @@ public:
         if (hitbox->hit)
           continue;
 
-        if (hitbox->rect.Collides(hurtbox->rect))
+        if (hitbox->rect.Intersects(hurtbox->rect))
         {
           // do hitbox stuff first
           hitbox->hit = true;

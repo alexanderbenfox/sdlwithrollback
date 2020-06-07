@@ -12,6 +12,7 @@
 #include "Components/RenderComponent.h"
 
 #include "Rendering/RenderCopy.h"
+#include "Core/Math/Vector2.h"
 
 #include <cassert>
 
@@ -35,10 +36,10 @@ void RectCollider<T>::Init(Vector2<T> beg, Vector2<T> end)
 template <typename T>
 void RectCollider<T>::Draw()
 {
-  int xBeg = static_cast<int>(std::floor(rect.Beg().x));
-  int yBeg = static_cast<int>(std::floor(rect.Beg().y));
-  int xEnd = static_cast<int>(std::ceil(rect.End().x));
-  int yEnd = static_cast<int>(std::ceil(rect.End().y));
+  int xBeg = static_cast<int>(std::floor(rect.beg.x));
+  int yBeg = static_cast<int>(std::floor(rect.beg.y));
+  int xEnd = static_cast<int>(std::ceil(rect.end.x));
+  int yEnd = static_cast<int>(std::ceil(rect.end.y));
 
   SDL_Point points[5] = 
   {
@@ -174,6 +175,22 @@ void GameActor::EvaluateInputContext(const InputBuffer& input, const StateCompon
   }
 }
 
+std::ostream& operator<<(std::ostream& os, const Transform& transform)
+{
+  os << transform.position;
+  os << transform.scale;
+  os << transform.rotation;
+  return os;
+}
+
+std::istream& operator>>(std::istream& is, Transform& transform)
+{
+  is >> transform.position;
+  is >> transform.rotation;
+  is >> transform.scale;
+  return is;
+}
+
 std::ostream& operator<<(std::ostream& os, const GameActor& actor)
 {
   // need to figure out how to get the "_currentAction" into a serializable state...
@@ -197,15 +214,15 @@ std::istream& operator>>(std::istream& is, GameActor& actor)
 
 std::ostream& operator<<(std::ostream& os, const Rigidbody& phys)
 {
-  os << phys._vel;
-  os << phys._acc;
+  //os << phys._vel;
+  //os << phys._acc;
   return os;
 }
 
 std::istream& operator>>(std::istream& is, Rigidbody& phys)
 {
-  is >> phys._vel;
-  is >> phys._acc;
+  //is >> phys._vel;
+  //is >> phys._acc;
   return is;
 }
 

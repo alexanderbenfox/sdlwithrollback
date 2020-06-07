@@ -71,7 +71,7 @@ EventInitParams Animation::GenerateAttackEvent(const char* hitboxesSheet, FrameD
         {
           auto UpdateHitbox = [hitbox, dataOffset](Transform* trans, StateComponent* state)
           {
-            Rect<double> hitboxBoundsRelativeToAnim(hitbox.Beg().x * trans->scale.x, hitbox.Beg().y * trans->scale.y, hitbox.End().x * trans->scale.x, hitbox.End().y * trans->scale.y);
+            Rect<double> hitboxBoundsRelativeToAnim(hitbox.beg.x * trans->scale.x, hitbox.beg.y * trans->scale.y, hitbox.end.x * trans->scale.x, hitbox.end.y * trans->scale.y);
             Vector2<float> transCenterRelativeToAnim(trans->rect.HalfWidth() + dataOffset.x * trans->scale.x, trans->rect.HalfHeight() + dataOffset.y * trans->scale.y);
             Vector2<double> relativeToTransformCenter = hitboxBoundsRelativeToAnim.GetCenter() - (Vector2<double>)transCenterRelativeToAnim;
             if(!state->onLeftSide)
@@ -93,7 +93,7 @@ EventInitParams Animation::GenerateAttackEvent(const char* hitboxesSheet, FrameD
             trans->AddComponent<Hitbox>();
             trans->GetComponent<Hitbox>()->frameData = frameData;
             
-            Rect<double> hitboxBoundsRelativeToAnim(hitbox.Beg().x * trans->scale.x, hitbox.Beg().y * trans->scale.y, hitbox.End().x * trans->scale.x, hitbox.End().y * trans->scale.y);
+            Rect<double> hitboxBoundsRelativeToAnim(hitbox.beg.x * trans->scale.x, hitbox.beg.y * trans->scale.y, hitbox.end.x * trans->scale.x, hitbox.end.y * trans->scale.y);
             Vector2<float> transCenterRelativeToAnim(trans->rect.HalfWidth() + dataOffset.x * trans->scale.x, trans->rect.HalfHeight() + dataOffset.y * trans->scale.y);
             Vector2<double> relativeToTransformCenter = hitboxBoundsRelativeToAnim.GetCenter() - (Vector2<double>)transCenterRelativeToAnim;
             if(!state->onLeftSide)

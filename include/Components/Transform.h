@@ -1,6 +1,6 @@
 #pragma once
 #include "Components/IComponent.h"
-#include "Geometry.h"
+#include "Core/Geometry2D/Rect.h"
 #include "Entity.h"
 
 //______________________________________________________________________________

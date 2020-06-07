@@ -111,7 +111,7 @@ void AnimatedAction<Stance, Action>::Enact(Entity* actor)
 
         if(auto rect = actor->GetComponent<Hurtbox>())
         {
-          properties->offset = -1 * animator->AnimationLib()->GetRenderOffset(_animation, !_facingRight, (int)std::floor(rect->unscaledRect.Width()));
+          properties->offset = -animator->AnimationLib()->GetRenderOffset(_animation, !_facingRight, (int)std::floor(rect->unscaledRect.Width()));
         }
       }
 

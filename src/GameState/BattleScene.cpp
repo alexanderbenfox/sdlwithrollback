@@ -98,7 +98,7 @@ std::shared_ptr<Entity> BattleScene::InitCharacter(Vector2<float> position)
   player->GetComponent<Animator>()->SetAnimations(&RyuConfig::Animations());
 
   player->GetComponent<Transform>()->SetWidthAndHeight(entitySize.x, entitySize.y);
-  player->GetComponent<RenderProperties>()->baseRenderOffset = (entitySize * (-1.0 / 2.0));
+  player->GetComponent<RenderProperties>()->baseRenderOffset = ((-1.0 / 2.0) * entitySize);
   player->GetComponent<RenderProperties>()->baseRenderOffset.y -= (static_cast<double>(textureSize.y) * .05);
 
   player->GetComponent<DynamicCollider>()->Init(Vector2<double>::Zero, entitySize);

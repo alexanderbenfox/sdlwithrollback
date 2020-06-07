@@ -1,5 +1,6 @@
 #pragma once
 #include "Collider.h"
+#include "Core/Geometry2D/RectHelper.h"
 
 class UniversalPhysicsSettings : public IDebuggable
 {
