@@ -61,6 +61,21 @@
     <Filter Include="Source Files\Rendering">
       <UniqueIdentifier>{0c431a99-f5e1-486f-9e94-142a25e1fd02}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Core">
+      <UniqueIdentifier>{a3adb1b3-59b2-4537-8bdc-127737b76065}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Core\Math">
+      <UniqueIdentifier>{4189bc4e-5443-4fe8-b571-b4144188f36d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Core">
+      <UniqueIdentifier>{64a3bb1e-f831-4a61-8f65-65c90877aca5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Core\Geometry2D">
+      <UniqueIdentifier>{24c899b4-1d91-4397-b15d-4d9d00cd7173}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Core\Geometry2D">
+      <UniqueIdentifier>{eb3b23a2-bacb-4331-a692-0bd4930a2622}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\2DEngine.cpp">
@@ -75,17 +90,11 @@
     <ClCompile Include="..\src\Entity.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\Geometry.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\Components\Components.cpp">
       <Filter>Source Files\Components</Filter>
     </ClCompile>
     <ClCompile Include="..\src\Actions.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\GameState\GameState.cpp">
-      <Filter>Source Files\GameState</Filter>
     </ClCompile>
     <ClCompile Include="..\src\GameState\GGPOGameState.cpp">
       <Filter>Source Files\GameState</Filter>
@@ -132,9 +141,6 @@
     <ClCompile Include="..\src\DebugGUI\GUIController.cpp">
       <Filter>Source Files\DebugGUI</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\AssetManagement\AnimationAsset.cpp">
-      <Filter>Source Files\AssetManagement</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\AssetManagement\StaticAssets\CharacterConfig.cpp">
       <Filter>Source Files\AssetManagement\StaticAssets</Filter>
     </ClCompile>
@@ -146,6 +152,21 @@
     </ClCompile>
     <ClCompile Include="..\src\AssetManagement\LetterCase.cpp">
       <Filter>Source Files\AssetManagement</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\GameState\BattleScene.cpp">
+      <Filter>Source Files\GameState</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\AssetManagement\StaticAssets\StaticAssetUtils.cpp">
+      <Filter>Source Files\AssetManagement\StaticAssets</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Components\Hurtbox.cpp">
+      <Filter>Source Files\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Core\Geometry2D\RectHelper.cpp">
+      <Filter>Source Files\Core\Geometry2D</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\DebugGUI\DebugItem.cpp">
+      <Filter>Source Files\DebugGUI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -159,9 +180,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\include\Entity.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\Geometry.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\include\Components\Camera.h">
@@ -284,14 +302,44 @@
     <ClInclude Include="..\include\AssetManagement\StaticAssets\CharacterConfig.h">
       <Filter>Header Files\AssetManagement\StaticAssets</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\AssetManagement\AnimationAsset.h">
-      <Filter>Header Files\AssetManagement</Filter>
+    <ClInclude Include="..\include\GameState\Scene.h">
+      <Filter>Header Files\GameState</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\AssetManagement\StaticAssets\StaticAssetUtils.h">
+      <Filter>Header Files\AssetManagement\StaticAssets</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Components\StateComponent.h">
+      <Filter>Header Files\Components</Filter>
     </ClInclude>
     <ClInclude Include="..\include\Rendering\GLTexture.h">
       <Filter>Header Files\Rendering</Filter>
     </ClInclude>
     <ClInclude Include="..\include\Systems\DrawCallSystems.h">
       <Filter>Header Files\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Rendering\Shader.h">
+      <Filter>Header Files\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Core\Math\Vector2.h">
+      <Filter>Header Files\Core\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Core\Math\Vector3.h">
+      <Filter>Header Files\Core\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Core\Geometry2D\RectHelper.h">
+      <Filter>Header Files\Core\Geometry2D</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Core\Geometry2D\Rect.h">
+      <Filter>Header Files\Core\Geometry2D</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Core\Math\Matrix4.h">
+      <Filter>Header Files\Core\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Components\Hurtbox.h">
+      <Filter>Header Files\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\DebugGUI\DebugItem.h">
+      <Filter>Header Files\DebugGUI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

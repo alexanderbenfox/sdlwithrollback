@@ -105,7 +105,7 @@ Vector2<float> PhysicsSystem::PositionAdjustmentToVelocity(const Vector2<double>
 
 OverlapInfo<double> PhysicsSystem::GetPushOnDynamicCollision(Rect<double>& collider, Rect<double>& collided, const Vector2<double> movement, double pushFactor)
 {
-  OverlapInfo<double> overlap = collider.Overlap(collided);
+  OverlapInfo<double> overlap = RectHelper::Overlap(collider, collided);
 
   overlap.amount.y = 0;
   overlap.collisionSides &= ~CollisionSide::UP;
@@ -126,7 +126,7 @@ void PhysicsSystem::AdjustMovementForCollisions( RectColliderD* colliderComponen
   // process all dynamic collisions
   for (auto otherCollider : ComponentManager<DynamicCollider>::Get().All())
   {
-    if (potentialRect.Collides(otherCollider->rect))
+    if (potentialRect.Intersects(otherCollider->rect))
     {
       // only check right or left on dynamic colliders
         auto push = GetPushOnDynamicCollision(colliderComponent->rect, otherCollider->rect, movementVector, 0.5);
@@ -139,12 +139,12 @@ void PhysicsSystem::AdjustMovementForCollisions( RectColliderD* colliderComponen
   // process static collisions
   for (auto otherCollider : ComponentManager<StaticCollider>::Get().All())
   {
-    if (potentialRect.Collides(otherCollider->rect))
+    if (potentialRect.Intersects(otherCollider->rect))
     {
       // return the reverse of the overlap to correct for the collision
-      auto overlap = potentialRect.Overlap(otherCollider->rect);
+      auto overlap = RectHelper::Overlap(potentialRect, otherCollider->rect);
 
-      if(colliderComponent->rect.Collides(otherCollider->rect))
+      if(colliderComponent->rect.Intersects(otherCollider->rect))
       {
         inst.amount += CreateResolveCollisionVector(overlap, movementVector);
         momentum.collisionSides |= overlap.collisionSides;

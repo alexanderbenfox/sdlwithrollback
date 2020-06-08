@@ -104,20 +104,22 @@ void GLTexture::Update(void* pixels)
 //______________________________________________________________________________
 void GLTexture::SetTextureParameters(SDL_Surface* textureData)
 {
-  _internalFormat = textureData->format->BytesPerPixel;
-  if (_internalFormat == 4)
+  Uint8 nChannels = textureData->format->BytesPerPixel;
+  if (nChannels == 4)
   {
     if (textureData->format->Rmask == 0x000000FF)
       _textureFormat = GL_RGBA;
     else
       _textureFormat = GL_BGRA_EXT;
+    _internalFormat = GL_RGBA8;
   }
-  else if (_internalFormat == 3)
+  else if (nChannels == 3)
   {
     if (textureData->format->Rmask == 0x000000ff)
       _textureFormat = GL_RGB;
     else
       _textureFormat = GL_BGR_EXT;
+    _internalFormat = GL_RGB8;
   }
 
   _type = GL_UNSIGNED_BYTE;

@@ -49,6 +49,8 @@ public:
 
   EventInitParams GenerateAttackEvent(const char* hitboxesSheet, FrameData frameData);
 
+  EventInitParams GenerateAttackEvent(const std::vector<Rect<double>>& hitboxInfo, FrameData frameData);
+
   //! Translates anim frame to the frame on spritesheet
   SDL_Rect GetFrameSrcRect(int animFrame) const;
 
@@ -89,6 +91,10 @@ protected:
   std::pair<AnchorPoint, Vector2<int>> _anchorPoint;
   //! finding margin from the bottom right now
   int _lMargin, _rMargin, _tMargin;
+
+private:
+  //! Gets a series of rectangles from a sprite sheet auxiliary file
+  std::vector<Rect<double>> GetHitboxesFromFile(const char* hitboxesSheet);
 
 };
 

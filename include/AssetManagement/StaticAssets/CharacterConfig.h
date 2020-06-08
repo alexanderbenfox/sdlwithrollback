@@ -1,6 +1,7 @@
 #pragma once
 #include <unordered_map>
 #include "ComponentConst.h"
+#include "AssetManagement/Animation.h"
 
 struct AnimationDebuggingInfo
 {
@@ -14,12 +15,26 @@ const SpriteSheet groundedAttacks("spritesheets\\grounded_attacks.png", 8, 10, f
 const SpriteSheet jumpingAttacks("spritesheets\\jlp.png", 4, 4, false);
 const SpriteSheet blockAndHitstun("spritesheets\\block_mid_hitstun.png", 8, 7, false);
 
-class RyuConfig
+class ICharacterConfig {};
+
+class RyuConfig : public ICharacterConfig
 {
 public:
+  //!
+  static AnimationCollection& Animations();
+  //!
   static float moveSpeed;
+  //!
   static float jumpHeight;
+
+protected:
+
+  //!
   static std::unordered_map<std::string, AnimationInfo> normalAnimations;
-  // contains animation info, frame data, and hitbox sheet
+  //! contains animation info, frame data, and hitbox sheet
   static std::unordered_map<std::string, std::tuple<AnimationInfo, FrameData, std::string, AnimationDebuggingInfo>> attackAnimations;
+
+  static bool _animLoaded;
+  static AnimationCollection _animations;
+
 };

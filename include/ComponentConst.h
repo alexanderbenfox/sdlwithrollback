@@ -1,5 +1,5 @@
 #pragma once
-#include "Geometry.h"
+#include "Core/Math/Vector2.h"
 
 const float avg_animation_fps = 24.0f;
 const float third_strike_fps = 16.0f;

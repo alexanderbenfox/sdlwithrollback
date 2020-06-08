@@ -1,6 +1,7 @@
 #pragma once
 #include "Systems/ISystem.h"
 #include "Components/Hitbox.h"
+#include "Components/Hurtbox.h"
 #include "Components/StateComponent.h"
 
 class HitSystem : public IMultiSystem<SysComponents<Hurtbox, StateComponent>, SysComponents<Hitbox, Hurtbox, StateComponent>>
@@ -39,7 +40,7 @@ public:
         if (hitbox->hit)
           continue;
 
-        if (hitbox->rect.Collides(hurtbox->rect))
+        if (hitbox->rect.Intersects(hurtbox->rect))
         {
           // do hitbox stuff first
           hitbox->hit = true;

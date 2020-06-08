@@ -5,6 +5,7 @@
 #include "Components/Rigidbody.h"
 #include "Components/GameActor.h"
 #include "Components/AttackStateComponent.h"
+#include "Components/Hurtbox.h"
 
 #include "GameManagement.h"
 
@@ -88,7 +89,7 @@ IAction* CheckHits(const InputState& rawInput, const StateComponent& context)
     if (blockedRight || blockedLeft)
       return new OnRecvHitAction<StanceState::STANDING, ActionState::BLOCKSTUN>("Block", facingRight, neutralFrame + context.frameData.onBlockAdvantage, Vector2<float>::Zero);
     else
-      return new OnRecvHitAction<StanceState::STANDING, ActionState::HITSTUN>("HeavyHitstun", facingRight, neutralFrame + context.frameData.onHitAdvantage, context.frameData.knockback);
+      return new OnRecvHitAction<StanceState::STANDING, ActionState::HITSTUN>("HeavyHitstun", facingRight, neutralFrame + context.frameData.onHitAdvantage, context.frameData.knockback, context.frameData.damage);
   }
   return nullptr;
 }
@@ -111,7 +112,7 @@ void AnimatedAction<Stance, Action>::Enact(Entity* actor)
 
         if(auto rect = actor->GetComponent<Hurtbox>())
         {
-          properties->offset = -1 * animator->AnimationLib()->GetRenderOffset(_animation, !_facingRight, (int)std::floor(rect->unscaledRect.Width()));
+          properties->offset = -animator->AnimationLib()->GetRenderOffset(_animation, !_facingRight, (int)std::floor(rect->unscaledRect.Width()));
         }
       }
 
@@ -292,6 +293,9 @@ void OnRecvHitAction<Stance, Action>::Enact(Entity* actor)
   TimedAction<Stance, Action>::Enact(actor);
   actor->AddComponent<HitStateComponent>();
   actor->GetComponent<HitStateComponent>()->SetTimer(TimedAction<Stance, Action>::_actionTiming.get());
+
+  //! send damage value
+  actor->GetComponent<StateComponent>()->hp -= _damageTaken;
 }
 
 //______________________________________________________________________________

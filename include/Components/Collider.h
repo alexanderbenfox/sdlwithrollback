@@ -53,16 +53,12 @@ public:
     is >> collider.rect;
     return is;
   }
+
+protected:
+  bool _drawDebug = true;
+
 };
 
 typedef RectCollider<double> RectColliderD;
 
 class Hitbox;
-
-//! hurtbox is the area that you can take damage from an enemy attack
-class Hurtbox : public RectColliderD
-{
-public:
-  //!
-  Hurtbox(std::shared_ptr<Entity> entity) : RectColliderD(entity) {}
-};

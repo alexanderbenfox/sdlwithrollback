@@ -4,6 +4,7 @@
 #if defined(APIENTRY)
 #undef APIENTRY
 #endif
+#define NOMINMAX
 #include <windows.h>
 #include <GL/glew.h>
 

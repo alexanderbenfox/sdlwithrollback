@@ -1,5 +1,5 @@
 #pragma once
-#include "Geometry.h"
+#include "Core/Geometry2D/Rect.h"
 #include "AssetManagement/LetterCase.h"
 
 #include <unordered_map>

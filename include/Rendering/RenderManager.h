@@ -1,6 +1,6 @@
 #pragma once
 #include "AssetManagement/BlitOperation.h"
-#include "Geometry.h"
+#include "Core/Math/Vector2.h"
 
 const int m_nativeWidth = 600;
 const int m_nativeHeight = 400;

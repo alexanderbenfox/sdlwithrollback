@@ -1,4 +1,3 @@
-#include "Rendering/GLTexture.h"
 #include "DebugGUI/GUIController.h"
 #include "../imgui/imgui.h"
 
@@ -151,7 +150,7 @@ void GUIController::CleanUp()
 }
 
 
-void GUIController::AddImguiWindowFunction(const std::string& group, std::function<void()>& function)
+int GUIController::AddImguiWindowFunction(const std::string& group, std::function<void()>& function)
 {
   auto it = _imguiWindowGroups.find(group);
   if (it == _imguiWindowGroups.end())
@@ -159,6 +158,18 @@ void GUIController::AddImguiWindowFunction(const std::string& group, std::functi
     _imguiWindowGroups.emplace(group, std::vector<std::function<void()>>());
   }
   _imguiWindowGroups[group].push_back(function);
+
+  // return the index of the new item
+  return _imguiWindowGroups[group].size() - 1;
+}
+
+void GUIController::RemoveImguiWindowFunction(const std::string& group, int index)
+{
+  auto it = _imguiWindowGroups.find(group);
+  if (it != _imguiWindowGroups.end())
+  {
+    it->second.erase(it->second.begin() + index);
+  }
 }
 
 

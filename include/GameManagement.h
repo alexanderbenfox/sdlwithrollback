@@ -1,15 +1,13 @@
 #pragma once
 
 #include "GameState/GameState.h"
-#include "Entity.h"
+#include "GameState/Scene.h"
 #include "Components/IComponent.h"
 #include "Timer.h"
 #include "Rendering/RenderManager.h"
 
 #include <thread>
 #include <mutex>
-
-class Camera;
 
 template <typename T, typename... Rest>
 bool constexpr all_base_of()
@@ -65,9 +63,9 @@ private:
   SDL_Event _localInput;
   //!
   Timer _clock;
+
   //!
-  //std::unique_ptr<IGameState> _gameState;
-  std::shared_ptr<Camera> _camera; 
+  std::unique_ptr<IScene> _currentScene;
 
   //______________________________________________________________________________
 

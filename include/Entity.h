@@ -3,7 +3,7 @@
 #include <typeindex>
 #include <memory>
 
-#include "Geometry.h"
+#include "Core/Math/Vector2.h"
 #include "Components/ComponentManager.h"
 #include "Utils.h"
 

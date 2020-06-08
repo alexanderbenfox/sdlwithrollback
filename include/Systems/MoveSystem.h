@@ -4,6 +4,7 @@
 #include "Components/Transform.h"
 #include "Components/Camera.h"
 #include "Components/Rigidbody.h"
+#include "Components/Hurtbox.h"
 
 class MoveSystemCamera : public ISystem<Transform, Camera>
 {

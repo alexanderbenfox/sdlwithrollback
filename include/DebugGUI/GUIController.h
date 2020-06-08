@@ -1,4 +1,5 @@
 #pragma once
+#include "Rendering/GLTexture.h"
 #include "../imgui/impl/imgui_impl_sdl.h"
 #include "../imgui/impl/imgui_impl_opengl2.h"
 #include <SDL2/SDL.h>
@@ -32,7 +33,8 @@ public:
   void RenderFrame();
   void CleanUp();
 
-  void AddImguiWindowFunction(const std::string& group, std::function<void()>& function);
+  int AddImguiWindowFunction(const std::string& group, std::function<void()>& function);
+  void RemoveImguiWindowFunction(const std::string& group, int index);
 
 private:
   GUIController() = default;

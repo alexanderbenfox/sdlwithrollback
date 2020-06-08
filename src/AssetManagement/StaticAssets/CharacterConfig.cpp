@@ -1,4 +1,5 @@
 #include "AssetManagement/StaticAssets/CharacterConfig.h"
+#include "AssetManagement/StaticAssets/StaticAssetUtils.h"
 
 float RyuConfig::moveSpeed;
 float RyuConfig::jumpHeight;
@@ -47,7 +48,7 @@ std::unordered_map<std::string, std::tuple<AnimationInfo, FrameData, std::string
   { "StandingLight",
     std::make_tuple(
       AnimationInfo{groundedAttacks, 38, 7, AnchorPoint::BL},
-      FrameData{4, 2, 7, 3, -2, 1, Vector2<float>(120.0f, -100.0f), hitstopLight},
+      FrameData{4, 3, 7, 3, -2, 1, Vector2<float>(120.0f, -100.0f), hitstopLight},
       "spritesheets\\grounded_attacks_hitboxes.png", AnimationDebuggingInfo{0})
   },
   { "StandingMedium",
@@ -69,3 +70,17 @@ std::unordered_map<std::string, std::tuple<AnimationInfo, FrameData, std::string
       "spritesheets\\grounded_attacks_hitboxes.png", AnimationDebuggingInfo{0})
   }
 };
+
+AnimationCollection& RyuConfig::Animations()
+{
+  if (!_animLoaded)
+  {
+    StaticAssetUtils::LoadAnimations(normalAnimations, attackAnimations, _animations);
+    _animLoaded = true;
+  }
+  return _animations;
+}
+
+bool RyuConfig::_animLoaded = false;
+
+AnimationCollection RyuConfig::_animations;

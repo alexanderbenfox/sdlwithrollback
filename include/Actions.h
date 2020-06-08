@@ -207,7 +207,10 @@ class OnRecvHitAction : public TimedAction<Stance, Action>
 public:
   //!
   OnRecvHitAction(const std::string& animation, bool facingRight, int framesInState, Vector2<float> instVeclocity) :
-    TimedAction<Stance, Action>(animation, facingRight, framesInState, instVeclocity) {}
+    TimedAction<Stance, Action>(animation, facingRight, framesInState, instVeclocity), _damageTaken(0) {}
+
+  OnRecvHitAction(const std::string& animation, bool facingRight, int framesInState, Vector2<float> instVeclocity, int damage) :
+    TimedAction<Stance, Action>(animation, facingRight, framesInState, instVeclocity), _damageTaken(damage) {}
 
   virtual ~OnRecvHitAction();
 
@@ -222,6 +225,8 @@ protected:
   virtual IAction* GetFollowUpAction(const InputBuffer& rawInput, const StateComponent& context) override;
   //! Removes hit state component
   virtual void OnActionComplete() override;
+  //!
+  int _damageTaken = 0;
 
 };
 
