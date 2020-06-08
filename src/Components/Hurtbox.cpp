@@ -1,22 +1,9 @@
 #include "Components/Hurtbox.h"
-#include "DebugGUI/GUIController.h"
 #include "Entity.h"
 
-Hurtbox::Hurtbox(std::shared_ptr<Entity> owner) : RectColliderD(owner)
-{
-  std::function<void()> func = [this]()
-  {
-    ImGui::BeginGroup();
-    ImGui::Text("Player %d State Component", _owner->GetID());
-    ImGui::Text("HP = %d", hp);
-    ImGui::EndGroup();
-  };
+Hurtbox::Hurtbox(std::shared_ptr<Entity> owner) : RectColliderD(owner), DebugItem("Hurtbox") {}
 
-  debugID = GUIController::Get().AddImguiWindowFunction("State Components", func);
-}
-
-Hurtbox::~Hurtbox()
+void Hurtbox::OnDebug()
 {
-  if(debugID > 0)
-    GUIController::Get().RemoveImguiWindowFunction("State Components", debugID);
+  ImGui::Text("HP = %d", hp);
 }
