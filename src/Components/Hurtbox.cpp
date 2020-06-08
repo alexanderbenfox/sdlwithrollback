@@ -5,5 +5,8 @@ Hurtbox::Hurtbox(std::shared_ptr<Entity> owner) : RectColliderD(owner), DebugIte
 
 void Hurtbox::OnDebug()
 {
-  ImGui::Text("HP = %d", hp);
+  int entityId = _owner->GetID();
+  std::string pName = "P" + std::to_string(entityId);
+  if(ImGui::CollapsingHeader(pName.c_str()))
+    ImGui::Checkbox("Show Hurtbox", &_drawDebug);
 }

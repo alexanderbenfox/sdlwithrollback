@@ -53,6 +53,10 @@ public:
     is >> collider.rect;
     return is;
   }
+
+protected:
+  bool _drawDebug = true;
+
 };
 
 typedef RectCollider<double> RectColliderD;

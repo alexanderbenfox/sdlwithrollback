@@ -1,4 +1,5 @@
 #pragma once
+#include "Rendering/GLTexture.h"
 #include "../imgui/impl/imgui_impl_sdl.h"
 #include "../imgui/impl/imgui_impl_opengl2.h"
 #include <SDL2/SDL.h>

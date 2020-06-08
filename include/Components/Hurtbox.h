@@ -8,9 +8,7 @@ class Hurtbox : public RectColliderD, public DebugItem
 public:
   //!
   Hurtbox(std::shared_ptr<Entity> entity);
-  //! Do we put health here?
-  int hp = 100;
-
+  //! Shows option to draw debug rectangles around hurtbox
   virtual void OnDebug() override;
 
 };

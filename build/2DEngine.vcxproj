@@ -39,6 +39,7 @@
     <ClCompile Include="..\src\Components\Input.cpp" />
     <ClCompile Include="..\src\Components\Hurtbox.cpp" />
     <ClCompile Include="..\src\Core\Geometry2D\RectHelper.cpp" />
+    <ClCompile Include="..\src\DebugGUI\DebugItem.cpp" />
     <ClCompile Include="..\src\DebugGUI\GUIController.cpp" />
     <ClCompile Include="..\src\Entity.cpp" />
     <ClCompile Include="..\src\GameManagement.cpp" />
@@ -88,6 +89,7 @@
     <ClInclude Include="..\include\Core\Math\Matrix4.h" />
     <ClInclude Include="..\include\Core\Math\Vector2.h" />
     <ClInclude Include="..\include\Core\Math\Vector3.h" />
+    <ClInclude Include="..\include\DebugGUI\DebugItem.h" />
     <ClInclude Include="..\include\DebugGUI\GUIController.h" />
     <ClInclude Include="..\include\Entity.h" />
     <ClInclude Include="..\include\GameManagement.h" />

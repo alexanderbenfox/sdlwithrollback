@@ -10,7 +10,7 @@ struct DebugItem
   DebugItem(const char* groupName);
   //! if we are copying this object, we do not want it to create another debug function
   virtual DebugItem& operator=(const DebugItem& other);
-  virtual DebugItem& operator=(DebugItem&& other);
+  virtual DebugItem& operator=(DebugItem&& other) noexcept;
   //! destroy the function from the gui controller
   virtual ~DebugItem();
 

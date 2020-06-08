@@ -36,6 +36,9 @@ void RectCollider<T>::Init(Vector2<T> beg, Vector2<T> end)
 template <typename T>
 void RectCollider<T>::Draw()
 {
+  if (!_drawDebug)
+    return;
+
   int xBeg = static_cast<int>(std::floor(rect.beg.x));
   int yBeg = static_cast<int>(std::floor(rect.beg.y));
   int xEnd = static_cast<int>(std::ceil(rect.end.x));

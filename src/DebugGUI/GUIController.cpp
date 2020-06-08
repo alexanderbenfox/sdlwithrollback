@@ -1,4 +1,3 @@
-#include "Rendering/GLTexture.h"
 #include "DebugGUI/GUIController.h"
 #include "../imgui/imgui.h"
 

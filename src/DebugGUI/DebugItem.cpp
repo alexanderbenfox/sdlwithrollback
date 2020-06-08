@@ -1,15 +1,8 @@
 #include "DebugGUI/DebugItem.h"
-#include "DebugGUI/GUIController.h"
 
 DebugItem::DebugItem(const char* groupName) : debugGroup(groupName)
 {
-  std::function<void()> func = [this]()
-  {
-    ImGui::BeginGroup();
-    OnDebug();
-    ImGui::EndGroup();
-  };
-
+  std::function<void()> func = [this]() { OnDebug(); };
   debugID = GUIController::Get().AddImguiWindowFunction(debugGroup, func);
 }
 
@@ -19,7 +12,7 @@ DebugItem& DebugItem::operator=(const DebugItem& other)
   return *this;
 }
 
-DebugItem& DebugItem::operator=(DebugItem&& other)
+DebugItem& DebugItem::operator=(DebugItem&& other) noexcept
 {
   this->debugID = 0;
   return *this;

@@ -14,7 +14,7 @@ public:
   StateComponent(const StateComponent& other);
   StateComponent(StateComponent&& other);
   StateComponent& operator=(const StateComponent& other);
-  StateComponent& operator=(StateComponent&& other);
+  StateComponent& operator=(StateComponent&& other) noexcept;
   
   //! is player on left side of the other player
   bool onLeftSide;
@@ -30,6 +30,9 @@ public:
   //! Attacker state information
   bool hitting = false;
 
+
+  int hp = 100;
+
   virtual void OnDebug() override
   {
     //ImGui::Text("Player %d State Component", _owner->GetID());
@@ -37,6 +40,7 @@ public:
       ImGui::Text("IsHitting");
     else
       ImGui::Text("NotHitting");
+    ImGui::Text("HP = %d", hp);
   }
 
   //!
@@ -74,7 +78,7 @@ inline StateComponent& StateComponent::operator=(const StateComponent& other)
   return *this;
 }
 
-inline StateComponent& StateComponent::operator=(StateComponent&& other)
+inline StateComponent& StateComponent::operator=(StateComponent&& other) noexcept
 {
   DebugItem::operator=(other);
   this->onLeftSide = other.onLeftSide;

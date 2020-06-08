@@ -165,6 +165,9 @@
     <ClCompile Include="..\src\Core\Geometry2D\RectHelper.cpp">
       <Filter>Source Files\Core\Geometry2D</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\DebugGUI\DebugItem.cpp">
+      <Filter>Source Files\DebugGUI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\AssetManagement\Resource.h">
@@ -334,6 +337,9 @@
     </ClInclude>
     <ClInclude Include="..\include\Components\Hurtbox.h">
       <Filter>Header Files\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\DebugGUI\DebugItem.h">
+      <Filter>Header Files\DebugGUI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
