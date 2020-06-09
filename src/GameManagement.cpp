@@ -131,7 +131,7 @@ Rect<double> ResourceManager::FindRect(Resource<SDL_Texture>& texture, Vector2<i
 #else
     Uint8 r, g, b, a;
     SDL_GetRGBA(pixel, format.get(), &r, &g, &b, &a);
-    if (r != 0)
+    if (r != 0 || b != 0 || g != 0 || a != 0)
 #endif
     {
       if (!firstFound)
