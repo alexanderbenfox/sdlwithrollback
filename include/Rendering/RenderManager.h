@@ -2,8 +2,8 @@
 #include "AssetManagement/BlitOperation.h"
 #include "Core/Math/Vector2.h"
 
-const int m_nativeWidth = 600;
-const int m_nativeHeight = 400;
+const int m_nativeWidth = 720;
+const int m_nativeHeight = 480;
 
 template <typename TextureType>
 class RenderManager

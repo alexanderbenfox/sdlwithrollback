@@ -13,16 +13,15 @@ std::unordered_map<std::string, AnimationInfo> RyuConfig::normalAnimations =
   { "Falling", {jumpFall, 60, 13, AnchorPoint::BL}},
   { "Crouching", {crouching, 0, 4, AnchorPoint::BL}},
   { "Crouch", {crouching, 12, 5, AnchorPoint::BL}},
-  { "JumpingLight", {jumpingAttacks, 0, 14, AnchorPoint::TL}},
-  { "JumpingMedium", {jumpingAttacks, 0, 14, AnchorPoint::TL}},
-  { "JumpingHeavy", {jumpingAttacks, 0, 14, AnchorPoint::TL}},
   { "Block", {blockAndHitstun, 0, 4, AnchorPoint::BL}},
   {"LightHitstun", {blockAndHitstun, 4, 3, AnchorPoint::BL}},
   {"LightHitstun2", {blockAndHitstun, 37, 4, AnchorPoint::BL}},
   {"MediumHitstun", {blockAndHitstun, 8, 10, AnchorPoint::BL}},
   {"MediumHitstun2", {blockAndHitstun, 19, 9, AnchorPoint::BL}},
   {"HeavyHitstun", {blockAndHitstun, 42, 12, AnchorPoint::BL}},
-  {"LaunchHitstun", {blockAndHitstun, 27, 9, AnchorPoint::BL}}
+  {"LaunchHitstun", {blockAndHitstun, 27, 9, AnchorPoint::BL}},
+  {"Win", {winLoseSpriteSheet, 0, 6, AnchorPoint::BL}},
+  {"KO", {winLoseSpriteSheet, 6, 17, AnchorPoint::BL}}
 };
 
 std::unordered_map<std::string, std::tuple<AnimationInfo, FrameData, std::string, AnimationDebuggingInfo>> RyuConfig::attackAnimations = 
@@ -62,6 +61,26 @@ std::unordered_map<std::string, std::tuple<AnimationInfo, FrameData, std::string
       AnimationInfo{groundedAttacks, 53, 12, AnchorPoint::BL},
       FrameData{ 8, 3, 20, 7, -6, 1, Vector2<float>(120.0f, -400.0f), hitstopHeavy},
       "spritesheets\\grounded_attacks_hitboxes.png", AnimationDebuggingInfo{0})
+  },
+  { "JumpingLight",
+    std::make_tuple(
+      AnimationInfo{jumpingAttacks, 0, 8, AnchorPoint::TL},
+      // here we do -50 + 7 so that you are +7 if you land at the exact moment you hit
+      FrameData{ 4, 2, 50, -50 + 7, -50 + 7, 1, Vector2<float>(120.0f, -200.0f), hitstopHeavy},
+      "spritesheets\\jumping_attacks_hitboxes.png",  AnimationDebuggingInfo{0})
+  },
+  { "JumpingMedium",
+    std::make_tuple(
+      AnimationInfo{jumpingAttacks, 9, 9, AnchorPoint::TL},
+      FrameData{ 5, 6, 50, -50 + 9, -50 + 9, 1, Vector2<float>(120.0f, 200.0f), hitstopHeavy},
+      "spritesheets\\jumping_attacks_hitboxes.png",  AnimationDebuggingInfo{0})
+  },
+  { "JumpingHeavy",
+    std::make_tuple(
+      AnimationInfo{jumpingAttacks, 17, 8, AnchorPoint::TL},
+      // here we do -50 + 11 so that you are +11 if you land at the exact moment you hit
+      FrameData{ 6, 3, 50, -50 + 11, -50 + 11, 1, Vector2<float>(200.0f, 300.0f), hitstopHeavy},
+      "spritesheets\\jumping_attacks_hitboxes.png",  AnimationDebuggingInfo{0})
   },
   { "SpecialMove1",
     std::make_tuple(

@@ -12,8 +12,11 @@ const SpriteSheet idleAndWalking("spritesheets\\idle_and_walking.png", 6, 6, fal
 const SpriteSheet jumpFall("spritesheets\\idle_walking_jab_jump_crouch.png", 8, 10, false);
 const SpriteSheet crouching("spritesheets\\crouching.png", 4, 5, false);
 const SpriteSheet groundedAttacks("spritesheets\\grounded_attacks.png", 8, 10, false);
-const SpriteSheet jumpingAttacks("spritesheets\\jlp.png", 4, 4, false);
+const SpriteSheet jumpingAttacks("spritesheets\\jumping_attacks.png", 5, 5, false);
 const SpriteSheet blockAndHitstun("spritesheets\\block_mid_hitstun.png", 8, 7, false);
+const SpriteSheet blocks("spritesheets\\blocks.png", 4, 4, false);
+const SpriteSheet throws("spritesheets\\throws.png", 8, 5, false);
+const SpriteSheet winLoseSpriteSheet("spritesheets\\winlose.png", 4, 4, false);
 
 class ICharacterConfig {};
 

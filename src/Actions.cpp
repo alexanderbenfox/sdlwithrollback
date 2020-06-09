@@ -14,15 +14,18 @@ const float _baseSpeed = 300.0f * 1.5f;
 //______________________________________________________________________________
 template <> IAction* GetAttacksFromNeutral<StanceState::STANDING>(const InputBuffer& rawInput, bool facingRight)
 {
-  // prioritize attacks
-  if (HasState(rawInput.Latest(), InputState::BTN1))
+  if (HasState(rawInput.Latest(), InputState::BTN1) || HasState(rawInput.Latest(), InputState::BTN2) || HasState(rawInput.Latest(), InputState::BTN3))
   {
     //!!!! TESTING SPECIAL MOVES HERE
     bool qcf = rawInput.Evaluate(UnivSpecMoveDict) == SpecialMoveState::QCF && facingRight;
     bool qcb = rawInput.Evaluate(UnivSpecMoveDict) == SpecialMoveState::QCB && !facingRight;
     if (qcf || qcb)
       return new GroundedStaticAttack<StanceState::STANDING, ActionState::NONE>("SpecialMove1", facingRight);
+  }
 
+  // prioritize attacks
+  if (HasState(rawInput.Latest(), InputState::BTN1))
+  {
     if (HasState(rawInput.Latest(), InputState::DOWN))
       return new GroundedStaticAttack<StanceState::CROUCHING, ActionState::LIGHT>("CrouchingLight", facingRight);
     else

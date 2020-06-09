@@ -302,14 +302,18 @@ template <> IAction* StateLockedAnimatedAction<StanceState::CROUCHING, ActionSta
 template <StanceState State, ActionState Action>
 inline IAction* StateLockedAnimatedAction<State, Action>::HandleInput(const InputBuffer& rawInput, const StateComponent& context)
 {
-  //!!!! TESTING SPECIAL CANCELS HERE
-  bool qcf = rawInput.Evaluate(UnivSpecMoveDict) == SpecialMoveState::QCF && context.onLeftSide;
-  bool qcb = rawInput.Evaluate(UnivSpecMoveDict) == SpecialMoveState::QCB && !context.onLeftSide;
-  if (HasState(rawInput.Latest(), InputState::BTN1))
+  //!!!! TESTING SPECIAL MOVE CANCELS HERE
+  if (context.hitting)
   {
-    if (context.hitting && (qcf || qcb))
-      return new GroundedStaticAttack<StanceState::STANDING, ActionState::NONE>("SpecialMove1", context.onLeftSide);
+    if (HasState(rawInput.Latest(), InputState::BTN1) || HasState(rawInput.Latest(), InputState::BTN2) || HasState(rawInput.Latest(), InputState::BTN3))
+    {
+      bool qcf = rawInput.Evaluate(UnivSpecMoveDict) == SpecialMoveState::QCF && context.onLeftSide;
+      bool qcb = rawInput.Evaluate(UnivSpecMoveDict) == SpecialMoveState::QCB && !context.onLeftSide;
+      if (qcf || qcb)
+        return new GroundedStaticAttack<StanceState::STANDING, ActionState::NONE>("SpecialMove1", context.onLeftSide);
+    }
   }
+
   if(AnimatedAction<State, Action>::_complete)
   {
     return GetFollowUpAction(rawInput, context);

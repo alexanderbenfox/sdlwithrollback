@@ -247,8 +247,9 @@ GamepadInputHandler::GamepadInputHandler(std::shared_ptr<Entity> owner) : IInput
 
   _config[SDL_CONTROLLER_BUTTON_X] = InputState::BTN1;
   _config[SDL_CONTROLLER_BUTTON_Y] = InputState::BTN2;
-  _config[SDL_CONTROLLER_BUTTON_A] = InputState::BTN3;
+  //_config[SDL_CONTROLLER_BUTTON_A] = InputState::BTN3;
   _config[SDL_CONTROLLER_BUTTON_B] = InputState::BTN4;
+  _config[SDL_CONTROLLER_BUTTON_RIGHTSHOULDER] = InputState::BTN3;
   _config[SDL_CONTROLLER_BUTTON_DPAD_UP] = InputState::UP;
   _config[SDL_CONTROLLER_BUTTON_DPAD_DOWN] = InputState::DOWN;
   _config[SDL_CONTROLLER_BUTTON_DPAD_LEFT] = InputState::LEFT;
