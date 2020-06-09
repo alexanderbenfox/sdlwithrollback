@@ -190,6 +190,20 @@ template <> IAction* LoopedAction<StanceState::STANDING, ActionState::NONE>::Han
     return new StateLockedAnimatedAction<StanceState::CROUCHING, ActionState::NONE>("Crouching", facingRight, Vector2<float>(0,0));
   }
 
+  if (HasState(rawInput.Latest(), InputState::BTN4))
+  {
+    std::string dashAnimLeft = !facingRight ? "ForwardDash" : "BackDash";
+    std::string dashAnimRight = !facingRight ? "BackDash" : "ForwardDash";
+    if (HasState(rawInput.Latest(), InputState::LEFT))
+    {
+      return new StateLockedAnimatedAction<StanceState::STANDING, ActionState::DASHING>(dashAnimLeft, facingRight, Vector2<float>(facingRight ? -1.4f * _baseSpeed : 1.4f * _baseSpeed, 0));
+    }
+    else if (HasState(rawInput.Latest(), InputState::RIGHT))
+    {
+      return new StateLockedAnimatedAction<StanceState::STANDING, ActionState::DASHING>(dashAnimRight, facingRight, Vector2<float>(facingRight ? 1.4f * _baseSpeed : -1.4f * _baseSpeed, 0));
+    }
+  }
+
   std::string walkAnimLeft = !facingRight ? "WalkF" : "WalkB";
   std::string walkAnimRight = !facingRight ? "WalkB" : "WalkF";
 

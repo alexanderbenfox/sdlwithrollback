@@ -20,6 +20,8 @@ std::unordered_map<std::string, AnimationInfo> RyuConfig::normalAnimations =
   {"MediumHitstun2", {blockAndHitstun, 19, 9, AnchorPoint::BL}},
   {"HeavyHitstun", {blockAndHitstun, 42, 12, AnchorPoint::BL}},
   {"LaunchHitstun", {blockAndHitstun, 27, 9, AnchorPoint::BL}},
+  {"BackDash", {dashes, 0, 6, AnchorPoint::BL}},
+  {"ForwardDash", {dashes, 6, 6, AnchorPoint::BL}},
   {"Win", {winLoseSpriteSheet, 0, 6, AnchorPoint::BL}},
   {"KO", {winLoseSpriteSheet, 6, 17, AnchorPoint::BL}}
 };
