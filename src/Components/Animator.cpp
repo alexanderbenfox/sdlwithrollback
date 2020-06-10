@@ -12,7 +12,7 @@ void Animator::SetAnimations(AnimationCollection* animations)
   _animations = animations;
 }
 
-Animation* Animator::Play(const std::string& name, bool isLooped, bool horizontalFlip)
+Animation* Animator::Play(const std::string& name, bool isLooped, bool horizontalFlip, float speed)
 {
   // dont play again if we are already playing it
   if (playing && name == currentAnimationName) return _animations->GetAnimation(currentAnimationName);
@@ -28,6 +28,7 @@ Animation* Animator::Play(const std::string& name, bool isLooped, bool horizonta
     frame = 0;
 
     looping = isLooped;
+    playSpeed = speed;
   }
   return _animations->GetAnimation(currentAnimationName);
 }

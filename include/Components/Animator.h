@@ -10,7 +10,7 @@ public:
   void SetAnimations(AnimationCollection* animations);
 
   // Setter function
-  Animation* Play(const std::string& name, bool isLooped, bool horizontalFlip);
+  Animation* Play(const std::string& name, bool isLooped, bool horizontalFlip, float speed = 1.0f);
 
   void ChangeListener(IAnimatorListener* listener) { _listener = listener; }
 
@@ -31,6 +31,8 @@ public:
   int frame;
   //!
   std::string currentAnimationName;
+  //! multiplier for speed of animation to play at
+  float playSpeed = 1.0f;
   
 
   friend std::ostream& operator<<(std::ostream& os, const Animator& animator);

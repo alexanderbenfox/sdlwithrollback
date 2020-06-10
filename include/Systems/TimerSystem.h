@@ -10,16 +10,20 @@ public:
   {
     for(auto& tuple : Tuples)
     {
-      std::vector<std::shared_ptr<TimerComponent>>& _timings = std::get<GameActor*>(tuple.second)->timings;
+      std::vector<std::shared_ptr<ActionTimer>>& _timings = std::get<GameActor*>(tuple.second)->timings;
       std::vector<int> markedForDelete;
       for (int i = 0; i < _timings.size(); i++)
       {
-        std::shared_ptr<TimerComponent> timer = _timings[i];
+        std::shared_ptr<ActionTimer> timer = _timings[i];
+
+        // always update first
+        timer->Update();
+
         if (timer->playTime >= secPerFrame)
         {
           int framesToAdv = (int)std::floor(timer->playTime / secPerFrame);
 
-          if ((timer->currFrame + framesToAdv) >= timer->TotalFrames())
+          if ((timer->currFrame + framesToAdv) >= timer->Duration())
           {
             if(!timer->Cancelled())
               timer->OnComplete();

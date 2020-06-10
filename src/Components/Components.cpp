@@ -121,7 +121,7 @@ void GameActor::BeginNewAction(IAction* action)
     {
       _comboCounter = 0;
       // remove render properties to hide the text
-      std::shared_ptr<TimerComponent> endComboText = std::shared_ptr<TimerComponent>(new TimerComponent(
+      std::shared_ptr<ActionTimer> endComboText = std::shared_ptr<ActionTimer>(new SimpleActionTimer(
         [this](){ _counterText->RemoveComponent<RenderProperties>(); },
         5));
       timings.push_back(endComboText);

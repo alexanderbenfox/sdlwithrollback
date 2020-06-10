@@ -86,11 +86,11 @@ public:
     }
   }
   //!
-  void SetTimer(TimerComponent* timer) { _linkedTimer = timer; }
+  void SetTimer(ActionTimer* timer) { _linkedTimer = timer; }
   //!
-  virtual int GetRemainingFrames() override { return (_linkedTimer->TotalFrames() - 1) - _linkedTimer->currFrame; }
+  virtual int GetRemainingFrames() override { return (_linkedTimer->Duration() - 1) - _linkedTimer->currFrame; }
 
 private:
   //!
-  TimerComponent* _linkedTimer;
+  ActionTimer* _linkedTimer;
 };

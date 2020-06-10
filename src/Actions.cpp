@@ -194,13 +194,14 @@ template <> IAction* LoopedAction<StanceState::STANDING, ActionState::NONE>::Han
   {
     std::string dashAnimLeft = !facingRight ? "ForwardDash" : "BackDash";
     std::string dashAnimRight = !facingRight ? "BackDash" : "ForwardDash";
+
     if (HasState(rawInput.Latest(), InputState::LEFT))
     {
-      return new StateLockedAnimatedAction<StanceState::STANDING, ActionState::DASHING>(dashAnimLeft, facingRight, Vector2<float>(facingRight ? -1.4f * _baseSpeed : 1.4f * _baseSpeed, 0));
+      return new DashAction<StanceState::STANDING, ActionState::DASHING>(dashAnimLeft, facingRight, 12, -1.4f * _baseSpeed);
     }
     else if (HasState(rawInput.Latest(), InputState::RIGHT))
     {
-      return new StateLockedAnimatedAction<StanceState::STANDING, ActionState::DASHING>(dashAnimRight, facingRight, Vector2<float>(facingRight ? 1.4f * _baseSpeed : -1.4f * _baseSpeed, 0));
+      return new DashAction<StanceState::STANDING, ActionState::DASHING>(dashAnimRight, facingRight, 12, 1.4f * _baseSpeed);
     }
   }
 
@@ -291,8 +292,49 @@ void TimedAction<Stance, Action>::Enact(Entity* actor)
 {
   AnimatedAction<Stance, Action>::Enact(actor);
   AnimatedAction<Stance, Action>::_complete = false;
-  _actionTiming = std::make_shared<TimerComponent>([this]() { this->OnActionComplete(); }, _duration);
+  _actionTiming = std::shared_ptr<ActionTimer>(new SimpleActionTimer([this](){ this->OnActionComplete(); }, _duration));
   actor->GetComponent<GameActor>()->timings.push_back(_actionTiming);
+}
+
+//______________________________________________________________________________
+template <StanceState Stance, ActionState Action>
+IAction* TimedAction<Stance, Action>::GetFollowUpAction(const InputBuffer& rawInput, const StateComponent& context)
+{
+  return new LoopedAction<Stance, ActionState::NONE>(Stance == StanceState::STANDING ? "Idle" : Stance == StanceState::CROUCHING ? "Crouch" : "Jumping", this->_facingRight);
+}
+
+//______________________________________________________________________________
+template <StanceState Stance, ActionState Action>
+void DashAction<Stance,Action>::Enact(Entity* actor)
+{
+  this->_loopedAnimation = false;
+  AnimatedAction<Stance, Action>::Enact(actor);
+  AnimatedAction<Stance, Action>::_complete = false;
+
+  // adjust speed of animation to match the duration of action
+  auto animator = actor->GetComponent<Animator>();
+  animator->playSpeed = static_cast<float>(animator->GetCurrentAnimation().GetFrameCount()) / static_cast<float>(TimedAction<Stance, Action>::_duration);
+
+  // need to get rigid body to move character around during the timer
+  std::shared_ptr<Rigidbody> rb = actor->GetComponent<Rigidbody>();
+  // initialize the update functions
+  TimedAction<Stance, Action>::_actionTiming = std::shared_ptr<ActionTimer>(new ComplexActionTimer(
+    [rb, this](float t, float totalT)
+    {
+      // make peak speed at halfway through action
+      float t2 = (t - totalT / 2.0f) * (t - totalT / 2.0f);
+      // send velocity to rigidbody component based on inv parabola
+      rb->_vel = Vector2<float>(-t2 + _dashSpeed, 0);
+    },
+    [rb, this]()
+    {
+      this->OnActionComplete();
+      // make sure movement is stopped
+      rb->_vel = Vector2<float>(0, 0);
+    },
+    TimedAction<Stance, Action>::_duration));
+  
+  actor->GetComponent<GameActor>()->timings.push_back(TimedAction<Stance, Action>::_actionTiming);
 }
 
 //______________________________________________________________________________
@@ -313,18 +355,6 @@ void OnRecvHitAction<Stance, Action>::Enact(Entity* actor)
 
   //! send damage value
   actor->GetComponent<StateComponent>()->hp -= _damageTaken;
-}
-
-//______________________________________________________________________________
-template <StanceState Stance, ActionState Action>
-IAction* OnRecvHitAction<Stance, Action>::GetFollowUpAction(const InputBuffer& rawInput, const StateComponent& context)
-{
-  /*LoopedAction<Stance, ActionState::NONE> followUp(Stance == StanceState::STANDING ? "Idle" : Stance == StanceState::CROUCHING ? "Crouch" : "Jumping", this->_facingRight);
-  IAction* action = followUp.HandleInput(rawInput, context);
-  if(action)
-    return action;
-  return new LoopedAction<Stance, ActionState::NONE>(Stance == StanceState::STANDING ? "Idle" : Stance == StanceState::CROUCHING ? "Crouch" : "Jumping", this->_facingRight);*/
-  return new LoopedAction<Stance, ActionState::NONE>(Stance == StanceState::STANDING ? "Idle" : Stance == StanceState::CROUCHING ? "Crouch" : "Jumping", this->_facingRight);
 }
 
 //______________________________________________________________________________

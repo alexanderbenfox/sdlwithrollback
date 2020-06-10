@@ -31,13 +31,6 @@ public:
   //!
   void EvaluateInputContext(const InputBuffer& input, const StateComponent* stateInfo, float dt);
   //!
-  /*void StartAnimatedAction(const std::string& animName, bool isJC = false);
-  //!
-  void StartStateTransitionAction(const std::string& animName, StanceState state)
-  {
-    _currentActions.insert(new StateModifierAction(animName, _owner.get(), state));
-  }*/
-
   bool IsPerformingAction() const { return _currentAction != nullptr; }
 
   friend std::ostream& operator<<(std::ostream& os, const GameActor& actor);
@@ -49,7 +42,7 @@ public:
   //! Context that will be merged with the input context when inputs are evaluated
   //GameContext mergeContext;
 
-  std::vector<std::shared_ptr<TimerComponent>> timings;
+  std::vector<std::shared_ptr<ActionTimer>> timings;
 
   //IAction* const GetAction() {return _currentAction;}
   StanceState const& GetStanceState() { return _currStance; }

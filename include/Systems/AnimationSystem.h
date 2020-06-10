@@ -108,7 +108,8 @@ public:
           // 
           animator->accumulatedTime -= (framesToAdv * secPerFrame);
         }
-        animator->accumulatedTime += dt;
+        // update accumulated time by dt and the animation speed modifier
+        animator->accumulatedTime += (dt * animator->playSpeed);
       }
     }
   }

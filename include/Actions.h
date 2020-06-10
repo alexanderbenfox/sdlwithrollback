@@ -6,33 +6,6 @@
 
 #include <functional>
 
-//! Drives the animation
-class TimerComponent
-{
-public:
-  TimerComponent(std::function<void()> onComplete, int duration) : playTime(0), currFrame(0), _totalFrames(duration), _onComplete(onComplete), _cancelled(false) {}
-  float playTime;
-  int currFrame;
-
-  //!
-  int const TotalFrames() { return _totalFrames; }
-  //!
-  void OnComplete()
-  {
-    if(!_cancelled)
-      _onComplete();
-  }
-  //!
-  void Cancel() { _cancelled = true; }
-
-  bool const Cancelled() { return _cancelled; }
-private:
-  int _totalFrames;
-  std::function<void()> _onComplete;
-  bool _cancelled;
-
-};
-
 //______________________________________________________________________________
 class IAction
 {
@@ -58,6 +31,90 @@ protected:
   virtual IAction* GetFollowUpAction(const InputBuffer& rawInput, const StateComponent& context) = 0;
   //!
   virtual void OnActionComplete() = 0;
+
+};
+
+class ActionTimer
+{
+public:
+  ActionTimer(int duration) : 
+    playTime(0),
+    currFrame(0),
+    _totalFrames(duration) {}
+
+  virtual ~ActionTimer() = default;
+  //! num frames the total action goes for
+  int const Duration() { return _totalFrames; }
+
+
+  //! gets whether or not this action has been cancelled preemptively
+  virtual bool const Cancelled() = 0;
+  //! callback for when the timer completes
+  virtual void OnComplete() = 0;
+  //! cancels the action timer
+  virtual void Cancel() = 0;
+  //!
+  virtual void Update() = 0;
+
+  //!
+  float playTime;
+  int currFrame;
+
+protected:
+  int _totalFrames;
+
+};
+
+//! Drives the animation - only calls the action's on complete function
+class SimpleActionTimer : public ActionTimer
+{
+public:
+  typedef std::function<void()> CompleteFunc;
+
+  SimpleActionTimer(CompleteFunc onComplete, int duration) :
+    _callback(onComplete),
+    _cancelled(false),
+    ActionTimer(duration) {}
+
+  virtual bool const Cancelled() override { return _cancelled; }
+
+  //!
+  virtual void OnComplete() override
+  {
+    if(!_cancelled)
+    {
+      _callback();
+    }
+  }
+  //!
+  virtual void Cancel() override { _cancelled = true; }
+
+  //! nothing happens on update
+  virtual void Update() override {}
+
+  
+protected:
+  CompleteFunc _callback;
+  bool _cancelled;
+
+};
+
+class ComplexActionTimer : public SimpleActionTimer
+{
+public:
+  typedef std::function<void(float, float)> TFunction;
+  ComplexActionTimer(TFunction updater, CompleteFunc onComplete, int duration) :
+    _updater(updater),
+    SimpleActionTimer(onComplete, duration) {}
+
+  //! updates based on the length of animation play
+  virtual void Update() override 
+  {
+    _updater(currFrame, _totalFrames);
+  }
+
+protected:
+  TFunction _updater;
 
 };
 
@@ -177,6 +234,9 @@ public:
   //!
   virtual void Enact(Entity* actor) override;
 
+  //! Make sure inputs are checked after follow up action since it has returned to neutral
+  virtual bool CheckInputsOnFollowUp() override { return true; }
+
   //!
   virtual IAction* HandleInput(const InputBuffer& rawInput, const StateComponent& context) override
   {
@@ -193,10 +253,29 @@ public:
   }
 
 protected:
-  virtual IAction* GetFollowUpAction(const InputBuffer& rawInput, const StateComponent& context) override = 0;
+  //! Follows up with idle state
+  virtual IAction* GetFollowUpAction(const InputBuffer& rawInput, const StateComponent& context) override;
 
-std::shared_ptr<TimerComponent> _actionTiming;
-int _duration;
+  std::shared_ptr<ActionTimer> _actionTiming;
+  int _duration;
+
+};
+
+//______________________________________________________________________________
+template <StanceState Stance, ActionState Action>
+class DashAction : public TimedAction<Stance, Action>
+{
+public:
+  //!
+  DashAction(const std::string& animation, bool facingRight, int framesInState, float dashSpeed) :
+    _dashSpeed(dashSpeed),
+    TimedAction<Stance, Action>(animation, facingRight, framesInState) {}
+
+  void Enact(Entity* actor) override;
+
+private:
+
+  float _dashSpeed;
 
 };
 
@@ -218,11 +297,8 @@ public:
   //! Adds hit state component
   virtual void Enact(Entity* actor) override;
 
-  virtual bool CheckInputsOnFollowUp() override { return true; }
-
 protected:
-  //! Follows up with idle state
-  virtual IAction* GetFollowUpAction(const InputBuffer& rawInput, const StateComponent& context) override;
+  
   //! Removes hit state component
   virtual void OnActionComplete() override;
   //!
