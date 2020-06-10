@@ -10,6 +10,10 @@
 #include "GameManagement.h"
 
 const float _baseSpeed = 300.0f * 1.5f;
+int ActionHelpers::nDashFrames = 20;
+float ActionHelpers::a = 3.0f;
+float ActionHelpers::modifier = 2.0f;
+float ActionHelpers::d = 0.001f;
 
 //______________________________________________________________________________
 template <> IAction* GetAttacksFromNeutral<StanceState::STANDING>(const InputBuffer& rawInput, bool facingRight)
@@ -197,11 +201,11 @@ template <> IAction* LoopedAction<StanceState::STANDING, ActionState::NONE>::Han
 
     if (HasState(rawInput.Latest(), InputState::LEFT))
     {
-      return new DashAction<StanceState::STANDING, ActionState::DASHING>(dashAnimLeft, facingRight, 12, -1.4f * _baseSpeed);
+      return new DashAction<StanceState::STANDING, ActionState::DASHING>(dashAnimLeft, facingRight, ActionHelpers::nDashFrames, -1.5f * _baseSpeed);
     }
     else if (HasState(rawInput.Latest(), InputState::RIGHT))
     {
-      return new DashAction<StanceState::STANDING, ActionState::DASHING>(dashAnimRight, facingRight, 12, 1.4f * _baseSpeed);
+      return new DashAction<StanceState::STANDING, ActionState::DASHING>(dashAnimRight, facingRight, ActionHelpers::nDashFrames, 1.5f * _baseSpeed);
     }
   }
 
@@ -317,14 +321,21 @@ void DashAction<Stance,Action>::Enact(Entity* actor)
 
   // need to get rigid body to move character around during the timer
   std::shared_ptr<Rigidbody> rb = actor->GetComponent<Rigidbody>();
+
+  std::function<void(float, float)> parabola = [rb, this](float t, float totalT)
+  {
+    // make peak speed at halfway through action
+    float t2 = (t - totalT / 2.0f) * (t - totalT / 2.0f);
+    // send velocity to rigidbody component based on inv parabola
+    rb->_vel = Vector2<float>(-t2 + _dashSpeed, 0);
+  };
+
   // initialize the update functions
   TimedAction<Stance, Action>::_actionTiming = std::shared_ptr<ActionTimer>(new ComplexActionTimer(
     [rb, this](float t, float totalT)
     {
-      // make peak speed at halfway through action
-      float t2 = (t - totalT / 2.0f) * (t - totalT / 2.0f);
-      // send velocity to rigidbody component based on inv parabola
-      rb->_vel = Vector2<float>(-t2 + _dashSpeed, 0);
+      float f_t = ActionHelpers::PlateauDistribution(t, totalT, _dashSpeed);
+      rb->_vel = Vector2<float>(f_t, 0);
     },
     [rb, this]()
     {

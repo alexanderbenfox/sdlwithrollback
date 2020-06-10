@@ -201,6 +201,28 @@ void GameManager::BeginGameLoop()
   };
   GUIController::Get().AddImguiWindowFunction("Engine Stats", imguiWindowFunc);
 
+  static float ts[40];
+  for (int i = 0; i < 40; i++)
+    ts[i] = static_cast<float>(i);
+
+  std::function<void()> actionParameters = []()
+  {
+    ImGui::BeginGroup();
+    ImGui::InputFloat("a value", &ActionHelpers::a, 1.0f, 1.0f, 5);
+    ImGui::InputFloat("modifier value", &ActionHelpers::modifier, 0.5f, 1.0f, 5);
+    ImGui::InputFloat("distribution width value", &ActionHelpers::d, 0.0000001f, 0.00001f, 10);
+    ImGui::InputInt("number of frames for dash", &ActionHelpers::nDashFrames);
+    
+    // plot function for visual aid
+    ImGui::PlotLines("Plateau",
+      [](void* data, int idx)
+      {
+        return ActionHelpers::PlateauDistribution(static_cast<float*>(data)[idx], 19, 1.0f);
+      }, ts, 40, 0, nullptr, FLT_MAX, FLT_MAX, ImVec2(200, 100));
+    ImGui::EndGroup();
+  };
+  GUIController::Get().AddImguiWindowFunction("Dash Function parameters", actionParameters);
+
   int frameCount = 0;
   for (;;)
   {

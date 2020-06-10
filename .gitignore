@@ -333,4 +333,4 @@ ASALocalRun/
 .DS_Store
 
 ## Dear ImGui artifacts
-imgui.ini
+build/imgui.ini

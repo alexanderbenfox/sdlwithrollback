@@ -118,6 +118,26 @@ protected:
 
 };
 
+struct ActionHelpers
+{
+  static int nDashFrames;
+  // constants for plateau shaped distribution function
+  static float a;
+  static float modifier;
+  // distribution width: < 1 == narrow distro. > 1 widen
+  static float d;
+  //! based on equation f(x) = k * (1 / (1 + x^(2*a)) where the larger a == more of a plateau
+  static float PlateauDistribution(float x, float xMax, float yMax)
+  {
+    const float pi = 3.14159265358979323846f;
+    const float k = (a / pi) * std::sinf(pi / (2.0f * a));
+
+    float scaledXValue = 0.5f * (x / xMax) - 0.5f;
+    float x2a = std::powf(scaledXValue, 2.0f * a);
+    return ((d * k) / (d + x2a)) * (modifier * yMax);
+  }
+};
+
 class ListenedAction : public IAction
 {
 public:
