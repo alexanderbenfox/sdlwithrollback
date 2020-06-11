@@ -11,6 +11,8 @@
 #include "Components/Rigidbody.h"
 #include "Components/RenderComponent.h"
 
+#include "StateMachine/AnimatedAction.h"
+
 #include "Rendering/RenderCopy.h"
 #include "Core/Math/Vector2.h"
 

@@ -1,6 +1,6 @@
 #pragma once
-#include "ListenerInterfaces.h"
 #include "AssetManagement/Animation.h"
+#include "StateMachine/IAction.h"
 
 class Animator : public IComponent
 {

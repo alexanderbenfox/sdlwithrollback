@@ -1,8 +1,6 @@
 #pragma once
-#include "Components/Input.h"
-#include <memory>
-#include "Actions.h"
-#include "AssetManagement/Animation.h"
+#include <vector>
+#include <streambuf>
 
 template<typename CharT, typename TraitsT = std::char_traits<CharT> >
 class ByteBuffer : public std::basic_streambuf<CharT, TraitsT>
@@ -15,7 +13,6 @@ public:
 };
 
 //______________________________________________________________________________
-//!
 class IGameState
 {
 public:

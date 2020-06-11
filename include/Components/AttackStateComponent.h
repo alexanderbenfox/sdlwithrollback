@@ -1,5 +1,7 @@
 #pragma once
 #include "Components/RenderComponent.h"
+#include "StateMachine/ActionTimer.h"
+
 class Animation;
 
 //! Component that indicates the current state of the entity

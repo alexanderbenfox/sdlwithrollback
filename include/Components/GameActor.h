@@ -1,9 +1,10 @@
 #pragma once
-#include "Actions.h"
-#include "StateComponent.h"
+#include "StateMachine/IAction.h"
+#include "StateMachine/ActionTimer.h"
+
+#include "Components/StateComponent.h"
 
 #include <set>
-#include "ListenerInterfaces.h"
 
 class GameActor : public IComponent, public IActionListener
 {

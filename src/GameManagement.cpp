@@ -17,6 +17,8 @@
 
 #include "GameState/Scene.h"
 
+#include "StateMachine/ActionUtil.h"
+
 #ifdef _DEBUG
 //used for debugger
 #include <thread>
@@ -208,16 +210,17 @@ void GameManager::BeginGameLoop()
   std::function<void()> actionParameters = []()
   {
     ImGui::BeginGroup();
-    ImGui::InputFloat("a value", &ActionHelpers::a, 1.0f, 1.0f, 5);
-    ImGui::InputFloat("modifier value", &ActionHelpers::modifier, 0.5f, 1.0f, 5);
-    ImGui::InputFloat("distribution width value", &ActionHelpers::d, 0.0000001f, 0.00001f, 10);
-    ImGui::InputInt("number of frames for dash", &ActionHelpers::nDashFrames);
+    ImGui::InputFloat("a value", &Interpolation::Plateau::a, 1.0f, 1.0f, 5);
+    ImGui::InputFloat("modifier value", &Interpolation::Plateau::modifier, 0.5f, 1.0f, 5);
+    ImGui::InputFloat("distribution width value", &Interpolation::Plateau::d, 0.0000001f, 0.00001f, 10);
+    ImGui::InputInt("number of frames for dash", &ActionParams::nDashFrames);
+    ImGui::InputFloat("Walk speed", &ActionParams::baseWalkSpeed, 1.0f, 10.0f, 0);
     
     // plot function for visual aid
     ImGui::PlotLines("Plateau",
       [](void* data, int idx)
       {
-        return ActionHelpers::PlateauDistribution(static_cast<float*>(data)[idx], 19, 1.0f);
+        return Interpolation::Plateau::F(static_cast<float*>(data)[idx], 19, 1.0f);
       }, ts, 40, 0, nullptr, FLT_MAX, FLT_MAX, ImVec2(200, 100));
     ImGui::EndGroup();
   };
