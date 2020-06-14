@@ -1,61 +1,20 @@
 #include "StateMachine/TimedAction.h"
-#include "StateMachine/ActionUtil.h"
 
 #include "Components/AttackStateComponent.h"
 #include "Components/Rigidbody.h"
 #include "Components/GameActor.h"
+#include "Components/Animator.h"
 
 //______________________________________________________________________________
-template <StanceState Stance, ActionState Action>
-TimedAction<Stance, Action>::~TimedAction<Stance, Action>()
-{
-  _timer->Cancel();
-}
-
-//______________________________________________________________________________
-template <StanceState Stance, ActionState Action>
-void TimedAction<Stance, Action>::Enact(Entity* actor)
-{
-  AnimatedAction<Stance, Action>::Enact(actor);
-  AnimatedAction<Stance, Action>::_complete = false;
-  _timer = std::shared_ptr<ActionTimer>(new SimpleActionTimer([this]() { this->OnActionComplete(); }, _duration));
-  actor->GetComponent<GameActor>()->timings.push_back(_timer);
-}
-
-//______________________________________________________________________________
-template <StanceState Stance, ActionState Action>
-IAction* TimedAction<Stance, Action>::HandleInput(const InputBuffer& rawInput, const StateComponent& context)
-{
-  if (AnimatedAction<Stance, Action>::_complete)
-  {
-    return GetFollowUpAction(rawInput, context);
-  }
-
-  IAction* onHitAction = CheckHits(rawInput.Latest(), context);
-  if (onHitAction)
-    return onHitAction;
-
-  return nullptr;
-}
-
-//______________________________________________________________________________
-template <StanceState Stance, ActionState Action>
-IAction* TimedAction<Stance, Action>::GetFollowUpAction(const InputBuffer& rawInput, const StateComponent& context)
-{
-  return new LoopedAction<Stance, ActionState::NONE>(Stance == StanceState::STANDING ? "Idle" : Stance == StanceState::CROUCHING ? "Crouch" : "Jumping", this->_facingRight);
-}
-
-//______________________________________________________________________________
-template <StanceState Stance, ActionState Action>
-void DashAction<Stance, Action>::Enact(Entity* actor)
+void DashAction::Enact(Entity* actor)
 {
   this->_loopedAnimation = false;
-  AnimatedAction<Stance, Action>::Enact(actor);
-  AnimatedAction<Stance, Action>::_complete = false;
+  AnimatedAction<StanceState::STANDING, ActionState::DASHING>::Enact(actor);
+  AnimatedAction<StanceState::STANDING, ActionState::DASHING>::_complete = false;
 
   // adjust speed of animation to match the duration of action
   auto animator = actor->GetComponent<Animator>();
-  animator->playSpeed = static_cast<float>(animator->GetCurrentAnimation().GetFrameCount()) / static_cast<float>(TimedAction<Stance, Action>::_duration);
+  animator->playSpeed = static_cast<float>(animator->GetCurrentAnimation().GetFrameCount()) / static_cast<float>(TimedAction<StanceState::STANDING, ActionState::DASHING>::_duration);
 
   // need to get rigid body to move character around during the timer
   std::shared_ptr<Rigidbody> rb = actor->GetComponent<Rigidbody>();
@@ -69,7 +28,7 @@ void DashAction<Stance, Action>::Enact(Entity* actor)
   };
 
   // initialize the update functions
-  TimedAction<Stance, Action>::_timer = std::shared_ptr<ActionTimer>(new ComplexActionTimer(
+  TimedAction<StanceState::STANDING, ActionState::DASHING>::_timer = std::shared_ptr<ActionTimer>(new ComplexActionTimer(
     [rb, this](float t, float totalT)
     {
       float f_t = Interpolation::Plateau::F(t, totalT, _dashSpeed);
@@ -81,35 +40,7 @@ void DashAction<Stance, Action>::Enact(Entity* actor)
       // make sure movement is stopped
       rb->_vel = Vector2<float>(0, 0);
     },
-    TimedAction<Stance, Action>::_duration));
+    TimedAction<StanceState::STANDING, ActionState::DASHING>::_duration));
 
-  actor->GetComponent<GameActor>()->timings.push_back(TimedAction<Stance, Action>::_timer);
-}
-
-//______________________________________________________________________________
-template <StanceState Stance, ActionState Action>
-OnRecvHitAction<Stance, Action>::~OnRecvHitAction()
-{
-  // make sure this state component is removed
-  ListenedAction::_listener->GetOwner()->RemoveComponent<HitStateComponent>();
-}
-
-//______________________________________________________________________________
-template <StanceState Stance, ActionState Action>
-void OnRecvHitAction<Stance, Action>::Enact(Entity* actor)
-{
-  TimedAction<Stance, Action>::Enact(actor);
-  actor->AddComponent<HitStateComponent>();
-  actor->GetComponent<HitStateComponent>()->SetTimer(TimedAction<Stance, Action>::_timer.get());
-
-  //! send damage value
-  actor->GetComponent<StateComponent>()->hp -= _damageTaken;
-}
-
-//______________________________________________________________________________
-template <StanceState Stance, ActionState Action>
-void OnRecvHitAction<Stance, Action>::OnActionComplete()
-{
-  ListenedAction::_listener->GetOwner()->RemoveComponent<HitStateComponent>();
-  ListenedAction::OnActionComplete();
+  actor->GetComponent<GameActor>()->timings.push_back(TimedAction<StanceState::STANDING, ActionState::DASHING>::_timer);
 }

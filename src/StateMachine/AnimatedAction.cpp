@@ -3,64 +3,6 @@
 #include "StateMachine/AttackAction.h"
 #include "StateMachine/ActionUtil.h"
 
-#include "Components/Rigidbody.h"
-#include "Components/GameActor.h"
-#include "Components/RenderComponent.h"
-#include "Components/Hurtbox.h"
-
-#include "GameManagement.h"
-
-//______________________________________________________________________________
-template <StanceState Stance, ActionState Action>
-void AnimatedAction<Stance, Action>::Enact(Entity* actor)
-{
-  if (auto animator = actor->GetComponent<Animator>())
-  {
-    animator->ChangeListener(this);
-    if (animator->AnimationLib() && animator->AnimationLib()->GetAnimation(_animation))
-    {
-      Animation* actionAnimation = animator->Play(_animation, _loopedAnimation, !_facingRight);
-
-      // set the offset in the properties component (needs to be in a system)
-      if (auto properties = actor->GetComponent<RenderProperties>())
-      {
-        properties->horizontalFlip = !_facingRight;
-
-        if (auto rect = actor->GetComponent<Hurtbox>())
-        {
-          properties->offset = -animator->AnimationLib()->GetRenderOffset(_animation, !_facingRight, (int)std::floor(rect->unscaledRect.Width()));
-        }
-      }
-
-      if (auto renderer = actor->GetComponent<RenderComponent<RenderType>>())
-      {
-        if (actionAnimation)
-        {
-          // render from the sheet of the new animation
-          renderer->SetRenderResource(actionAnimation->GetSheetTexture<RenderType>());
-          renderer->sourceRect = actionAnimation->GetFrameSrcRect(0);
-        }
-      }
-    }
-    else
-    {
-      if (auto ac = actor->GetComponent<GameActor>())
-        ac->OnActionComplete(this);
-    }
-  }
-
-
-  if (_movementType)
-  {
-    if (auto mover = actor->GetComponent<Rigidbody>())
-      mover->_vel = _velocity;
-    //mover->ApplyVelocity(_velocity);
-  }
-
-  if (_listener)
-    _listener->SetStateInfo(Stance, Action);
-}
-
 //______________________________________________________________________________
 template <> IAction* StateLockedAnimatedAction<StanceState::CROUCHING, ActionState::NONE>::GetFollowUpAction(const InputBuffer& rawInput, const StateComponent& context)
 {
@@ -110,11 +52,11 @@ template <> IAction* LoopedAction<StanceState::STANDING, ActionState::NONE>::Han
 
     if (HasState(rawInput.Latest(), InputState::LEFT))
     {
-      return new DashAction<StanceState::STANDING, ActionState::DASHING>(dashAnimLeft, facingRight, ActionParams::nDashFrames, -1.5f * ActionParams::baseWalkSpeed);
+      return new DashAction(dashAnimLeft, facingRight, ActionParams::nDashFrames, -1.5f * ActionParams::baseWalkSpeed);
     }
     else if (HasState(rawInput.Latest(), InputState::RIGHT))
     {
-      return new DashAction<StanceState::STANDING, ActionState::DASHING>(dashAnimRight, facingRight, ActionParams::nDashFrames, 1.5f * ActionParams::baseWalkSpeed);
+      return new DashAction(dashAnimRight, facingRight, ActionParams::nDashFrames, 1.5f * ActionParams::baseWalkSpeed);
     }
   }
 
@@ -193,31 +135,6 @@ template <> IAction* LoopedAction<StanceState::CROUCHING, ActionState::NONE>::Ha
 }
 
 //______________________________________________________________________________
-template <StanceState Stance, ActionState Action>
-StateLockedAnimatedAction<Stance, Action>::StateLockedAnimatedAction(const std::string& animation, bool facingRight) : AnimatedAction<Stance, Action>(animation, facingRight)
-{
-  this->_loopedAnimation = false;
-}
-
-//______________________________________________________________________________
-template <StanceState Stance, ActionState Action>
-StateLockedAnimatedAction<Stance, Action>::StateLockedAnimatedAction(const std::string& animation, bool facingRight, Vector2<float> actionMovement) : AnimatedAction<Stance, Action>(animation, facingRight, actionMovement)
-{
-  this->_loopedAnimation = false;
-}
-
-//______________________________________________________________________________
-template <StanceState Stance, ActionState Action>
-IAction* StateLockedAnimatedAction<Stance, Action>::GetFollowUpAction(const InputBuffer& rawInput, const StateComponent& context)
-{
-  LoopedAction<Stance, ActionState::NONE> followUp(Stance == StanceState::STANDING ? "Idle" : Stance == StanceState::CROUCHING ? "Crouch" : "Jumping", this->_facingRight);
-  IAction* action = followUp.HandleInput(rawInput, context);
-  if (action)
-    return action;
-  return new LoopedAction<Stance, ActionState::NONE>(Stance == StanceState::STANDING ? "Idle" : Stance == StanceState::CROUCHING ? "Crouch" : "Jumping", this->_facingRight);
-}
-
-//______________________________________________________________________________
 template <> IAction* StateLockedAnimatedAction<StanceState::CROUCHING, ActionState::NONE>::HandleInput(const InputBuffer& rawInput, const StateComponent& context)
 {
 
@@ -267,41 +184,4 @@ template <> IAction* StateLockedAnimatedAction<StanceState::CROUCHING, ActionSta
 
   // if not holding down, brought back to standing
   return new LoopedAction<StanceState::STANDING, ActionState::NONE>("Idle", facingRight, Vector2<float>(0.0, 0.0));
-}
-
-//______________________________________________________________________________
-template <StanceState State, ActionState Action>
-IAction* StateLockedAnimatedAction<State, Action>::HandleInput(const InputBuffer& rawInput, const StateComponent& context)
-{
-  //!!!! TESTING SPECIAL MOVE CANCELS HERE
-  if (context.hitting)
-  {
-    if (HasState(rawInput.Latest(), InputState::BTN1) || HasState(rawInput.Latest(), InputState::BTN2) || HasState(rawInput.Latest(), InputState::BTN3))
-    {
-      bool qcf = rawInput.Evaluate(UnivSpecMoveDict) == SpecialMoveState::QCF && context.onLeftSide;
-      bool qcb = rawInput.Evaluate(UnivSpecMoveDict) == SpecialMoveState::QCB && !context.onLeftSide;
-      if (qcf || qcb)
-        return new GroundedStaticAttack<StanceState::STANDING, ActionState::NONE>("SpecialMove1", context.onLeftSide);
-    }
-  }
-
-  if (AnimatedAction<State, Action>::_complete)
-  {
-    return GetFollowUpAction(rawInput, context);
-  }
-
-  if (context.hitThisFrame)
-  {
-    int neutralFrame = context.frameData.active + context.frameData.recover + 1;
-    return new OnRecvHitAction<StanceState::STANDING, ActionState::HITSTUN>("HeavyHitstun", context.onLeftSide, neutralFrame + context.frameData.onHitAdvantage, context.frameData.knockback);
-  }
-
-  if (State == StanceState::JUMPING)
-  {
-    if (HasState(context.collision, CollisionSide::DOWN))
-    {
-      return GetFollowUpAction(rawInput, context);
-    }
-  }
-  return nullptr;
 }

@@ -2,6 +2,13 @@
 #include "StateMachine/IAction.h"
 #include "Components/Animator.h"
 
+#include "Components/Rigidbody.h"
+#include "Components/GameActor.h"
+#include "Components/RenderComponent.h"
+#include "Components/Hurtbox.h"
+
+#include "GameManagement.h"
+
 //______________________________________________________________________________
 template <StanceState Stance, ActionState Action>
 class AnimatedAction : public ListenedAction, public IAnimatorListener
@@ -72,7 +79,10 @@ public:
   //!
   StateLockedAnimatedAction(const std::string& animation, bool facingRight, Vector2<float> actionMovement);
   //!
-  virtual IAction* HandleInput(const InputBuffer& rawInput, const StateComponent& context) override;
+  virtual IAction* HandleInput(const InputBuffer& rawInput, const StateComponent& context) override
+  {
+    return StateLockedHandleInput(rawInput, context, this, AnimatedAction<Stance, Action>::_complete);
+  }
 
   virtual bool CheckInputsOnFollowUp() override { return true; }
 
@@ -81,6 +91,90 @@ protected:
   virtual IAction* GetFollowUpAction(const InputBuffer& rawInput, const StateComponent& context) override;
 
 };
+
+//______________________________________________________________________________
+template <StanceState Stance, ActionState Action>
+inline void AnimatedAction<Stance, Action>::Enact(Entity* actor)
+{
+  if (auto animator = actor->GetComponent<Animator>())
+  {
+    animator->ChangeListener(this);
+    if (animator->AnimationLib() && animator->AnimationLib()->GetAnimation(_animation))
+    {
+      Animation* actionAnimation = animator->Play(_animation, _loopedAnimation, !_facingRight);
+
+      // set the offset in the properties component (needs to be in a system)
+      if (auto properties = actor->GetComponent<RenderProperties>())
+      {
+        properties->horizontalFlip = !_facingRight;
+
+        if (auto rect = actor->GetComponent<Hurtbox>())
+        {
+          properties->offset = -animator->AnimationLib()->GetRenderOffset(_animation, !_facingRight, (int)std::floor(rect->unscaledRect.Width()));
+        }
+      }
+
+      if (auto renderer = actor->GetComponent<RenderComponent<RenderType>>())
+      {
+        if (actionAnimation)
+        {
+          // render from the sheet of the new animation
+          renderer->SetRenderResource(actionAnimation->GetSheetTexture<RenderType>());
+          renderer->sourceRect = actionAnimation->GetFrameSrcRect(0);
+        }
+      }
+    }
+    else
+    {
+      if (auto ac = actor->GetComponent<GameActor>())
+        ac->OnActionComplete(this);
+    }
+  }
+
+
+  if (_movementType)
+  {
+    if (auto mover = actor->GetComponent<Rigidbody>())
+      mover->_vel = _velocity;
+    //mover->ApplyVelocity(_velocity);
+  }
+
+  if (_listener)
+    _listener->SetStateInfo(Stance, Action);
+}
+
+//______________________________________________________________________________
+template <StanceState Stance, ActionState Action>
+inline StateLockedAnimatedAction<Stance, Action>::StateLockedAnimatedAction(const std::string& animation, bool facingRight) : AnimatedAction<Stance, Action>(animation, facingRight)
+{
+  this->_loopedAnimation = false;
+}
+
+//______________________________________________________________________________
+template <StanceState Stance, ActionState Action>
+inline StateLockedAnimatedAction<Stance, Action>::StateLockedAnimatedAction(const std::string& animation, bool facingRight, Vector2<float> actionMovement) : AnimatedAction<Stance, Action>(animation, facingRight, actionMovement)
+{
+  this->_loopedAnimation = false;
+}
+
+//______________________________________________________________________________
+template <StanceState Stance, ActionState Action>
+inline IAction* StateLockedAnimatedAction<Stance, Action>::GetFollowUpAction(const InputBuffer& rawInput, const StateComponent& context)
+{
+  LoopedAction<Stance, ActionState::NONE> followUp(Stance == StanceState::STANDING ? "Idle" : Stance == StanceState::CROUCHING ? "Crouch" : "Jumping", this->_facingRight);
+  IAction* action = followUp.HandleInput(rawInput, context);
+  if (action)
+    return action;
+  return new LoopedAction<Stance, ActionState::NONE>(Stance == StanceState::STANDING ? "Idle" : Stance == StanceState::CROUCHING ? "Crouch" : "Jumping", this->_facingRight);
+}
+
+//______________________________________________________________________________
+template <StanceState Stance, ActionState Action>
+inline void AnimatedAction<Stance, Action>::OnAnimationComplete(const std::string& completedAnimation)
+{
+  if (_animation == completedAnimation)
+    OnActionComplete();
+}
 
 //______________________________________________________________________________
 template <> IAction* LoopedAction<StanceState::STANDING, ActionState::NONE>::HandleInput(const InputBuffer& rawInput, const StateComponent& context);
@@ -92,19 +186,8 @@ template <> IAction* LoopedAction<StanceState::CROUCHING, ActionState::NONE>::Ha
 //______________________________________________________________________________
 template <> IAction* StateLockedAnimatedAction<StanceState::CROUCHING, ActionState::NONE>::GetFollowUpAction(const InputBuffer& rawInput, const StateComponent& context);
 
-//template <StanceState State, ActionState Action>
-//IAction* StateLockedAnimatedAction<State, Action>::HandleInput(const InputBuffer& rawInput, const StateComponent& context);
-
 //______________________________________________________________________________
 template <> IAction* StateLockedAnimatedAction<StanceState::CROUCHING, ActionState::NONE>::HandleInput(const InputBuffer& rawInput, const StateComponent& context);
-
-//______________________________________________________________________________
-template <StanceState Stance, ActionState Action>
-inline void AnimatedAction<Stance, Action>::OnAnimationComplete(const std::string& completedAnimation)
-{
-  if (_animation == completedAnimation)
-    OnActionComplete();
-}
 
 #ifdef _WIN32
 template LoopedAction<StanceState::STANDING, ActionState::NONE>;

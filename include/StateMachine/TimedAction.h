@@ -1,7 +1,10 @@
 #pragma once
 #include "StateMachine/AnimatedAction.h"
 #include "StateMachine/ActionTimer.h"
+#include "StateMachine/ActionUtil.h"
+
 #include "Components/GameActor.h"
+#include "Components/AttackStateComponent.h"
 
 //! Timed actions drive the animation/action to run for the specified duration
 //______________________________________________________________________________
@@ -41,13 +44,52 @@ protected:
 
 //______________________________________________________________________________
 template <StanceState Stance, ActionState Action>
-class DashAction : public TimedAction<Stance, Action>
+inline TimedAction<Stance, Action>::~TimedAction<Stance, Action>()
+{
+  _timer->Cancel();
+}
+
+//______________________________________________________________________________
+template <StanceState Stance, ActionState Action>
+inline void TimedAction<Stance, Action>::Enact(Entity* actor)
+{
+  AnimatedAction<Stance, Action>::Enact(actor);
+  AnimatedAction<Stance, Action>::_complete = false;
+  _timer = std::shared_ptr<ActionTimer>(new SimpleActionTimer([this]() { this->OnActionComplete(); }, _duration));
+  actor->GetComponent<GameActor>()->timings.push_back(_timer);
+}
+
+//______________________________________________________________________________
+template <StanceState Stance, ActionState Action>
+inline IAction* TimedAction<Stance, Action>::HandleInput(const InputBuffer& rawInput, const StateComponent& context)
+{
+  if (AnimatedAction<Stance, Action>::_complete)
+  {
+    return GetFollowUpAction(rawInput, context);
+  }
+
+  IAction* onHitAction = CheckHits(rawInput.Latest(), context);
+  if (onHitAction)
+    return onHitAction;
+
+  return nullptr;
+}
+
+//______________________________________________________________________________
+template <StanceState Stance, ActionState Action>
+inline IAction* TimedAction<Stance, Action>::GetFollowUpAction(const InputBuffer& rawInput, const StateComponent& context)
+{
+  return new LoopedAction<Stance, ActionState::NONE>(Stance == StanceState::STANDING ? "Idle" : Stance == StanceState::CROUCHING ? "Crouch" : "Jumping", this->_facingRight);
+}
+
+//______________________________________________________________________________
+class DashAction : public TimedAction<StanceState::STANDING, ActionState::DASHING>
 {
 public:
   //!
   DashAction(const std::string& animation, bool facingRight, int framesInState, float dashSpeed) :
     _dashSpeed(dashSpeed),
-    TimedAction<Stance, Action>(animation, facingRight, framesInState) {}
+    TimedAction<StanceState::STANDING, ActionState::DASHING>(animation, facingRight, framesInState) {}
 
   void Enact(Entity* actor) override;
 
@@ -83,6 +125,35 @@ protected:
   int _damageTaken = 0;
 
 };
+
+//______________________________________________________________________________
+template <StanceState Stance, ActionState Action>
+inline OnRecvHitAction<Stance, Action>::~OnRecvHitAction()
+{
+  // make sure this state component is removed
+  ListenedAction::_listener->GetOwner()->RemoveComponent<HitStateComponent>();
+}
+
+//______________________________________________________________________________
+template <StanceState Stance, ActionState Action>
+inline void OnRecvHitAction<Stance, Action>::Enact(Entity* actor)
+{
+  TimedAction<Stance, Action>::Enact(actor);
+  actor->AddComponent<HitStateComponent>();
+  actor->GetComponent<HitStateComponent>()->SetTimer(TimedAction<Stance, Action>::_timer.get());
+
+  //! send damage value
+  actor->GetComponent<StateComponent>()->hp -= _damageTaken;
+}
+
+//______________________________________________________________________________
+template <StanceState Stance, ActionState Action>
+inline void OnRecvHitAction<Stance, Action>::OnActionComplete()
+{
+  ListenedAction::_listener->GetOwner()->RemoveComponent<HitStateComponent>();
+  ListenedAction::OnActionComplete();
+}
+
 
 #ifdef _WIN32
 template TimedAction<StanceState::STANDING, ActionState::BLOCKSTUN>;

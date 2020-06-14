@@ -33,3 +33,6 @@ template <StanceState Stance> IAction* GetAttacksFromNeutral(const InputBuffer& 
 
 //______________________________________________________________________________
 IAction* CheckHits(const InputState& rawInput, const StateComponent& context);
+
+//______________________________________________________________________________
+IAction* StateLockedHandleInput(const InputState& rawInput, const StateComponent& context, IAction* action, bool actionComplete);

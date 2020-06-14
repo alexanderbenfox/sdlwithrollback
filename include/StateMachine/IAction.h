@@ -56,9 +56,10 @@ public:
 
   virtual bool CheckInputsOnFollowUp() = 0;
 
-protected:
   //!
   virtual IAction* GetFollowUpAction(const InputBuffer& rawInput, const StateComponent& context) = 0;
+
+protected:
   //!
   virtual void OnActionComplete() = 0;
 

@@ -107,3 +107,39 @@ IAction* CheckHits(const InputState& rawInput, const StateComponent& context)
   }
   return nullptr;
 }
+
+//______________________________________________________________________________
+IAction* StateLockedHandleInput(const InputBuffer& rawInput, const StateComponent& context, IAction* action, bool actionComplete)
+{
+  //!!!! TESTING SPECIAL MOVE CANCELS HERE
+  if (context.hitting)
+  {
+    if (HasState(rawInput.Latest(), InputState::BTN1) || HasState(rawInput.Latest(), InputState::BTN2) || HasState(rawInput.Latest(), InputState::BTN3))
+    {
+      bool qcf = rawInput.Evaluate(UnivSpecMoveDict) == SpecialMoveState::QCF && context.onLeftSide;
+      bool qcb = rawInput.Evaluate(UnivSpecMoveDict) == SpecialMoveState::QCB && !context.onLeftSide;
+      if (qcf || qcb)
+        return new GroundedStaticAttack<StanceState::STANDING, ActionState::NONE>("SpecialMove1", context.onLeftSide);
+    }
+  }
+
+  if (actionComplete)
+  {
+    return action->GetFollowUpAction(rawInput, context);
+  }
+
+  if (context.hitThisFrame)
+  {
+    int neutralFrame = context.frameData.active + context.frameData.recover + 1;
+    return new OnRecvHitAction<StanceState::STANDING, ActionState::HITSTUN>("HeavyHitstun", context.onLeftSide, neutralFrame + context.frameData.onHitAdvantage, context.frameData.knockback);
+  }
+
+  if (action->GetStance() == StanceState::JUMPING)
+  {
+    if (HasState(context.collision, CollisionSide::DOWN))
+    {
+      return action->GetFollowUpAction(rawInput, context);
+    }
+  }
+  return nullptr;
+}
