@@ -2,6 +2,7 @@
 #include <unordered_map>
 #include <typeindex>
 #include <memory>
+#include <functional>
 
 #include "Core/Math/Vector2.h"
 #include "Components/ComponentManager.h"

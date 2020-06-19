@@ -44,11 +44,11 @@
     <ClCompile Include="..\src\GameManagement.cpp" />
     <ClCompile Include="..\src\GameState\GGPOGameState.cpp" />
     <ClCompile Include="..\src\GameState\BattleScene.cpp" />
+    <ClCompile Include="..\src\GameState\StartScene.cpp" />
     <ClCompile Include="..\src\Rendering\GLTexture.cpp" />
     <ClCompile Include="..\src\Rendering\RenderManager.cpp" />
     <ClCompile Include="..\src\StateMachine\ActionUtil.cpp" />
     <ClCompile Include="..\src\StateMachine\AnimatedAction.cpp" />
-    <ClCompile Include="..\src\StateMachine\AttackAction.cpp" />
     <ClCompile Include="..\src\StateMachine\TimedAction.cpp" />
     <ClCompile Include="..\src\Systems\Physics.cpp" />
     <ClCompile Include="..\src\Timer.cpp" />
@@ -116,6 +116,7 @@
     <ClInclude Include="..\include\Systems\ISystem.h" />
     <ClInclude Include="..\include\Systems\MoveSystem.h" />
     <ClInclude Include="..\include\Systems\Physics.h" />
+    <ClInclude Include="..\include\Systems\SceneSystems.h" />
     <ClInclude Include="..\include\Systems\TimerSystem.h" />
     <ClInclude Include="..\include\Timer.h" />
     <ClInclude Include="..\include\Utils.h" />

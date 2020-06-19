@@ -71,17 +71,3 @@ inline void AttackAction<Stance, Action>::OnActionComplete()
   ListenedAction::_listener->GetOwner()->RemoveComponent<AttackStateComponent>();
   StateLockedAnimatedAction<Stance, Action>::OnActionComplete();
 }
-
-#ifdef _WIN32
-template GroundedStaticAttack<StanceState::STANDING, ActionState::NONE>;
-template AttackAction<StanceState::STANDING, ActionState::NONE>;
-template AttackAction<StanceState::STANDING, ActionState::LIGHT>;
-template AttackAction<StanceState::STANDING, ActionState::MEDIUM>;
-template AttackAction<StanceState::STANDING, ActionState::HEAVY>;
-template AttackAction<StanceState::CROUCHING, ActionState::LIGHT>;
-template AttackAction<StanceState::CROUCHING, ActionState::MEDIUM>;
-template AttackAction<StanceState::CROUCHING, ActionState::HEAVY>;
-template AttackAction<StanceState::JUMPING, ActionState::LIGHT>;
-template AttackAction<StanceState::JUMPING, ActionState::MEDIUM>;
-template AttackAction<StanceState::JUMPING, ActionState::HEAVY>;
-#endif

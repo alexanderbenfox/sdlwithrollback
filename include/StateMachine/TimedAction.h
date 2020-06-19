@@ -153,13 +153,3 @@ inline void OnRecvHitAction<Stance, Action>::OnActionComplete()
   ListenedAction::_listener->GetOwner()->RemoveComponent<HitStateComponent>();
   ListenedAction::OnActionComplete();
 }
-
-
-#ifdef _WIN32
-template TimedAction<StanceState::STANDING, ActionState::BLOCKSTUN>;
-template TimedAction<StanceState::STANDING, ActionState::HITSTUN>;
-template TimedAction<StanceState::STANDING, ActionState::DASHING>;
-template OnRecvHitAction<StanceState::STANDING, ActionState::BLOCKSTUN>;
-template OnRecvHitAction<StanceState::STANDING, ActionState::HITSTUN>;
-template DashAction<StanceState::STANDING, ActionState::DASHING>;
-#endif

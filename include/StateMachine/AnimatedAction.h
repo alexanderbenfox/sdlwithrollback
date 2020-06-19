@@ -188,17 +188,3 @@ template <> IAction* StateLockedAnimatedAction<StanceState::CROUCHING, ActionSta
 
 //______________________________________________________________________________
 template <> IAction* StateLockedAnimatedAction<StanceState::CROUCHING, ActionState::NONE>::HandleInput(const InputBuffer& rawInput, const StateComponent& context);
-
-#ifdef _WIN32
-template LoopedAction<StanceState::STANDING, ActionState::NONE>;
-template StateLockedAnimatedAction<StanceState::STANDING, ActionState::NONE>;
-template StateLockedAnimatedAction<StanceState::STANDING, ActionState::LIGHT>;
-template StateLockedAnimatedAction<StanceState::STANDING, ActionState::MEDIUM>;
-template StateLockedAnimatedAction<StanceState::STANDING, ActionState::HEAVY>;
-template StateLockedAnimatedAction<StanceState::CROUCHING, ActionState::LIGHT>;
-template StateLockedAnimatedAction<StanceState::CROUCHING, ActionState::MEDIUM>;
-template StateLockedAnimatedAction<StanceState::CROUCHING, ActionState::HEAVY>;
-template StateLockedAnimatedAction<StanceState::JUMPING, ActionState::LIGHT>;
-template StateLockedAnimatedAction<StanceState::JUMPING, ActionState::MEDIUM>;
-template StateLockedAnimatedAction<StanceState::JUMPING, ActionState::HEAVY>;
-#endif

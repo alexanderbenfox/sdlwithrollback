@@ -177,11 +177,11 @@
     <ClCompile Include="..\src\StateMachine\AnimatedAction.cpp">
       <Filter>Source Files\StateMachine</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\StateMachine\AttackAction.cpp">
-      <Filter>Source Files\StateMachine</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\StateMachine\TimedAction.cpp">
       <Filter>Source Files\StateMachine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\GameState\StartScene.cpp">
+      <Filter>Source Files\GameState</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -367,6 +367,9 @@
     </ClInclude>
     <ClInclude Include="..\include\StateMachine\AttackAction.h">
       <Filter>Header Files\StateMachine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Systems\SceneSystems.h">
+      <Filter>Header Files\Systems</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
