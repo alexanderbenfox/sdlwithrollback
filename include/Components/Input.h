@@ -64,6 +64,8 @@ public:
   InputState const& Latest() const { return _buffer.back(); }
   //! evaluate possible special motions
   SpecialMoveState Evaluate(const TrieNode<InputState, SpecialMoveState>& spMoveDict) const;
+  //!
+  void Clear();
 
 private:
   std::vector<InputState> _buffer;
@@ -89,6 +91,8 @@ public:
   virtual ~IInputHandler() {}
   //! Gets the command based on the type of input received from the controller
   virtual InputBuffer const& CollectInputState() = 0;
+  //!
+  virtual void ClearInputBuffer() { _inputBuffer.Clear(); }
 
 protected:
   //! Last state received by the input controller

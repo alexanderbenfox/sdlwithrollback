@@ -30,15 +30,25 @@ class Entity : public IDebuggable, public std::enable_shared_from_this<Entity>
 public:
   //! Increment creation id counter
   Entity() : ComponentBitFlag(0x0), _creationId(EntityID++) {}
+  //!
+  ~Entity();
+  //!
+  void RemoveAllComponents();
   //! Retrieves the components of type specified or nullptr if there is no component of that type present
   template <typename T = IComponent> 
   std::shared_ptr<T> GetComponent();
   //! Adds the component of the type specified to this entity
   template <typename T = IComponent>
   void AddComponent();
+  //! Multi-parameter component add
+  template <typename T = IComponent, typename ... Rest>
+  void AddComponents();
   //! Removes component of type specified from the entity
   template <typename T = IComponent>
   void RemoveComponent();
+  //! Multi-parameter component remove
+  template <typename T = IComponent, typename ... Rest>
+  void RemoveComponents();
   //!
   template <typename ... T>
   std::tuple<std::add_pointer_t<T>...> MakeComponentTuple();
@@ -59,6 +69,7 @@ public:
 protected:
   //! Pointers to all components attached to the object. The component objects exist in their respective manager singleton objects
   std::unordered_map<std::type_index, std::shared_ptr<IComponent>> _components;
+  std::unordered_map<std::type_index, std::function<void()>> _deleteComponent;
   //!
   int _creationId;
   //!
@@ -66,6 +77,9 @@ protected:
   void SetPointerElement(T*& element) { element = GetComponent<T>().get(); }
   //!
   static void CheckAgainstSystems(Entity* entity);
+  //! Don't remove deletion function here. This is used for removing components internally if we do not know the type
+  template <typename T>
+  void RemoveComponentInternal();
 
 };
 
@@ -86,9 +100,23 @@ inline void Entity::AddComponent()
   {
     ComponentBitFlag |= ComponentTraits<T>::GetSignature();
     _components.insert(std::make_pair(std::type_index(typeid(T)), ComponentManager<T>::Get().Create(std::shared_ptr<Entity>(shared_from_this()))));
+    _deleteComponent.insert(std::make_pair(std::type_index(typeid(T)), [this]() { RemoveComponentInternal<T>(); }));
+
     // see if this needs to be added to the system
     CheckAgainstSystems(this);
   }
+}
+
+//______________________________________________________________________________
+template <typename T, typename ... Rest>
+inline void Entity::AddComponents()
+{
+  // recursive control path enders
+  if (!all_base_of<IComponent, T, Rest...>() || std::is_same_v<T, IComponent>)
+    return;
+
+  AddComponent<T>();
+  AddComponents<Rest...>();
 }
 
 //______________________________________________________________________________
@@ -100,10 +128,23 @@ inline void Entity::RemoveComponent()
     ComponentBitFlag &= ~ComponentTraits<T>::GetSignature();
     ComponentManager<T>::Get().Erase(GetComponent<T>());
     _components.erase(std::type_index(typeid(T)));
+    _deleteComponent.erase(std::type_index(typeid(T)));
 
     // see if this needs to be added to the system
     CheckAgainstSystems(this);
   }
+}
+
+//______________________________________________________________________________
+template <typename T, typename ... Rest>
+inline void Entity::RemoveComponents()
+{
+  // recursive control path enders
+  if (!all_base_of<IComponent, T, Rest...>() || std::is_same_v<T, IComponent>)
+    return;
+
+  RemoveComponent<T>();
+  RemoveComponents<Rest...>();
 }
 
 //______________________________________________________________________________
@@ -113,4 +154,16 @@ inline std::tuple<std::add_pointer_t<T>...> Entity::MakeComponentTuple()
   std::tuple<std::add_pointer_t<T>...> tuple;
   (SetPointerElement<T>(std::get<T*>(tuple)), ...);
   return tuple;
+}
+
+//______________________________________________________________________________
+template <typename T>
+inline void Entity::RemoveComponentInternal()
+{
+  if (_components.find(std::type_index(typeid(T))) != _components.end())
+  {
+    ComponentBitFlag &= ~ComponentTraits<T>::GetSignature();
+    ComponentManager<T>::Get().Erase(GetComponent<T>());
+    _components.erase(std::type_index(typeid(T)));
+  }
 }

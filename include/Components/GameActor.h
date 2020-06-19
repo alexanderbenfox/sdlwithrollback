@@ -12,6 +12,8 @@ public:
   //!
   GameActor(std::shared_ptr<Entity> owner);
   //!
+  ~GameActor();
+  //!
   virtual void OnFrameBegin() override {}
   //! Finishes all of the completed actions in the queue
   virtual void OnFrameEnd() override;

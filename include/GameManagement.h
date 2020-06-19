@@ -9,12 +9,6 @@
 #include <thread>
 #include <mutex>
 
-template <typename T, typename... Rest>
-bool constexpr all_base_of()
-{
-  return (std::is_base_of_v<T, Rest> && ...);
-}
-
 //! Set our preferred type (SDL or GL) to be rendered by the system
 typedef GLTexture RenderType;
 #define GRenderer RenderManager<RenderType>::Get()
@@ -50,9 +44,16 @@ public:
 
   void DebugDraws();
 
+  void DestroyEntity(std::shared_ptr<Entity> entity);
+  //! request scene change at end of update loop
+  void RequestSceneChange(SceneType newSceneType);
+
 private:
+  void ChangeScene(SceneType scene);
   //! Updates all components in specified order
   void Update(float deltaTime);
+  //!
+  void PostUpdate();
   //! Updates SDL input based on the SDL event system
   void UpdateInput();
   //! Flushes last render frame, draws all objects on the screen, displays all drawn objects
@@ -66,6 +67,11 @@ private:
 
   //!
   std::unique_ptr<IScene> _currentScene;
+  //
+  SceneType _currentSceneType;
+  //
+  bool _sceneChangeRequested = false;
+  
 
   //______________________________________________________________________________
 
@@ -77,6 +83,7 @@ private:
   static auto ComponentExistsOnEntity(Entity* entity);// -> std::enable_if_t<!std::is_void<T>::value>;
   //! All entities in the scene
   std::vector<std::shared_ptr<Entity>> _gameEntities;
+  std::shared_ptr<Entity> _p1, _p2;
   //______________________________________________________________________________
   //!
   GameManager();

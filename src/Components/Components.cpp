@@ -4,6 +4,7 @@
 #include "GameManagement.h"
 #include "ResourceManager.h"
 
+#include "Components/StateComponent.h"
 #include "Components/Animator.h"
 #include "Components/Camera.h"
 #include "Components/Collider.h"
@@ -17,6 +18,12 @@
 #include "Core/Math/Vector2.h"
 
 #include <cassert>
+
+//______________________________________________________________________________
+void StateComponent::MarkLoser()
+{
+  _owner->AddComponent<LoserComponent>();
+}
 
 //______________________________________________________________________________
 void Camera::Init(int w, int h)
@@ -85,6 +92,17 @@ GameActor::GameActor(std::shared_ptr<Entity> owner) : _currentAction(nullptr), _
 
   // offset transform
   _counterText->GetComponent<Transform>()->position = Vector2<float>(5.0f, 20.0f);
+}
+
+//______________________________________________________________________________
+GameActor::~GameActor()
+{
+  if(_currentAction)
+  {
+    delete _currentAction;
+    _currentAction = nullptr;
+  }
+  GameManager::Get().DestroyEntity(_counterText);
 }
 
 //______________________________________________________________________________

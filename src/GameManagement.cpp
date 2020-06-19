@@ -11,6 +11,7 @@
 #include "Systems/InputSystem.h"
 #include "Systems/HitSystem.h"
 #include "Systems/TimerSystem.h"
+#include "Systems/SceneSystems.h"
 
 #include "Systems/Physics.h"
 #include "DebugGUI/GUIController.h"
@@ -157,9 +158,12 @@ void GameManager::Initialize()
 {
   GRenderer.Init();
 
+  //! initialize our player controllable entities
+  _p1 = CreateEntity<>();
+  _p2 = CreateEntity<>();
+
   //! initialize the scene
-  _currentScene = std::make_unique<BattleScene>();
-  _currentScene->Init();
+  ChangeScene(SceneType::START);
 
   _initialized = true;
 }
@@ -224,21 +228,49 @@ void GameManager::BeginGameLoop()
       }, ts, 40, 0, nullptr, FLT_MAX, FLT_MAX, ImVec2(200, 100));
     ImGui::EndGroup();
   };
+
+  std::function<void()> sceneSelect = [this]()
+  {
+    const char* items[] = { "Start", "Character Select", "Battle", "Results" };
+    static const char* current_item = NULL;
+
+    if (ImGui::BeginCombo("##combo", current_item))
+    {
+      for (int n = 0; n < IM_ARRAYSIZE(items); n++)
+      {
+        bool is_selected = (current_item == items[n]);
+        if (ImGui::Selectable(items[n], is_selected))
+        {
+          current_item = items[n];
+          std::string i(items[n]);
+          if(i == "Start")
+            ChangeScene(SceneType::START);
+          else if(i == "Character Select")
+            ChangeScene(SceneType::CSELECT);
+          else if(i == "Battle")
+            ChangeScene(SceneType::BATTLE);
+          else
+            ChangeScene(SceneType::RESULTS);
+        }
+        if (is_selected)
+            ImGui::SetItemDefaultFocus();
+      }
+      ImGui::EndCombo();
+    }
+  };
   GUIController::Get().AddImguiWindowFunction("Dash Function parameters", actionParameters);
+  GUIController::Get().AddImguiWindowFunction("Scene Selection", sceneSelect);
 
   int frameCount = 0;
   for (;;)
   {
     if (frameCount == 0)
-    {
       tracker.Add(_clock.GetUpdateTime());
-    }
 
     //! Update all components and coroutines
     _clock.Update(update);
-    //! update debug gui
-    GUIController::Get().MainLoop(_localInput);
-
+    //! Do post update (update gui and change scene)
+    PostUpdate();
     //! Finally render the scene
     Draw();
 
@@ -275,6 +307,9 @@ void GameManager::CheckAgainstSystems(Entity* entity)
   SpriteDrawCallSystem::Check(entity);
   UITextDrawCallSystem::Check(entity);
   PlayerSideSystem::Check(entity);
+  StartSceneInputSystem::Check(entity);
+  CharacterSelectInputSystem::Check(entity);
+  ResultsSceneSystem::Check(entity);
 }
 
 //______________________________________________________________________________
@@ -292,10 +327,50 @@ void GameManager::DebugDraws()
 }
 
 //______________________________________________________________________________
+void GameManager::DestroyEntity(std::shared_ptr<Entity> entity)
+{
+  auto it = std::find(_gameEntities.begin(), _gameEntities.end(), entity);
+  if(it != _gameEntities.end())
+  {
+    (*it)->RemoveAllComponents();  
+    long count = it->use_count();
+    _gameEntities.erase(it, it + 1);
+  }
+}
+
+//______________________________________________________________________________
+void GameManager::RequestSceneChange(SceneType newSceneType)
+{
+  _sceneChangeRequested = true;
+  _currentSceneType = newSceneType;
+}
+
+//______________________________________________________________________________
+void GameManager::ChangeScene(SceneType scene)
+{
+  _currentScene = std::unique_ptr<IScene>(SceneHelper::CreateScene(scene));
+  _currentScene->Init(_p1, _p2);
+  _currentSceneType = scene;
+}
+
+//______________________________________________________________________________
 void GameManager::Update(float deltaTime)
 {
   UpdateInput();
   _currentScene->Update(deltaTime);
+}
+
+//______________________________________________________________________________
+void GameManager::PostUpdate()
+{
+  //! update debug gui
+  GUIController::Get().MainLoop(_localInput);
+  // defer scene change until end of update loops
+  if(_sceneChangeRequested)
+  {
+    ChangeScene(_currentSceneType);
+    _sceneChangeRequested = false;
+  }
 }
 
 //______________________________________________________________________________

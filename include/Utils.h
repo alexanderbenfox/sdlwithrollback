@@ -7,6 +7,12 @@
 #include <vector>
 #include <iterator>
 
+template <typename T, typename... Rest>
+bool constexpr all_base_of()
+{
+  return (std::is_base_of_v<T, Rest> && ...);
+}
+
 namespace StringUtils
 {
   template <typename Out>

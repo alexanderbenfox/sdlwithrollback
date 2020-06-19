@@ -75,6 +75,14 @@
     "hashtable": "cpp",
     "bit": "cpp",
     "memory_resource": "cpp",
-    "list": "cpp"
+    "list": "cpp",
+    "forward_list": "cpp",
+    "future": "cpp",
+    "strstream": "cpp",
+    "unordered_set": "cpp",
+    "valarray": "cpp",
+    "hash_map": "cpp",
+    "cfenv": "cpp",
+    "variant": "cpp"
   }
 }

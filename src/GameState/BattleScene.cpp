@@ -18,31 +18,61 @@
 
 #include "AssetManagement/StaticAssets/CharacterConfig.h"
 
-void BattleScene::Init()
+IScene* SceneHelper::CreateScene(SceneType type)
 {
-  auto bottomBorder = GameManager::Get().CreateEntity<Transform, RenderComponent<RenderType>, StaticCollider>();
-  bottomBorder->GetComponent<Transform>()->position.x = (float)m_nativeWidth / 2.0f;
-  bottomBorder->GetComponent<Transform>()->position.y = m_nativeHeight;
-  bottomBorder->GetComponent<RenderComponent<RenderType>>()->Init(ResourceManager::Get().GetAsset<RenderType>("spritesheets\\ryu.png"));
-  bottomBorder->GetComponent<StaticCollider>()->Init(Vector2<double>(0, m_nativeHeight - 40), Vector2<double>(m_nativeWidth, m_nativeHeight + 40.0f));
-  bottomBorder->GetComponent<StaticCollider>()->MoveToTransform(*bottomBorder->GetComponent<Transform>());
+  switch(type)
+  {
+    case SceneType::START:
+      return new StartScene;
+    case SceneType::CSELECT:
+      return new CharacterSelectScene;
+    case SceneType::BATTLE:
+      return new BattleScene;
+    case SceneType::RESULTS:
+      return new ResultsScene;
+  }
+}
 
-  auto leftBorder = GameManager::Get().CreateEntity<Transform, RenderComponent<RenderType>, StaticCollider>();
-  leftBorder->GetComponent<Transform>()->position.x = -100;
-  leftBorder->GetComponent<Transform>()->position.y = (float)m_nativeHeight / 2.0f;
-  leftBorder->GetComponent<RenderComponent<RenderType>>()->Init(ResourceManager::Get().GetAsset<RenderType>("spritesheets\\ryu.png"));
-  leftBorder->GetComponent<StaticCollider>()->Init(Vector2<double>(-200, 0), Vector2<double>(0, m_nativeHeight));
-  leftBorder->GetComponent<StaticCollider>()->MoveToTransform(*leftBorder->GetComponent<Transform>());
+BattleScene::~BattleScene()
+{
+  GameManager::Get().DestroyEntity(_borders[0]);
+  GameManager::Get().DestroyEntity(_borders[1]);
+  GameManager::Get().DestroyEntity(_borders[2]);
+  GameManager::Get().DestroyEntity(_camera);
 
-  auto rightBorder = GameManager::Get().CreateEntity<Transform, RenderComponent<RenderType>, StaticCollider>();
-  rightBorder->GetComponent<Transform>()->position.x = (float)m_nativeWidth + 100.0f;
-  rightBorder->GetComponent<Transform>()->position.y = (float)m_nativeHeight / 2.0f;
-  rightBorder->GetComponent<RenderComponent<RenderType>>()->Init(ResourceManager::Get().GetAsset<RenderType>("spritesheets\\ryu.png"));
-  rightBorder->GetComponent<StaticCollider>()->Init(Vector2<double>(m_nativeWidth, 0), Vector2<double>(m_nativeWidth + 200, m_nativeHeight));
-  rightBorder->GetComponent<StaticCollider>()->MoveToTransform(*rightBorder->GetComponent<Transform>());
+  // always delete transform last because it will access the other components
+  _p1->RemoveComponents<Animator, RenderComponent<RenderType>, RenderProperties, Rigidbody, GameActor, DynamicCollider, Hurtbox, StateComponent, Transform>();
+  _p2->RemoveComponents<Animator, RenderComponent<RenderType>, RenderProperties, Rigidbody, GameActor, DynamicCollider, Hurtbox, StateComponent, Transform>();
+}
 
-  _p1 = InitCharacter(Vector2<int>(100, 0));
-  _p2 = InitCharacter(Vector2<int>(400, 0));
+void BattleScene::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2)
+{
+  _p1 = p1;
+  _p2 = p2;
+
+  _borders[0] = GameManager::Get().CreateEntity<Transform, RenderComponent<RenderType>, StaticCollider>();
+  _borders[0]->GetComponent<Transform>()->position.x = (float)m_nativeWidth / 2.0f;
+  _borders[0]->GetComponent<Transform>()->position.y = m_nativeHeight;
+  _borders[0]->GetComponent<RenderComponent<RenderType>>()->Init(ResourceManager::Get().GetAsset<RenderType>("spritesheets\\ryu.png"));
+  _borders[0]->GetComponent<StaticCollider>()->Init(Vector2<double>(0, m_nativeHeight - 40), Vector2<double>(m_nativeWidth, m_nativeHeight + 40.0f));
+  _borders[0]->GetComponent<StaticCollider>()->MoveToTransform(*_borders[0]->GetComponent<Transform>());
+
+  _borders[1] = GameManager::Get().CreateEntity<Transform, RenderComponent<RenderType>, StaticCollider>();
+  _borders[1]->GetComponent<Transform>()->position.x = -100;
+  _borders[1]->GetComponent<Transform>()->position.y = (float)m_nativeHeight / 2.0f;
+  _borders[1]->GetComponent<RenderComponent<RenderType>>()->Init(ResourceManager::Get().GetAsset<RenderType>("spritesheets\\ryu.png"));
+  _borders[1]->GetComponent<StaticCollider>()->Init(Vector2<double>(-200, 0), Vector2<double>(0, m_nativeHeight));
+  _borders[1]->GetComponent<StaticCollider>()->MoveToTransform(*_borders[1]->GetComponent<Transform>());
+
+  _borders[2] = GameManager::Get().CreateEntity<Transform, RenderComponent<RenderType>, StaticCollider>();
+  _borders[2]->GetComponent<Transform>()->position.x = (float)m_nativeWidth + 100.0f;
+  _borders[2]->GetComponent<Transform>()->position.y = (float)m_nativeHeight / 2.0f;
+  _borders[2]->GetComponent<RenderComponent<RenderType>>()->Init(ResourceManager::Get().GetAsset<RenderType>("spritesheets\\ryu.png"));
+  _borders[2]->GetComponent<StaticCollider>()->Init(Vector2<double>(m_nativeWidth, 0), Vector2<double>(m_nativeWidth + 200, m_nativeHeight));
+  _borders[2]->GetComponent<StaticCollider>()->MoveToTransform(*_borders[2]->GetComponent<Transform>());
+
+  InitCharacter(Vector2<int>(100, 0), _p1);
+  InitCharacter(Vector2<int>(400, 0), _p2);
 
   // set up player key config
   auto kb2 = _p2->GetComponent<KeyboardInputHandler>();
@@ -81,18 +111,13 @@ void BattleScene::Update(float deltaTime)
   AttackAnimationSystem::DoTick(deltaTime);
 }
 
-Camera* BattleScene::GetCamera()
-{
-  return _camera->GetComponent<Camera>().get();
-}
 
-
-std::shared_ptr<Entity> BattleScene::InitCharacter(Vector2<float> position)
+void BattleScene::InitCharacter(Vector2<float> position, std::shared_ptr<Entity> player)
 {
   Vector2<int> textureSize = ResourceManager::Get().GetTextureWidthAndHeight("spritesheets\\ryu.png");
   Vector2<double> entitySize(static_cast<double>(textureSize.x) * .75, static_cast<double>(textureSize.y) * .95);
 
-  auto player = GameManager::Get().CreateEntity<Transform, KeyboardInputHandler, Animator, RenderComponent<RenderType>, RenderProperties, Rigidbody, GameActor, DynamicCollider, Hurtbox, StateComponent>();
+  player->AddComponents<Transform, KeyboardInputHandler, Animator, RenderComponent<RenderType>, RenderProperties, Rigidbody, GameActor, DynamicCollider, Hurtbox, StateComponent>();
 
   player->GetComponent<Rigidbody>()->Init(true);
   player->GetComponent<Animator>()->SetAnimations(&RyuConfig::Animations());
@@ -109,6 +134,4 @@ std::shared_ptr<Entity> BattleScene::InitCharacter(Vector2<float> position)
 
   player->GetComponent<DynamicCollider>()->MoveToTransform(*player->GetComponent<Transform>());
   player->GetComponent<Hurtbox>()->MoveToTransform(*player->GetComponent<Transform>());
-
-  return player;
 }

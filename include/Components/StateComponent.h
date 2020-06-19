@@ -3,6 +3,12 @@
 #include "Core/Geometry2D/RectHelper.h"
 #include "DebugGUI/DebugItem.h"
 
+//! marks the entity as the loser of the round
+struct LoserComponent : public IComponent
+{
+  LoserComponent(std::shared_ptr<Entity> owner) : IComponent(owner) {}
+};
+
 //! hitbox is the area that will hit the opponent
 class StateComponent : public IComponent, public DebugItem
 {
@@ -32,6 +38,9 @@ public:
 
 
   int hp = 100;
+
+  //! Adds loser component to entity
+  void MarkLoser();
 
   virtual void OnDebug() override
   {

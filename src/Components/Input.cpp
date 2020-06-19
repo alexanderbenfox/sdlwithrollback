@@ -102,6 +102,13 @@ SpecialMoveState InputBuffer::Evaluate(const TrieNode<InputState, SpecialMoveSta
 }
 
 //______________________________________________________________________________
+void InputBuffer::Clear()
+{
+  for(int i = 0; i < _limit; i++)
+    _buffer[i] = InputState::NONE;
+}
+
+//______________________________________________________________________________
 KeyboardInputHandler::KeyboardInputHandler(std::shared_ptr<Entity> owner) : IInputHandler(owner)
 {
   //assign direction buttons

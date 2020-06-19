@@ -168,6 +168,10 @@ void GUIController::RemoveImguiWindowFunction(const std::string& group, int inde
   auto it = _imguiWindowGroups.find(group);
   if (it != _imguiWindowGroups.end())
   {
+    // if its out of range just delete the last one. this is a shitty solution to a shitty problem
+    if(index > it->second.size() - 1)
+      index = it->second.size() - 1;
+
     it->second.erase(it->second.begin() + index);
   }
 }

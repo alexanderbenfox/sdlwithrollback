@@ -3,6 +3,17 @@
 #include "Components/Collider.h"
 #include "GameManagement.h"
 
+Entity::~Entity() {}
+
+void Entity::RemoveAllComponents()
+{
+  for(auto func : _deleteComponent)
+  {
+    func.second();
+  }
+  CheckAgainstSystems(this);
+}
+
 void Entity::ParseCommand(const std::string& command)
 {
   auto split = StringUtils::Split(command, ' ');
