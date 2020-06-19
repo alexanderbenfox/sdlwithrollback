@@ -49,7 +49,7 @@ std::unordered_map<std::string, std::tuple<AnimationInfo, FrameData, std::string
   { "StandingLight",
     std::make_tuple(
       AnimationInfo{groundedAttacks, 38, 7, AnchorPoint::BL},
-      FrameData{4, 3, 7, 3, -2, 1, Vector2<float>(120.0f, -100.0f), hitstopLight},
+      FrameData{4, 3, 7, 3, -2, 50, Vector2<float>(120.0f, -100.0f), hitstopLight},
       "spritesheets\\grounded_attacks_hitboxes.png", AnimationDebuggingInfo{0})
   },
   { "StandingMedium",

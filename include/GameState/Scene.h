@@ -52,7 +52,6 @@ protected:
 
 };
 
-
 class BattleScene : public IScene
 {
 public:

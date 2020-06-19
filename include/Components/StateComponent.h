@@ -84,6 +84,7 @@ inline StateComponent& StateComponent::operator=(const StateComponent& other)
   this->hitOnLeftSide = other.hitOnLeftSide;
   this->frameData = other.frameData;
   this->hitting = other.hitting;
+  this->hp = other.hp;
   return *this;
 }
 
@@ -96,5 +97,6 @@ inline StateComponent& StateComponent::operator=(StateComponent&& other) noexcep
   this->hitOnLeftSide = other.hitOnLeftSide;
   this->frameData = other.frameData;
   this->hitting = other.hitting;
+  this->hp = other.hp;
   return *this;
 }

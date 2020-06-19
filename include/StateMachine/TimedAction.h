@@ -105,11 +105,11 @@ class OnRecvHitAction : public TimedAction<Stance, Action>
 {
 public:
   //!
-  OnRecvHitAction(const std::string& animation, bool facingRight, int framesInState, Vector2<float> instVeclocity) :
-    TimedAction<Stance, Action>(animation, facingRight, framesInState, instVeclocity), _damageTaken(0) {}
+  OnRecvHitAction(const std::string& animation, bool facingRight, int framesInState, Vector2<float> knockback) :
+    TimedAction<Stance, Action>(animation, facingRight, framesInState, knockback), _damageTaken(0) {}
 
-  OnRecvHitAction(const std::string& animation, bool facingRight, int framesInState, Vector2<float> instVeclocity, int damage) :
-    TimedAction<Stance, Action>(animation, facingRight, framesInState, instVeclocity), _damageTaken(damage) {}
+  OnRecvHitAction(const std::string& animation, bool facingRight, int framesInState, Vector2<float> knockback, int damage) :
+    TimedAction<Stance, Action>(animation, facingRight, framesInState, knockback), _damageTaken(damage) {}
 
   virtual ~OnRecvHitAction();
 
@@ -118,11 +118,14 @@ public:
   virtual void Enact(Entity* actor) override;
 
 protected:
-
+  //! Follows up with idle state
+  virtual IAction* GetFollowUpAction(const InputBuffer& rawInput, const StateComponent& context) override;
   //! Removes hit state component
   virtual void OnActionComplete() override;
   //!
   int _damageTaken = 0;
+  //!
+  bool _killingBlow = false;
 
 };
 
@@ -144,6 +147,15 @@ inline void OnRecvHitAction<Stance, Action>::Enact(Entity* actor)
 
   //! send damage value
   actor->GetComponent<StateComponent>()->hp -= _damageTaken;
+}
+
+//______________________________________________________________________________
+template <StanceState Stance, ActionState Action>
+inline IAction* OnRecvHitAction<Stance, Action>::GetFollowUpAction(const InputBuffer& rawInput, const StateComponent& context)
+{
+  if (context.hp <= 0)
+    return new StateLockedAnimatedAction<StanceState::STANDING, ActionState::NONE>("KO", context.onLeftSide, Vector2<float>::Zero);
+  return TimedAction<Stance, Action>::GetFollowUpAction(rawInput, context);
 }
 
 //______________________________________________________________________________
