@@ -22,7 +22,7 @@ public:
   }
 };
 
-class MoveSystemRect : public ISystem<Transform, DynamicCollider, Hurtbox>
+class MoveSystemPhysCollider : public ISystem<Transform, DynamicCollider>
 {
 public:
   static void DoTick(float dt)
@@ -31,9 +31,23 @@ public:
     {
       Transform* transform = std::get<Transform*>(tuple.second);
       DynamicCollider* rect = std::get<DynamicCollider*>(tuple.second);
-      Hurtbox* hurtbox = std::get<Hurtbox*>(tuple.second);
 
       rect->MoveToTransform(*transform);
+      
+    }
+  }
+};
+
+class MoveSystemHurtbox : public ISystem<Transform, Hurtbox>
+{
+public:
+  static void DoTick(float dt)
+  {
+    for (auto tuple : Tuples)
+    {
+      Transform* transform = std::get<Transform*>(tuple.second);
+      Hurtbox* hurtbox = std::get<Hurtbox*>(tuple.second);
+
       hurtbox->MoveToTransform(*transform);
       
     }
@@ -46,6 +60,7 @@ public:
   static void DoTick(float dt)
   {
     MoveSystemCamera::DoTick(dt);
-    MoveSystemRect::DoTick(dt);
+    MoveSystemPhysCollider::DoTick(dt);
+    MoveSystemHurtbox::DoTick(dt);
   }
 };

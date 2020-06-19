@@ -68,7 +68,10 @@ void CharacterSelectScene::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Enti
 
   p1->AddComponent<KeyboardInputHandler>();
 
-  _portrait = GameManager::Get().CreateEntity<Transform, RenderComponent<RenderType>, RenderProperties>();
+  //_portrait = GameManager::Get().CreateEntity<Transform, RenderComponent<RenderType>, RenderProperties>();
+  _portrait = GameManager::Get().CreateEntity<Transform, TextRenderer, RenderProperties>();
+  _portrait->GetComponent<TextRenderer>()->SetFont(ResourceManager::Get().GetFontWriter("fonts\\Eurostile.ttf", 36));
+  _portrait->GetComponent<TextRenderer>()->SetText("Character Select");
   _portrait->GetComponent<Transform>()->position = Vector2<float>(m_nativeWidth / 2.0f, m_nativeHeight / 2.0f);
 
   // set up camera

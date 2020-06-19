@@ -36,7 +36,6 @@ public:
   //! Attacker state information
   bool hitting = false;
 
-
   int hp = 100;
 
   //! Adds loser component to entity
@@ -85,6 +84,7 @@ inline StateComponent& StateComponent::operator=(const StateComponent& other)
   this->frameData = other.frameData;
   this->hitting = other.hitting;
   this->hp = other.hp;
+
   return *this;
 }
 
@@ -98,5 +98,6 @@ inline StateComponent& StateComponent::operator=(StateComponent&& other) noexcep
   this->frameData = other.frameData;
   this->hitting = other.hitting;
   this->hp = other.hp;
+
   return *this;
 }

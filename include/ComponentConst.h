@@ -10,6 +10,10 @@ const int hitstopLight = 10;
 const int hitstopMedium = 10;
 const int hitstopHeavy = 10;
 
+//! Set our preferred type (SDL or GL) to be rendered by the system
+class GLTexture;
+typedef GLTexture RenderType;
+
 struct FrameData
 {
   // # of start up frames, active frames, and recovery frames

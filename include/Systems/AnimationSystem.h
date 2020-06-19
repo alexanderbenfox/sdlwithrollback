@@ -82,10 +82,10 @@ public:
       {
         // when the animation is complete, do the listener callback
         // do this on the following frame so that the last frame of animation can still render
-        if (animator->GetListener())
+        if (auto* listener = animator->GetListener())
         {
           if (!animator->looping && animator->frame == (animator->GetCurrentAnimation().GetFrameCount() - 1))
-            animator->GetListener()->OnAnimationComplete(animator->currentAnimationName);
+            listener->OnAnimationComplete(animator->currentAnimationName);
         }
 
         if (animator->accumulatedTime >= secPerFrame)

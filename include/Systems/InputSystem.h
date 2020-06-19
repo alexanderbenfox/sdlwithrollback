@@ -47,12 +47,6 @@ public:
       actor->EvaluateInputContext(unitInputState, state, dt);
 
       rigidbody->elasticCollisions = actor->GetActionState() == ActionState::HITSTUN;
-
-      if(state->hp <= 0)
-      {
-        state->MarkLoser();
-        GameManager::Get().RequestSceneChange(SceneType::RESULTS);
-      }
     }
   }
 };
@@ -76,12 +70,6 @@ public:
       actor->EvaluateInputContext(unitInputState, state, dt);
 
       rigidbody->elasticCollisions = actor->GetActionState() == ActionState::HITSTUN;
-
-      if(state->hp <= 0)
-      {
-        state->MarkLoser();
-        GameManager::Get().RequestSceneChange(SceneType::RESULTS);
-      }
     }
   }
 };

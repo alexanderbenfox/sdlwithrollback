@@ -9,8 +9,6 @@
 #include <thread>
 #include <mutex>
 
-//! Set our preferred type (SDL or GL) to be rendered by the system
-typedef GLTexture RenderType;
 #define GRenderer RenderManager<RenderType>::Get()
 
 //______________________________________________________________________________

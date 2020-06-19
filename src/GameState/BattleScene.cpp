@@ -15,6 +15,8 @@
 #include "Systems/InputSystem.h"
 #include "Systems/HitSystem.h"
 #include "Systems/TimerSystem.h"
+#include "Systems/CheckBattleEndSystem.h"
+#include "Systems/CutsceneSystem.h"
 
 #include "AssetManagement/StaticAssets/CharacterConfig.h"
 
@@ -28,6 +30,8 @@ IScene* SceneHelper::CreateScene(SceneType type)
       return new CharacterSelectScene;
     case SceneType::BATTLE:
       return new BattleScene;
+    case SceneType::POSTMATCH:
+      return new PostMatchScene;
     case SceneType::RESULTS:
       return new ResultsScene;
   }
@@ -40,9 +44,9 @@ BattleScene::~BattleScene()
   GameManager::Get().DestroyEntity(_borders[2]);
   GameManager::Get().DestroyEntity(_camera);
 
-  // always delete transform last because it will access the other components
-  _p1->RemoveComponents<Animator, RenderComponent<RenderType>, RenderProperties, Rigidbody, GameActor, DynamicCollider, Hurtbox, StateComponent, Transform>();
-  _p2->RemoveComponents<Animator, RenderComponent<RenderType>, RenderProperties, Rigidbody, GameActor, DynamicCollider, Hurtbox, StateComponent, Transform>();
+  // we are moving into the after match cutscene, so only remove game state related components
+  _p1->RemoveComponents<GameActor, Hurtbox, StateComponent>();
+  _p2->RemoveComponents<GameActor, Hurtbox, StateComponent>();
 }
 
 void BattleScene::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2)
@@ -109,6 +113,8 @@ void BattleScene::Update(float deltaTime)
 
   AnimationSystem::DoTick(deltaTime);
   AttackAnimationSystem::DoTick(deltaTime);
+
+  CheckBattleEndSystem::DoTick(deltaTime);
 }
 
 
@@ -134,4 +140,82 @@ void BattleScene::InitCharacter(Vector2<float> position, std::shared_ptr<Entity>
 
   player->GetComponent<DynamicCollider>()->MoveToTransform(*player->GetComponent<Transform>());
   player->GetComponent<Hurtbox>()->MoveToTransform(*player->GetComponent<Transform>());
+}
+
+PostMatchScene::~PostMatchScene()
+{
+  GameManager::Get().DestroyEntity(_borders[0]);
+  GameManager::Get().DestroyEntity(_borders[1]);
+  GameManager::Get().DestroyEntity(_borders[2]);
+  GameManager::Get().DestroyEntity(_camera);
+
+  // always delete transform last because it will access the other components
+  _p1->RemoveComponents<Animator, RenderComponent<RenderType>, RenderProperties, Rigidbody, DynamicCollider, CutsceneActor, Transform>();
+  _p2->RemoveComponents<Animator, RenderComponent<RenderType>, RenderProperties, Rigidbody, DynamicCollider, CutsceneActor, Transform>();
+}
+
+void PostMatchScene::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2)
+{
+  _p1 = p1;
+  _p2 = p2;
+
+  _p1->AddComponents<Animator, RenderComponent<RenderType>, RenderProperties, Rigidbody, DynamicCollider, Transform, CutsceneActor>();
+  _p2->AddComponents<Animator, RenderComponent<RenderType>, RenderProperties, Rigidbody, DynamicCollider, Transform, CutsceneActor>();
+
+  // since game actor no long exists, remove the listener
+  _p1->GetComponent<Animator>()->ChangeListener(nullptr);
+  _p2->GetComponent<Animator>()->ChangeListener(nullptr);
+
+  // reset rigidbody state
+  _p1->GetComponent<Rigidbody>()->elasticCollisions = false;
+  _p2->GetComponent<Rigidbody>()->elasticCollisions = false;
+
+  if(_p1->GetComponent<LoserComponent>())
+  {
+    _p1->GetComponent<CutsceneActor>()->SetActionList(_loserActions, 2);
+    _p2->GetComponent<CutsceneActor>()->SetActionList(_winnerActions, 2);
+  }
+  else
+  {
+    _p1->GetComponent<CutsceneActor>()->SetActionList(_winnerActions, 2);
+    _p2->GetComponent<CutsceneActor>()->SetActionList(_loserActions, 2);
+  }
+
+  _borders[0] = GameManager::Get().CreateEntity<Transform, RenderComponent<RenderType>, StaticCollider>();
+  _borders[0]->GetComponent<Transform>()->position.x = (float)m_nativeWidth / 2.0f;
+  _borders[0]->GetComponent<Transform>()->position.y = m_nativeHeight;
+  _borders[0]->GetComponent<RenderComponent<RenderType>>()->Init(ResourceManager::Get().GetAsset<RenderType>("spritesheets\\ryu.png"));
+  _borders[0]->GetComponent<StaticCollider>()->Init(Vector2<double>(0, m_nativeHeight - 40), Vector2<double>(m_nativeWidth, m_nativeHeight + 40.0f));
+  _borders[0]->GetComponent<StaticCollider>()->MoveToTransform(*_borders[0]->GetComponent<Transform>());
+
+  _borders[1] = GameManager::Get().CreateEntity<Transform, RenderComponent<RenderType>, StaticCollider>();
+  _borders[1]->GetComponent<Transform>()->position.x = -100;
+  _borders[1]->GetComponent<Transform>()->position.y = (float)m_nativeHeight / 2.0f;
+  _borders[1]->GetComponent<RenderComponent<RenderType>>()->Init(ResourceManager::Get().GetAsset<RenderType>("spritesheets\\ryu.png"));
+  _borders[1]->GetComponent<StaticCollider>()->Init(Vector2<double>(-200, 0), Vector2<double>(0, m_nativeHeight));
+  _borders[1]->GetComponent<StaticCollider>()->MoveToTransform(*_borders[1]->GetComponent<Transform>());
+
+  _borders[2] = GameManager::Get().CreateEntity<Transform, RenderComponent<RenderType>, StaticCollider>();
+  _borders[2]->GetComponent<Transform>()->position.x = (float)m_nativeWidth + 100.0f;
+  _borders[2]->GetComponent<Transform>()->position.y = (float)m_nativeHeight / 2.0f;
+  _borders[2]->GetComponent<RenderComponent<RenderType>>()->Init(ResourceManager::Get().GetAsset<RenderType>("spritesheets\\ryu.png"));
+  _borders[2]->GetComponent<StaticCollider>()->Init(Vector2<double>(m_nativeWidth, 0), Vector2<double>(m_nativeWidth + 200, m_nativeHeight));
+  _borders[2]->GetComponent<StaticCollider>()->MoveToTransform(*_borders[2]->GetComponent<Transform>());
+
+  // set up camera
+  _camera = GameManager::Get().CreateEntity<Camera, Transform>();
+  _camera->GetComponent<Camera>()->Init(m_nativeWidth, m_nativeHeight);
+}
+
+void PostMatchScene::Update(float deltaTime)
+{
+  CutsceneSystem::DoTick(deltaTime);
+  // resolve collisions
+  PhysicsSystem::DoTick(deltaTime);
+  // prevent continued movement after hitting the ground
+  CutsceneMovementSystem::DoTick(deltaTime);
+  // update the location of the colliders
+  MoveSystem::DoTick(deltaTime);
+
+  AnimationSystem::DoTick(deltaTime);
 }

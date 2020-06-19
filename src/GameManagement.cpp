@@ -12,6 +12,8 @@
 #include "Systems/HitSystem.h"
 #include "Systems/TimerSystem.h"
 #include "Systems/SceneSystems.h"
+#include "Systems/CutsceneSystem.h"
+#include "Systems/CheckBattleEndSystem.h"
 
 #include "Systems/Physics.h"
 #include "DebugGUI/GUIController.h"
@@ -298,7 +300,8 @@ void GameManager::CheckAgainstSystems(Entity* entity)
   GamepadInputSystem::Check(entity);
   PhysicsSystem::Check(entity);
   AnimationSystem::Check(entity);
-  MoveSystemRect::Check(entity);
+  MoveSystemPhysCollider::Check(entity);
+  MoveSystemHurtbox::Check(entity);
   MoveSystemCamera::Check(entity);
   AttackAnimationSystem::Check(entity);
   HitSystem::Check(entity);
@@ -310,6 +313,9 @@ void GameManager::CheckAgainstSystems(Entity* entity)
   StartSceneInputSystem::Check(entity);
   CharacterSelectInputSystem::Check(entity);
   ResultsSceneSystem::Check(entity);
+  CutsceneSystem::Check(entity);
+  CutsceneMovementSystem::Check(entity);
+  CheckBattleEndSystem::Check(entity);
 }
 
 //______________________________________________________________________________
