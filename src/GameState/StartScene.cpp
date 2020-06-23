@@ -13,12 +13,9 @@
 IScene::~IScene()
 {
   // after every scene, clear the input buffers on all devices
-  auto& keyboards = ComponentManager<KeyboardInputHandler>::Get().All();
-  auto& gamepads = ComponentManager<GamepadInputHandler>::Get().All();
-  for(auto keyboard : keyboards)
-    keyboard->ClearInputBuffer();
-  for(auto gamepad : gamepads)
-    gamepad->ClearInputBuffer();
+  auto& inputSources = ComponentManager<GameInputComponent>::Get().All();
+  for(auto source : inputSources)
+    source->Clear();
 }
 
 Camera* IScene::GetCamera()
@@ -37,11 +34,11 @@ void StartScene::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2)
   _p1 = p1;
   _p2 = p2;
 
-  _renderedText = GameManager::Get().CreateEntity<Transform, TextRenderer, RenderProperties>();
+  _renderedText = GameManager::Get().CreateEntity<UITransform, TextRenderer, RenderProperties>();
+  _renderedText->GetComponent<UITransform>()->screenAnchor = UIAnchor::Center;
+  _renderedText->GetComponent<UITransform>()->anchor = UIAnchor::Center;
   _renderedText->GetComponent<TextRenderer>()->SetFont(ResourceManager::Get().GetFontWriter("fonts\\Eurostile.ttf", 36));
   _renderedText->GetComponent<TextRenderer>()->SetText("PRESS ANY BUTTON TO START");
-
-  _renderedText->GetComponent<Transform>()->position = Vector2<float>(m_nativeWidth / 2.0f, m_nativeHeight / 2.0f);
 
   // set up camera
   _camera = GameManager::Get().CreateEntity<Camera, Transform>();
@@ -65,10 +62,11 @@ void CharacterSelectScene::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Enti
   _p2 = p2;
 
   //_portrait = GameManager::Get().CreateEntity<Transform, RenderComponent<RenderType>, RenderProperties>();
-  _portrait = GameManager::Get().CreateEntity<Transform, TextRenderer, RenderProperties>();
+  _portrait = GameManager::Get().CreateEntity<UITransform, TextRenderer, RenderProperties>();
+  _portrait->GetComponent<UITransform>()->screenAnchor = UIAnchor::Center;
+  _portrait->GetComponent<UITransform>()->anchor = UIAnchor::Center;
   _portrait->GetComponent<TextRenderer>()->SetFont(ResourceManager::Get().GetFontWriter("fonts\\Eurostile.ttf", 36));
   _portrait->GetComponent<TextRenderer>()->SetText("Character Select");
-  _portrait->GetComponent<Transform>()->position = Vector2<float>(m_nativeWidth / 2.0f, m_nativeHeight / 2.0f);
 
   // set up camera
   _camera = GameManager::Get().CreateEntity<Camera, Transform>();
@@ -91,9 +89,10 @@ void ResultsScene::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2)
   _p1 = p1;
   _p2 = p2;
 
-  _resultText = GameManager::Get().CreateEntity<Transform, TextRenderer, RenderProperties>();
+  _resultText = GameManager::Get().CreateEntity<UITransform, TextRenderer, RenderProperties>();
+  _resultText->GetComponent<UITransform>()->screenAnchor = UIAnchor::Center;
+  _resultText->GetComponent<UITransform>()->anchor = UIAnchor::Center;
   _resultText->GetComponent<TextRenderer>()->SetFont(ResourceManager::Get().GetFontWriter("fonts\\Eurostile.ttf", 36));
-  _resultText->GetComponent<Transform>()->position = Vector2<float>(m_nativeWidth / 2.0f, m_nativeHeight / 2.0f);
   
   if(_p1->GetComponent<LoserComponent>())
   {

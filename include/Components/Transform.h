@@ -11,8 +11,7 @@ struct Transform : public IComponent
     position(Vector2<float>(0.0f, 0.0f)),
     scale(Vector2<float>(1.0f, 1.0f)),
     rotation(Vector2<float>(0.0f, 0.0f)),
-    rect(),
-    IComponent(owner) {}
+    rect(), IComponent(owner) {}
   Vector2<float> position;
   Vector2<float> scale;
   Vector2<float> rotation;
@@ -36,6 +35,22 @@ struct Transform : public IComponent
 
   friend std::ostream& operator<<(std::ostream& os, const Transform& transform);
   friend std::istream& operator>>(std::istream& is, Transform& transform);
+};
+
+enum class UIAnchor
+{
+  TL, TR, BL, BR, Center, Size
+};
+
+//______________________________________________________________________________
+//!
+struct UITransform : public Transform
+{
+  UITransform(std::shared_ptr<Entity> owner) : Transform(owner) {}
+
+  UIAnchor screenAnchor;
+  UIAnchor anchor;
+
 };
 
 //!

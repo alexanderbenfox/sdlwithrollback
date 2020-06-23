@@ -83,12 +83,26 @@ public:
     {
       _currentText = text;
       _string = _resource->CreateStringField(_currentText.c_str(), 600);
+
+      float width = 0;
+      float height = 0;
+      for(auto& letter : _string)
+      {
+        width = std::max(letter.x + letter.texture->GetInfo().mWidth, width);
+        height = std::max(letter.y + letter.texture->GetInfo().mHeight, height);
+      }
+      _rect = Rect<float>(0, 0, width, height);
     }
   }
 
   std::vector<GLDrawOperation> GetRenderOps()
   {
     return _string;
+  }
+
+  Vector2<float> GetStringSize()
+  {
+    return Vector2<float>(_rect.Width(), _rect.Height());
   }
 
 protected:
@@ -98,6 +112,8 @@ protected:
   std::vector<GLDrawOperation> _string;
   //!
   std::string _currentText;
+  //!
+  Rect<float> _rect;
 
 };
 

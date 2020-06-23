@@ -81,17 +81,17 @@ GameActor::GameActor(std::shared_ptr<Entity> owner) : _currentAction(nullptr), _
 
   if constexpr (std::is_same_v<RenderType, SDL_Texture>)
   {
-    _counterText = GameManager::Get().CreateEntity<Transform, RenderComponent<SDL_Texture>>();
+    _counterText = GameManager::Get().CreateEntity<UITransform, RenderComponent<SDL_Texture>>();
     _counterText->GetComponent<RenderComponent<SDL_Texture>>()->Init(ResourceManager::Get().GetText("Combo: 0", "fonts\\Eurostile.ttf"));
   }
   else
   {
-    _counterText = GameManager::Get().CreateEntity<Transform, TextRenderer>();
+    _counterText = GameManager::Get().CreateEntity<UITransform, TextRenderer>();
     _counterText->GetComponent<TextRenderer>()->SetFont(ResourceManager::Get().GetFontWriter("fonts\\Eurostile.ttf", 36));
   }
 
   // offset transform
-  _counterText->GetComponent<Transform>()->position = Vector2<float>(5.0f, 20.0f);
+  _counterText->GetComponent<UITransform>()->position = Vector2<float>(5.0f, 20.0f);
 }
 
 //______________________________________________________________________________
