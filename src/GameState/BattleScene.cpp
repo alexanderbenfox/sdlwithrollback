@@ -78,19 +78,6 @@ void BattleScene::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2)
   InitCharacter(Vector2<int>(100, 0), _p1);
   InitCharacter(Vector2<int>(400, 0), _p2);
 
-  // set up player key config
-  auto kb2 = _p2->GetComponent<KeyboardInputHandler>();
-  kb2->SetKey(SDLK_UP, InputState::UP);
-  kb2->SetKey(SDLK_DOWN, InputState::DOWN);
-  kb2->SetKey(SDLK_RIGHT, InputState::RIGHT);
-  kb2->SetKey(SDLK_LEFT, InputState::LEFT);
-  kb2->SetKey(SDLK_j, InputState::BTN1);
-  kb2->SetKey(SDLK_k, InputState::BTN2);
-  kb2->SetKey(SDLK_l, InputState::BTN3);
-
-  _p2->RemoveComponent<KeyboardInputHandler>();
-  _p2->AddComponent<GamepadInputHandler>();
-
   // set up camera
   _camera = GameManager::Get().CreateEntity<Camera, Transform>();
   _camera->GetComponent<Camera>()->Init(m_nativeWidth, m_nativeHeight);
@@ -103,7 +90,6 @@ void BattleScene::Update(float deltaTime)
 
   PlayerSideSystem::DoTick(deltaTime);
   InputSystem::DoTick(deltaTime);
-  GamepadInputSystem::DoTick(deltaTime);
 
   FrameAdvantageSystem::DoTick(deltaTime);
   // resolve collisions
@@ -123,7 +109,7 @@ void BattleScene::InitCharacter(Vector2<float> position, std::shared_ptr<Entity>
   Vector2<int> textureSize = ResourceManager::Get().GetTextureWidthAndHeight("spritesheets\\ryu.png");
   Vector2<double> entitySize(static_cast<double>(textureSize.x) * .75, static_cast<double>(textureSize.y) * .95);
 
-  player->AddComponents<Transform, KeyboardInputHandler, Animator, RenderComponent<RenderType>, RenderProperties, Rigidbody, GameActor, DynamicCollider, Hurtbox, StateComponent>();
+  player->AddComponents<Transform, GameInputComponent, Animator, RenderComponent<RenderType>, RenderProperties, Rigidbody, GameActor, DynamicCollider, Hurtbox, StateComponent>();
 
   player->GetComponent<Rigidbody>()->Init(true);
   player->GetComponent<Animator>()->SetAnimations(&RyuConfig::Animations());

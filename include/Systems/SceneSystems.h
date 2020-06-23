@@ -2,15 +2,15 @@
 #include "Systems/ISystem.h"
 #include "Components/Input.h"
 
-class StartSceneInputSystem : public ISystem<KeyboardInputHandler>
+class StartSceneInputSystem : public ISystem<GameInputComponent>
 {
 public:
   static void DoTick(float dt)
   {
     for(auto& tuple : Tuples)
     {
-      KeyboardInputHandler* inputHandler = std::get<KeyboardInputHandler*>(tuple.second);
-      const InputBuffer& inputState = inputHandler->CollectInputState();
+      GameInputComponent* inputHandler = std::get<GameInputComponent*>(tuple.second);
+      const InputBuffer& inputState = inputHandler->QueryInput();
 
       if(inputState.Latest() != InputState::NONE)
       {
@@ -21,15 +21,15 @@ public:
   }
 };
 
-class CharacterSelectInputSystem : public ISystem<KeyboardInputHandler>
+class CharacterSelectInputSystem : public ISystem<GameInputComponent>
 {
 public:
   static void DoTick(float dt)
   {
     for(auto& tuple : Tuples)
     {
-      KeyboardInputHandler* inputHandler = std::get<KeyboardInputHandler*>(tuple.second);
-      const InputBuffer& inputState = inputHandler->CollectInputState();
+      GameInputComponent* inputHandler = std::get<GameInputComponent*>(tuple.second);
+      const InputBuffer& inputState = inputHandler->QueryInput();
 
       if(inputState.Latest() != InputState::NONE)
       {
@@ -39,15 +39,15 @@ public:
   }
 };
 
-class ResultsSceneSystem : public ISystem<KeyboardInputHandler>
+class ResultsSceneSystem : public ISystem<GameInputComponent>
 {
 public:
   static void DoTick(float dt)
   {
     for(auto& tuple : Tuples)
     {
-      KeyboardInputHandler* inputHandler = std::get<KeyboardInputHandler*>(tuple.second);
-      const InputBuffer& inputState = inputHandler->CollectInputState();
+      GameInputComponent* inputHandler = std::get<GameInputComponent*>(tuple.second);
+      const InputBuffer& inputState = inputHandler->QueryInput();
 
       if(inputState.Latest() != InputState::NONE)
       {

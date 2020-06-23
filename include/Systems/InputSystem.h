@@ -28,42 +28,19 @@ public:
   }
 };
 
-class InputSystem : public ISystem<KeyboardInputHandler, StateComponent, GameActor, Rigidbody>
+class InputSystem : public ISystem<GameInputComponent, StateComponent, GameActor, Rigidbody>
 {
 public:
   static void DoTick(float dt)
   {
     for(auto& tuple : Tuples)
     {
-      KeyboardInputHandler* inputHandler = std::get<KeyboardInputHandler*>(tuple.second);
+      GameInputComponent* inputHandler = std::get<GameInputComponent*>(tuple.second);
       GameActor* actor = std::get<GameActor*>(tuple.second);
       Rigidbody* rigidbody = std::get<Rigidbody*>(tuple.second);
       StateComponent* state = std::get<StateComponent*>(tuple.second);
 
-      const InputBuffer& unitInputState = inputHandler->CollectInputState();
-
-      state->collision = rigidbody->_lastCollisionSide;
-
-      actor->EvaluateInputContext(unitInputState, state, dt);
-
-      rigidbody->elasticCollisions = actor->GetActionState() == ActionState::HITSTUN;
-    }
-  }
-};
-
-class GamepadInputSystem : public ISystem<GamepadInputHandler, StateComponent, GameActor, Rigidbody>
-{
-public:
-  static void DoTick(float dt)
-  {
-    for(auto& tuple : Tuples)
-    {
-      GamepadInputHandler* inputHandler = std::get<GamepadInputHandler*>(tuple.second);
-      GameActor* actor = std::get<GameActor*>(tuple.second);
-      Rigidbody* rigidbody = std::get<Rigidbody*>(tuple.second);
-      StateComponent* state = std::get<StateComponent*>(tuple.second);
-
-      const InputBuffer& unitInputState = inputHandler->CollectInputState();
+      const InputBuffer& unitInputState = inputHandler->QueryInput();
 
       state->collision = rigidbody->_lastCollisionSide;
 

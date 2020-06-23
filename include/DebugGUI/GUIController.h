@@ -33,6 +33,8 @@ public:
   void RenderFrame();
   void CleanUp();
 
+
+
   int AddImguiWindowFunction(const std::string& group, std::function<void()>& function);
   void RemoveImguiWindowFunction(const std::string& group, int index);
 
@@ -50,4 +52,9 @@ private:
 
   std::unordered_map<std::string, std::vector<std::function<void()>>> _imguiWindowGroups;
 
+};
+
+struct DropDown
+{
+  static void Show(const char* currentItem, const char* items[], int nItems, std::function<void(const std::string&)> callback);
 };

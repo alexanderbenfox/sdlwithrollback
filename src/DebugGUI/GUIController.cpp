@@ -204,3 +204,22 @@ void GUIController::RenderFrame()
     SDL_GL_SwapWindow(_window);
 }
 
+void DropDown::Show(const char* currentItem, const char* items[], int nItems, std::function<void(const std::string&)> callback)
+{
+  if (ImGui::BeginCombo("##combo", currentItem))
+  {
+    for (int n = 0; n < nItems; n++)
+    {
+      bool is_selected = (currentItem == items[n]);
+      if (ImGui::Selectable(items[n], is_selected))
+      {
+        currentItem = items[n];
+        std::string itemString(items[n]);
+        callback(itemString);
+      }
+      if (is_selected)
+        ImGui::SetItemDefaultFocus();
+    }
+    ImGui::EndCombo();
+  }
+}

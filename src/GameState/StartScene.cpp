@@ -36,8 +36,6 @@ void StartScene::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2)
 {
   _p1 = p1;
   _p2 = p2;
-  
-  p1->AddComponent<KeyboardInputHandler>();
 
   _renderedText = GameManager::Get().CreateEntity<Transform, TextRenderer, RenderProperties>();
   _renderedText->GetComponent<TextRenderer>()->SetFont(ResourceManager::Get().GetFontWriter("fonts\\Eurostile.ttf", 36));
@@ -66,8 +64,6 @@ void CharacterSelectScene::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Enti
   _p1 = p1;
   _p2 = p2;
 
-  p1->AddComponent<KeyboardInputHandler>();
-
   //_portrait = GameManager::Get().CreateEntity<Transform, RenderComponent<RenderType>, RenderProperties>();
   _portrait = GameManager::Get().CreateEntity<Transform, TextRenderer, RenderProperties>();
   _portrait->GetComponent<TextRenderer>()->SetFont(ResourceManager::Get().GetFontWriter("fonts\\Eurostile.ttf", 36));
@@ -94,8 +90,6 @@ void ResultsScene::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2)
 {
   _p1 = p1;
   _p2 = p2;
-
-  p1->AddComponent<KeyboardInputHandler>();
 
   _resultText = GameManager::Get().CreateEntity<Transform, TextRenderer, RenderProperties>();
   _resultText->GetComponent<TextRenderer>()->SetFont(ResourceManager::Get().GetFontWriter("fonts\\Eurostile.ttf", 36));

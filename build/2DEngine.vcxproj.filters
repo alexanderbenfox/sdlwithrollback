@@ -371,6 +371,15 @@
     <ClInclude Include="..\include\Systems\SceneSystems.h">
       <Filter>Header Files\Systems</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\Components\CutsceneActor.h">
+      <Filter>Header Files\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Systems\CheckBattleEndSystem.h">
+      <Filter>Header Files\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Systems\CutsceneSystem.h">
+      <Filter>Header Files\Systems</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

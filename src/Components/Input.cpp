@@ -109,7 +109,7 @@ void InputBuffer::Clear()
 }
 
 //______________________________________________________________________________
-KeyboardInputHandler::KeyboardInputHandler(std::shared_ptr<Entity> owner) : IInputHandler(owner)
+KeyboardInputHandler::KeyboardInputHandler() : IInputHandler()
 {
   //assign direction buttons
   _config[SDLK_w] = InputState::UP;
@@ -152,7 +152,7 @@ InputBuffer const& KeyboardInputHandler::CollectInputState()
 }
 
 //______________________________________________________________________________
-JoystickInputHandler::JoystickInputHandler(std::shared_ptr<Entity> owner) : IInputHandler(owner)
+JoystickInputHandler::JoystickInputHandler() : IInputHandler()
 {
   if(SDL_NumJoysticks() < 1) {}
   else
@@ -237,7 +237,7 @@ InputBuffer const& JoystickInputHandler::CollectInputState()
 }
 
 //______________________________________________________________________________
-GamepadInputHandler::GamepadInputHandler(std::shared_ptr<Entity> owner) : IInputHandler(owner)
+GamepadInputHandler::GamepadInputHandler() : IInputHandler()
 {
   if(SDL_NumJoysticks() < 1) {}
   else
@@ -336,6 +336,81 @@ InputBuffer const& GamepadInputHandler::CollectInputState()
 
   _inputBuffer.Push(frameState);
   return _inputBuffer;
+}
+
+//______________________________________________________________________________
+void GameInputComponent::AssignHandler(InputType type)
+{
+  _assignedHandler = type;
+  switch (type)
+  {
+  case InputType::Keyboard:
+    _handler = &_keyboard;
+    break;
+  case InputType::Gamepad:
+    _handler = &_gamepad;
+    break;
+  case InputType::Joystick:
+    _handler = &_joystick;
+  default:
+    break;
+  }
+}
+
+//______________________________________________________________________________
+InputBuffer const& GameInputComponent::QueryInput()
+{
+  return _handler->CollectInputState();
+}
+
+//______________________________________________________________________________
+void GameInputComponent::Clear()
+{
+  _handler->ClearInputBuffer();
+}
+
+//______________________________________________________________________________
+void GameInputComponent::OnDebug() 
+{
+  int entityId = _owner->GetID();
+  std::string pName = "P" + std::to_string(entityId);
+  if (ImGui::CollapsingHeader(pName.c_str()))
+  {
+    const char* items[] = { "Keyboard", "Joystick", "Gamepad" };
+    static const char* currentItem = nullptr;
+    currentItem = items[(int)_assignedHandler];
+    auto func = [this](const std::string& i)
+    {
+      if (i == "Keyboard")
+        AssignHandler(InputType::Keyboard);
+      else if (i == "Joystick")
+        AssignHandler(InputType::Joystick);
+      else if (i == "Gamepad")
+        AssignHandler(InputType::Gamepad);
+    };
+    DropDown::Show(currentItem, items, 3, func);
+  }
+}
+
+//______________________________________________________________________________
+template <>
+void GameInputComponent::AssignActionKey<SDL_Keycode>(SDL_Keycode key, InputState action)
+{
+  _keyboard.AssignKey(key, action);
+}
+
+//______________________________________________________________________________
+template <>
+void GameInputComponent::AssignActionKey<uint8_t>(uint8_t key, InputState action)
+{
+  _joystick.AssignKey(key, action);
+}
+
+//______________________________________________________________________________
+template <>
+void GameInputComponent::AssignActionKey<SDL_GameControllerButton>(SDL_GameControllerButton key, InputState action)
+{
+  _gamepad.AssignKey(key, action);
 }
 
 #ifdef _WIN32

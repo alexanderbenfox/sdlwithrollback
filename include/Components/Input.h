@@ -1,9 +1,12 @@
 #pragma once
 #include <SDL2/SDL.h>
-#include <unordered_map>
+
 #include "Utils.h"
 #include "Components/IComponent.h"
+#include "DebugGUI/DebugItem.h"
+
 #include <queue>
+#include <unordered_map>
 
 //______________________________________________________________________________
 enum class InputState : unsigned char
@@ -80,19 +83,23 @@ const TrieNode<InputState, SpecialMoveState> UnivSpecMoveDict
   std::make_pair(std::list<InputState>{InputState::DOWN, InputState::DOWN | InputState::LEFT, InputState::LEFT}, SpecialMoveState::QCB)
 };
 
+
+
 //______________________________________________________________________________
 //! Interface for input handlers
-class IInputHandler : public IComponent
+class IInputHandler
 {
 public:
   // initialize with input buffer of 6 frames
-  IInputHandler(std::shared_ptr<Entity> owner) : _inputBuffer(10), IComponent(owner) {}
+  IInputHandler() : _inputBuffer(10) {}
   //! Destructor
   virtual ~IInputHandler() {}
   //! Gets the command based on the type of input received from the controller
   virtual InputBuffer const& CollectInputState() = 0;
   //!
   virtual void ClearInputBuffer() { _inputBuffer.Clear(); }
+
+
 
 protected:
   //! Last state received by the input controller
@@ -106,13 +113,13 @@ class KeyboardInputHandler : public IInputHandler
 {
 public:
   //!
-  KeyboardInputHandler(std::shared_ptr<Entity> owner);
+  KeyboardInputHandler();
   //!
   ~KeyboardInputHandler();
   //!
   virtual InputBuffer const& CollectInputState() final;
   //!
-  virtual void SetKey(SDL_Keycode keyCode, InputState action)
+  void AssignKey(SDL_Keycode keyCode, InputState action)
   {
     _config[keyCode] = action;
   }
@@ -131,11 +138,16 @@ class JoystickInputHandler : public IInputHandler
 {
 public:
   //!
-  JoystickInputHandler(std::shared_ptr<Entity> owner);
+  JoystickInputHandler();
   //!
   ~JoystickInputHandler();
   //!
   virtual InputBuffer const& CollectInputState() final;
+
+  void AssignKey(uint8_t keyCode, InputState action)
+  {
+    _config[keyCode] = action;
+  }
 
 private:
   //!
@@ -154,11 +166,17 @@ class GamepadInputHandler : public IInputHandler
 {
 public:
   //!
-  GamepadInputHandler(std::shared_ptr<Entity> owner);
+  GamepadInputHandler();
   //!
   ~GamepadInputHandler();
   //!
   virtual InputBuffer const& CollectInputState() final;
+
+  void AssignKey(SDL_GameControllerButton keyCode, InputState action)
+  {
+    _config[keyCode] = action;
+  }
+
 
 private:
   //!
@@ -170,6 +188,39 @@ private:
   //!
   ConfigMap<SDL_GameControllerButton, InputState> _config;
   
+};
+
+enum class InputType : int
+{
+  Keyboard = 0, Joystick = 1, Gamepad = 2
+};
+
+//______________________________________________________________________________
+//!
+class GameInputComponent : public IComponent, public DebugItem
+{
+public:
+  GameInputComponent(std::shared_ptr<Entity> owner) : IComponent(owner), DebugItem("Input Handler") {}
+  //! Assign this component to use a certain handler type
+  void AssignHandler(InputType type);
+  //! Handler interprets latest raw input and returns it
+  InputBuffer const& QueryInput();
+  //! Clears the input buffer
+  void Clear();
+  //! Assigns handler key to an action
+  template <typename KeyType>
+  void AssignActionKey(KeyType key, InputState action) {}
+  //! Allows switching of input mode and key assignments
+  void OnDebug() override;
+
+protected:
+  IInputHandler* _handler = nullptr;
+  InputType _assignedHandler = InputType::Keyboard;
+
+  KeyboardInputHandler _keyboard;
+  JoystickInputHandler _joystick;
+  GamepadInputHandler _gamepad;
+
 };
 
 #ifdef _WIN32
@@ -188,7 +239,7 @@ class GGPOInputHandler : public IInputHandler
 {
 public:
   //!
-  GGPOInputHandler(std::shared_ptr<Entity> owner) : IInputHandler(owner) {}
+  GGPOInputHandler() : IInputHandler() {}
   //!
   ~GGPOInputHandler() {}
   //!

@@ -161,8 +161,12 @@ void GameManager::Initialize()
   GRenderer.Init();
 
   //! initialize our player controllable entities
-  _p1 = CreateEntity<>();
-  _p2 = CreateEntity<>();
+  _p1 = CreateEntity<GameInputComponent>();
+  _p2 = CreateEntity<GameInputComponent>();
+
+  //! Initialize them with keyboard handlers
+  _p1->GetComponent<GameInputComponent>()->AssignHandler(InputType::Keyboard);
+  _p2->GetComponent<GameInputComponent>()->AssignHandler(InputType::Keyboard);
 
   //! initialize the scene
   ChangeScene(SceneType::START);
@@ -235,31 +239,20 @@ void GameManager::BeginGameLoop()
   {
     const char* items[] = { "Start", "Character Select", "Battle", "Results" };
     static const char* current_item = NULL;
-
-    if (ImGui::BeginCombo("##combo", current_item))
+    auto func = [this](const std::string& i)
     {
-      for (int n = 0; n < IM_ARRAYSIZE(items); n++)
-      {
-        bool is_selected = (current_item == items[n]);
-        if (ImGui::Selectable(items[n], is_selected))
-        {
-          current_item = items[n];
-          std::string i(items[n]);
-          if(i == "Start")
-            ChangeScene(SceneType::START);
-          else if(i == "Character Select")
-            ChangeScene(SceneType::CSELECT);
-          else if(i == "Battle")
-            ChangeScene(SceneType::BATTLE);
-          else
-            ChangeScene(SceneType::RESULTS);
-        }
-        if (is_selected)
-            ImGui::SetItemDefaultFocus();
-      }
-      ImGui::EndCombo();
-    }
+      if (i == "Start")
+        ChangeScene(SceneType::START);
+      else if (i == "Character Select")
+        ChangeScene(SceneType::CSELECT);
+      else if (i == "Battle")
+        ChangeScene(SceneType::BATTLE);
+      else
+        ChangeScene(SceneType::RESULTS);
+    };
+    DropDown::Show(current_item, items, 4, func);
   };
+
   GUIController::Get().AddImguiWindowFunction("Dash Function parameters", actionParameters);
   GUIController::Get().AddImguiWindowFunction("Scene Selection", sceneSelect);
 
@@ -297,7 +290,6 @@ Camera* GameManager::GetMainCamera()
 void GameManager::CheckAgainstSystems(Entity* entity)
 {
   InputSystem::Check(entity);
-  GamepadInputSystem::Check(entity);
   PhysicsSystem::Check(entity);
   AnimationSystem::Check(entity);
   MoveSystemPhysCollider::Check(entity);
