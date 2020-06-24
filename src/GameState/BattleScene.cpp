@@ -17,6 +17,7 @@
 #include "Systems/TimerSystem.h"
 #include "Systems/CheckBattleEndSystem.h"
 #include "Systems/CutsceneSystem.h"
+#include "Systems/UISystem.h"
 
 #include "AssetManagement/StaticAssets/CharacterConfig.h"
 
@@ -85,6 +86,8 @@ void BattleScene::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2)
 
 void BattleScene::Update(float deltaTime)
 {
+  UIPositionUpdateSystem::DoTick(deltaTime);
+
   TimerSystem::DoTick(deltaTime);
   HitSystem::DoTick(deltaTime);
 
@@ -195,6 +198,8 @@ void PostMatchScene::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2
 
 void PostMatchScene::Update(float deltaTime)
 {
+  UIPositionUpdateSystem::DoTick(deltaTime);
+
   CutsceneSystem::DoTick(deltaTime);
   // resolve collisions
   PhysicsSystem::DoTick(deltaTime);

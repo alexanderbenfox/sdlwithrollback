@@ -91,18 +91,16 @@ public:
         width = std::max(letter.x + letter.texture->GetInfo().mWidth, width);
         height = std::max(letter.y + letter.texture->GetInfo().mHeight, height);
       }
-      _rect = Rect<float>(0, 0, width, height);
+      if(auto transform = _owner->GetComponent<UITransform>())
+      {
+        transform->rect = Rect<float>(transform->position.x, transform->position.y, width, height);
+      }
     }
   }
 
   std::vector<GLDrawOperation> GetRenderOps()
   {
     return _string;
-  }
-
-  Vector2<float> GetStringSize()
-  {
-    return Vector2<float>(_rect.Width(), _rect.Height());
   }
 
 protected:
@@ -112,8 +110,6 @@ protected:
   std::vector<GLDrawOperation> _string;
   //!
   std::string _currentText;
-  //!
-  Rect<float> _rect;
 
 };
 

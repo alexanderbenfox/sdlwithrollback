@@ -44,12 +44,19 @@ enum class UIAnchor
 
 //______________________________________________________________________________
 //!
-struct UITransform : public Transform
+class UITransform : public Transform
 {
+public:
   UITransform(std::shared_ptr<Entity> owner) : Transform(owner) {}
 
-  UIAnchor screenAnchor;
+  // point to move relative to on the parent (if no parent, then the entire screen)
+  UIAnchor parentAnchor;
+  // anchor point on this transform
   UIAnchor anchor;
+
+  std::shared_ptr<UITransform> parent;
+
+  Vector2<float> screenPosition;
 
 };
 

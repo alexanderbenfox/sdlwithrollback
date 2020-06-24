@@ -53,32 +53,7 @@ public:
       TextRenderer* renderer = std::get<TextRenderer*>(tuple.second);
       RenderProperties* properties = std::get<RenderProperties*>(tuple.second);
       UITransform* transform = std::get<UITransform*>(tuple.second);
-
-      Vector2<float> size = renderer->GetStringSize();
-      Vector2<float> displayPosition = transform->position;
-      float x = displayPosition.x;
-      float y = displayPosition.y;
-
-      switch(transform->screenAnchor)
-      {
-        case UIAnchor::TR:
-          displayPosition = Vector2<float>(m_nativeWidth + x, y);
-          break;
-        case UIAnchor::BL:
-          displayPosition = Vector2<float>(x, m_nativeHeight + y);
-          break;
-        case UIAnchor::BR:
-          displayPosition = Vector2<float>(m_nativeWidth + x, m_nativeHeight + y);
-          break;
-        case UIAnchor::Center:
-          displayPosition = Vector2<float>(((float)m_nativeWidth - size.x) / 2.0f,
-                                                ((float)m_nativeHeight - size.y) / 2.0f);
-          break;
-        case UIAnchor::TL:
-        default:
-          displayPosition = Vector2<float>(x, y);
-          break;
-      }
+      Vector2<float> displayPosition = transform->screenPosition;
 
       for (GLDrawOperation& drawOp : renderer->GetRenderOps())
       {
