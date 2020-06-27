@@ -24,12 +24,12 @@ class RenderComponent : public IComponent
 public:
   RenderComponent(std::shared_ptr<Entity> owner) : sourceRect{ 0, 0, 0, 0 }, IComponent(owner)
   {
-    RenderManager<TextureType>::Get().RegisterDrawable<BlitOperation<TextureType>>();
+    RenderManager<TextureType>::Get().template RegisterDrawable<BlitOperation<TextureType>>();
   }
 
   ~RenderComponent()
   {
-    RenderManager<TextureType>::Get().DeregisterDrawable<BlitOperation<TextureType>>();
+    RenderManager<TextureType>::Get().template DeregisterDrawable<BlitOperation<TextureType>>();
   }
 
   //! Init with a resource
