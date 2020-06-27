@@ -31,8 +31,8 @@ public:
 
   //!
   void BeginNewAction(IAction* action);
-  //!
-  void EvaluateInputContext(const InputBuffer& input, const StateComponent* stateInfo, float dt);
+  //! returns true if entered a new action
+  bool EvaluateInputContext(const InputBuffer& input, const StateComponent* stateInfo);
   //!
   bool IsPerformingAction() const { return _currentAction != nullptr; }
 
@@ -44,8 +44,6 @@ public:
 
   //! Context that will be merged with the input context when inputs are evaluated
   //GameContext mergeContext;
-
-  std::vector<std::shared_ptr<ActionTimer>> timings;
 
   //IAction* const GetAction() {return _currentAction;}
   StanceState const& GetStanceState() { return _currStance; }
@@ -64,11 +62,14 @@ private:
 
   bool _newState;
 
-  int _comboCounter;
-  std::shared_ptr<Entity> _counterText;
-
   StanceState _currStance;
   ActionState _currAction;
 
 
+};
+
+struct TimerContainer : public IComponent
+{
+  TimerContainer(std::shared_ptr<Entity> owner) : IComponent(owner) {}
+  std::vector<std::shared_ptr<ActionTimer>> timings;
 };

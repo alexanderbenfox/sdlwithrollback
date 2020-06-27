@@ -1,6 +1,7 @@
 #pragma once
 #include "Systems/ISystem.h"
 #include "Components/RenderComponent.h"
+#include "Components/UIComponents.h"
 #include "GameManagement.h"
 
 //! System that creates draw calls for textured sprites and passes them to the renderer
@@ -19,23 +20,23 @@ public:
       if (!renderer->GetRenderResource()) continue;
 
       // get a display op to set draw parameters
-      auto displayOp = GRenderer.GetAvailableOp();
+      auto displayOp = GRenderer.GetAvailableOp<BlitOperation<RenderType>>();
 
-      displayOp->_textureRect = renderer->sourceRect;
-      displayOp->_textureResource = renderer->GetRenderResource();
+      displayOp->textureRect = renderer->sourceRect;
+      displayOp->textureResource = renderer->GetRenderResource();
 
       Vector2<int> renderOffset = properties->Offset();
 
-      displayOp->_displayRect = OpSysConv::CreateSDLRect(
+      displayOp->displayRect = OpSysConv::CreateSDLRect(
         static_cast<int>(std::floor(transform->position.x + renderOffset.x * transform->scale.x)),
         static_cast<int>(std::floor(transform->position.y + renderOffset.y * transform->scale.y)),
         (int)(static_cast<float>(renderer->sourceRect.w) * transform->scale.x),
         (int)(static_cast<float>(renderer->sourceRect.h) * transform->scale.y));
 
       // set properties
-      displayOp->_flip = properties->horizontalFlip ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
+      displayOp->flip = properties->horizontalFlip ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
       // set display color directly
-      displayOp->_displayColor = properties->GetDisplayColor();
+      displayOp->displayColor = properties->GetDisplayColor();
 
       displayOp->valid = true;
     }
@@ -57,32 +58,65 @@ public:
 
       for (GLDrawOperation& drawOp : renderer->GetRenderOps())
       {
-        BlitOperation<GLTexture> displayOp;
+        // get a display op to set draw parameters
+        auto displayOp = GRenderer.GetAvailableOp<BlitOperation<RenderType>>();
 
         const SDL_Rect sourceRect = { 0, 0, (*drawOp.texture)->w(), (*drawOp.texture)->h() };
 
-        displayOp._textureRect = sourceRect;
-        displayOp._textureResource = drawOp.texture;
+        displayOp->textureRect = sourceRect;
+        displayOp->textureResource = drawOp.texture;
 
         Vector2<int> drawOffset(drawOp.x, drawOp.y);
         Vector2<int> renderOffset = properties->Offset() + drawOffset;
 
-        displayOp._displayRect = OpSysConv::CreateSDLRect(
+        displayOp->displayRect = OpSysConv::CreateSDLRect(
           static_cast<int>(std::floor(displayPosition.x + renderOffset.x * transform->scale.x)),
           static_cast<int>(std::floor(displayPosition.y + renderOffset.y * transform->scale.y)),
           (int)(static_cast<float>(sourceRect.w) * transform->scale.x),
           (int)(static_cast<float>(sourceRect.h) * transform->scale.y));
 
         // set properties
-        displayOp._flip = properties->horizontalFlip ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
+        displayOp->flip = properties->horizontalFlip ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
         // set display color directly
-        displayOp._displayColor = properties->GetDisplayColor();
+        displayOp->displayColor = properties->GetDisplayColor();
 
-        displayOp.valid = true;
-
-        // specifically only append to gl render manager
-        RenderManager<GLTexture>::Get().AppendDrawOp(std::move(displayOp));
+        displayOp->valid = true;
       }
+    }
+  }
+};
+
+class DrawUIPrimitivesSystem : public ISystem<UITransform, UIRectangleRenderComponent, RenderProperties>
+{
+public:
+  static void PostUpdate()
+  {
+    for (auto tuple : Tuples)
+    {
+      UIRectangleRenderComponent* uiElement = std::get<UIRectangleRenderComponent*>(tuple.second);
+      RenderProperties* properties = std::get<RenderProperties*>(tuple.second);
+      UITransform* transform = std::get<UITransform*>(tuple.second);
+
+      auto processOps = [uiElement, transform, properties](DrawPrimitive<RenderType>* displayOp)
+      {
+        displayOp->displayRect.x += transform->screenPosition.x;
+        displayOp->displayRect.y += transform->screenPosition.y;
+
+        // set properties
+        displayOp->flip = properties->horizontalFlip ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
+        // set display color directly
+        displayOp->displayColor = properties->GetDisplayColor();
+
+        displayOp->valid = true;
+      };
+
+      // get a display op to set draw parameters
+      auto op = GRenderer.GetAvailableOp<DrawPrimitive<RenderType>>();
+
+      op->displayRect = uiElement->shownSize;
+      op->filled = uiElement->isFilled;
+
+      processOps(op);
     }
   }
 };

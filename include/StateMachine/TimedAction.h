@@ -56,7 +56,7 @@ inline void TimedAction<Stance, Action>::Enact(Entity* actor)
   AnimatedAction<Stance, Action>::Enact(actor);
   AnimatedAction<Stance, Action>::_complete = false;
   _timer = std::shared_ptr<ActionTimer>(new SimpleActionTimer([this]() { this->OnActionComplete(); }, _duration));
-  actor->GetComponent<GameActor>()->timings.push_back(_timer);
+  actor->GetComponent<TimerContainer>()->timings.push_back(_timer);
 }
 
 //______________________________________________________________________________

@@ -37,29 +37,6 @@ struct Transform : public IComponent
   friend std::istream& operator>>(std::istream& is, Transform& transform);
 };
 
-enum class UIAnchor
-{
-  TL, TR, BL, BR, Center, Size
-};
-
-//______________________________________________________________________________
-//!
-class UITransform : public Transform
-{
-public:
-  UITransform(std::shared_ptr<Entity> owner) : Transform(owner) {}
-
-  // point to move relative to on the parent (if no parent, then the entire screen)
-  UIAnchor parentAnchor;
-  // anchor point on this transform
-  UIAnchor anchor;
-
-  std::shared_ptr<UITransform> parent;
-
-  Vector2<float> screenPosition;
-
-};
-
 //!
 template <typename T>
 inline void Transform::AddComponent() { _owner->AddComponent<T>(); }

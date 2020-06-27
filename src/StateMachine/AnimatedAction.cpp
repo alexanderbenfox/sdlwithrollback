@@ -45,16 +45,19 @@ template <> IAction* LoopedAction<StanceState::STANDING, ActionState::NONE>::Han
     return new StateLockedAnimatedAction<StanceState::CROUCHING, ActionState::NONE>("Crouching", facingRight, Vector2<float>(0, 0));
   }
 
-  if (HasState(rawInput.Latest(), InputState::BTN4))
+  // check dashing
+  std::string dashAnimLeft = !facingRight ? "ForwardDash" : "BackDash";
+  std::string dashAnimRight = !facingRight ? "BackDash" : "ForwardDash";
+  if (HasState(rawInput.Latest(), InputState::LEFT))
   {
-    std::string dashAnimLeft = !facingRight ? "ForwardDash" : "BackDash";
-    std::string dashAnimRight = !facingRight ? "BackDash" : "ForwardDash";
-
-    if (HasState(rawInput.Latest(), InputState::LEFT))
+    if (HasState(rawInput.Latest(), InputState::BTN4) || rawInput.Evaluate(UnivSpecMoveDict) == SpecialInputState::LDash)
     {
       return new DashAction(dashAnimLeft, facingRight, ActionParams::nDashFrames, -1.5f * ActionParams::baseWalkSpeed);
     }
-    else if (HasState(rawInput.Latest(), InputState::RIGHT))
+  }
+  else if (HasState(rawInput.Latest(), InputState::RIGHT))
+  {
+    if(HasState(rawInput.Latest(), InputState::BTN4) || rawInput.Evaluate(UnivSpecMoveDict) == SpecialInputState::RDash)
     {
       return new DashAction(dashAnimRight, facingRight, ActionParams::nDashFrames, 1.5f * ActionParams::baseWalkSpeed);
     }

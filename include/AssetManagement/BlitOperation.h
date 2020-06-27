@@ -2,14 +2,27 @@
 #include "AssetManagement/Resource.h"
 #include "AssetManagement/Text.h"
 
-//! Drawing parameters drawing sprite objects
-template <typename AssetType>
-struct BlitOperation
+struct RenderCommand
 {
   bool valid = false;
-  SDL_Rect _textureRect = { 0, 0, 0, 0 };
-  SDL_Rect _displayRect = { 0, 0, 0, 0 };
-  Resource<AssetType>* _textureResource = nullptr;
-  SDL_RendererFlip _flip = SDL_FLIP_NONE;
-  SDL_Color _displayColor = SDL_Color{ 0, 0, 0, 0 };
+  SDL_Rect displayRect = { 0, 0, 0, 0 };
+  SDL_Color displayColor = SDL_Color{ 0, 0, 0, 0 };
+  SDL_RendererFlip flip = SDL_FLIP_NONE;
+};
+
+//! Drawing parameters drawing sprite objects
+template <typename AssetType>
+struct BlitOperation : public RenderCommand
+{
+  SDL_Rect textureRect = { 0, 0, 0, 0 };
+  Resource<AssetType>* textureResource = nullptr;
+};
+
+//!
+template <typename AssetType>
+struct DrawPrimitive : public RenderCommand
+{
+  //! rect bounds in world space
+  bool filled = false;
+
 };

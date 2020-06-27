@@ -36,7 +36,6 @@ void StartScene::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2)
   _p2 = p2;
 
   _renderedText = GameManager::Get().CreateEntity<UITransform, TextRenderer, RenderProperties>();
-  _renderedText->GetComponent<UITransform>()->parentAnchor = UIAnchor::Center;
   _renderedText->GetComponent<UITransform>()->anchor = UIAnchor::Center;
   _renderedText->GetComponent<TextRenderer>()->SetFont(ResourceManager::Get().GetFontWriter("fonts\\Eurostile.ttf", 36));
   _renderedText->GetComponent<TextRenderer>()->SetText("PRESS ANY BUTTON TO START");
@@ -65,7 +64,6 @@ void CharacterSelectScene::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Enti
 
   //_portrait = GameManager::Get().CreateEntity<Transform, RenderComponent<RenderType>, RenderProperties>();
   _portrait = GameManager::Get().CreateEntity<UITransform, TextRenderer, RenderProperties>();
-  _portrait->GetComponent<UITransform>()->parentAnchor = UIAnchor::Center;
   _portrait->GetComponent<UITransform>()->anchor = UIAnchor::Center;
   _portrait->GetComponent<TextRenderer>()->SetFont(ResourceManager::Get().GetFontWriter("fonts\\Eurostile.ttf", 36));
   _portrait->GetComponent<TextRenderer>()->SetText("Character Select");
@@ -93,7 +91,6 @@ void ResultsScene::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2)
   _p2 = p2;
 
   _resultText = GameManager::Get().CreateEntity<UITransform, TextRenderer, RenderProperties>();
-  _resultText->GetComponent<UITransform>()->parentAnchor = UIAnchor::Center;
   _resultText->GetComponent<UITransform>()->anchor = UIAnchor::Center;
   _resultText->GetComponent<TextRenderer>()->SetFont(ResourceManager::Get().GetFontWriter("fonts\\Eurostile.ttf", 36));
   

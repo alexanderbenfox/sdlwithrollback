@@ -148,16 +148,36 @@ static int GL_RenderCopyEx(GLTexture* texture, const SDL_Rect* srcrect, const SD
   return 0;
 }
 
-static void GL_RenderDrawLines(const SDL_Point* points, const int nPoints)
+static void GL_RenderDrawLines(const SDL_Point* points, const int nPoints, const SDL_Color color)
 {
   for (int i = 0; i < nPoints; ++i)
   {
     int p1Idx = i;
     int p2Idx = (i + 1) % nPoints;
 
+    glColor4ub((GLubyte)color.r, (GLubyte)color.g, (GLubyte)color.b, (GLubyte)color.a);
+
     glBegin(GL_LINES);
     glVertex2f(points[p1Idx].x, points[p1Idx].y);
     glVertex2f(points[p2Idx].x, points[p2Idx].y);
     glEnd();
+
+    //reset color
+    glColor4ub((GLubyte)255, (GLubyte)255, (GLubyte)255, (GLubyte)255);
   }
+}
+
+static void GL_RenderDrawRectangle(Vector2<int> beg, Vector2<int> end, const SDL_Color color)
+{
+  glColor4ub((GLubyte)color.r, (GLubyte)color.g, (GLubyte)color.b, (GLubyte)color.a);
+
+  glBegin(GL_QUADS);
+  glVertex2f(beg.x, beg.y);
+  glVertex2f(end.x, beg.y);
+  glVertex2f(end.x, end.y);
+  glVertex2f(beg.x, end.y);
+  glEnd();
+
+  //reset color
+  glColor4ub((GLubyte)255, (GLubyte)255, (GLubyte)255, (GLubyte)255);
 }

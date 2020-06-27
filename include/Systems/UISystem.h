@@ -2,6 +2,8 @@
 #include "Systems/ISystem.h"
 #include "GameManagement.h"
 
+#include "Components/UIComponents.h"
+
 const Rect<float> ScreenRect(0, 0, m_nativeWidth, m_nativeHeight);
 
 class UIPositionUpdateSystem : public ISystem<UITransform>
@@ -9,7 +11,7 @@ class UIPositionUpdateSystem : public ISystem<UITransform>
 public:
   static void CalcScreenPos(UITransform* transform, Rect<float> parentRect, int x, int y)
   {
-    switch(transform->parentAnchor)
+    switch(transform->anchor)
     {
       case UIAnchor::TR:
         transform->screenPosition = Vector2<float>(parentRect.end.x + x, parentRect.beg.y + y);
@@ -37,7 +39,28 @@ public:
       UITransform* transform = std::get<UITransform*>(tuple.second);
       float x = transform->position.x;
       float y = transform->position.y;
-      CalcScreenPos(transform, transform->parent ? transform->parent->rect : ScreenRect, x, y);
+      CalcScreenPos(transform, 
+        transform->parent ? 
+        Rect<float>(transform->parent->screenPosition.x, transform->parent->screenPosition.y, transform->parent->rect.Width(), transform->parent->rect.Height()) : ScreenRect,
+        x, y);
+    }
+  }
+};
+
+class UIContainerUpdateSystem : public ISystem<UIContainer, StateComponent>
+{
+public:
+  static void DoTick(float dt)
+  {
+    for (auto tuple : Tuples)
+    {
+      UIContainer* container = std::get<UIContainer*>(tuple.second);
+      StateComponent* info = std::get<StateComponent*>(tuple.second);
+
+      for (auto item : container->uiComponents)
+      {
+        item->TransferState(info);
+      }
     }
   }
 };

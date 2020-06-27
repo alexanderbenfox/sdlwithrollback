@@ -70,28 +70,14 @@ void RectCollider<T>::Draw()
   }
   else if constexpr (std::is_same_v<RenderType, GLTexture>)
   {
-    GL_RenderDrawLines(points, 5);
+    GL_RenderDrawLines(points, 5, SDL_Color{ 255, 255, 255, 255 });
   }
 }
 
 //______________________________________________________________________________
-GameActor::GameActor(std::shared_ptr<Entity> owner) : _currentAction(nullptr), _newState(true), _lastInput(InputState::NONE), _comboCounter(0), IComponent(owner)
+GameActor::GameActor(std::shared_ptr<Entity> owner) : _currentAction(nullptr), _newState(true), _lastInput(InputState::NONE), IComponent(owner)
 {
   BeginNewAction(new LoopedAction<StanceState::STANDING, ActionState::NONE>("Idle", owner.get()));
-
-  if constexpr (std::is_same_v<RenderType, SDL_Texture>)
-  {
-    _counterText = GameManager::Get().CreateEntity<UITransform, RenderComponent<SDL_Texture>>();
-    _counterText->GetComponent<RenderComponent<SDL_Texture>>()->Init(ResourceManager::Get().GetText("Combo: 0", "fonts\\Eurostile.ttf"));
-  }
-  else
-  {
-    _counterText = GameManager::Get().CreateEntity<UITransform, TextRenderer>();
-    _counterText->GetComponent<TextRenderer>()->SetFont(ResourceManager::Get().GetFontWriter("fonts\\Eurostile.ttf", 36));
-  }
-
-  // offset transform
-  _counterText->GetComponent<UITransform>()->position = Vector2<float>(5.0f, 20.0f);
 }
 
 //______________________________________________________________________________
@@ -102,7 +88,6 @@ GameActor::~GameActor()
     delete _currentAction;
     _currentAction = nullptr;
   }
-  GameManager::Get().DestroyEntity(_counterText);
 }
 
 //______________________________________________________________________________
@@ -135,33 +120,6 @@ void GameActor::OnActionComplete(IAction* action)
 //______________________________________________________________________________
 void GameActor::BeginNewAction(IAction* action)
 {
-  if(action && _currentAction)
-  {
-    if(_currentAction->GetAction() == ActionState::HITSTUN && action->GetAction() != ActionState::HITSTUN)
-    {
-      _comboCounter = 0;
-      // remove render properties to hide the text
-      std::shared_ptr<ActionTimer> endComboText = std::shared_ptr<ActionTimer>(new SimpleActionTimer(
-        [this](){ _counterText->RemoveComponent<RenderProperties>(); },
-        5));
-      timings.push_back(endComboText);
-    }
-    else if (action->GetAction() == ActionState::HITSTUN)
-    {
-      _counterText->AddComponent<RenderProperties>();
-    }
-    std::string comboText = "Combo: " + std::to_string(_comboCounter);
-    if constexpr (std::is_same_v<RenderType, SDL_Texture>)
-    {
-      _counterText->GetComponent<RenderComponent<SDL_Texture>>()->Init(ResourceManager::Get().GetText(comboText.c_str(), "fonts\\Eurostile.ttf"));
-    }
-    else
-    {
-      _counterText->GetComponent<TextRenderer>()->SetText(comboText);
-    }
-  }
-
-
   if (_currentAction != nullptr)
   {
     if(_currentAction->CheckInputsOnFollowUp())
@@ -176,7 +134,7 @@ void GameActor::BeginNewAction(IAction* action)
 }
 
 //______________________________________________________________________________
-void GameActor::EvaluateInputContext(const InputBuffer& input, const StateComponent* stateInfo, float dt)
+bool GameActor::EvaluateInputContext(const InputBuffer& input, const StateComponent* stateInfo)
 {
   StateComponent currentState = *stateInfo;
   if (_newState || input.Latest() != _lastInput || currentState != _lastState)
@@ -190,12 +148,11 @@ void GameActor::EvaluateInputContext(const InputBuffer& input, const StateCompon
 
     if (nextAction && (nextAction != prevAction))
     {
-      if(nextAction->GetAction() == ActionState::HITSTUN)
-        _comboCounter++;
-      //OnActionComplete(prevAction);
       BeginNewAction(nextAction);
+      return true;
     }
   }
+  return false;
 }
 
 std::ostream& operator<<(std::ostream& os, const Transform& transform)

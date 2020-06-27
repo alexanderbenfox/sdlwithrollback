@@ -44,9 +44,15 @@ public:
 
       state->collision = rigidbody->_lastCollisionSide;
 
-      actor->EvaluateInputContext(unitInputState, state, dt);
+      state->onNewState = false;
 
-      rigidbody->elasticCollisions = actor->GetActionState() == ActionState::HITSTUN;
+      // if evaluation leads to changing state, do on state change code
+      if (state->onNewState = actor->EvaluateInputContext(unitInputState, state))
+      {
+        state->actionState = actor->GetActionState();
+        state->stanceState = actor->GetStanceState();
+        rigidbody->elasticCollisions = actor->GetActionState() == ActionState::HITSTUN;
+      }
     }
   }
 };

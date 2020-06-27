@@ -53,7 +53,7 @@ void InputBuffer::Push(InputState item)
 }
 
 //______________________________________________________________________________
-SpecialMoveState InputBuffer::Evaluate(const TrieNode<InputState, SpecialMoveState>& spMoveDict) const
+SpecialInputState InputBuffer::Evaluate(const TrieNode<InputState, SpecialInputState>& spMoveDict) const
 {
   std::list<InputState> latestCompletedSequence = {};
   std::deque<std::list<InputState>> prefixes;
@@ -97,7 +97,7 @@ SpecialMoveState InputBuffer::Evaluate(const TrieNode<InputState, SpecialMoveSta
   }
 
   if (latestCompletedSequence.empty())
-    return SpecialMoveState::NONE;
+    return SpecialInputState::NONE;
   return spMoveDict.GetKeyValue(latestCompletedSequence);
 }
 

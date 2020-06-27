@@ -2,6 +2,7 @@
 #include "IComponent.h"
 #include "Core/Geometry2D/RectHelper.h"
 #include "DebugGUI/DebugItem.h"
+#include "StateMachine/StateEnums.h"
 
 //! marks the entity as the loser of the round
 struct LoserComponent : public IComponent
@@ -38,6 +39,11 @@ public:
 
   int hp = 100;
 
+  ActionState actionState;
+  StanceState stanceState;
+
+  bool onNewState = false;
+
   //! Adds loser component to entity
   void MarkLoser();
 
@@ -54,7 +60,7 @@ public:
   //!
   bool operator==(const StateComponent& other) const
   {
-    return collision == other.collision && onLeftSide == other.onLeftSide && hitThisFrame == other.hitThisFrame && hitting == other.hitting;
+    return collision == other.collision && onLeftSide == other.onLeftSide && hitThisFrame == other.hitThisFrame && hitting == other.hitting && actionState == other.actionState && stanceState == other.stanceState;
   }
 
   bool operator!=(const StateComponent& other) const
@@ -84,7 +90,8 @@ inline StateComponent& StateComponent::operator=(const StateComponent& other)
   this->frameData = other.frameData;
   this->hitting = other.hitting;
   this->hp = other.hp;
-
+  this->actionState = other.actionState;
+  this->stanceState = other.stanceState;
   return *this;
 }
 
@@ -98,6 +105,7 @@ inline StateComponent& StateComponent::operator=(StateComponent&& other) noexcep
   this->frameData = other.frameData;
   this->hitting = other.hitting;
   this->hp = other.hp;
-
+  this->actionState = other.actionState;
+  this->stanceState = other.stanceState;
   return *this;
 }

@@ -3,14 +3,14 @@
 #include "Systems/AnimationSystem.h"
 #include "Components/GameActor.h"
 
-class TimerSystem : public ISystem<GameActor>
+class TimerSystem : public ISystem<TimerContainer>
 {
 public:
   static void DoTick(float dt)
   {
     for(auto& tuple : Tuples)
     {
-      std::vector<std::shared_ptr<ActionTimer>>& _timings = std::get<GameActor*>(tuple.second)->timings;
+      std::vector<std::shared_ptr<ActionTimer>>& _timings = std::get<TimerContainer*>(tuple.second)->timings;
       std::vector<int> markedForDelete;
       for (int i = 0; i < _timings.size(); i++)
       {

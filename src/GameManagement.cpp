@@ -224,6 +224,7 @@ void GameManager::BeginGameLoop()
     ImGui::InputFloat("a value", &Interpolation::Plateau::a, 1.0f, 1.0f, 5);
     ImGui::InputFloat("modifier value", &Interpolation::Plateau::modifier, 0.5f, 1.0f, 5);
     ImGui::InputFloat("distribution width value", &Interpolation::Plateau::d, 0.0000001f, 0.00001f, 10);
+    ImGui::InputFloat("X axis offset", &Interpolation::Plateau::xAxisOffset, 0.001f, 0.01f, 5);
     ImGui::InputInt("number of frames for dash", &ActionParams::nDashFrames);
     ImGui::InputFloat("Walk speed", &ActionParams::baseWalkSpeed, 1.0f, 10.0f, 0);
     
@@ -310,6 +311,8 @@ void GameManager::CheckAgainstSystems(Entity* entity)
   CutsceneMovementSystem::Check(entity);
   CheckBattleEndSystem::Check(entity);
   UIPositionUpdateSystem::Check(entity);
+  UIContainerUpdateSystem::Check(entity);
+  DrawUIPrimitivesSystem::Check(entity);
 }
 
 //______________________________________________________________________________
@@ -394,6 +397,7 @@ void GameManager::Draw()
   // send draw calls to the renderer
   SpriteDrawCallSystem::PostUpdate();
   UITextDrawCallSystem::PostUpdate();
+  DrawUIPrimitivesSystem::PostUpdate();
 
   //clear last frame graphics
   GRenderer.Clear();

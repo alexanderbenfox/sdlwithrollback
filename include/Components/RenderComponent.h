@@ -24,12 +24,12 @@ class RenderComponent : public IComponent
 public:
   RenderComponent(std::shared_ptr<Entity> owner) : sourceRect{ 0, 0, 0, 0 }, IComponent(owner)
   {
-    RenderManager<TextureType>::Get().RegisterBlitOp();
+    RenderManager<TextureType>::Get().RegisterDrawable<BlitOperation<TextureType>>();
   }
 
   ~RenderComponent()
   {
-    RenderManager<TextureType>::Get().DeregisterBlitOp();
+    RenderManager<TextureType>::Get().DeregisterDrawable<BlitOperation<TextureType>>();
   }
 
   //! Init with a resource
@@ -64,44 +64,14 @@ protected:
 class TextRenderer : public IComponent
 {
 public:
-  TextRenderer(std::shared_ptr<Entity> owner) : _currentText(""), IComponent(owner)
-  {
-  }
+  TextRenderer(std::shared_ptr<Entity> owner);
+  ~TextRenderer();
 
-  ~TextRenderer()
-  {
-  }
+  void SetFont(LetterCase& resource);
 
-  void SetFont(LetterCase& resource)
-  {
-    _resource = &resource;
-  }
+  void SetText(const std::string& text);
 
-  void SetText(const std::string& text)
-  {
-    if (_resource && text != _currentText)
-    {
-      _currentText = text;
-      _string = _resource->CreateStringField(_currentText.c_str(), 600);
-
-      float width = 0;
-      float height = 0;
-      for(auto& letter : _string)
-      {
-        width = std::max(letter.x + letter.texture->GetInfo().mWidth, width);
-        height = std::max(letter.y + letter.texture->GetInfo().mHeight, height);
-      }
-      if(auto transform = _owner->GetComponent<UITransform>())
-      {
-        transform->rect = Rect<float>(transform->position.x, transform->position.y, width, height);
-      }
-    }
-  }
-
-  std::vector<GLDrawOperation> GetRenderOps()
-  {
-    return _string;
-  }
+  std::vector<GLDrawOperation> GetRenderOps();
 
 protected:
   //!
@@ -113,17 +83,10 @@ protected:
 
 };
 
-
 class RenderProperties : public IComponent
 {
 public:
-  RenderProperties(std::shared_ptr<Entity> owner) :
-    baseRenderOffset(0, 0), 
-    offset(0, 0), 
-    horizontalFlip(false), 
-    _displayColor{ 255, 255, 255, SDL_ALPHA_OPAQUE }, 
-    IComponent(owner)
-  {}
+  RenderProperties(std::shared_ptr<Entity> owner);
 
   //! inherent offset added to any display from this entity
   Vector2<int> baseRenderOffset;
@@ -132,21 +95,10 @@ public:
   //!
   bool horizontalFlip;
 
-  virtual void SetDisplayColor(Uint8 r, Uint8 g, Uint8 b)
-  {
-    _displayColor = { r, g, b, SDL_ALPHA_OPAQUE };
-  }
-  virtual void SetDisplayColor(Uint8 r, Uint8 g, Uint8 b, Uint8 a)
-  {
-    _displayColor = { r, g, b, a };
-  }
-
-  virtual SDL_Color GetDisplayColor() const
-  {
-    return _displayColor;
-  }
-
-  Vector2<int> Offset() const { return baseRenderOffset + offset; }
+  virtual void SetDisplayColor(Uint8 r, Uint8 g, Uint8 b);
+  virtual void SetDisplayColor(Uint8 r, Uint8 g, Uint8 b, Uint8 a);
+  virtual SDL_Color GetDisplayColor() const;
+  Vector2<int> Offset() const;
 
 protected:
   //!

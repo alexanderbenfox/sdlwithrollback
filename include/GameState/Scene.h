@@ -61,10 +61,15 @@ public:
   virtual void Update(float deltaTime) final;
 
 protected:
-  static void InitCharacter(Vector2<float> position, std::shared_ptr<Entity> player);
+  void InitCharacter(Vector2<float> position, std::shared_ptr<Entity> player, bool isPlayer1);
 
   std::shared_ptr<Entity> _p1, _p2;
+  // entities to be destroyed after this scene ends
   std::shared_ptr<Entity> _borders[3];
+  std::shared_ptr<Entity> _p1UIAnchor, _p2UIAnchor, _p1ComboText, _p2ComboText;
+  std::vector<std::shared_ptr<Entity>> _uiEntities;
+  int _comboCounterP1 = 0;
+  int _comboCounterP2 = 0;
 
 };
 

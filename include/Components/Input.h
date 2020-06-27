@@ -31,13 +31,15 @@ template <> struct std::hash<InputState>
 };
 
 //______________________________________________________________________________
-enum class SpecialMoveState : unsigned char
+enum class SpecialInputState : unsigned char
 {
   NONE = 0x00,
   QCF = 0x01, // quarter circle forward
   QCB = 0x02, // quarter circle back
   DPF = 0x04, // dragon punch forward
-  DPB = 0x08 // dragon punch back
+  DPB = 0x08, // dragon punch back
+  RDash = 0x10, // right dash input
+  LDash = 0x20 // left dash input
 };
 
 //______________________________________________________________________________
@@ -66,7 +68,7 @@ public:
   //! gets the most recently added item
   InputState const& Latest() const { return _buffer.back(); }
   //! evaluate possible special motions
-  SpecialMoveState Evaluate(const TrieNode<InputState, SpecialMoveState>& spMoveDict) const;
+  SpecialInputState Evaluate(const TrieNode<InputState, SpecialInputState>& spMoveDict) const;
   //!
   void Clear();
 
@@ -77,10 +79,12 @@ private:
 };
 
 // simple move dict to test this out
-const TrieNode<InputState, SpecialMoveState> UnivSpecMoveDict
+const TrieNode<InputState, SpecialInputState> UnivSpecMoveDict
 {
-  std::make_pair(std::list<InputState>{InputState::DOWN, InputState::DOWN | InputState::RIGHT, InputState::RIGHT}, SpecialMoveState::QCF),
-  std::make_pair(std::list<InputState>{InputState::DOWN, InputState::DOWN | InputState::LEFT, InputState::LEFT}, SpecialMoveState::QCB)
+  std::make_pair(std::list<InputState>{InputState::DOWN, InputState::DOWN | InputState::RIGHT, InputState::RIGHT}, SpecialInputState::QCF),
+  std::make_pair(std::list<InputState>{InputState::DOWN, InputState::DOWN | InputState::LEFT, InputState::LEFT}, SpecialInputState::QCB),
+  std::make_pair(std::list<InputState>{InputState::RIGHT, InputState::NONE, InputState::RIGHT}, SpecialInputState::RDash),
+  std::make_pair(std::list<InputState>{InputState::LEFT, InputState::NONE, InputState::LEFT}, SpecialInputState::LDash)
 };
 
 

@@ -10,6 +10,107 @@
 const char* Title = "Game Title";
 
 //______________________________________________________________________________
+template <> void DrawOperator<BlitOperation<GLTexture>>::DoDraw(SDL_Renderer* renderer, BlitOperation<GLTexture>& operation)
+{
+  if (!operation.valid) return;
+
+  GameManager::Get().GetMainCamera()->ConvScreenSpace(&operation);
+  if (GameManager::Get().GetMainCamera()->EntityInDisplay(&operation))
+  {
+    auto srcTexture = operation.textureResource->Get();
+    float rotation = 0;
+
+    try
+    {
+      GL_RenderCopyEx(srcTexture, &operation.textureRect, &operation.displayRect, rotation, nullptr, operation.flip, operation.displayColor);
+    }
+    catch (std::exception& e)
+    {
+      std::cout << "I guess this texture isn't valid??" << "\nCaught exception: " << e.what() << "\n";
+    }
+  }
+}
+
+//______________________________________________________________________________
+template <> void DrawOperator<BlitOperation<SDL_Texture>>::DoDraw(SDL_Renderer* renderer, BlitOperation<SDL_Texture>& operation)
+{
+  if (!operation.valid) return;
+
+  GameManager::Get().GetMainCamera()->ConvScreenSpace(&operation);
+  if (GameManager::Get().GetMainCamera()->EntityInDisplay(&operation))
+  {
+    auto srcTexture = operation.textureResource->Get();
+    float rotation = 0;
+
+    try
+    {
+      int w, h;
+      if (SDL_QueryTexture(operation.textureResource->Get(), NULL, NULL, &w, &h) == 0)
+      {
+        SDL_SetTextureColorMod(operation.textureResource->Get(), operation.displayColor.r, operation.displayColor.g, operation.displayColor.b);
+        SDL_RenderCopyEx(renderer, srcTexture, &operation.textureRect, &operation.displayRect, rotation, nullptr, operation.flip);
+      }
+    }
+    catch (std::exception& e)
+    {
+      std::cout << "I guess this texture isn't valid??" << "\nCaught exception: " << e.what() << "\n";
+    }
+  }
+}
+
+//______________________________________________________________________________
+template <> void DrawOperator<DrawPrimitive<GLTexture>>::DoDraw(SDL_Renderer* renderer, DrawPrimitive<GLTexture>& operation)
+{
+  if (!operation.valid) return;
+
+    int xBeg = operation.displayRect.x;
+    int yBeg = operation.displayRect.y;
+    int xEnd = xBeg + operation.displayRect.w;
+    int yEnd = yBeg + operation.displayRect.h;
+
+    SDL_Point points[5] =
+    {
+      {xBeg, yBeg},
+      {xBeg, yEnd},
+      {xEnd, yEnd},
+      {xEnd, yBeg},
+      {xBeg, yBeg}
+    };
+
+    if (operation.filled)
+      GL_RenderDrawRectangle(Vector2<int>(xBeg, yBeg), Vector2<int>(xEnd, yEnd), operation.displayColor);
+    else
+      GL_RenderDrawLines(points, 5, operation.displayColor);
+}
+
+//______________________________________________________________________________
+template <> void DrawOperator<DrawPrimitive<SDL_Texture>>::DoDraw(SDL_Renderer* renderer, DrawPrimitive<SDL_Texture>& operation)
+{
+  if (!operation.valid) return;
+
+  if (!operation.filled)
+  {
+    int xBeg = operation.displayRect.x;
+    int yBeg = operation.displayRect.y;
+    int xEnd = xBeg + operation.displayRect.w;
+    int yEnd = yBeg + operation.displayRect.h;
+
+    SDL_Point points[5] =
+    {
+      {xBeg, yBeg},
+      {xBeg, yEnd},
+      {xEnd, yEnd},
+      {xEnd, yBeg},
+      {xBeg, yBeg}
+    };
+
+    SDL_SetRenderDrawColor(GRenderer.GetRenderer(), operation.displayColor.r, operation.displayColor.g, operation.displayColor.b, operation.displayColor.a);
+    SDL_RenderDrawLines(GRenderer.GetRenderer(), points, 5);
+    SDL_SetRenderDrawColor(GRenderer.GetRenderer(), 0, 0, 0, SDL_ALPHA_OPAQUE);
+  }
+}
+
+//______________________________________________________________________________
 template <typename TextureType>
 RenderManager<TextureType>::RenderManager() :
   _renderer(nullptr),
@@ -98,70 +199,10 @@ void RenderManager<TextureType>::ProcessResizeEvent(const SDL_Event& event)
 
 //______________________________________________________________________________
 template <typename TextureType>
-void RenderManager<TextureType>::RegisterBlitOp()
-{
-  _registeredSprites.push_back(BlitOperation<TextureType>());
-  _registeredSprites.back().valid = false;
-}
-
-//______________________________________________________________________________
-template <typename TextureType>
-void RenderManager<TextureType>::DeregisterBlitOp()
-{
-  _registeredSprites.pop_back();
-}
-
-//______________________________________________________________________________
-template <typename TextureType>
 void RenderManager<TextureType>::Draw()
 {
-  auto blit = [this](BlitOperation<TextureType>* operation)
-  {
-    if (!operation->valid) return;
-
-    GameManager::Get().GetMainCamera()->ConvScreenSpace(operation);
-    if (GameManager::Get().GetMainCamera()->EntityInDisplay(operation))
-    {
-      auto srcTexture = operation->_textureResource->Get();
-      float rotation = 0;
-
-      try
-      {
-        if constexpr (std::is_same_v<TextureType, GLTexture>)
-          GL_RenderCopyEx(srcTexture, &operation->_textureRect, &operation->_displayRect, rotation, nullptr, operation->_flip, operation->_displayColor);
-        else if constexpr (std::is_same_v<TextureType, SDL_Texture>)
-        {
-          int w, h;
-          if (SDL_QueryTexture(operation->_textureResource->Get(), NULL, NULL, &w, &h) == 0)
-          {
-            SDL_SetTextureColorMod(operation->_textureResource->Get(), operation->_displayColor.r, operation->_displayColor.g, operation->_displayColor.b);
-            SDL_RenderCopyEx(_renderer, srcTexture,
-              &operation->_textureRect, &operation->_displayRect, rotation, nullptr, operation->_flip);
-          }
-        }
-      }
-      catch (std::exception& e)
-      {
-        std::cout << "I guess this texture isn't valid??" << "\nCaught exception: " << e.what() << "\n";
-      }
-    }
-  };
-
-  // only draw sprites that have been registered for this draw cycle
-  for (int i = 0; i < opIndex; i++)
-  {
-    blit(&_registeredSprites[i]);
-  }
-
-  for (auto& drawCall : _additionalDraws)
-  {
-    blit(&drawCall);
-  }
-
-  // reset available ops for next draw cycle
-  opIndex = 0;
-  // reset additional draw calls for this frame
-  _additionalDraws.clear();
+  _textureDrawer.PerformDraw(_renderer);
+  _primitiveDrawer.PerformDraw(_renderer);
 }
 
 //______________________________________________________________________________
@@ -192,6 +233,9 @@ template <> void RenderManager<GLTexture>::Present()
 {
   SDL_GL_SwapWindow(_window);
 }
+
+
+
 
 template class RenderManager<SDL_Texture>;
 template class RenderManager<GLTexture>;

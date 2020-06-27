@@ -20,6 +20,8 @@ struct Interpolation
     static float modifier;
     // distribution width: < 1 == narrow distro. > 1 widen
     static float d;
+    //
+    static float xAxisOffset;
     //! based on equation f(x) = k * (1 / (1 + x^(2*a)) where the larger a == more of a plateau
     static float F(float x, float xMax, float yMax);
 

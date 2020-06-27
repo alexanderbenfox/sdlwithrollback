@@ -4,16 +4,18 @@
 
 //______________________________________________________________________________
 float ActionParams::baseWalkSpeed = 300.0f * 1.5f;
-int ActionParams::nDashFrames = 20;
+int ActionParams::nDashFrames = 23;
 
 //______________________________________________________________________________
-float Interpolation::Plateau::a = 3.0f;
-float Interpolation::Plateau::modifier = 2.0f;
+float Interpolation::Plateau::a = 2.0f;
+float Interpolation::Plateau::modifier = 1.75f;
 float Interpolation::Plateau::d = 0.001f;
+float Interpolation::Plateau::xAxisOffset = 10.0f;
 
 //______________________________________________________________________________
 float Interpolation::Plateau::F(float x, float xMax, float yMax)
 {
+  x = x + xAxisOffset;
   const float pi = 3.14159265358979323846f;
   const float k = (a / pi) * std::sinf(pi / (2.0f * a));
 
@@ -28,8 +30,8 @@ template <> IAction* GetAttacksFromNeutral<StanceState::STANDING>(const InputBuf
   if (HasState(rawInput.Latest(), InputState::BTN1) || HasState(rawInput.Latest(), InputState::BTN2) || HasState(rawInput.Latest(), InputState::BTN3))
   {
     //!!!! TESTING SPECIAL MOVES HERE
-    bool qcf = rawInput.Evaluate(UnivSpecMoveDict) == SpecialMoveState::QCF && facingRight;
-    bool qcb = rawInput.Evaluate(UnivSpecMoveDict) == SpecialMoveState::QCB && !facingRight;
+    bool qcf = rawInput.Evaluate(UnivSpecMoveDict) == SpecialInputState::QCF && facingRight;
+    bool qcb = rawInput.Evaluate(UnivSpecMoveDict) == SpecialInputState::QCB && !facingRight;
     if (qcf || qcb)
       return new GroundedStaticAttack<StanceState::STANDING, ActionState::NONE>("SpecialMove1", facingRight);
   }
@@ -116,8 +118,8 @@ IAction* StateLockedHandleInput(const InputBuffer& rawInput, const StateComponen
   {
     if (HasState(rawInput.Latest(), InputState::BTN1) || HasState(rawInput.Latest(), InputState::BTN2) || HasState(rawInput.Latest(), InputState::BTN3))
     {
-      bool qcf = rawInput.Evaluate(UnivSpecMoveDict) == SpecialMoveState::QCF && context.onLeftSide;
-      bool qcb = rawInput.Evaluate(UnivSpecMoveDict) == SpecialMoveState::QCB && !context.onLeftSide;
+      bool qcf = rawInput.Evaluate(UnivSpecMoveDict) == SpecialInputState::QCF && context.onLeftSide;
+      bool qcb = rawInput.Evaluate(UnivSpecMoveDict) == SpecialInputState::QCB && !context.onLeftSide;
       if (qcf || qcb)
         return new GroundedStaticAttack<StanceState::STANDING, ActionState::NONE>("SpecialMove1", context.onLeftSide);
     }

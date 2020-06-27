@@ -43,11 +43,13 @@ BattleScene::~BattleScene()
   GameManager::Get().DestroyEntity(_borders[0]);
   GameManager::Get().DestroyEntity(_borders[1]);
   GameManager::Get().DestroyEntity(_borders[2]);
+  for (int i = 0; i < _uiEntities.size(); i++)
+    GameManager::Get().DestroyEntity(_uiEntities[i]);
   GameManager::Get().DestroyEntity(_camera);
 
   // we are moving into the after match cutscene, so only remove game state related components
-  _p1->RemoveComponents<GameActor, Hurtbox, StateComponent>();
-  _p2->RemoveComponents<GameActor, Hurtbox, StateComponent>();
+  _p1->RemoveComponents<GameActor, Hurtbox, StateComponent, UIContainer, TimerContainer>();
+  _p2->RemoveComponents<GameActor, Hurtbox, StateComponent, UIContainer, TimerContainer>();
 }
 
 void BattleScene::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2)
@@ -76,8 +78,12 @@ void BattleScene::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2)
   _borders[2]->GetComponent<StaticCollider>()->Init(Vector2<double>(m_nativeWidth, 0), Vector2<double>(m_nativeWidth + 200, m_nativeHeight));
   _borders[2]->GetComponent<StaticCollider>()->MoveToTransform(*_borders[2]->GetComponent<Transform>());
 
-  InitCharacter(Vector2<int>(100, 0), _p1);
-  InitCharacter(Vector2<int>(400, 0), _p2);
+  InitCharacter(Vector2<int>(100, 0), _p1, true);
+  InitCharacter(Vector2<int>(400, 0), _p2, false);
+
+  // set the combo text anchors to the other side
+  _p2ComboText->GetComponent<UITransform>()->parent = _p1UIAnchor->GetComponent<UITransform>();
+  _p1ComboText->GetComponent<UITransform>()->parent = _p2UIAnchor->GetComponent<UITransform>();
 
   // set up camera
   _camera = GameManager::Get().CreateEntity<Camera, Transform>();
@@ -87,6 +93,7 @@ void BattleScene::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2)
 void BattleScene::Update(float deltaTime)
 {
   UIPositionUpdateSystem::DoTick(deltaTime);
+  UIContainerUpdateSystem::DoTick(deltaTime);
 
   TimerSystem::DoTick(deltaTime);
   HitSystem::DoTick(deltaTime);
@@ -107,12 +114,108 @@ void BattleScene::Update(float deltaTime)
 }
 
 
-void BattleScene::InitCharacter(Vector2<float> position, std::shared_ptr<Entity> player)
+void BattleScene::InitCharacter(Vector2<float> position, std::shared_ptr<Entity> player, bool isPlayer1)
 {
   Vector2<int> textureSize = ResourceManager::Get().GetTextureWidthAndHeight("spritesheets\\ryu.png");
   Vector2<double> entitySize(static_cast<double>(textureSize.x) * .75, static_cast<double>(textureSize.y) * .95);
 
   player->AddComponents<Transform, GameInputComponent, Animator, RenderComponent<RenderType>, RenderProperties, Rigidbody, GameActor, DynamicCollider, Hurtbox, StateComponent>();
+  player->AddComponents<UIContainer, TimerContainer>();
+
+  auto uiContainer = player->GetComponent<UIContainer>();
+  const Vector2<float> healthBarOffset = { 30.0f, 20.0f };
+
+  const Vector2<int> lifeBarSize = { 200, 25 };
+  const Vector2<int> margin = { 2, 2 };
+
+  auto createHPEntities = [this, lifeBarSize, margin, healthBarOffset, &uiContainer, isPlayer1](UIAnchor anchor, Vector2<float> offset)
+  {
+    // set up outline first
+    _uiEntities.push_back(GameManager::Get().CreateEntity<UITransform, RenderProperties>());
+    _uiEntities.back()->GetComponent<UITransform>()->rect = Rect<float>(0, 0, lifeBarSize.x + 2 * margin.x, lifeBarSize.y + 2 * margin.y);
+    _uiEntities.back()->GetComponent<UITransform>()->position = { healthBarOffset.x + offset.x, healthBarOffset.y + offset.y};
+    _uiEntities.back()->GetComponent<UITransform>()->anchor = anchor;
+
+    _uiEntities.back()->AddComponent<UIRectangleRenderComponent>();
+
+    std::shared_ptr<Entity> outline = _uiEntities.back();
+    if (isPlayer1)
+      _p1UIAnchor = outline;
+    else
+      _p2UIAnchor = outline;
+
+    // now create a new entity for the fill
+    _uiEntities.push_back(GameManager::Get().CreateEntity<UITransform, RenderProperties>());
+    _uiEntities.back()->GetComponent<UITransform>()->rect = Rect<float>(0, 0, lifeBarSize.x, lifeBarSize.y);
+    _uiEntities.back()->GetComponent<UITransform>()->position = margin;
+
+    _uiEntities.back()->GetComponent<UITransform>()->anchor = UIAnchor::TL;
+    _uiEntities.back()->GetComponent<UITransform>()->parent = outline->GetComponent<UITransform>();
+
+    _uiEntities.back()->GetComponent<RenderProperties>()->SetDisplayColor(255, 0, 0);
+
+    _uiEntities.back()->AddComponent<UIRectangleRenderComponent>();
+    _uiEntities.back()->GetComponent<UIRectangleRenderComponent>()->isFilled = true;
+    _uiEntities.back()->GetComponent<UIRectangleRenderComponent>()->callback = [lifeBarSize](const StateComponent* lastState, const StateComponent* info, UIComponent* comp)
+    {
+      float p = (float)info->hp / 100.0f;
+      dynamic_cast<UIRectangleRenderComponent*>(comp)->shownSize.w = static_cast<int>((float)lifeBarSize.x * p);
+    };
+
+    uiContainer->uiComponents.push_back(_uiEntities.back()->GetComponent<UIRectangleRenderComponent>());
+
+    // add the combo hit counter entity
+    // create the counter text without render properties so that it wont be visible
+    _uiEntities.push_back(GameManager::Get().CreateEntity<UITransform, TextRenderer, TimerContainer>());
+    _uiEntities.back()->GetComponent<TextRenderer>()->SetFont(ResourceManager::Get().GetFontWriter("fonts\\Eurostile.ttf", 36));
+
+    // set parent transform and offset
+    _uiEntities.back()->GetComponent<UITransform>()->parent = outline->GetComponent<UITransform>();
+    _uiEntities.back()->GetComponent<UITransform>()->anchor = UIAnchor::BL;
+    _uiEntities.back()->GetComponent<UITransform>()->position = Vector2<float>(5.0f, 20.0f);
+    std::shared_ptr<Entity> comboTextEntity = _uiEntities.back();
+    int& comboCounter = isPlayer1 ? _comboCounterP1 : _comboCounterP2;
+
+    // set the ui data transfer callback
+    _uiEntities.back()->GetComponent<UITransform>()->callback = [comboTextEntity, &comboCounter](const StateComponent* lastState, const StateComponent* newState, UIComponent* comp)
+    {
+      if (newState->onNewState)
+      {
+        if (newState->actionState != ActionState::HITSTUN && lastState->actionState == ActionState::HITSTUN)
+        {
+          comboCounter = 0;
+          // remove render properties to hide the text
+          std::shared_ptr<ActionTimer> endComboText = std::shared_ptr<ActionTimer>(new SimpleActionTimer(
+            [comboTextEntity]() { comboTextEntity->RemoveComponent<RenderProperties>(); },
+            5));
+          comboTextEntity->GetComponent<TimerContainer>()->timings.push_back(endComboText);
+        }
+        else if (newState->actionState == ActionState::HITSTUN)
+        {
+          comboTextEntity->AddComponent<RenderProperties>();
+        }
+
+        if (newState->actionState == ActionState::HITSTUN)
+          comboCounter++;
+
+        std::string comboText = "Combo: " + std::to_string(comboCounter);
+        comboTextEntity->GetComponent<TextRenderer>()->SetText(comboText);
+      }
+    };
+
+    // finally, add combo text to the ui container
+    uiContainer->uiComponents.push_back(_uiEntities.back()->GetComponent<UITransform>());
+
+    if (isPlayer1)
+      _p1ComboText = comboTextEntity;
+    else
+      _p2ComboText = comboTextEntity;
+  };
+
+  if (isPlayer1)
+    createHPEntities(UIAnchor::TL, Vector2<float>::Zero);
+  else
+    createHPEntities(UIAnchor::TR, Vector2<float>(-200 - healthBarOffset.x * 2, 0));
 
   player->GetComponent<Rigidbody>()->Init(true);
   player->GetComponent<Animator>()->SetAnimations(&RyuConfig::Animations());

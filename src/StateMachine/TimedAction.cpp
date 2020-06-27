@@ -42,5 +42,5 @@ void DashAction::Enact(Entity* actor)
     },
     TimedAction<StanceState::STANDING, ActionState::DASHING>::_duration));
 
-  actor->GetComponent<GameActor>()->timings.push_back(TimedAction<StanceState::STANDING, ActionState::DASHING>::_timer);
+  actor->GetComponent<TimerContainer>()->timings.push_back(TimedAction<StanceState::STANDING, ActionState::DASHING>::_timer);
 }

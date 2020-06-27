@@ -37,6 +37,7 @@
     <ClCompile Include="..\src\Components\Components.cpp" />
     <ClCompile Include="..\src\Components\Input.cpp" />
     <ClCompile Include="..\src\Components\Hurtbox.cpp" />
+    <ClCompile Include="..\src\Components\RenderComponent.cpp" />
     <ClCompile Include="..\src\Core\Geometry2D\RectHelper.cpp" />
     <ClCompile Include="..\src\DebugGUI\DebugItem.cpp" />
     <ClCompile Include="..\src\DebugGUI\GUIController.cpp" />
@@ -79,6 +80,7 @@
     <ClInclude Include="..\include\Components\ComponentManager.h" />
     <ClInclude Include="..\include\Components\CutsceneActor.h" />
     <ClInclude Include="..\include\Components\GameActor.h" />
+    <ClInclude Include="..\include\Components\UIComponents.h" />
     <ClInclude Include="..\include\Components\Hitbox.h" />
     <ClInclude Include="..\include\Components\Hurtbox.h" />
     <ClInclude Include="..\include\Components\IComponent.h" />
@@ -109,6 +111,7 @@
     <ClInclude Include="..\include\StateMachine\AnimatedAction.h" />
     <ClInclude Include="..\include\StateMachine\AttackAction.h" />
     <ClInclude Include="..\include\StateMachine\IAction.h" />
+    <ClInclude Include="..\include\StateMachine\StateEnums.h" />
     <ClInclude Include="..\include\StateMachine\TimedAction.h" />
     <ClInclude Include="..\include\Systems\AnimationSystem.h" />
     <ClInclude Include="..\include\Systems\CheckBattleEndSystem.h" />

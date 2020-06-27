@@ -31,13 +31,13 @@ public:
 template <typename TextureType>
 inline void Camera::ConvScreenSpace(BlitOperation<TextureType>* entity)
 {
-  entity->_displayRect.x -= rect.x;
-  entity->_displayRect.y -= rect.y;
+  entity->displayRect.x -= rect.x;
+  entity->displayRect.y -= rect.y;
 }
 
 //______________________________________________________________________________
 template <typename TextureType>
 inline bool Camera::EntityInDisplay(const BlitOperation<TextureType>* entity)
 {
-  return SDLRectOverlap(rect, entity->_displayRect);
+  return SDLRectOverlap(rect, entity->displayRect);
 }
