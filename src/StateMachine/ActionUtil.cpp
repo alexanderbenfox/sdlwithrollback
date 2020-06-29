@@ -32,8 +32,12 @@ template <> IAction* GetAttacksFromNeutral<StanceState::STANDING>(const InputBuf
     //!!!! TESTING SPECIAL MOVES HERE
     bool qcf = rawInput.Evaluate(UnivSpecMoveDict) == SpecialInputState::QCF && facingRight;
     bool qcb = rawInput.Evaluate(UnivSpecMoveDict) == SpecialInputState::QCB && !facingRight;
+    bool dpf = rawInput.Evaluate(UnivSpecMoveDict) == SpecialInputState::DPF && facingRight;
+    bool dpb = rawInput.Evaluate(UnivSpecMoveDict) == SpecialInputState::DPB && !facingRight;
     if (qcf || qcb)
       return new GroundedStaticAttack<StanceState::STANDING, ActionState::NONE>("SpecialMove1", facingRight);
+    else if (dpf || dpb)
+      return new GroundedStaticAttack<StanceState::STANDING, ActionState::NONE>("SpecialMove2", facingRight);
   }
 
   // prioritize attacks
@@ -120,8 +124,12 @@ IAction* StateLockedHandleInput(const InputBuffer& rawInput, const StateComponen
     {
       bool qcf = rawInput.Evaluate(UnivSpecMoveDict) == SpecialInputState::QCF && context.onLeftSide;
       bool qcb = rawInput.Evaluate(UnivSpecMoveDict) == SpecialInputState::QCB && !context.onLeftSide;
+      bool dpf = rawInput.Evaluate(UnivSpecMoveDict) == SpecialInputState::DPF && context.onLeftSide;
+      bool dpb = rawInput.Evaluate(UnivSpecMoveDict) == SpecialInputState::DPB && !context.onLeftSide;
       if (qcf || qcb)
         return new GroundedStaticAttack<StanceState::STANDING, ActionState::NONE>("SpecialMove1", context.onLeftSide);
+      else if(dpf || dpb)
+        return new GroundedStaticAttack<StanceState::STANDING, ActionState::NONE>("SpecialMove2", context.onLeftSide);
     }
   }
 

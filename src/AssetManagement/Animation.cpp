@@ -1,5 +1,6 @@
 #include "AssetManagement/Animation.h"
 #include "Components/Hitbox.h"
+#include "Components/Rigidbody.h"
 #include "GameManagement.h"
 #include "ResourceManager.h"
 #include <math.h>
@@ -43,13 +44,20 @@ Animation::Animation(const SpriteSheet& sheet, int startIndexOnSheet, int frames
 //______________________________________________________________________________
 EventInitParams Animation::GenerateAttackEvent(const char* hitboxesSheet, FrameData frameData)
 {
-  return GenerateAttackEvent(GetHitboxesFromFile(hitboxesSheet), frameData);
+  std::vector<Rect<double>> hitboxes = GetHitboxesFromFile(hitboxesSheet);
+  std::vector<AnimationActionEventData> eventData;
+  eventData.resize(hitboxes.size());
+  for (int i = 0; i < hitboxes.size(); i++)
+  {
+    eventData[i].hitbox = hitboxes[i];
+  }
+  return GenerateAttackEvent(eventData, frameData);
 }
 
 //______________________________________________________________________________
-EventInitParams Animation::GenerateAttackEvent(const std::vector<Rect<double>>& hitboxInfo, FrameData frameData)
+EventInitParams Animation::GenerateAttackEvent(const std::vector<AnimationActionEventData>& attackInfo, FrameData frameData)
 {
-  hitboxes = hitboxInfo;
+  animationEvents = attackInfo;
 
   auto DespawnHitbox = [](Transform* trans)
   {
@@ -63,9 +71,10 @@ EventInitParams Animation::GenerateAttackEvent(const std::vector<Rect<double>>& 
   std::function<void(Transform*,StateComponent*)> trigger;
   std::vector<std::function<void(Transform*,StateComponent*)>> updates;
 
-  for (int i = 0; i < hitboxInfo.size(); i++)
+  for (int i = 0; i < attackInfo.size(); i++)
   {
-    const Rect<double>& hitbox = hitboxInfo[i];
+    const Rect<double>& hitbox = attackInfo[i].hitbox;
+    const Vector2<float>& movement = attackInfo[i].movement;
     if (hitbox.Area() != 0)
     {
       Vector2<double> dataOffset(_lMargin, _tMargin);
@@ -156,6 +165,37 @@ EventInitParams Animation::GenerateAttackEvent(const std::vector<Rect<double>>& 
       updates.push_back(updates.back());
   }
   return std::make_tuple(frameData.startUp - 1, frameData.active, trigger, updates, DespawnHitbox);
+}
+
+//______________________________________________________________________________
+EventInitParams Animation::GenerateMovementEvent(const std::vector<AnimationActionEventData>& attackInfo, FrameData frameData)
+{
+  auto endEvent = [](Transform* trans) {};
+
+  std::function<void(Transform*, StateComponent*)> trigger = [](Transform*, StateComponent*) {};
+  std::vector<std::function<void(Transform*, StateComponent*)>> updates;
+  int n = 0;
+  for (int i = 0; i < attackInfo.size(); i++)
+  {
+    const Vector2<float>& movement = attackInfo[i].movement;
+    if (movement.x != 0 || movement.y != 0)
+    {
+      auto movementEvent = [movement](Transform* trans, StateComponent* state)
+      {
+        if (auto rb = trans->GetComponent<Rigidbody>())
+        {
+          rb->_vel += movement;
+        }
+      };
+
+      if (n == 0)
+        trigger = movementEvent;
+      else
+        updates.push_back(movementEvent);
+
+    }
+  }
+  return std::make_tuple(0, updates.size() + 1, trigger, updates, endEvent);
 }
 
 //______________________________________________________________________________
@@ -366,24 +406,24 @@ void AnimationCollection::LoadCollectionFromJson(const std::string& spriteSheetJ
       data.Load(item);
       RegisterAnimation(animName, loadedSpriteSheets[data.loadingInfo.sheetLocation], data.loadingInfo.startIndexOnSheet, data.loadingInfo.frames, data.loadingInfo.anchor);
 
-      std::vector<Rect<double>> hbs;
-      for (auto& evt : data.eventData)
-      {
-        hbs.push_back(evt.hitbox);
-      }
-
       Animation& animation = _animations.find(animName)->second;
       if (_events.find(animName) == _events.end())
       {
         _events.emplace(std::make_pair(animName, std::make_shared<EventList>()));
-        _events[animName]->emplace(std::piecewise_construct, std::make_tuple(data.frameData.startUp - 1), animation.GenerateAttackEvent(hbs, data.frameData));
+        _events[animName]->emplace(std::piecewise_construct, std::make_tuple(data.frameData.startUp - 1), animation.GenerateAttackEvent(data.eventData, data.frameData));
       }
       else
       {
         //for now just replace
         _events[animName] = std::make_shared<EventList>();
-        _events[animName]->emplace(std::piecewise_construct, std::make_tuple(data.frameData.startUp - 1), animation.GenerateAttackEvent(hbs, data.frameData));
+        _events[animName]->emplace(std::piecewise_construct, std::make_tuple(data.frameData.startUp - 1), animation.GenerateAttackEvent(data.eventData, data.frameData));
       }
+
+      if (data.eventData[0].movement != Vector2<float>::Zero)
+      {
+        _events[animName]->emplace(std::piecewise_construct, std::make_tuple(0), animation.GenerateMovementEvent(data.eventData, data.frameData));
+      }
+      
     }
     else
     {

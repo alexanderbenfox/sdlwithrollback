@@ -50,7 +50,9 @@ public:
 
   EventInitParams GenerateAttackEvent(const char* hitboxesSheet, FrameData frameData);
 
-  EventInitParams GenerateAttackEvent(const std::vector<Rect<double>>& hitboxInfo, FrameData frameData);
+  EventInitParams GenerateAttackEvent(const std::vector<AnimationActionEventData>& attackInfo, FrameData frameData);
+
+  EventInitParams GenerateMovementEvent(const std::vector<AnimationActionEventData>& attackInfo, FrameData frameData);
 
   //! Translates anim frame to the frame on spritesheet
   SDL_Rect GetFrameSrcRect(int animFrame) const;
@@ -79,7 +81,7 @@ public:
   ImGuiDisplayParams GetUVCoordsForFrame(int displayHeight, int animFrame);
 
   // NEED TO REMOVE THIS ASAP
-  std::vector<Rect<double>> hitboxes;
+  std::vector<AnimationActionEventData> animationEvents;
 
 protected:
   //!

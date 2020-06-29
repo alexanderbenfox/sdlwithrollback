@@ -102,13 +102,14 @@ void BattleScene::Update(float deltaTime)
   InputSystem::DoTick(deltaTime);
 
   FrameAdvantageSystem::DoTick(deltaTime);
+  
+  AnimationSystem::DoTick(deltaTime);
+  AttackAnimationSystem::DoTick(deltaTime);
+
   // resolve collisions
   PhysicsSystem::DoTick(deltaTime);
   // update the location of the colliders
   MoveSystem::DoTick(deltaTime);
-
-  AnimationSystem::DoTick(deltaTime);
-  AttackAnimationSystem::DoTick(deltaTime);
 
   CheckBattleEndSystem::DoTick(deltaTime);
 }

@@ -89,6 +89,12 @@ std::unordered_map<std::string, std::tuple<AnimationInfo, FrameData, std::string
       AnimationInfo(specialMoves.src, specialMoves, 0, 14, AnchorPoint::BL),
       FrameData( 11, 3, 28, -3, -6, 10, Vector2<float>(400.0f, 100.0f), hitstopHeavy ),
       "spritesheets\\special_moves_hitboxes.png", AnimationDebuggingInfo{0})
+  },
+  { "SpecialMove2",
+    std::make_tuple(
+      AnimationInfo(specialMoves.src, specialMoves, 41, 17, AnchorPoint::BL),
+      FrameData(2, 5, 28, -3, -6, 10, Vector2<float>(400.0f, 100.0f), hitstopHeavy),
+      "spritesheets\\special_moves_hitboxes.png", AnimationDebuggingInfo{0})
   }
 };
 

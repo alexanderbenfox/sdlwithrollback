@@ -522,6 +522,137 @@
 		"spritesheet" : "spritesheets\\special_moves.png",
 		"startIndex" : 0
 	},
+	"SpecialMove2" : 
+	{
+		"anchor" : "BL",
+		"events" : 
+		[
+			{
+				"movement": {
+				  "x": 20,
+				  "y": -900
+				}
+			},
+			{},
+			{
+				"hitbox" : 
+				{
+					"position" : 
+					{
+						"x" : 102.0,
+						"y" : 86.0
+					},
+					"size" : 
+					{
+						"x" : 19.0,
+						"y" : 19.0
+					}
+				}
+			},
+			{
+				"hitbox" : 
+				{
+					"position" : 
+					{
+						"x" : 99.0,
+						"y" : 7.0
+					},
+					"size" : 
+					{
+						"x" : 19.0,
+						"y" : 33.0
+					}
+				}
+			},
+			{
+				"hitbox" : 
+				{
+					"position" : 
+					{
+						"x" : 98.0,
+						"y" : 9.0
+					},
+					"size" : 
+					{
+						"x" : 19.0,
+						"y" : 33.0
+					}
+				}
+			},
+			{
+				"hitbox" : 
+				{
+					"position" : 
+					{
+						"x" : 99.0,
+						"y" : 9.0
+					},
+					"size" : 
+					{
+						"x" : 19.0,
+						"y" : 33.0
+					}
+				}
+			},
+			{
+				"hitbox" : 
+				{
+					"position" : 
+					{
+						"x" : 100.0,
+						"y" : 10.0
+					},
+					"size" : 
+					{
+						"x" : 19.0,
+						"y" : 33.0
+					}
+				}
+			},
+			{
+				"hitbox" : 
+				{
+					"position" : 
+					{
+						"x" : 100.0,
+						"y" : 8.0
+					},
+					"size" : 
+					{
+						"x" : 19.0,
+						"y" : 33.0
+					}
+				}
+			},
+			{},
+			{},
+			{},
+			{},
+			{},
+			{},
+			{},
+			{},
+			{}
+		],
+		"framedata" : 
+		{
+			"active" : 5,
+			"damage" : 10,
+			"hitstop" : 10,
+			"knockback" : 
+			{
+				"x" : 400.0,
+				"y" : -100.0
+			},
+			"onblock" : -6,
+			"onhit" : -3,
+			"recovery" : 28,
+			"startup" : 2
+		},
+		"numFrames" : 17,
+		"spritesheet" : "spritesheets\\special_moves.png",
+		"startIndex" : 41
+	},
 	"StandingHeavy" : 
 	{
 		"anchor" : "BL",

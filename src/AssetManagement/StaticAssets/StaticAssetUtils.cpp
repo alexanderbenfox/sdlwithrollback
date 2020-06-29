@@ -127,11 +127,7 @@ void StaticAssetUtils::LoadAnimations(std::unordered_map<std::string, AnimationI
             if (auto* evtList = collection.GetEventList(animName))
             {
               Animation* a = collection.GetAnimation(animName);
-              for (const auto& hb : a->hitboxes)
-              {
-                data.eventData.push_back(AnimationActionEventData());
-                data.eventData.back().hitbox = hb;
-              }
+              data.eventData = a->animationEvents;
             }
 
             // append new data to existing json
