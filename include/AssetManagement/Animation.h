@@ -1,4 +1,5 @@
 #pragma once
+#include "AssetManagement/StaticAssets/AnimationAssetData.h"
 #include "Components/Transform.h"
 #include "Components/StateComponent.h"
 #include "AssetManagement/BlitOperation.h"
@@ -77,6 +78,9 @@ public:
   };
   ImGuiDisplayParams GetUVCoordsForFrame(int displayHeight, int animFrame);
 
+  // NEED TO REMOVE THIS ASAP
+  std::vector<Rect<double>> hitboxes;
+
 protected:
   //!
   SpriteSheet _spriteSheet;
@@ -114,6 +118,7 @@ public:
   AnimationCollection() = default;
   void RegisterAnimation(const std::string& animationName, const SpriteSheet& sheet, int startIndexOnSheet, int frames, AnchorPoint anchor);
   void SetHitboxEvents(const std::string& animationName, const char* hitboxesSheet, FrameData frameData);
+  void LoadCollectionFromJson(const std::string& spriteSheetJsonLocation, const std::string& movesetJsonLocation);
 
 
   Vector2<int> GetRenderOffset(const std::string& animationName, bool flipped, int transformWidth) const;

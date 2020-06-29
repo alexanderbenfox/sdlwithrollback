@@ -3,10 +3,19 @@
 #include "GameManagement.h"
 #include "ResourceManager.h"
 #include <math.h>
+#include <fstream>
+
+#include <json/json.h>
 
 //______________________________________________________________________________
 SpriteSheet::SpriteSheet(const char* src, int rows, int columns) : src(src), rows(rows), columns(columns),
   sheetSize(0, 0), frameSize(0, 0)
+{
+  GenerateSheetInfo();
+}
+
+//______________________________________________________________________________
+void SpriteSheet::GenerateSheetInfo()
 {
   sheetSize = ResourceManager::Get().GetTextureWidthAndHeight(src);
   frameSize = Vector2<int>(sheetSize.x / columns, sheetSize.y / rows);
@@ -40,6 +49,8 @@ EventInitParams Animation::GenerateAttackEvent(const char* hitboxesSheet, FrameD
 //______________________________________________________________________________
 EventInitParams Animation::GenerateAttackEvent(const std::vector<Rect<double>>& hitboxInfo, FrameData frameData)
 {
+  hitboxes = hitboxInfo;
+
   auto DespawnHitbox = [](Transform* trans)
   {
     trans->RemoveComponent<Hitbox>();
@@ -308,6 +319,77 @@ void AnimationCollection::SetHitboxEvents(const std::string& animationName, cons
       //for now just replace
       _events[animationName] = std::make_shared<EventList>();
       _events[animationName]->emplace(std::piecewise_construct, std::make_tuple(frameData.startUp - 1), animation.GenerateAttackEvent(hitboxesSheet, frameData));
+    }
+  }
+}
+
+//______________________________________________________________________________
+void AnimationCollection::LoadCollectionFromJson(const std::string& spriteSheetJsonLocation, const std::string& movesetJsonLocation)
+{
+  std::fstream spriteSheetFile;
+  spriteSheetFile.open(spriteSheetJsonLocation, std::ios::in);
+
+  Json::Value obj;
+  spriteSheetFile >> obj;
+
+  if (obj.isNull())
+    return;
+
+  spriteSheetFile.close();
+
+  std::map<std::string, SpriteSheet> loadedSpriteSheets;
+  for (auto& item : obj)
+  {
+    SpriteSheet sheet;
+    sheet.Load(item);
+    loadedSpriteSheets.emplace(sheet.src, sheet);
+  }
+
+  Json::Value movesetObj;
+  std::fstream movesetFile;
+  movesetFile.open(movesetJsonLocation, std::ios::in);
+  movesetFile >> movesetObj;
+
+  if(movesetObj.isNull())
+    return;
+
+  movesetFile.close();
+
+  for (auto& member : movesetObj.getMemberNames())
+  {
+    std::string animName = member;
+    Json::Value& item = movesetObj[animName];
+
+    if (item.isMember("framedata"))
+    {
+      AttackAnimationData data;
+      data.Load(item);
+      RegisterAnimation(animName, loadedSpriteSheets[data.loadingInfo.sheetLocation], data.loadingInfo.startIndexOnSheet, data.loadingInfo.frames, data.loadingInfo.anchor);
+
+      std::vector<Rect<double>> hbs;
+      for (auto& evt : data.eventData)
+      {
+        hbs.push_back(evt.hitbox);
+      }
+
+      Animation& animation = _animations.find(animName)->second;
+      if (_events.find(animName) == _events.end())
+      {
+        _events.emplace(std::make_pair(animName, std::make_shared<EventList>()));
+        _events[animName]->emplace(std::piecewise_construct, std::make_tuple(data.frameData.startUp - 1), animation.GenerateAttackEvent(hbs, data.frameData));
+      }
+      else
+      {
+        //for now just replace
+        _events[animName] = std::make_shared<EventList>();
+        _events[animName]->emplace(std::piecewise_construct, std::make_tuple(data.frameData.startUp - 1), animation.GenerateAttackEvent(hbs, data.frameData));
+      }
+    }
+    else
+    {
+      AnimationInfo info;
+      info.Load(item);
+      RegisterAnimation(animName, loadedSpriteSheets[info.sheetLocation], info.startIndexOnSheet, info.frames, info.anchor);
     }
   }
 }

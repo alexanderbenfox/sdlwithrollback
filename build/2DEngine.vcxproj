@@ -69,6 +69,7 @@
     <ClInclude Include="..\include\AssetManagement\BlitOperation.h" />
     <ClInclude Include="..\include\AssetManagement\LetterCase.h" />
     <ClInclude Include="..\include\AssetManagement\Resource.h" />
+    <ClInclude Include="..\include\AssetManagement\StaticAssets\AnimationAssetData.h" />
     <ClInclude Include="..\include\AssetManagement\StaticAssets\CharacterConfig.h" />
     <ClInclude Include="..\include\AssetManagement\StaticAssets\StaticAssetUtils.h" />
     <ClInclude Include="..\include\AssetManagement\Text.h" />
@@ -227,17 +228,17 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>external\ggpo\include;..\include;external\sdl2-ttf_x64-windows\include;external\sdl2-image_x64-windows\include;external\sdl2_x64-windows\include\SDL2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>external\ggpo\include;..\include;external\sdl2-ttf_x64-windows\include;external\sdl2-image_x64-windows\include;external\jsoncpp_x64-windows\include;external\sdl2_x64-windows\include\SDL2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>external\ggpo\debug;external\sdl2-ttf_x64-windows\debug\lib;external\sdl2-image_x64-windows\debug\lib;external\sdl2_x64-windows\debug\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>external\ggpo\debug;external\sdl2-ttf_x64-windows\debug\lib;external\sdl2-image_x64-windows\debug\lib;external\sdl2_x64-windows\debug\lib;external\jsoncpp_x64-windows\debug\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <EntryPointSymbol>
       </EntryPointSymbol>
-      <AdditionalDependencies>ws2_32.lib;user32.lib;winmm.lib;GGPO.lib;opengl32.lib;SDL2d.lib;SDL2_image.lib;SDL2_ttf.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ws2_32.lib;user32.lib;winmm.lib;GGPO.lib;opengl32.lib;jsoncpp.lib;SDL2d.lib;SDL2_image.lib;SDL2_ttf.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <DelayLoadDLLs>
       </DelayLoadDLLs>
     </Link>
@@ -273,7 +274,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>external\ggpo\include;..\include;external\sdl2-ttf_x64-windows\include;external\sdl2-image_x64-windows\include;external\sdl2_x64-windows\include\SDL2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>external\ggpo\include;..\include;external\sdl2-ttf_x64-windows\include;external\sdl2-image_x64-windows\include;external\jsoncpp_x64-windows\include;external\sdl2_x64-windows\include\SDL2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
@@ -282,10 +283,10 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>external\ggpo\release;external\sdl2-ttf_x64-windows\lib;external\sdl2-image_x64-windows\lib;external\sdl2_x64-windows\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>external\ggpo\release;external\sdl2-ttf_x64-windows\lib;external\sdl2-image_x64-windows\lib;external\jsoncpp_x64-windows\lib;external\sdl2_x64-windows\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <EntryPointSymbol>
       </EntryPointSymbol>
-      <AdditionalDependencies>ws2_32.lib;user32.lib;winmm.lib;GGPO.lib;opengl32.lib;SDL2.lib;SDL2_image.lib;SDL2_ttf.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ws2_32.lib;user32.lib;winmm.lib;GGPO.lib;opengl32.lib;jsoncpp.lib;SDL2.lib;SDL2_image.lib;SDL2_ttf.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <DelayLoadDLLs>
       </DelayLoadDLLs>
     </Link>

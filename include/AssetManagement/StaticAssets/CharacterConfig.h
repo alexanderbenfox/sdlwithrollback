@@ -17,7 +17,8 @@ const SpriteSheet blockAndHitstun("spritesheets\\block_mid_hitstun.png", 8, 7, f
 const SpriteSheet blocks("spritesheets\\blocks.png", 4, 4, false);
 const SpriteSheet throws("spritesheets\\throws.png", 8, 5, false);
 const SpriteSheet winLoseSpriteSheet("spritesheets\\winlose.png", 6, 4, false);
-const SpriteSheet dashes("spriteSheets\\dashes.png", 4, 3, false);
+const SpriteSheet dashes("spritesheets\\dashes.png", 4, 3, false);
+const SpriteSheet specialMoves("spritesheets\\special_moves.png", 10, 8, false);
 
 class ICharacterConfig {};
 
