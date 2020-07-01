@@ -18,6 +18,14 @@ public:
 
   //! Adds attack state component
   virtual void Enact(Entity* actor) override;
+  //! Checks for special cancels
+  virtual IAction* HandleInput(const InputBuffer& rawInput, const StateComponent& context) override
+  {
+    IAction* action = CheckForSpecialCancel(rawInput, context);
+    if (!action)
+      return StateLockedAnimatedAction<Stance, Action>::HandleInput(rawInput, context);
+    return action;
+  }
 
 protected:
 
@@ -39,6 +47,20 @@ public:
   //!
   GroundedStaticAttack(const std::string& animation, bool facingRight) : AttackAction<Stance, Action>(animation, facingRight, Vector2<float>(0, 0)) {}
 
+};
+
+//______________________________________________________________________________
+template <StanceState Stance, ActionState Action>
+class SpecialMoveAttack : public AttackAction<Stance, Action>
+{
+public:
+  //!
+  SpecialMoveAttack(const std::string& animation, bool facingRight) : AttackAction<Stance, Action>(animation, facingRight, Vector2<float>(0, 0)) {}
+  //! Does not check for special cancels
+  virtual IAction* HandleInput(const InputBuffer& rawInput, const StateComponent& context) override
+  {
+    return StateLockedAnimatedAction<Stance, Action>::HandleInput(rawInput, context);
+  }
 };
 
 //______________________________________________________________________________

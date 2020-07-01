@@ -5,6 +5,7 @@
 #include "AssetManagement/BlitOperation.h"
 #include "ComponentConst.h"
 #include "ResourceManager.h"
+#include "AssetManagement/AnimationEvent.h"
 
 #include <functional>
 #include <unordered_map>
@@ -13,46 +14,15 @@
 const float secPerFrame = 1.0f / 60.0f;
 const float gameFramePerAnimationFrame = (1.0f / secPerFrame) / animation_fps;
 
-class Animation;
-
-//______________________________________________________________________________
-class AnimationEvent
-{
-public:
-  AnimationEvent(int startFrame, int duration, std::function<void(Transform*, StateComponent*)> onTriggerCallback, std::vector<std::function<void(Transform*, StateComponent*)>> update, std::function<void(Transform*)> onEndCallback) :
-    _frame(startFrame), _duration(duration), _onTrigger(onTriggerCallback), _updates(update), _onEnd(onEndCallback) {}
-
-  void TriggerEvent(Transform* trans, StateComponent* state) { _onTrigger(trans, state); }
-  void UpdateEvent(int frame, Transform* trans, StateComponent* state) { _updates[frame - _frame - 1](trans, state); }
-  void EndEvent(Transform* trans) { _onEnd(trans); }
-  int GetEndFrame() { return _frame + _duration; }
-
-private:
-  //! Delete copy constructor because it will only be used in the animation
-  AnimationEvent(const AnimationEvent&) = delete;
-  AnimationEvent operator=(AnimationEvent&) = delete;
-  //! Frame this event will be called on
-  int _frame;
-  int _duration;
-  //!
-  std::function<void(Transform*, StateComponent*)> _onTrigger;
-  std::vector<std::function<void(Transform*, StateComponent*)>> _updates;
-  std::function<void(Transform*)> _onEnd;
-};
-
-typedef std::tuple<int, int, std::function<void(Transform*, StateComponent*)>, std::vector<std::function<void(Transform*, StateComponent*)>>, std::function<void(Transform*)>> EventInitParams;
-
 //______________________________________________________________________________
 class Animation
 {
 public:
   Animation(const SpriteSheet& sheet, int startIndexOnSheet, int frames, AnchorPoint anchor);
 
-  EventInitParams GenerateAttackEvent(const char* hitboxesSheet, FrameData frameData);
+  EventList GenerateEvents(const char* hitboxesSheet, FrameData frameData);
 
-  EventInitParams GenerateAttackEvent(const std::vector<AnimationActionEventData>& attackInfo, FrameData frameData);
-
-  EventInitParams GenerateMovementEvent(const std::vector<AnimationActionEventData>& attackInfo, FrameData frameData);
+  EventList GenerateEvents(const std::vector<AnimationActionEventData>& attackInfo, FrameData frameData);
 
   //! Translates anim frame to the frame on spritesheet
   SDL_Rect GetFrameSrcRect(int animFrame) const;
@@ -111,8 +81,6 @@ inline Resource<Texture>& Animation::GetSheetTexture() const
   return ResourceManager::Get().GetAsset<Texture>(_spriteSheet.src);
 }
 
-typedef std::unordered_map<int, AnimationEvent> EventList;
-
 //______________________________________________________________________________
 class AnimationCollection
 {
@@ -132,11 +100,11 @@ public:
     return &_animations.find(name)->second;
   }
   //!
-  EventList* GetEventList(const std::string& name)
+  std::shared_ptr<EventList> GetEventList(const std::string& name)
   {
     if(_events.find(name) == _events.end())
       return nullptr;
-    return _events.find(name)->second.get();
+    return _events.find(name)->second;
   }
 
   std::unordered_map<std::string, Animation>::iterator GetAnimationIt(const std::string& name)

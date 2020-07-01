@@ -42,7 +42,7 @@ Animation::Animation(const SpriteSheet& sheet, int startIndexOnSheet, int frames
 }
 
 //______________________________________________________________________________
-EventInitParams Animation::GenerateAttackEvent(const char* hitboxesSheet, FrameData frameData)
+EventList Animation::GenerateEvents(const char* hitboxesSheet, FrameData frameData)
 {
   std::vector<Rect<double>> hitboxes = GetHitboxesFromFile(hitboxesSheet);
   std::vector<AnimationActionEventData> eventData;
@@ -51,151 +51,13 @@ EventInitParams Animation::GenerateAttackEvent(const char* hitboxesSheet, FrameD
   {
     eventData[i].hitbox = hitboxes[i];
   }
-  return GenerateAttackEvent(eventData, frameData);
+  return GenerateEvents(eventData, frameData);
 }
 
 //______________________________________________________________________________
-EventInitParams Animation::GenerateAttackEvent(const std::vector<AnimationActionEventData>& attackInfo, FrameData frameData)
+EventList Animation::GenerateEvents(const std::vector<AnimationActionEventData>& attackInfo, FrameData frameData)
 {
-  animationEvents = attackInfo;
-
-  auto DespawnHitbox = [](Transform* trans)
-  {
-    trans->RemoveComponent<Hitbox>();
-  };
-
-  int startUpFrames = -1;
-  int activeFrames = -1;
-  int recoveryFrames = -1;
-
-  std::function<void(Transform*,StateComponent*)> trigger;
-  std::vector<std::function<void(Transform*,StateComponent*)>> updates;
-
-  for (int i = 0; i < attackInfo.size(); i++)
-  {
-    const Rect<double>& hitbox = attackInfo[i].hitbox;
-    const Vector2<float>& movement = attackInfo[i].movement;
-    if (hitbox.Area() != 0)
-    {
-      Vector2<double> dataOffset(_lMargin, _tMargin);
-
-      if (startUpFrames != -1)
-      {
-        auto UpdateHitbox = [hitbox, dataOffset](Transform* trans, StateComponent* state)
-        {
-          Rect<double> hitboxBoundsRelativeToAnim(hitbox.beg.x * trans->scale.x, hitbox.beg.y * trans->scale.y, hitbox.end.x * trans->scale.x, hitbox.end.y * trans->scale.y);
-          Vector2<float> transCenterRelativeToAnim(trans->rect.HalfWidth() + dataOffset.x * trans->scale.x, trans->rect.HalfHeight() + dataOffset.y * trans->scale.y);
-          Vector2<double> relativeToTransformCenter = hitboxBoundsRelativeToAnim.GetCenter() - (Vector2<double>)transCenterRelativeToAnim;
-          if (!state->onLeftSide)
-            relativeToTransformCenter.x *= -1.0;
-
-          trans->GetComponent<Hitbox>()->rect = hitboxBoundsRelativeToAnim;
-          trans->GetComponent<Hitbox>()->rect.CenterOnPoint((Vector2<double>)trans->position + relativeToTransformCenter);
-        };
-        updates.push_back(UpdateHitbox);
-
-        if (activeFrames == -1)
-          activeFrames = i - startUpFrames + 1;
-      }
-      else
-      {
-        startUpFrames = i;
-        trigger = [hitbox, frameData, dataOffset](Transform* trans, StateComponent* state)
-        {
-          trans->AddComponent<Hitbox>();
-          trans->GetComponent<Hitbox>()->frameData = frameData;
-
-          Rect<double> hitboxBoundsRelativeToAnim(hitbox.beg.x * trans->scale.x, hitbox.beg.y * trans->scale.y, hitbox.end.x * trans->scale.x, hitbox.end.y * trans->scale.y);
-          Vector2<float> transCenterRelativeToAnim(trans->rect.HalfWidth() + dataOffset.x * trans->scale.x, trans->rect.HalfHeight() + dataOffset.y * trans->scale.y);
-          Vector2<double> relativeToTransformCenter = hitboxBoundsRelativeToAnim.GetCenter() - (Vector2<double>)transCenterRelativeToAnim;
-          if (!state->onLeftSide)
-            relativeToTransformCenter.x *= -1.0;
-
-          trans->GetComponent<Hitbox>()->rect = hitboxBoundsRelativeToAnim;
-          trans->GetComponent<Hitbox>()->rect.CenterOnPoint((Vector2<double>)trans->position + relativeToTransformCenter);
-        };
-      }
-    }
-  }
-  if (activeFrames != -1)
-    recoveryFrames = _frames - (startUpFrames + activeFrames);
-    
-  // using data for frame counts, construct the animated event in place
-  if (startUpFrames > 0)
-  {
-    int animLastStartUpFrameIdx = startUpFrames - 1;
-    int animLastActiveFrameIdx = animLastStartUpFrameIdx + activeFrames;
-    // allow for a frame of "active" to seep into recovery for hitstop effect
-    int animLastRecoveryFrameIdx = animLastActiveFrameIdx + recoveryFrames - 1;
-
-    int lastStartUpFrameIdx = frameData.startUp - 2;
-    int lastActiveFrameIdx = lastStartUpFrameIdx + frameData.active;
-    int lastRecoveryFrameIdx = lastActiveFrameIdx + frameData.recover;
-
-    int totalFramesAdjusted = lastRecoveryFrameIdx + 1;
-
-    _animFrameToSheetFrame.resize(totalFramesAdjusted);
-    for (int i = 0; i < _animFrameToSheetFrame.size(); i++)
-    {
-
-      // set up the pre active frames
-      if (i <= lastStartUpFrameIdx)
-      {
-
-        //_animFrameToSheetFrame[i] = std::min(animLastStartUpFrameIdx, i);
-        _animFrameToSheetFrame[i] = (int)std::ceil(static_cast<double>(i) / static_cast<double>(lastStartUpFrameIdx) * static_cast<double>(animLastStartUpFrameIdx));
-      }
-      else if (i <= lastActiveFrameIdx)
-      {
-        //_animFrameToSheetFrame[i] = std::min(animLastActiveFrameIdx, i - lastStartUpFrameIdx + animLastStartUpFrameIdx);
-        double idx = static_cast<double>(i - lastStartUpFrameIdx);
-        _animFrameToSheetFrame[i] = (int)std::ceil(idx / (double)frameData.active * static_cast<double>(activeFrames)) + animLastStartUpFrameIdx;
-      }
-      else
-      {
-        //_animFrameToSheetFrame[i] = std::min(animLastRecoveryFrameIdx, i - lastActiveFrameIdx + animLastActiveFrameIdx);
-        double idx = static_cast<double>(i - lastActiveFrameIdx);
-        //_animFrameToSheetFrame[i] = std::ceil(idx / std::ceil(fData.recover * gameFramePerAnimationFrame) * static_cast<double>(recoveryFrames)) + animLastActiveFrameIdx;
-        _animFrameToSheetFrame[i] = (int)std::ceil(idx / (double)frameData.recover * static_cast<double>(recoveryFrames)) + animLastActiveFrameIdx;
-      }
-    }
-
-    // do not need to adjust this because events only update on new animations
-    while ((int)updates.size() < (frameData.active - 1))
-      updates.push_back(updates.back());
-  }
-  return std::make_tuple(frameData.startUp - 1, frameData.active, trigger, updates, DespawnHitbox);
-}
-
-//______________________________________________________________________________
-EventInitParams Animation::GenerateMovementEvent(const std::vector<AnimationActionEventData>& attackInfo, FrameData frameData)
-{
-  auto endEvent = [](Transform* trans) {};
-
-  std::function<void(Transform*, StateComponent*)> trigger = [](Transform*, StateComponent*) {};
-  std::vector<std::function<void(Transform*, StateComponent*)>> updates;
-  int n = 0;
-  for (int i = 0; i < attackInfo.size(); i++)
-  {
-    const Vector2<float>& movement = attackInfo[i].movement;
-    if (movement.x != 0 || movement.y != 0)
-    {
-      auto movementEvent = [movement](Transform* trans, StateComponent* state)
-      {
-        if (auto rb = trans->GetComponent<Rigidbody>())
-        {
-          rb->_vel += movement;
-        }
-      };
-
-      if (n == 0)
-        trigger = movementEvent;
-      else
-        updates.push_back(movementEvent);
-
-    }
-  }
-  return std::make_tuple(0, updates.size() + 1, trigger, updates, endEvent);
+  return AnimationEventHelper::BuildEventList(Vector2<int>(_lMargin, _tMargin), attackInfo, frameData, _frames, _animFrameToSheetFrame);
 }
 
 //______________________________________________________________________________
@@ -351,14 +213,12 @@ void AnimationCollection::SetHitboxEvents(const std::string& animationName, cons
     Animation& animation = _animations.find(animationName)->second;
     if(_events.find(animationName) == _events.end())
     {
-      _events.emplace(std::make_pair(animationName, std::make_shared<EventList>()));
-      _events[animationName]->emplace(std::piecewise_construct, std::make_tuple(frameData.startUp - 1), animation.GenerateAttackEvent(hitboxesSheet, frameData));
+      _events.emplace(std::make_pair(animationName, std::make_shared<EventList>(animation.GenerateEvents(hitboxesSheet, frameData))));
     }
     else
     {
       //for now just replace
-      _events[animationName] = std::make_shared<EventList>();
-      _events[animationName]->emplace(std::piecewise_construct, std::make_tuple(frameData.startUp - 1), animation.GenerateAttackEvent(hitboxesSheet, frameData));
+      _events[animationName] = std::make_shared<EventList>(animation.GenerateEvents(hitboxesSheet, frameData));
     }
   }
 }
@@ -409,21 +269,13 @@ void AnimationCollection::LoadCollectionFromJson(const std::string& spriteSheetJ
       Animation& animation = _animations.find(animName)->second;
       if (_events.find(animName) == _events.end())
       {
-        _events.emplace(std::make_pair(animName, std::make_shared<EventList>()));
-        _events[animName]->emplace(std::piecewise_construct, std::make_tuple(data.frameData.startUp - 1), animation.GenerateAttackEvent(data.eventData, data.frameData));
+        _events.emplace(std::make_pair(animName, std::make_shared<EventList>(animation.GenerateEvents(data.eventData, data.frameData))));
       }
       else
       {
         //for now just replace
-        _events[animName] = std::make_shared<EventList>();
-        _events[animName]->emplace(std::piecewise_construct, std::make_tuple(data.frameData.startUp - 1), animation.GenerateAttackEvent(data.eventData, data.frameData));
+        _events[animName] = std::make_shared<EventList>(animation.GenerateEvents(data.eventData, data.frameData));
       }
-
-      if (data.eventData[0].movement != Vector2<float>::Zero)
-      {
-        _events[animName]->emplace(std::piecewise_construct, std::make_tuple(0), animation.GenerateMovementEvent(data.eventData, data.frameData));
-      }
-      
     }
     else
     {

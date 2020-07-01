@@ -32,7 +32,7 @@ void PhysicsSystem::DoTick(float dt)
 
     // loop over each other collider
     // if in hitstun, do elastic collision
-    AdjustMovementForCollisions(collider, movementVector, futureCorrection, currentCorrection, rigidbody->elasticCollisions);
+    AdjustMovementForCollisions(collider, movementVector, futureCorrection, currentCorrection, rigidbody->elasticCollisions, rigidbody->ignoreDynamicColliders);
 
     Vector2<float> caVelocity = PositionAdjustmentToVelocity(futureCorrection.amount, ddt);
     // Convert adjustment vector to a velocity and change object's velocity based on the adjustment
@@ -118,22 +118,25 @@ OverlapInfo<double> PhysicsSystem::GetPushOnDynamicCollision(Rect<double>& colli
   return overlap;
 }
 
-void PhysicsSystem::AdjustMovementForCollisions( RectColliderD* colliderComponent, const Vector2<double>& movementVector, OverlapInfo<double>& momentum, OverlapInfo<double>& inst, bool elastic)
+void PhysicsSystem::AdjustMovementForCollisions( RectColliderD* colliderComponent, const Vector2<double>& movementVector, OverlapInfo<double>& momentum, OverlapInfo<double>& inst, bool elastic, bool ignoreDynamic)
 {
   Rect<double> potentialRect = colliderComponent->rect;
   potentialRect.MoveRelative(movementVector);
 
   // process all dynamic collisions
-  for (auto otherCollider : ComponentManager<DynamicCollider>::Get().All())
+  if (!ignoreDynamic)
   {
-    if (potentialRect.Intersects(otherCollider->rect))
+    for (auto otherCollider : ComponentManager<DynamicCollider>::Get().All())
     {
-      // only check right or left on dynamic colliders
+      if (potentialRect.Intersects(otherCollider->rect))
+      {
+        // only check right or left on dynamic colliders
         auto push = GetPushOnDynamicCollision(colliderComponent->rect, otherCollider->rect, movementVector, 0.5);
 
         // add to instantaneous corrections because we dont want to maintain momentum for these kinds of collisions
         inst.collisionSides |= push.collisionSides;
         inst.amount += push.amount;
+      }
     }
   }
   // process static collisions

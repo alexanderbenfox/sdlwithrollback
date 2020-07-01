@@ -85,6 +85,8 @@ const TrieNode<InputState, SpecialInputState> UnivSpecMoveDict
   std::make_pair(std::list<InputState>{InputState::DOWN, InputState::DOWN | InputState::LEFT, InputState::LEFT}, SpecialInputState::QCB),
   std::make_pair(std::list<InputState>{InputState::RIGHT, InputState::DOWN, InputState::RIGHT | InputState::DOWN}, SpecialInputState::DPF),
   std::make_pair(std::list<InputState>{InputState::LEFT, InputState::DOWN, InputState::LEFT | InputState::DOWN}, SpecialInputState::DPB),
+  //std::make_pair(std::list<InputState>{InputState::RIGHT | InputState::DOWN, InputState::NONE, InputState::RIGHT | InputState::DOWN}, SpecialInputState::DPF),
+  //std::make_pair(std::list<InputState>{InputState::LEFT | InputState::DOWN, InputState::NONE, InputState::LEFT | InputState::DOWN}, SpecialInputState::DPB),
   std::make_pair(std::list<InputState>{InputState::RIGHT, InputState::NONE, InputState::RIGHT}, SpecialInputState::RDash),
   std::make_pair(std::list<InputState>{InputState::LEFT, InputState::NONE, InputState::LEFT}, SpecialInputState::LDash)
 };
@@ -97,7 +99,7 @@ class IInputHandler
 {
 public:
   // initialize with input buffer of 6 frames
-  IInputHandler() : _inputBuffer(10) {}
+  IInputHandler() : _inputBuffer(20) {}
   //! Destructor
   virtual ~IInputHandler() {}
   //! Gets the command based on the type of input received from the controller

@@ -124,7 +124,7 @@ void StaticAssetUtils::LoadAnimations(std::unordered_map<std::string, AnimationI
             data.frameData = frameData;
             data.loadingInfo = params;
 
-            if (auto* evtList = collection.GetEventList(animName))
+            if (collection.GetEventList(animName) != nullptr)
             {
               Animation* a = collection.GetAnimation(animName);
               data.eventData = a->animationEvents;

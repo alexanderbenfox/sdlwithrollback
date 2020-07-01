@@ -73,6 +73,8 @@ public:
   bool _useGravity;
   //!
   bool elasticCollisions;
+  //!
+  bool ignoreDynamicColliders = false;
 
   friend std::ostream& operator<<(std::ostream& os, const Rigidbody& rb);
   friend std::istream& operator>>(std::istream& is, Rigidbody& rb);

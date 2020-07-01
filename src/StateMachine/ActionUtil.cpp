@@ -30,14 +30,15 @@ template <> IAction* GetAttacksFromNeutral<StanceState::STANDING>(const InputBuf
   if (HasState(rawInput.Latest(), InputState::BTN1) || HasState(rawInput.Latest(), InputState::BTN2) || HasState(rawInput.Latest(), InputState::BTN3))
   {
     //!!!! TESTING SPECIAL MOVES HERE
-    bool qcf = rawInput.Evaluate(UnivSpecMoveDict) == SpecialInputState::QCF && facingRight;
-    bool qcb = rawInput.Evaluate(UnivSpecMoveDict) == SpecialInputState::QCB && !facingRight;
-    bool dpf = rawInput.Evaluate(UnivSpecMoveDict) == SpecialInputState::DPF && facingRight;
-    bool dpb = rawInput.Evaluate(UnivSpecMoveDict) == SpecialInputState::DPB && !facingRight;
-    if (qcf || qcb)
-      return new GroundedStaticAttack<StanceState::STANDING, ActionState::NONE>("SpecialMove1", facingRight);
-    else if (dpf || dpb)
-      return new GroundedStaticAttack<StanceState::STANDING, ActionState::NONE>("SpecialMove2", facingRight);
+    bool donkeyKick = (rawInput.Evaluate(UnivSpecMoveDict) == SpecialInputState::QCF && facingRight) || (rawInput.Evaluate(UnivSpecMoveDict) == SpecialInputState::QCB && !facingRight);
+    bool tatsu = (rawInput.Evaluate(UnivSpecMoveDict) == SpecialInputState::QCF && !facingRight) || (rawInput.Evaluate(UnivSpecMoveDict) == SpecialInputState::QCB && facingRight);
+    bool dp = (rawInput.Evaluate(UnivSpecMoveDict) == SpecialInputState::DPF && facingRight) || (rawInput.Evaluate(UnivSpecMoveDict) == SpecialInputState::DPB && !facingRight);
+    if (donkeyKick)
+      return new SpecialMoveAttack<StanceState::STANDING, ActionState::NONE>("SpecialMove3", facingRight);
+    else if(tatsu)
+      return new SpecialMoveAttack<StanceState::STANDING, ActionState::NONE>("SpecialMove4", facingRight);
+    else if (dp)
+      return new SpecialMoveAttack<StanceState::STANDING, ActionState::NONE>("SpecialMove2", facingRight);
   }
 
   // prioritize attacks
@@ -115,7 +116,7 @@ IAction* CheckHits(const InputState& rawInput, const StateComponent& context)
 }
 
 //______________________________________________________________________________
-IAction* StateLockedHandleInput(const InputBuffer& rawInput, const StateComponent& context, IAction* action, bool actionComplete)
+IAction* CheckForSpecialCancel(const InputBuffer& rawInput, const StateComponent& context)
 {
   //!!!! TESTING SPECIAL MOVE CANCELS HERE
   if (context.hitting)
@@ -127,12 +128,16 @@ IAction* StateLockedHandleInput(const InputBuffer& rawInput, const StateComponen
       bool dpf = rawInput.Evaluate(UnivSpecMoveDict) == SpecialInputState::DPF && context.onLeftSide;
       bool dpb = rawInput.Evaluate(UnivSpecMoveDict) == SpecialInputState::DPB && !context.onLeftSide;
       if (qcf || qcb)
-        return new GroundedStaticAttack<StanceState::STANDING, ActionState::NONE>("SpecialMove1", context.onLeftSide);
-      else if(dpf || dpb)
-        return new GroundedStaticAttack<StanceState::STANDING, ActionState::NONE>("SpecialMove2", context.onLeftSide);
+        return new SpecialMoveAttack<StanceState::STANDING, ActionState::NONE>("SpecialMove3", context.onLeftSide);
+      else if (dpf || dpb)
+        return new SpecialMoveAttack<StanceState::STANDING, ActionState::NONE>("SpecialMove2", context.onLeftSide);
     }
   }
+}
 
+//______________________________________________________________________________
+IAction* StateLockedHandleInput(const InputBuffer& rawInput, const StateComponent& context, IAction* action, bool actionComplete)
+{
   if (actionComplete)
   {
     return action->GetFollowUpAction(rawInput, context);

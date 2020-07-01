@@ -37,11 +37,14 @@ public:
         }
 
         // Checks if an event should be trigger this frame of animation and calls its callback if so
-        AnimationEvent* potentialEvent = atkState->GetEventStartsThisFrame(frame);
-        if (potentialEvent)
+        std::vector<AnimationEvent>& potentialEvents = atkState->GetEventsStarting(frame);
+        if (!potentialEvents.empty())
         {
-          atkState->inProgressEvents.push_back(potentialEvent);
-          potentialEvent->TriggerEvent(transform, stateComp);
+          for (auto& evt : potentialEvents)
+          {
+            atkState->inProgressEvents.push_back(&evt);
+            evt.TriggerEvent(transform, stateComp);
+          }
         }
 
         // update the last frame updated

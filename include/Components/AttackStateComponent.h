@@ -33,7 +33,7 @@ public:
   }
 
   //!
-  void Init(Animation* animation, EventList* eventList)
+  void Init(Animation* animation, std::shared_ptr<EventList> eventList)
   {
     _attackAnim = animation;
     _eventList = eventList;
@@ -47,14 +47,9 @@ public:
     inProgressEvents.clear();
   }
 
-  AnimationEvent* GetEventStartsThisFrame(int frame)
+  std::vector<AnimationEvent>& GetEventsStarting(int frame)
   {
-    auto evtIter = _eventList->find(frame);
-    if (evtIter != _eventList->end())
-    {
-      return &evtIter->second;
-    }
-    return nullptr;
+    return (*_eventList)[frame];
   }
 
   virtual int GetRemainingFrames() override
@@ -69,7 +64,7 @@ private:
   //! Map of frame starts for events to the event that should be triggered
   Animation* _attackAnim;
   //
-  EventList* _eventList;
+  std::shared_ptr<EventList> _eventList;
 
 };
 

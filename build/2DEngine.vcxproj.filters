@@ -186,6 +186,9 @@
     <ClCompile Include="..\src\Components\RenderComponent.cpp">
       <Filter>Source Files\Components</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\AssetManagement\AnimationEvent.cpp">
+      <Filter>Source Files\AssetManagement</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\AssetManagement\Resource.h">
@@ -394,6 +397,9 @@
     </ClInclude>
     <ClInclude Include="..\include\AssetManagement\StaticAssets\AnimationAssetData.h">
       <Filter>Header Files\AssetManagement\StaticAssets</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\AssetManagement\AnimationEvent.h">
+      <Filter>Header Files\AssetManagement</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
