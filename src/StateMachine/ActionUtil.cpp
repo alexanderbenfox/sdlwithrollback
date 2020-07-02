@@ -106,11 +106,10 @@ IAction* CheckHits(const InputState& rawInput, const StateComponent& context)
   {
     bool blockedRight = HasState(rawInput, InputState::LEFT) && !context.hitOnLeftSide;
     bool blockedLeft = HasState(rawInput, InputState::RIGHT) && context.hitOnLeftSide;
-    int neutralFrame = context.frameData.active + context.frameData.recover + 1;
     if (blockedRight || blockedLeft)
-      return new OnRecvHitAction<StanceState::STANDING, ActionState::BLOCKSTUN>("Block", facingRight, neutralFrame + context.frameData.onBlockAdvantage, Vector2<float>::Zero);
+      return new OnRecvHitAction<StanceState::STANDING, ActionState::BLOCKSTUN>("Block", facingRight, context.hitData.framesInStunBlock, Vector2<float>::Zero);
     else
-      return new OnRecvHitAction<StanceState::STANDING, ActionState::HITSTUN>("HeavyHitstun", facingRight, neutralFrame + context.frameData.onHitAdvantage, context.frameData.knockback, context.frameData.damage);
+      return new OnRecvHitAction<StanceState::STANDING, ActionState::HITSTUN>("HeavyHitstun", facingRight, context.hitData.framesInStunHit, context.hitData.knockback, context.hitData.damage);
   }
   return nullptr;
 }
@@ -145,8 +144,7 @@ IAction* StateLockedHandleInput(const InputBuffer& rawInput, const StateComponen
 
   if (context.hitThisFrame)
   {
-    int neutralFrame = context.frameData.active + context.frameData.recover + 1;
-    return new OnRecvHitAction<StanceState::STANDING, ActionState::HITSTUN>("HeavyHitstun", context.onLeftSide, neutralFrame + context.frameData.onHitAdvantage, context.frameData.knockback);
+    return new OnRecvHitAction<StanceState::STANDING, ActionState::HITSTUN>("HeavyHitstun", context.onLeftSide, context.hitData.framesInStunHit, context.hitData.knockback);
   }
 
   if (action->GetStance() == StanceState::JUMPING)

@@ -66,6 +66,16 @@ struct FrameData : public IJsonLoadable
   }
 };
 
+//! Holds the data for one frame of attack that is hitting opponent
+struct HitData
+{
+  // how many frames from the moment you get hit will you be unable to do another action
+  int framesInStunBlock, framesInStunHit;
+  Vector2<float> knockback;
+  int damage;
+
+};
+
 enum class AnchorPoint
 {
   TL, TR, BL, BR, Size
@@ -181,7 +191,14 @@ struct AnimationInfo : public IJsonLoadable
 
 
 // placeholder right now for attacks that will create an entity
-struct EntityCreationData {};
+struct EntityCreationData
+{
+  struct AttachComponentInstruction
+  {
+    std::string componentName;
+
+  };
+};
 
 struct AnimationActionEventData : public IJsonLoadable
 {

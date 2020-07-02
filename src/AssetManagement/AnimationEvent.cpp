@@ -34,7 +34,12 @@ EventList AnimationEventHelper::BuildEventList(const Vector2<int> offset, const 
     {
       if (counter == 0)
       {
-        startFrame = animationData.sheetFrameToRealFrame[i][0];
+        int finder = 0;
+        while (animationData.sheetFrameToRealFrame[i + finder].empty())
+        {
+          finder++;
+        }
+        startFrame = animationData.sheetFrameToRealFrame[i + finder][0];
         trigger = callback;
       }
 
@@ -122,9 +127,7 @@ EventBuilderDictionary AnimationEventHelper::ParseAnimationEventList(const std::
     {
       if (startUpFrames != -1)
       {
-
-        if (activeFrames == -1)
-          activeFrames = i - startUpFrames + 1;
+        activeFrames = i - startUpFrames + 1;
       }
       else
       {

@@ -273,7 +273,7 @@
 		],
 		"framedata" : 
 		{
-			"active" : 3,
+			"active" : 4,
 			"damage" : 10,
 			"hitstop" : 10,
 			"knockback" : 
@@ -637,7 +637,7 @@
 		],
 		"framedata" : 
 		{
-			"active" : 5,
+			"active" : 6,
 			"damage" : 10,
 			"hitstop" : 10,
 			"knockback" : 
@@ -1007,13 +1007,19 @@
 			},
 			{},
 			{},
-			{},
+			{
+				"movement" : 
+				{
+					"x" : -50,
+					"y" : 0
+				}
+			},
 			{},
 			{}
 		],
 		"framedata" : 
 		{
-			"active" : 3,
+			"active" : 28,
 			"damage" : 10,
 			"hitstop" : 10,
 			"knockback" : 
@@ -1023,7 +1029,7 @@
 			},
 			"onblock" : -6,
 			"onhit" : 5,
-			"recovery" : 48,
+			"recovery" : 20,
 			"startup" : 5
 		},
 		"numFrames" : 27,

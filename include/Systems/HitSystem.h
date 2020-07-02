@@ -49,11 +49,15 @@ public:
 
           // change the state variable that will be evaluated on the processing of inputs. probably a better way to do this...
           hurtboxController->hitThisFrame = true;
-          hurtboxController->frameData = hitbox->frameData;
+          int framesTilNeutral = hitbox->frameData.active + hitbox->frameData.recover + 1;
+          hurtboxController->hitData.framesInStunBlock = framesTilNeutral + hitbox->frameData.onBlockAdvantage;
+          hurtboxController->hitData.framesInStunHit = framesTilNeutral + hitbox->frameData.onHitAdvantage;
+          hurtboxController->hitData.damage = hitbox->frameData.damage;
+          hurtboxController->hitData.knockback = hitbox->frameData.knockback;
 
           // this needs to be made better
           if (strikeDir < 0)
-            hurtboxController->frameData.knockback.x = -hitbox->frameData.knockback.x;
+            hurtboxController->hitData.knockback.x = -hitbox->frameData.knockback.x;
 
           GameManager::Get().ActivateHitStop(hitbox->frameData.hitstop);
         }

@@ -105,6 +105,7 @@ public:
           if (nextFrame != animator->frame)
           {
             animator->frame = nextFrame;
+            renderer->SetRenderResource(animator->GetCurrentAnimation().GetSheetTexture<RenderType>());
             renderer->sourceRect = animator->GetCurrentAnimation().GetFrameSrcRect(animator->frame);
           }
 

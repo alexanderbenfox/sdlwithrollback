@@ -33,7 +33,7 @@ public:
   //! Defender hit state information
   bool hitThisFrame = false;
   bool hitOnLeftSide = false;
-  FrameData frameData;
+  HitData hitData;
 
   //! Attacker state information
   bool hitting = false;
@@ -88,7 +88,7 @@ inline StateComponent& StateComponent::operator=(const StateComponent& other)
   this->collision = other.collision;
   this->hitThisFrame = other.hitThisFrame;
   this->hitOnLeftSide = other.hitOnLeftSide;
-  this->frameData = other.frameData;
+  this->hitData = other.hitData;
   this->hitting = other.hitting;
   this->hp = other.hp;
   this->actionState = other.actionState;
@@ -103,7 +103,7 @@ inline StateComponent& StateComponent::operator=(StateComponent&& other) noexcep
   this->collision = other.collision;
   this->hitThisFrame = other.hitThisFrame;
   this->hitOnLeftSide = other.hitOnLeftSide;
-  this->frameData = other.frameData;
+  this->hitData = other.hitData;
   this->hitting = other.hitting;
   this->hp = other.hp;
   this->actionState = other.actionState;

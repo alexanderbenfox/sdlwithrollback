@@ -41,8 +41,11 @@ public:
 
   void SetRenderResource(Resource<TextureType>& resource)
   {
-    _resource.reset();
-    _resource = std::unique_ptr<ResourceWrapper<TextureType>>(new ResourceWrapper<TextureType>(resource));
+    if (_resource == nullptr || &_resource->GetResource() != &resource)
+    {
+      _resource.reset();
+      _resource = std::unique_ptr<ResourceWrapper<TextureType>>(new ResourceWrapper<TextureType>(resource));
+    }
   }
 
   Resource<TextureType>* GetRenderResource()
