@@ -20,8 +20,6 @@ class Animation
 public:
   Animation(const SpriteSheet& sheet, int startIndexOnSheet, int frames, AnchorPoint anchor);
 
-  EventList GenerateEvents(const char* hitboxesSheet, FrameData frameData);
-
   EventList GenerateEvents(const std::vector<AnimationActionEventData>& attackInfo, FrameData frameData);
 
   //! Translates anim frame to the frame on spritesheet
@@ -87,9 +85,7 @@ class AnimationCollection
 public:
   AnimationCollection() = default;
   void RegisterAnimation(const std::string& animationName, const SpriteSheet& sheet, int startIndexOnSheet, int frames, AnchorPoint anchor);
-  void SetHitboxEvents(const std::string& animationName, const char* hitboxesSheet, FrameData frameData);
-  void LoadCollectionFromJson(const std::string& spriteSheetJsonLocation, const std::string& movesetJsonLocation);
-
+  void SetAnimationEvents(const std::string& animationName, const std::vector<AnimationActionEventData>& eventData, const FrameData& frameData);
 
   Vector2<int> GetRenderOffset(const std::string& animationName, bool flipped, int transformWidth) const;
   //! Getters
@@ -120,6 +116,12 @@ public:
   bool IsValid(const std::unordered_map<std::string, Animation>::iterator& it)
   {
     return it != _animations.end();
+  }
+
+  void Clear()
+  {
+    _animations.clear();
+    _events.clear();
   }
 
 private:

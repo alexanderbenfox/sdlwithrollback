@@ -3,11 +3,6 @@
 #include "ComponentConst.h"
 #include "AssetManagement/Animation.h"
 
-struct AnimationDebuggingInfo
-{
-  int frame;
-};
-
 const SpriteSheet idleAndWalking("spritesheets\\idle_and_walking.png", 6, 6, false);
 const SpriteSheet jumpFall("spritesheets\\idle_walking_jab_jump_crouch.png", 8, 10, false);
 const SpriteSheet crouching("spritesheets\\crouching.png", 4, 5, false);
@@ -27,6 +22,7 @@ class RyuConfig : public ICharacterConfig
 public:
   //!
   static AnimationCollection& Animations();
+  static void Reload();
   //!
   static float moveSpeed;
   //!
@@ -37,7 +33,7 @@ protected:
   //!
   static std::unordered_map<std::string, AnimationInfo> normalAnimations;
   //! contains animation info, frame data, and hitbox sheet
-  static std::unordered_map<std::string, std::tuple<AnimationInfo, FrameData, std::string, AnimationDebuggingInfo>> attackAnimations;
+  static std::unordered_map<std::string, AttackAnimationData> attackAnimations;
 
   static bool _animLoaded;
   static AnimationCollection _animations;

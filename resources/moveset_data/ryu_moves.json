@@ -530,8 +530,8 @@
 			{
 				"movement" : 
 				{
-					"x" : 20,
-					"y" : -900
+					"x" : 20.0,
+					"y" : -900.0
 				}
 			},
 			{},
@@ -637,7 +637,7 @@
 		],
 		"framedata" : 
 		{
-			"active" : 6,
+			"active" : 15,
 			"damage" : 10,
 			"hitstop" : 10,
 			"knockback" : 
@@ -659,19 +659,37 @@
 		"anchor" : "BL",
 		"events" : 
 		[
+			{},
+			{},
 			{
 				"movement" : 
 				{
-					"x" : 50,
+					"x" : 5,
+					"y" : 0
+				}
+			},
+			{
+				"movement" : 
+				{
+					"x" : 10,
+					"y" : 0
+				}
+			},
+			{
+				"movement" : 
+				{
+					"x" : 20,
 					"y" : 0
 				}
 			},
 			{},
-			{},
-			{},
-			{},
-			{},
-			{},
+			{
+				"movement" : 
+				{
+					"x" : 80,
+					"y" : 0
+				}
+			},
 			{
 				"hitbox" : 
 				{
@@ -700,6 +718,11 @@
 						"x" : 64.0,
 						"y" : 30.0
 					}
+				},
+				"movement" : 
+				{
+					"x" : -570,
+					"y" : 0
 				}
 			},
 			{
@@ -730,11 +753,34 @@
 						"x" : 64.0,
 						"y" : 30.0
 					}
+				},
+				"movement" : 
+				{
+					"x" : 10,
+					"y" : 0
 				}
 			},
-			{},
-			{},
-			{},
+			{
+				"movement" : 
+				{
+					"x" : 50,
+					"y" : 0
+				}
+			},
+			{
+				"movement" : 
+				{
+					"x" : -1,
+					"y" : 0
+				}
+			},
+			{
+				"movement" : 
+				{
+					"x" : -15,
+					"y" : 0
+				}
+			},
 			{}
 		],
 		"framedata" : 
@@ -749,8 +795,8 @@
 			},
 			"onblock" : -6,
 			"onhit" : 15,
-			"recovery" : 23,
-			"startup" : 20
+			"recovery" : 28,
+			"startup" : 25
 		},
 		"numFrames" : 15,
 		"spritesheet" : "spritesheets\\special_moves.png",

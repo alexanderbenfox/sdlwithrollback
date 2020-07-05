@@ -42,21 +42,9 @@ Animation::Animation(const SpriteSheet& sheet, int startIndexOnSheet, int frames
 }
 
 //______________________________________________________________________________
-EventList Animation::GenerateEvents(const char* hitboxesSheet, FrameData frameData)
-{
-  std::vector<Rect<double>> hitboxes = GetHitboxesFromFile(hitboxesSheet);
-  std::vector<AnimationActionEventData> eventData;
-  eventData.resize(hitboxes.size());
-  for (int i = 0; i < hitboxes.size(); i++)
-  {
-    eventData[i].hitbox = hitboxes[i];
-  }
-  return GenerateEvents(eventData, frameData);
-}
-
-//______________________________________________________________________________
 EventList Animation::GenerateEvents(const std::vector<AnimationActionEventData>& attackInfo, FrameData frameData)
 {
+  animationEvents = attackInfo;
   return AnimationEventHelper::BuildEventList(Vector2<int>(_lMargin, _tMargin), attackInfo, frameData, _frames, _animFrameToSheetFrame);
 }
 
@@ -159,34 +147,6 @@ Animation::ImGuiDisplayParams Animation::GetUVCoordsForFrame(int displayHeight, 
 }
 
 //______________________________________________________________________________
-std::vector<Rect<double>> Animation::GetHitboxesFromFile(const char* hitboxesSheet)
-{
-  std::vector<Rect<double>> rects;
-  rects.reserve(std::size_t(_frames + 1));
-
-  std::string hitBoxFile = hitboxesSheet;
-#ifndef _WIN32
-  auto split = StringUtils::Split(hitBoxFile, '\\');
-  if (split.size() > 1)
-    hitBoxFile = StringUtils::Connect(split.begin(), split.end(), '/');
-#endif
-  Resource<SDL_Texture> hitboxes = Resource<SDL_Texture>(ResourceManager::Get().GetResourcePath() + hitBoxFile);
-  hitboxes.Load();
-  if (hitboxes.IsLoaded())
-  {
-    for (int i = 0; i < _frames; i++)
-    {
-      int x = (_startIdx + i) % _spriteSheet.columns;
-      int y = (_startIdx + i) / _spriteSheet.columns;
-
-      Rect<double> hitbox = ResourceManager::FindRect(hitboxes, _spriteSheet.frameSize, Vector2<int>(x * _spriteSheet.frameSize.x, y * _spriteSheet.frameSize.y));
-      rects.push_back(hitbox);
-    }
-  }
-  return rects;
-}
-
-//______________________________________________________________________________
 void AnimationCollection::RegisterAnimation(const std::string& animationName, const SpriteSheet& sheet, int startIndexOnSheet, int frames, AnchorPoint anchor)
 {
   if (_animations.find(animationName) == _animations.end())
@@ -206,82 +166,19 @@ void AnimationCollection::RegisterAnimation(const std::string& animationName, co
 }
 
 //______________________________________________________________________________
-void AnimationCollection::SetHitboxEvents(const std::string& animationName, const char* hitboxesSheet, FrameData frameData)
+void AnimationCollection::SetAnimationEvents(const std::string& animationName, const std::vector<AnimationActionEventData>& eventData, const FrameData& frameData)
 {
   if (_animations.find(animationName) != _animations.end())
   {
     Animation& animation = _animations.find(animationName)->second;
-    if(_events.find(animationName) == _events.end())
+    if (_events.find(animationName) == _events.end())
     {
-      _events.emplace(std::make_pair(animationName, std::make_shared<EventList>(animation.GenerateEvents(hitboxesSheet, frameData))));
+      _events.emplace(std::make_pair(animationName, std::make_shared<EventList>(animation.GenerateEvents(eventData, frameData))));
     }
     else
     {
       //for now just replace
-      _events[animationName] = std::make_shared<EventList>(animation.GenerateEvents(hitboxesSheet, frameData));
-    }
-  }
-}
-
-//______________________________________________________________________________
-void AnimationCollection::LoadCollectionFromJson(const std::string& spriteSheetJsonLocation, const std::string& movesetJsonLocation)
-{
-  std::fstream spriteSheetFile;
-  spriteSheetFile.open(spriteSheetJsonLocation, std::ios::in);
-
-  Json::Value obj;
-  spriteSheetFile >> obj;
-
-  if (obj.isNull())
-    return;
-
-  spriteSheetFile.close();
-
-  std::map<std::string, SpriteSheet> loadedSpriteSheets;
-  for (auto& item : obj)
-  {
-    SpriteSheet sheet;
-    sheet.Load(item);
-    loadedSpriteSheets.emplace(sheet.src, sheet);
-  }
-
-  Json::Value movesetObj;
-  std::fstream movesetFile;
-  movesetFile.open(movesetJsonLocation, std::ios::in);
-  movesetFile >> movesetObj;
-
-  if(movesetObj.isNull())
-    return;
-
-  movesetFile.close();
-
-  for (auto& member : movesetObj.getMemberNames())
-  {
-    std::string animName = member;
-    Json::Value& item = movesetObj[animName];
-
-    if (item.isMember("framedata"))
-    {
-      AttackAnimationData data;
-      data.Load(item);
-      RegisterAnimation(animName, loadedSpriteSheets[data.loadingInfo.sheetLocation], data.loadingInfo.startIndexOnSheet, data.loadingInfo.frames, data.loadingInfo.anchor);
-
-      Animation& animation = _animations.find(animName)->second;
-      if (_events.find(animName) == _events.end())
-      {
-        _events.emplace(std::make_pair(animName, std::make_shared<EventList>(animation.GenerateEvents(data.eventData, data.frameData))));
-      }
-      else
-      {
-        //for now just replace
-        _events[animName] = std::make_shared<EventList>(animation.GenerateEvents(data.eventData, data.frameData));
-      }
-    }
-    else
-    {
-      AnimationInfo info;
-      info.Load(item);
-      RegisterAnimation(animName, loadedSpriteSheets[info.sheetLocation], info.startIndexOnSheet, info.frames, info.anchor);
+      _events[animationName] = std::make_shared<EventList>(animation.GenerateEvents(eventData, frameData));
     }
   }
 }

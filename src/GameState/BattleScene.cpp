@@ -50,6 +50,10 @@ BattleScene::~BattleScene()
   // we are moving into the after match cutscene, so only remove game state related components
   _p1->RemoveComponents<GameActor, Hurtbox, StateComponent, UIContainer, TimerContainer>();
   _p2->RemoveComponents<GameActor, Hurtbox, StateComponent, UIContainer, TimerContainer>();
+
+  //_p1->RemoveComponents<Animator, RenderComponent<RenderType>, RenderProperties, Rigidbody, GameActor, DynamicCollider, Hurtbox, StateComponent, UIContainer, TimerContainer, Transform>();
+  //_p1->RemoveComponents<Animator, RenderComponent<RenderType>, RenderProperties, Rigidbody, GameActor, DynamicCollider, Hurtbox, StateComponent, UIContainer, TimerContainer, Transform>();
+
 }
 
 void BattleScene::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2)
@@ -119,6 +123,9 @@ void BattleScene::InitCharacter(Vector2<float> position, std::shared_ptr<Entity>
 {
   Vector2<int> textureSize = ResourceManager::Get().GetTextureWidthAndHeight("spritesheets\\ryu.png");
   Vector2<double> entitySize(static_cast<double>(textureSize.x) * .75, static_cast<double>(textureSize.y) * .95);
+
+  // quick hack to make the debug stuff for attacks work... need to remove eventually
+  player->RemoveComponents<Transform, Animator>();
 
   player->AddComponents<Transform, GameInputComponent, Animator, RenderComponent<RenderType>, RenderProperties, Rigidbody, GameActor, DynamicCollider, Hurtbox, StateComponent>();
   player->AddComponents<UIContainer, TimerContainer>();

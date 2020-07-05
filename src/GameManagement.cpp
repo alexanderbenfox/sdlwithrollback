@@ -351,6 +351,12 @@ void GameManager::RequestSceneChange(SceneType newSceneType)
 //______________________________________________________________________________
 void GameManager::ChangeScene(SceneType scene)
 {
+  _currentScene.reset();
+
+  for (auto& func : _onSceneChangeFunctionQueue)
+    func();
+  _onSceneChangeFunctionQueue.clear();
+
   _currentScene = std::unique_ptr<IScene>(SceneHelper::CreateScene(scene));
   _currentScene->Init(_p1, _p2);
   _currentSceneType = scene;

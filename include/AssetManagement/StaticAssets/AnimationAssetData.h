@@ -240,6 +240,8 @@ struct AnimationActionEventData : public IJsonLoadable
 
 struct AttackAnimationData : public IJsonLoadable
 {
+  AttackAnimationData() = default;
+  AttackAnimationData(AnimationInfo animInfo, FrameData fData) : loadingInfo(animInfo), frameData(fData) {}
   AnimationInfo loadingInfo;
   FrameData frameData;
   std::vector<AnimationActionEventData> eventData;
