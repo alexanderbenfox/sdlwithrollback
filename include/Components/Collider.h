@@ -8,19 +8,7 @@ class ICollider : public IComponent
 public:
   ICollider(std::shared_ptr<Entity> entity) : IComponent(entity) {}
 
-  virtual void RegisterOnCollision(std::function<void(ICollider*)> onCollisionEvent)
-  {
-    _onCollisionCallbacks.push_back(onCollisionEvent);
-  }
-
-  virtual void OnCollision(ICollider* other)
-  {
-    for (auto& callback : _onCollisionCallbacks)
-      callback(other);
-  }
-
-protected:
-  std::vector<std::function<void(ICollider*)>> _onCollisionCallbacks;
+  virtual void OnCollision(ICollider* other) = 0;
 
 };
 
@@ -31,6 +19,8 @@ class RectCollider : public ICollider
 public:
   //!
   RectCollider(std::shared_ptr<Entity> entity) : ICollider(entity) {}
+  //!
+  virtual void OnCollision(ICollider* other) override {}
   //!
   void Init(Vector2<T> beg, Vector2<T> end);
   void MoveToTransform(const Transform& transform) { rect.CenterOnPoint(transform.position); }

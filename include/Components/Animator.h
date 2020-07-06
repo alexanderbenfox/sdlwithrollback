@@ -47,3 +47,17 @@ protected:
   std::unordered_map<std::string, Animation>::iterator _currentAnimation;
 
 };
+
+template <> struct ComponentInitParams<Animator>
+{
+  AnimationCollection* collection;
+  std::string name;
+  bool isLooped;
+  bool horizontalFlip;
+  float speed = 1.0f;
+  static void Init(Animator& component, const ComponentInitParams<Animator>& params)
+  {
+    component.SetAnimations(params.collection);
+    component.Play(params.name, params.isLooped, params.horizontalFlip, params.speed);
+  }
+};

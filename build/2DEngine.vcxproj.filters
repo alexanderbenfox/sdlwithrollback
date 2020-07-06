@@ -189,6 +189,12 @@
     <ClCompile Include="..\src\AssetManagement\AnimationEvent.cpp">
       <Filter>Source Files\AssetManagement</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\AssetManagement\StaticAssets\AnimationAssetData.cpp">
+      <Filter>Source Files\AssetManagement\StaticAssets</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Components\Transform.cpp">
+      <Filter>Source Files\Components</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\AssetManagement\Resource.h">

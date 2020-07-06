@@ -44,12 +44,20 @@ public:
 
   void DestroyEntity(std::shared_ptr<Entity> entity);
 
+  
+
   //! request scene change at end of update loop
   void RequestSceneChange(SceneType newSceneType);
   //! Schedules a function to be ran when scene is changed
   void TriggerOnSceneChange(std::function<void()> function)
   {
     _onSceneChangeFunctionQueue.push_back(function);
+  }
+
+  //! Schedules some functor to be called at the end of the update loop
+  void TriggerEndOfFrame(std::function<void()> function)
+  {
+    _endOfFrameQueue.push_back(function);
   }
 
   
@@ -79,7 +87,7 @@ private:
   //
   bool _sceneChangeRequested = false;
   //
-  std::vector<std::function<void()>> _onSceneChangeFunctionQueue;
+  std::vector<std::function<void()>> _onSceneChangeFunctionQueue, _endOfFrameQueue;
   
 
   //______________________________________________________________________________

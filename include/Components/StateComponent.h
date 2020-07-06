@@ -11,6 +11,19 @@ struct LoserComponent : public IComponent
   LoserComponent(std::shared_ptr<Entity> owner) : IComponent(owner) {}
 };
 
+//! marks which team the entity is on (team A == player 1 and team B == player 2)
+struct TeamComponent : public IComponent
+{
+  enum class Team
+  {
+    TeamA, TeamB
+  };
+  TeamComponent(std::shared_ptr<Entity> owner) : IComponent(owner) {}
+
+  Team team;
+  bool playerEntity = false;
+};
+
 //! hitbox is the area that will hit the opponent
 class StateComponent : public IComponent, public DebugItem
 {

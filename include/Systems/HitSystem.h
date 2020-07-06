@@ -4,7 +4,7 @@
 #include "Components/Hurtbox.h"
 #include "Components/StateComponent.h"
 
-class HitSystem : public IMultiSystem<SysComponents<Hurtbox, StateComponent>, SysComponents<Hitbox, Hurtbox, StateComponent>>
+class HitSystem : public IMultiSystem<SysComponents<Hurtbox, StateComponent, TeamComponent>, SysComponents<Hitbox, Hurtbox, StateComponent, TeamComponent>>
 {
 public:
   static void DoTick(float dt)
@@ -24,14 +24,16 @@ public:
     {
       StateComponent* hurtboxController = std::get<StateComponent*>(tuple.second);
       Hurtbox* hurtbox = std::get<Hurtbox*>(tuple.second);
+      TeamComponent* hurtboxTeam = std::get<TeamComponent*>(tuple.second);
       
       for(auto subTuple : SubSystem::Tuples)
       {
         Hitbox* hitbox = std::get<Hitbox*>(subTuple.second);
         StateComponent* hitboxController = std::get<StateComponent*>(subTuple.second);
         Hurtbox* hitterHurtbox = std::get<Hurtbox*>(subTuple.second);
+        TeamComponent* hitterTeam = std::get<TeamComponent*>(subTuple.second);
 
-        if (hurtboxController == hitboxController)
+        if (hurtboxTeam->team == hitterTeam->team)
           continue;
 
         hitboxController->hitting = false;
@@ -49,17 +51,16 @@ public:
 
           // change the state variable that will be evaluated on the processing of inputs. probably a better way to do this...
           hurtboxController->hitThisFrame = true;
-          int framesTilNeutral = hitbox->frameData.active + hitbox->frameData.recover + 1;
-          hurtboxController->hitData.framesInStunBlock = framesTilNeutral + hitbox->frameData.onBlockAdvantage;
-          hurtboxController->hitData.framesInStunHit = framesTilNeutral + hitbox->frameData.onHitAdvantage;
-          hurtboxController->hitData.damage = hitbox->frameData.damage;
-          hurtboxController->hitData.knockback = hitbox->frameData.knockback;
+          hurtboxController->hitData = hitbox->hitData;
 
           // this needs to be made better
           if (strikeDir < 0)
-            hurtboxController->hitData.knockback.x = -hitbox->frameData.knockback.x;
+            hurtboxController->hitData.knockback.x = -hitbox->hitData.knockback.x;
 
-          GameManager::Get().ActivateHitStop(hitbox->frameData.hitstop);
+          GameManager::Get().ActivateHitStop(10);
+
+          //! this will trigger self-destruction if this entity is intended to be destroyed on hit
+          hitbox->OnCollision(hurtbox);
         }
       }
     }

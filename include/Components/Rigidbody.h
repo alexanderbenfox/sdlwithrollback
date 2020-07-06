@@ -59,7 +59,8 @@ public:
   void Init(bool useGravity)
   {
     _useGravity = useGravity;
-    _addedAccel = UniversalPhysicsSettings::Get().Gravity;
+    if(_useGravity)
+      _addedAccel = UniversalPhysicsSettings::Get().Gravity;
   }
 
   CollisionSide _lastCollisionSide;
@@ -68,7 +69,7 @@ public:
   //!
   Vector2<float> _acc;
   //!
-  float _addedAccel;
+  float _addedAccel = 0.0f;
   //!
   bool _useGravity;
   //!
@@ -79,4 +80,24 @@ public:
   friend std::ostream& operator<<(std::ostream& os, const Rigidbody& rb);
   friend std::istream& operator>>(std::istream& is, Rigidbody& rb);
 
+};
+
+template <> struct ComponentInitParams<DynamicCollider>
+{
+  Vector2<float> size;
+  static void Init(DynamicCollider& component, const ComponentInitParams<DynamicCollider>& params)
+  {
+    component.Init(Vector2<double>::Zero, params.size);
+  }
+};
+
+template <> struct ComponentInitParams<Rigidbody>
+{
+  Vector2<float> velocity;
+  bool useGravity;
+  static void Init(Rigidbody& component, const ComponentInitParams<Rigidbody>& params)
+  {
+    component._vel = params.velocity;
+    component.Init(params.useGravity);
+  }
 };

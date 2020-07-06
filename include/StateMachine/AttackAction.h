@@ -19,14 +19,7 @@ public:
   //! Adds attack state component
   virtual void Enact(Entity* actor) override;
   //! Checks for special cancels
-  virtual IAction* HandleInput(const InputBuffer& rawInput, const StateComponent& context) override
-  {
-    IAction* action = CheckForSpecialCancel(rawInput, context);
-    if (!action)
-      return StateLockedAnimatedAction<Stance, Action>::HandleInput(rawInput, context);
-    return action;
-  }
-
+  virtual IAction* HandleInput(const InputBuffer& rawInput, const StateComponent& context) override;
 protected:
 
   //! Removes attack state component
@@ -84,6 +77,21 @@ inline void AttackAction<Stance, Action>::Enact(Entity* actor)
       actor->GetComponent<AttackStateComponent>()->Init(animator->AnimationLib()->GetAnimation(AnimatedAction<Stance, Action>::_animation), animator->AnimationLib()->GetEventList(AnimatedAction<Stance, Action>::_animation));
     }
   }
+}
+
+//______________________________________________________________________________
+template <StanceState Stance, ActionState Action>
+inline IAction* AttackAction<Stance, Action>::HandleInput(const InputBuffer& rawInput, const StateComponent& context)
+{
+  IAction* action = nullptr;
+
+  // if we are hitting, we can cancel the remaining recovery and active frames into a special move
+  if (context.hitting)
+    action = CheckSpecials(rawInput, context);
+
+  if (!action)
+    return StateLockedAnimatedAction<Stance, Action>::HandleInput(rawInput, context);
+  return action;
 }
 
 //______________________________________________________________________________

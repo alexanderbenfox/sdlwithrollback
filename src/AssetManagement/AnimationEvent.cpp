@@ -1,6 +1,7 @@
 #include "AssetManagement/AnimationEvent.h"
 #include "Components/Hitbox.h"
 #include "Components/Rigidbody.h"
+#include "GameManagement.h"
 
 //______________________________________________________________________________
 EventList AnimationEventHelper::BuildEventList(const Vector2<int> offset, const std::vector<AnimationActionEventData>& animEventData, const FrameData& frameData, int totalSheetFrames, std::vector<int>& animFrameToSheetFrame)
@@ -28,7 +29,15 @@ EventList AnimationEventHelper::BuildEventList(const Vector2<int> offset, const 
   int startFrame = 0;
   int counter = 0;
 
-  auto eventCheck = [&startFrame, &counter, &eventList, &animationData, &trigger, &updates](int i, const std::function<void(Transform*)>& onComplete, const std::function<void(Transform*, StateComponent*)>& callback, bool conditionMet)
+  auto addEventToList = [&startFrame, &counter, &updates, &eventList, &trigger](const std::function<void(Transform*)>& onComplete)
+  {
+    eventList[startFrame].emplace_back(startFrame, counter, trigger, updates, onComplete);
+    updates.clear();
+    counter = 0;
+    startFrame = 0;
+  };
+
+  auto eventCheck = [addEventToList, &startFrame, &counter, &eventList, &animationData, &trigger, &updates](int i, const std::function<void(Transform*)>& onComplete, const std::function<void(Transform*, StateComponent*)>& callback, bool conditionMet)
   {
     if (conditionMet)
     {
@@ -59,9 +68,7 @@ EventList AnimationEventHelper::BuildEventList(const Vector2<int> offset, const 
     }
     else if (counter > 0)
     {
-      eventList[startFrame].emplace_back(startFrame, counter, trigger, updates, onComplete);
-      updates.clear();
-      counter = 0;
+      addEventToList(onComplete);
     }
   };
 
@@ -73,7 +80,11 @@ EventList AnimationEventHelper::BuildEventList(const Vector2<int> offset, const 
     std::function<void(Transform*, StateComponent*)> hitboxUpdateFunc = [hitbox, frameData, offset](Transform* trans, StateComponent* state)
     {
       trans->AddComponent<Hitbox>();
-      trans->GetComponent<Hitbox>()->frameData = frameData;
+      int framesTilNeutral = frameData.active + frameData.recover + 1;
+      trans->GetComponent<Hitbox>()->hitData.framesInStunBlock = framesTilNeutral + frameData.onBlockAdvantage;
+      trans->GetComponent<Hitbox>()->hitData.framesInStunHit = framesTilNeutral + frameData.onHitAdvantage;
+      trans->GetComponent<Hitbox>()->hitData.damage = frameData.damage;
+      trans->GetComponent<Hitbox>()->hitData.knockback = frameData.knockback;
 
       Rect<double> hitboxBoundsRelativeToAnim(hitbox.beg.x * trans->scale.x, hitbox.beg.y * trans->scale.y, hitbox.end.x * trans->scale.x, hitbox.end.y * trans->scale.y);
       Vector2<float> transCenterRelativeToAnim(trans->rect.HalfWidth() + offset.x * trans->scale.x, trans->rect.HalfHeight() + offset.y * trans->scale.y);
@@ -87,6 +98,9 @@ EventList AnimationEventHelper::BuildEventList(const Vector2<int> offset, const 
 
     eventCheck(i, DespawnHitbox, hitboxUpdateFunc, hitboxCondition);
   }
+
+  if (counter > 0)
+    addEventToList(DespawnHitbox);
 
   for (int i = 0; i < animFrames; i++)
   {
@@ -105,6 +119,35 @@ EventList AnimationEventHelper::BuildEventList(const Vector2<int> offset, const 
 
     eventCheck(i, EndMovement, movementEvent, mvmtCondition);
   }
+
+  if (counter > 0)
+    addEventToList(EndMovement);
+
+  // create entity section
+  for (int i = 0; i < animFrames; i++)
+  {
+    const EntityCreationData& data = animEventData[i].create;
+    // remove all children as the work around
+    auto DestroyCreatedEntity = [](Transform* trans) { /*trans->RemoveAllChildren();*/ };
+
+    if (!data.instructions.empty())
+    {
+      auto creationEvent = [data](Transform* trans, StateComponent* state)
+      {
+        std::shared_ptr<Entity> eventEntity = GameManager::Get().CreateEntity<>();
+        data.AddComponents(trans, state, eventEntity);
+        //trans->AddChild(eventEntity);
+      };
+
+      int finder = 0;
+      while (animationData.sheetFrameToRealFrame[i + finder].empty())
+        finder++;
+
+      startFrame = animationData.sheetFrameToRealFrame[i + finder][0];
+      eventList[startFrame].emplace_back(startFrame, 1, creationEvent, updates, DestroyCreatedEntity);
+    }
+  }
+
   return eventList;
 }
 
@@ -122,8 +165,7 @@ EventBuilderDictionary AnimationEventHelper::ParseAnimationEventList(const std::
   // first find where the hitbox comes out so we know our first active frame
   for (int i = 0; i < animEventData.size(); i++)
   {
-    const Rect<double>& hitbox = animEventData[i].hitbox;
-    if (hitbox.Area() != 0)
+    if (animEventData[i].isActive)
     {
       if (startUpFrames != -1)
       {

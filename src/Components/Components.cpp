@@ -155,22 +155,6 @@ bool GameActor::EvaluateInputContext(const InputBuffer& input, const StateCompon
   return false;
 }
 
-std::ostream& operator<<(std::ostream& os, const Transform& transform)
-{
-  os << transform.position;
-  os << transform.scale;
-  os << transform.rotation;
-  return os;
-}
-
-std::istream& operator>>(std::istream& is, Transform& transform)
-{
-  is >> transform.position;
-  is >> transform.rotation;
-  is >> transform.scale;
-  return is;
-}
-
 std::ostream& operator<<(std::ostream& os, const GameActor& actor)
 {
   // need to figure out how to get the "_currentAction" into a serializable state...

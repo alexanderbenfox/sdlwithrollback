@@ -84,6 +84,17 @@ std::unordered_map<std::string, AttackAnimationData> RyuConfig::attackAnimations
     FrameData(7, 18, 4, 5, -6, 10, Vector2<float>(400.0f, 100.0f), hitstopHeavy)) },
 };
 
+AnimationCollection& RyuConfig::FireballAnimations()
+{
+  if (!_fireballsLoaded)
+  {
+    AnimationInfo fireballNormal(fireballSheet.src, fireballSheet, 0, 4, AnchorPoint::BL);
+    StaticAssetUtils::LoadNormal("Normal", fireballNormal, _fireballAnimations);
+    _fireballsLoaded = true;
+  }
+  return _fireballAnimations;
+}
+
 AnimationCollection& RyuConfig::Animations()
 {
   if (!_animLoaded)
@@ -101,5 +112,7 @@ void RyuConfig::Reload()
 }
 
 bool RyuConfig::_animLoaded = false;
+bool RyuConfig::_fireballsLoaded = false;
 
 AnimationCollection RyuConfig::_animations;
+AnimationCollection RyuConfig::_fireballAnimations;

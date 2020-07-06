@@ -32,7 +32,7 @@ public:
   //! Increment creation id counter
   Entity() : ComponentBitFlag(0x0), _creationId(EntityID++) {}
   //!
-  ~Entity();
+  ~Entity() = default;
   //!
   void RemoveAllComponents();
   //! Retrieves the components of type specified or nullptr if there is no component of that type present
@@ -41,6 +41,9 @@ public:
   //! Adds the component of the type specified to this entity
   template <typename T = IComponent>
   void AddComponent();
+  //! Adds the component of the type specified to this entity
+  template <typename T = IComponent>
+  void AddComponent(const ComponentInitParams<T>& initParams);
   //! Multi-parameter component add
   template <typename T = IComponent, typename ... Rest>
   void AddComponents();
@@ -53,9 +56,8 @@ public:
   //!
   template <typename ... T>
   std::tuple<std::add_pointer_t<T>...> MakeComponentTuple();
-
-  //! Transform attached to the object defining the position, scale, and rotation of the object
-  // Transform transform;
+  //! Requests the game manager destroys this entity at the end of the frame
+  void DestroySelf();
   //!
   virtual void ParseCommand(const std::string& command) override;
   //!
@@ -105,6 +107,17 @@ inline void Entity::AddComponent()
 
     // see if this needs to be added to the system
     CheckAgainstSystems(this);
+  }
+}
+
+//______________________________________________________________________________
+template <typename T>
+inline void Entity::AddComponent(const ComponentInitParams<T>& initParams)
+{
+  AddComponent<T>();
+  if (_components.find(std::type_index(typeid(T))) != _components.end())
+  {
+    ComponentInitParams<T>::Init(*std::dynamic_pointer_cast<T, IComponent>(_components[std::type_index(typeid(T))]), initParams);
   }
 }
 

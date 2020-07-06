@@ -108,3 +108,17 @@ protected:
   SDL_Color _displayColor;
   
 };
+
+template <> struct ComponentInitParams<RenderProperties>
+{
+  Vector2<int> offsetFromCenter;
+  Uint8 r = 255;
+  Uint8 g = 255;
+  Uint8 b = 255;
+  Uint8 a = 255;
+  static void Init(RenderProperties& component, const ComponentInitParams<RenderProperties>& params)
+  {
+    component.baseRenderOffset = params.offsetFromCenter;
+    component.SetDisplayColor(params.r, params.g, params.b, params.a);
+  }
+};

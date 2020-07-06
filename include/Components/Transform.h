@@ -7,21 +7,16 @@
 //!
 struct Transform : public IComponent
 {
-  Transform(std::shared_ptr<Entity> owner) :
-    position(Vector2<float>(0.0f, 0.0f)),
-    scale(Vector2<float>(1.0f, 1.0f)),
-    rotation(Vector2<float>(0.0f, 0.0f)),
-    rect(), IComponent(owner) {}
+  Transform(std::shared_ptr<Entity> owner);
+  virtual ~Transform();
+
   Vector2<float> position;
   Vector2<float> scale;
   Vector2<float> rotation;
   //! Rect used for anchor points and rendering images in the world
   Rect<float> rect;
 
-  void SetWidthAndHeight(float width, float height)
-  {
-    rect = Rect<float>(0.0f, 0.0f, width, height);
-  }
+  void SetWidthAndHeight(float width, float height);
 
   //!
   template <typename T>
@@ -35,6 +30,22 @@ struct Transform : public IComponent
 
   friend std::ostream& operator<<(std::ostream& os, const Transform& transform);
   friend std::istream& operator>>(std::istream& is, Transform& transform);
+
+};
+
+template <> struct ComponentInitParams<Transform>
+{
+  Vector2<float> position;
+  Vector2<float> scale;
+  Vector2<float> rotation;
+  Vector2<float> size;
+  static void Init(Transform& component, const ComponentInitParams<Transform>& params)
+  {
+    component.position = params.position;
+    component.scale = params.scale;
+    component.rotation = params.rotation;
+    component.SetWidthAndHeight(params.size.x, params.size.y);
+  }
 };
 
 //!

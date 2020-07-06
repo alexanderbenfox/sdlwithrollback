@@ -31,13 +31,13 @@ struct Interpolation
 
 //______________________________________________________________________________
 // partial specialization
-template <StanceState Stance> IAction* GetAttacksFromNeutral(const InputBuffer& rawInput, bool facingRight);
+template <StanceState Stance> IAction* GetAttacksFromNeutral(const InputBuffer& rawInput, const StateComponent& context);
+
+//______________________________________________________________________________
+IAction* CheckSpecials(const InputBuffer& rawInput, const StateComponent& context);
 
 //______________________________________________________________________________
 IAction* CheckHits(const InputState& rawInput, const StateComponent& context);
-
-//______________________________________________________________________________
-IAction* CheckForSpecialCancel(const InputBuffer& rawInput, const StateComponent& context);
 
 //______________________________________________________________________________
 IAction* StateLockedHandleInput(const InputBuffer& rawInput, const StateComponent& context, IAction* action, bool actionComplete);

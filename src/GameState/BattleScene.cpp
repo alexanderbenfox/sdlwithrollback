@@ -127,7 +127,7 @@ void BattleScene::InitCharacter(Vector2<float> position, std::shared_ptr<Entity>
   // quick hack to make the debug stuff for attacks work... need to remove eventually
   player->RemoveComponents<Transform, Animator>();
 
-  player->AddComponents<Transform, GameInputComponent, Animator, RenderComponent<RenderType>, RenderProperties, Rigidbody, GameActor, DynamicCollider, Hurtbox, StateComponent>();
+  player->AddComponents<Transform, GameInputComponent, Animator, RenderComponent<RenderType>, RenderProperties, Rigidbody, GameActor, DynamicCollider, Hurtbox, StateComponent, TeamComponent>();
   player->AddComponents<UIContainer, TimerContainer>();
 
   auto uiContainer = player->GetComponent<UIContainer>();
@@ -240,6 +240,13 @@ void BattleScene::InitCharacter(Vector2<float> position, std::shared_ptr<Entity>
 
   player->GetComponent<DynamicCollider>()->MoveToTransform(*player->GetComponent<Transform>());
   player->GetComponent<Hurtbox>()->MoveToTransform(*player->GetComponent<Transform>());
+
+  if (isPlayer1)
+    player->GetComponent<TeamComponent>()->team = TeamComponent::Team::TeamA;
+  else
+    player->GetComponent<TeamComponent>()->team = TeamComponent::Team::TeamB;
+
+  player->GetComponent<TeamComponent>()->playerEntity = true;
 }
 
 PostMatchScene::~PostMatchScene()

@@ -128,7 +128,7 @@ void PhysicsSystem::AdjustMovementForCollisions( RectColliderD* colliderComponen
   {
     for (auto otherCollider : ComponentManager<DynamicCollider>::Get().All())
     {
-      if (potentialRect.Intersects(otherCollider->rect))
+      if (otherCollider.get() != colliderComponent && potentialRect.Intersects(otherCollider->rect))
       {
         // only check right or left on dynamic colliders
         auto push = GetPushOnDynamicCollision(colliderComponent->rect, otherCollider->rect, movementVector, 0.5);

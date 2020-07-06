@@ -22,7 +22,7 @@ template <> IAction* LoopedAction<StanceState::STANDING, ActionState::NONE>::Han
     return new LoopedAction<StanceState::JUMPING, ActionState::NONE>("Falling", facingRight);
 
   // process attacks before hits so that if you press a button while attacked, you still get attacked
-  IAction* attackAction = GetAttacksFromNeutral<StanceState::STANDING>(rawInput, context.onLeftSide);
+  IAction* attackAction = GetAttacksFromNeutral<StanceState::STANDING>(rawInput, context);
   if (attackAction) return attackAction;
 
   IAction* onHitAction = CheckHits(rawInput.Latest(), context);
@@ -88,7 +88,7 @@ template <> IAction* LoopedAction<StanceState::JUMPING, ActionState::NONE>::Hand
     return new LoopedAction<StanceState::STANDING, ActionState::NONE>("Idle", context.onLeftSide, Vector2<float>(0, 0));
   }
 
-  return GetAttacksFromNeutral<StanceState::JUMPING>(rawInput, _facingRight);
+  return GetAttacksFromNeutral<StanceState::JUMPING>(rawInput, context);
 }
 
 //______________________________________________________________________________
@@ -101,7 +101,7 @@ template <> IAction* LoopedAction<StanceState::CROUCHING, ActionState::NONE>::Ha
     return new LoopedAction<StanceState::JUMPING, ActionState::NONE>("Jumping", facingRight);
   }
 
-  IAction* attackAction = GetAttacksFromNeutral<StanceState::CROUCHING>(rawInput, context.onLeftSide);
+  IAction* attackAction = GetAttacksFromNeutral<StanceState::CROUCHING>(rawInput, context);
   if (attackAction) return attackAction;
 
   IAction* onHitAction = CheckHits(rawInput.Latest(), context);
@@ -156,7 +156,7 @@ template <> IAction* StateLockedAnimatedAction<StanceState::CROUCHING, ActionSta
     return GetFollowUpAction(rawInput, context);
   }
 
-  IAction* attackAction = GetAttacksFromNeutral<StanceState::CROUCHING>(rawInput, context.onLeftSide);
+  IAction* attackAction = GetAttacksFromNeutral<StanceState::CROUCHING>(rawInput, context);
   if (attackAction) return attackAction;
 
   //if you arent attacking, you can move forward, move backward, crouch, stand, jumpf, jumpb, jumpn

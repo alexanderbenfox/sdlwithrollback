@@ -297,6 +297,7 @@ void GameManager::CheckAgainstSystems(Entity* entity)
   MoveSystemPhysCollider::Check(entity);
   MoveSystemHurtbox::Check(entity);
   MoveSystemCamera::Check(entity);
+  MoveSystemHitbox::Check(entity);
   AttackAnimationSystem::Check(entity);
   HitSystem::Check(entity);
   TimerSystem::Check(entity);
@@ -335,8 +336,7 @@ void GameManager::DestroyEntity(std::shared_ptr<Entity> entity)
   auto it = std::find(_gameEntities.begin(), _gameEntities.end(), entity);
   if(it != _gameEntities.end())
   {
-    (*it)->RemoveAllComponents();  
-    long count = it->use_count();
+    (*it)->RemoveAllComponents();
     _gameEntities.erase(it, it + 1);
   }
 }
@@ -379,6 +379,13 @@ void GameManager::PostUpdate()
   {
     ChangeScene(_currentSceneType);
     _sceneChangeRequested = false;
+  }
+
+  if (!_endOfFrameQueue.empty())
+  {
+    for (auto& func : _endOfFrameQueue)
+      func();
+    _endOfFrameQueue.clear();
   }
 }
 

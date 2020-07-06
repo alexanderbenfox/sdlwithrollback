@@ -8,6 +8,31 @@
 std::string StaticAssetUtils::jsonWriteOutLocation = "..\\resources\\moveset_data\\ryu_moves.json";
 bool StaticAssetUtils::loadFromFile = true;
 
+
+void StaticAssetUtils::LoadNormal(const std::string& name, const AnimationInfo& data, AnimationCollection& collection)
+{
+  collection.RegisterAnimation(name, SpriteSheet(data.sheet.src.c_str(), data.sheet.rows, data.sheet.columns), data.startIndexOnSheet, data.frames, data.anchor);
+}
+
+void StaticAssetUtils::LoadAttackAnim(const std::string& name, const AttackAnimationData& data, AnimationCollection& collection)
+{
+  if (StaticAssetUtils::loadFromFile)
+  {
+    collection.RegisterAnimation(name, data.loadingInfo.sheet, data.loadingInfo.startIndexOnSheet, data.loadingInfo.frames, data.loadingInfo.anchor);
+    collection.SetAnimationEvents(name, data.eventData, data.frameData);
+  }
+  else
+  {
+    std::string hitboxSheet = data.loadingInfo.sheet.src;
+    hitboxSheet.erase(hitboxSheet.end() - 4);
+    hitboxSheet += "_hitboxes.png";
+
+    collection.RegisterAnimation(name, SpriteSheet(data.loadingInfo.sheet.src.c_str(), data.loadingInfo.sheet.rows, data.loadingInfo.sheet.columns), data.loadingInfo.startIndexOnSheet, data.loadingInfo.frames, data.loadingInfo.anchor);
+    collection.SetAnimationEvents(name, CreateEventDataFromHitboxSheet(hitboxSheet.c_str(), data), data.frameData);
+  }
+
+}
+
 void StaticAssetUtils::LoadAnimations(std::unordered_map<std::string, AnimationInfo>& normalAnimations, std::unordered_map<std::string, AttackAnimationData>& attackAnimations,
   AnimationCollection& collection)
 {
@@ -20,8 +45,7 @@ void StaticAssetUtils::LoadAnimations(std::unordered_map<std::string, AnimationI
 
   for (auto& anim : normalAnimations)
   {
-    AnimationInfo& params = anim.second;
-    collection.RegisterAnimation(anim.first, SpriteSheet(anim.second.sheet.src.c_str(), anim.second.sheet.rows, anim.second.sheet.columns), params.startIndexOnSheet, params.frames, params.anchor);
+    LoadNormal(anim.first, anim.second, collection);
   }
 
   if (StaticAssetUtils::loadFromFile)
@@ -33,14 +57,7 @@ void StaticAssetUtils::LoadAnimations(std::unordered_map<std::string, AnimationI
   {
     for (auto& anim : attackAnimations)
     {
-      std::string animName = anim.first;
-      AttackAnimationData& data = anim.second;
-      std::string hitboxSheet = data.loadingInfo.sheet.src;
-      hitboxSheet.erase(hitboxSheet.end() - 4);
-      hitboxSheet += "_hitboxes.png";
-
-      collection.RegisterAnimation(anim.first, SpriteSheet(data.loadingInfo.sheet.src.c_str(), data.loadingInfo.sheet.rows, data.loadingInfo.sheet.columns), data.loadingInfo.startIndexOnSheet, data.loadingInfo.frames, data.loadingInfo.anchor);
-      collection.SetAnimationEvents(anim.first, CreateEventDataFromHitboxSheet(hitboxSheet.c_str(), data), data.frameData);
+      LoadAttackAnim(anim.first, anim.second, collection);
     }
   }
 }
@@ -161,10 +178,17 @@ void StaticAssetUtils::LoadCollectionFromJson(AnimationCollection& collection, s
 {
   std::fstream spriteSheetFile;
   spriteSheetFile.open(spriteSheetJsonLocation, std::ios::in);
-
   Json::Value obj;
-  spriteSheetFile >> obj;
 
+  try
+  {
+    spriteSheetFile >> obj;
+  }
+  catch (const Json::RuntimeError& err)
+  {
+    std::cout << "Error parsing Spritesheet file " << spriteSheetJsonLocation << "\nReturned with error: " << err.what() << "\n";
+  }
+  
   if (obj.isNull())
     return;
 
@@ -181,7 +205,15 @@ void StaticAssetUtils::LoadCollectionFromJson(AnimationCollection& collection, s
   Json::Value movesetObj;
   std::fstream movesetFile;
   movesetFile.open(movesetJsonLocation, std::ios::in);
-  movesetFile >> movesetObj;
+
+  try
+  {
+    movesetFile >> movesetObj;
+  }
+  catch (const Json::RuntimeError& err)
+  {
+    std::cout << "Error parsing Move List file " << movesetJsonLocation << "\nReturned with error: " << err.what() << "\n";
+  }
 
   if (movesetObj.isNull())
     return;
@@ -199,9 +231,7 @@ void StaticAssetUtils::LoadCollectionFromJson(AnimationCollection& collection, s
       data = AttackAnimationData();
       data.Load(item);
       data.loadingInfo.sheet = loadedSpriteSheets[data.loadingInfo.sheetLocation];
-
-      collection.RegisterAnimation(animName, data.loadingInfo.sheet, data.loadingInfo.startIndexOnSheet, data.loadingInfo.frames, data.loadingInfo.anchor);
-      collection.SetAnimationEvents(animName, data.eventData, data.frameData);
+      LoadAttackAnim(animName, data, collection);
     }
     else
     {
@@ -221,6 +251,7 @@ std::vector<AnimationActionEventData> StaticAssetUtils::CreateEventDataFromHitbo
   for (int i = 0; i < hitboxes.size(); i++)
   {
     eventData[i].hitbox = hitboxes[i];
+    eventData[i].isActive = true;
   }
   return eventData;
 }

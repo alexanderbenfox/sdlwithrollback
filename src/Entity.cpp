@@ -3,8 +3,6 @@
 #include "Components/Collider.h"
 #include "GameManagement.h"
 
-Entity::~Entity() {}
-
 void Entity::RemoveAllComponents()
 {
   for(auto func : _deleteComponent)
@@ -12,6 +10,11 @@ void Entity::RemoveAllComponents()
     func.second();
   }
   CheckAgainstSystems(this);
+}
+
+void Entity::DestroySelf()
+{
+  GameManager::Get().TriggerEndOfFrame([this]() { GameManager::Get().DestroyEntity(shared_from_this()); });
 }
 
 void Entity::ParseCommand(const std::string& command)

@@ -25,22 +25,12 @@ float Interpolation::Plateau::F(float x, float xMax, float yMax)
 }
 
 //______________________________________________________________________________
-template <> IAction* GetAttacksFromNeutral<StanceState::STANDING>(const InputBuffer& rawInput, bool facingRight)
+template <> IAction* GetAttacksFromNeutral<StanceState::STANDING>(const InputBuffer& rawInput, const StateComponent& context)
 {
-  if (HasState(rawInput.Latest(), InputState::BTN1) || HasState(rawInput.Latest(), InputState::BTN2) || HasState(rawInput.Latest(), InputState::BTN3))
-  {
-    //!!!! TESTING SPECIAL MOVES HERE
-    bool donkeyKick = (rawInput.Evaluate(UnivSpecMoveDict) == SpecialInputState::QCF && facingRight) || (rawInput.Evaluate(UnivSpecMoveDict) == SpecialInputState::QCB && !facingRight);
-    bool tatsu = (rawInput.Evaluate(UnivSpecMoveDict) == SpecialInputState::QCF && !facingRight) || (rawInput.Evaluate(UnivSpecMoveDict) == SpecialInputState::QCB && facingRight);
-    bool dp = (rawInput.Evaluate(UnivSpecMoveDict) == SpecialInputState::DPF && facingRight) || (rawInput.Evaluate(UnivSpecMoveDict) == SpecialInputState::DPB && !facingRight);
-    if (donkeyKick)
-      return new SpecialMoveAttack<StanceState::STANDING, ActionState::NONE>("SpecialMove3", facingRight);
-    else if(tatsu)
-      return new SpecialMoveAttack<StanceState::STANDING, ActionState::NONE>("SpecialMove4", facingRight);
-    else if (dp)
-      return new SpecialMoveAttack<StanceState::STANDING, ActionState::NONE>("SpecialMove2", facingRight);
-  }
+  if (auto specialMove = CheckSpecials(rawInput, context))
+    return specialMove;
 
+  const bool& facingRight = context.onLeftSide;
   // prioritize attacks
   if (HasState(rawInput.Latest(), InputState::BTN1))
   {
@@ -69,34 +59,58 @@ template <> IAction* GetAttacksFromNeutral<StanceState::STANDING>(const InputBuf
 }
 
 //______________________________________________________________________________
-template <> IAction* GetAttacksFromNeutral<StanceState::CROUCHING>(const InputBuffer& rawInput, bool facingRight)
+template <> IAction* GetAttacksFromNeutral<StanceState::CROUCHING>(const InputBuffer& rawInput, const StateComponent& context)
 {
-  return GetAttacksFromNeutral<StanceState::STANDING>(rawInput, facingRight);
+  return GetAttacksFromNeutral<StanceState::STANDING>(rawInput, context);
 }
 
 //______________________________________________________________________________
-template <> IAction* GetAttacksFromNeutral<StanceState::JUMPING>(const InputBuffer& rawInput, bool facingRight)
+template <> IAction* GetAttacksFromNeutral<StanceState::JUMPING>(const InputBuffer& rawInput, const StateComponent& context)
 {
   // prioritize attacks
   // when attacking in the air, facing direction is not changed
   if (HasState(rawInput.Latest(), InputState::BTN1))
   {
-    return new AttackAction<StanceState::JUMPING, ActionState::LIGHT>("JumpingLight", facingRight);
+    return new AttackAction<StanceState::JUMPING, ActionState::LIGHT>("JumpingLight", context.onLeftSide);
   }
 
   else if (HasState(rawInput.Latest(), InputState::BTN2))
   {
-    return new AttackAction<StanceState::JUMPING, ActionState::MEDIUM>("JumpingMedium", facingRight);
+    return new AttackAction<StanceState::JUMPING, ActionState::MEDIUM>("JumpingMedium", context.onLeftSide);
   }
 
   else if (HasState(rawInput.Latest(), InputState::BTN3))
   {
-    return new AttackAction<StanceState::JUMPING, ActionState::HEAVY>("JumpingHeavy", facingRight);
+    return new AttackAction<StanceState::JUMPING, ActionState::HEAVY>("JumpingHeavy", context.onLeftSide);
   }
 
   // state hasn't changed
   return nullptr;
 }
+
+//______________________________________________________________________________
+IAction* CheckSpecials(const InputBuffer& rawInput, const StateComponent& context)
+{
+  const bool& facingRight = context.onLeftSide;
+  if (HasState(rawInput.Latest(), InputState::BTN1) || HasState(rawInput.Latest(), InputState::BTN2) || HasState(rawInput.Latest(), InputState::BTN3))
+  {
+    //!!!! TESTING SPECIAL MOVES HERE
+    bool donkeyKick = (rawInput.Evaluate(UnivSpecMoveDict) == SpecialInputState::QCF && facingRight) || (rawInput.Evaluate(UnivSpecMoveDict) == SpecialInputState::QCB && !facingRight);
+    bool fireball = donkeyKick && (HasState(rawInput.Latest(), InputState::BTN3));
+    bool tatsu = (rawInput.Evaluate(UnivSpecMoveDict) == SpecialInputState::QCF && !facingRight) || (rawInput.Evaluate(UnivSpecMoveDict) == SpecialInputState::QCB && facingRight);
+    bool dp = (rawInput.Evaluate(UnivSpecMoveDict) == SpecialInputState::DPF && facingRight) || (rawInput.Evaluate(UnivSpecMoveDict) == SpecialInputState::DPB && !facingRight);
+    if (fireball)
+      return new SpecialMoveAttack<StanceState::STANDING, ActionState::NONE>("SpecialMove1", facingRight);
+    else if (donkeyKick)
+      return new SpecialMoveAttack<StanceState::STANDING, ActionState::NONE>("SpecialMove3", facingRight);
+    else if (tatsu)
+      return new SpecialMoveAttack<StanceState::STANDING, ActionState::NONE>("SpecialMove4", facingRight);
+    else if (dp)
+      return new SpecialMoveAttack<StanceState::STANDING, ActionState::NONE>("SpecialMove2", facingRight);
+  }
+  return nullptr;
+}
+
 
 //______________________________________________________________________________
 IAction* CheckHits(const InputState& rawInput, const StateComponent& context)
@@ -112,26 +126,6 @@ IAction* CheckHits(const InputState& rawInput, const StateComponent& context)
       return new OnRecvHitAction<StanceState::STANDING, ActionState::HITSTUN>("HeavyHitstun", facingRight, context.hitData.framesInStunHit, context.hitData.knockback, context.hitData.damage);
   }
   return nullptr;
-}
-
-//______________________________________________________________________________
-IAction* CheckForSpecialCancel(const InputBuffer& rawInput, const StateComponent& context)
-{
-  //!!!! TESTING SPECIAL MOVE CANCELS HERE
-  if (context.hitting)
-  {
-    if (HasState(rawInput.Latest(), InputState::BTN1) || HasState(rawInput.Latest(), InputState::BTN2) || HasState(rawInput.Latest(), InputState::BTN3))
-    {
-      bool qcf = rawInput.Evaluate(UnivSpecMoveDict) == SpecialInputState::QCF && context.onLeftSide;
-      bool qcb = rawInput.Evaluate(UnivSpecMoveDict) == SpecialInputState::QCB && !context.onLeftSide;
-      bool dpf = rawInput.Evaluate(UnivSpecMoveDict) == SpecialInputState::DPF && context.onLeftSide;
-      bool dpb = rawInput.Evaluate(UnivSpecMoveDict) == SpecialInputState::DPB && !context.onLeftSide;
-      if (qcf || qcb)
-        return new SpecialMoveAttack<StanceState::STANDING, ActionState::NONE>("SpecialMove3", context.onLeftSide);
-      else if (dpf || dpb)
-        return new SpecialMoveAttack<StanceState::STANDING, ActionState::NONE>("SpecialMove2", context.onLeftSide);
-    }
-  }
 }
 
 //______________________________________________________________________________

@@ -6,7 +6,7 @@
 #include "Components/Transform.h"
 #include "Components/Rigidbody.h"
 
-class PlayerSideSystem : public ISystem<Transform, StateComponent>
+class PlayerSideSystem : public ISystem<Transform, StateComponent, TeamComponent>
 {
 public:
   static void DoTick(float dt)
@@ -15,13 +15,17 @@ public:
     {
       Transform* transform = std::get<Transform*>(tuple.second);
       StateComponent* state = std::get<StateComponent*>(tuple.second);
+      TeamComponent* teamComp = std::get<TeamComponent*>(tuple.second);
 
       for (auto& other : Tuples)
       {
         if (other != tuple)
         {
           Transform* otherTranform = std::get<Transform*>(other.second);
-          state->onLeftSide = transform->position.x < otherTranform->position.x;
+          TeamComponent* otherEntityTeam = std::get<TeamComponent*>(other.second);
+
+          if(teamComp->team != otherEntityTeam->team && otherEntityTeam->playerEntity)
+            state->onLeftSide = transform->position.x < otherTranform->position.x;
         }
       }
     }

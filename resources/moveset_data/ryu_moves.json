@@ -451,49 +451,70 @@
 			{},
 			{},
 			{
-				"hitbox" : 
+				"createentity" :
 				{
-					"position" : 
+					"Transform" :
 					{
-						"x" : 131.0,
-						"y" : 71.0
+						"relative" : true,
+						"x" : 149.5,
+						"y" : -10.5,
+						"scalex" : 0.3,
+						"scaley" : 0.3,
+						"entitysizex" : 153.0,
+						"entitysizey" : 153.0
 					},
-					"size" : 
+					"Animator" : 
 					{
-						"x" : 37.0,
-						"y" : 37.0
-					}
+						"collection" : "Fireball",
+						"anim" : "Normal",
+						"isLooped" : true
+					},
+					"RenderComponent" : {},
+					"RenderProperties" :
+					{
+						"offsetCenterX" : -76.5,
+						"offsetCenterY" : -76.5,
+						"color_r" : 255,
+						"color_g" : 255,
+						"color_b" : 255,
+						"color_a" : 255
+					},
+					"Rigidbody" :
+					{
+						"initVelocityX" : 400.0,
+						"initVelocityY" : 0.0,
+						"useGravity" : false
+					},
+					"DynamicCollider" :
+					{
+						"sizex" : 20,
+						"sizey" : 20
+					},
+					"Hurtbox" :
+					{
+						"x" : 153.0,
+						"y" : 153.0
+					},
+					"Hitbox" :
+					{
+						"x" : 153.0,
+						"y" : 153.0,
+						"stunFramesBlock" : 2,
+						"stunFramesHit" : 10,
+						"knockbackx" : 200,
+						"knockbacky" : -200,
+						"damage" : 2,
+						"follow" : true,
+						"destroyOnHit" : true
+					},
+					"StateComponent" : {}
 				}
 			},
 			{
-				"hitbox" : 
-				{
-					"position" : 
-					{
-						"x" : 133.0,
-						"y" : 71.0
-					},
-					"size" : 
-					{
-						"x" : 37.0,
-						"y" : 37.0
-					}
-				}
+				"active" : true
 			},
 			{
-				"hitbox" : 
-				{
-					"position" : 
-					{
-						"x" : 129.0,
-						"y" : 69.0
-					},
-					"size" : 
-					{
-						"x" : 37.0,
-						"y" : 37.0
-					}
-				}
+				"active" : true
 			},
 			{},
 			{},

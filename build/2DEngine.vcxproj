@@ -31,6 +31,7 @@
     <ClCompile Include="..\src\AssetManagement\AnimationEvent.cpp" />
     <ClCompile Include="..\src\AssetManagement\LetterCase.cpp" />
     <ClCompile Include="..\src\AssetManagement\Resource.cpp" />
+    <ClCompile Include="..\src\AssetManagement\StaticAssets\AnimationAssetData.cpp" />
     <ClCompile Include="..\src\AssetManagement\StaticAssets\CharacterConfig.cpp" />
     <ClCompile Include="..\src\AssetManagement\StaticAssets\StaticAssetUtils.cpp" />
     <ClCompile Include="..\src\AssetManagement\Text.cpp" />
@@ -39,6 +40,7 @@
     <ClCompile Include="..\src\Components\Input.cpp" />
     <ClCompile Include="..\src\Components\Hurtbox.cpp" />
     <ClCompile Include="..\src\Components\RenderComponent.cpp" />
+    <ClCompile Include="..\src\Components\Transform.cpp" />
     <ClCompile Include="..\src\Core\Geometry2D\RectHelper.cpp" />
     <ClCompile Include="..\src\DebugGUI\DebugItem.cpp" />
     <ClCompile Include="..\src\DebugGUI\GUIController.cpp" />

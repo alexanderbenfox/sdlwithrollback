@@ -66,10 +66,6 @@ protected:
   //! finding margin from the bottom right now
   int _lMargin, _rMargin, _tMargin;
 
-private:
-  //! Gets a series of rectangles from a sprite sheet auxiliary file
-  std::vector<Rect<double>> GetHitboxesFromFile(const char* hitboxesSheet);
-
 };
 
 //______________________________________________________________________________

@@ -5,6 +5,7 @@
 #include "Components/Camera.h"
 #include "Components/Rigidbody.h"
 #include "Components/Hurtbox.h"
+#include "Components/Hitbox.h"
 
 class MoveSystemCamera : public ISystem<Transform, Camera>
 {
@@ -54,6 +55,22 @@ public:
   }
 };
 
+class MoveSystemHitbox : public ISystem<Transform, Hitbox>
+{
+public:
+  static void DoTick(float dt)
+  {
+    for (auto tuple : Tuples)
+    {
+      Transform* transform = std::get<Transform*>(tuple.second);
+      Hitbox* hitbox = std::get<Hitbox*>(tuple.second);
+
+      if (hitbox->travelWithTransform)
+        hitbox->MoveToTransform(*transform);
+    }
+  }
+};
+
 class MoveSystem : public ISystem<Transform>
 {
 public:
@@ -62,5 +79,6 @@ public:
     MoveSystemCamera::DoTick(dt);
     MoveSystemPhysCollider::DoTick(dt);
     MoveSystemHurtbox::DoTick(dt);
+    MoveSystemHitbox::DoTick(dt);
   }
 };
