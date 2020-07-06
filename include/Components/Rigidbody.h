@@ -2,7 +2,7 @@
 #include "Collider.h"
 #include "Core/Geometry2D/RectHelper.h"
 
-class UniversalPhysicsSettings : public IDebuggable
+class UniversalPhysicsSettings
 {
 public:
   static UniversalPhysicsSettings& Get()
@@ -13,24 +13,6 @@ public:
 
   float Gravity = 2700.0f;
   float JumpVelocity = 1200.0f;
-
-  virtual void ParseCommand(const std::string& command) override
-  {
-    auto split = StringUtils::Split(command, ' ');
-
-    float value = std::stof(split[1]);
-
-    if (split[0] == "gravity")
-    {
-      Gravity = value;
-    }
-    else if (split[0] == "jumpvelocity")
-    {
-      JumpVelocity = value;
-    }
-  }
-
-  virtual std::string GetIdentifier() override { return "physics"; }
 
 private:
   UniversalPhysicsSettings() = default;
