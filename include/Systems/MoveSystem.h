@@ -19,6 +19,15 @@ public:
 
       camera->rect.x = static_cast<int>(std::floor(transform->position.x));
       camera->rect.y = static_cast<int>(std::floor(transform->position.y));
+
+      // also update camera matrix here
+      const Vector2<float> origin(m_nativeWidth / 2.0f, m_nativeHeight / 2.0f);
+      camera->matrix =
+        //Mat4::Translation(-transform->position.x, -transform->position.y, 0) *
+        Mat4::Translation(-origin.x, -origin.y, 0) *
+        Mat4::Scale(camera->zoom, camera->zoom, 1.0f) *
+        Mat4::RotationZAxis(transform->rotation.x) * // should be z here
+        Mat4::Translation(origin.x, origin.y, 0);
     }
   }
 };

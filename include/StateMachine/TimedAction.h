@@ -146,7 +146,13 @@ inline void OnRecvHitAction<Stance, Action>::Enact(Entity* actor)
   actor->GetComponent<HitStateComponent>()->SetTimer(TimedAction<Stance, Action>::_timer.get());
 
   //! send damage value
-  actor->GetComponent<StateComponent>()->hp -= _damageTaken;
+  if (auto state = actor->GetComponent<StateComponent>())
+  {
+    if (!state->invulnerable)
+    {
+      state->hp -= _damageTaken;
+    }
+  }
 }
 
 //______________________________________________________________________________

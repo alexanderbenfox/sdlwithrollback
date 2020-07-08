@@ -45,16 +45,16 @@ public:
   //! Multi-parameter component remove
   template <typename T = IComponent, typename ... Rest>
   void RemoveComponents();
-  //!
+  //! Helper for the systems
   template <typename ... T>
   std::tuple<std::add_pointer_t<T>...> MakeComponentTuple();
   //! Requests the game manager destroys this entity at the end of the frame
   void DestroySelf();
-
+  //! Sets scale among all scalable components attached to this... THERE MUST BE A BETTER WAY
   void SetScale(Vector2<float> scale);
-
+  //! Gets a unique id for the entity
   int GetID() const {return _creationId;}
-
+  //! Bit flag for the components currently attached
   uint64_t ComponentBitFlag;
 
 protected:

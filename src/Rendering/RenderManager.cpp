@@ -110,6 +110,31 @@ template <> void DrawOperator<DrawPrimitive<SDL_Texture>>::DoDraw(SDL_Renderer* 
   }
 }
 
+template <> void DrawOperator<BlitOperation<GLTexture>>::SetupCamera()
+{
+  glMatrixMode(GL_MODELVIEW);
+  glPushMatrix();
+  glLoadIdentity();
+
+  const Matrix4F& matrix = GameManager::Get().GetMainCamera()->matrix;
+  float m[16];
+  Mat4::toMat4(matrix, m);
+  glMultMatrixf(m);
+}
+
+template <> void DrawOperator<BlitOperation<GLTexture>>::UndoCamera()
+{
+  const Matrix4F& matrix = GameManager::Get().GetMainCamera()->matrix;
+  const Matrix4F invTranspose = matrix.Transpose() * -1.0f;
+  float m[16];
+  Mat4::toMat4(invTranspose, m);
+
+  // unset the camera matrix
+  glMultMatrixf(m);
+  // pop matrix
+  glPopMatrix();
+}
+
 //______________________________________________________________________________
 template <typename TextureType>
 RenderManager<TextureType>::RenderManager() :

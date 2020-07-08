@@ -20,7 +20,7 @@ struct TeamComponent : public IComponent
   };
   TeamComponent(std::shared_ptr<Entity> owner) : IComponent(owner) {}
 
-  Team team;
+  Team team = Team::TeamA;
   bool playerEntity = false;
 };
 
@@ -36,6 +36,11 @@ public:
   StateComponent(StateComponent&& other);
   StateComponent& operator=(const StateComponent& other);
   StateComponent& operator=(StateComponent&& other) noexcept;
+
+  //! Adds loser component to entity
+  void MarkLoser();
+  //! Allows different fields to be changed through the debug menu
+  virtual void OnDebug() override;
   
   //! is player on left side of the other player
   bool onLeftSide;
@@ -52,24 +57,12 @@ public:
   bool hitting = false;
 
   int hp = 100;
+  bool invulnerable = false;
 
   ActionState actionState;
   StanceState stanceState;
 
   bool onNewState = false;
-
-  //! Adds loser component to entity
-  void MarkLoser();
-
-  virtual void OnDebug() override
-  {
-    //ImGui::Text("Player %d State Component", _owner->GetID());
-    if(hitting)
-      ImGui::Text("IsHitting");
-    else
-      ImGui::Text("NotHitting");
-    ImGui::Text("HP = %d", hp);
-  }
 
   //!
   bool operator==(const StateComponent& other) const

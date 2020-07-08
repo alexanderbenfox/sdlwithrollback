@@ -26,6 +26,22 @@ void StateComponent::MarkLoser()
 }
 
 //______________________________________________________________________________
+void StateComponent::OnDebug()
+{
+  std::string name = "State P" + std::to_string(_owner->GetID());
+  if (ImGui::CollapsingHeader(name.c_str()))
+  {
+    //ImGui::Text("Player %d State Component", _owner->GetID());
+    if (hitting)
+      ImGui::Text("IsHitting");
+    else
+      ImGui::Text("NotHitting");
+    ImGui::Text("HP = %d", hp);
+    ImGui::Checkbox("Invulnerable", &invulnerable);
+  }
+}
+
+//______________________________________________________________________________
 void Camera::Init(int w, int h)
 {
   rect.x = 0;

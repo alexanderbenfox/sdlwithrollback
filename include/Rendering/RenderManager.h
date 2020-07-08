@@ -18,9 +18,14 @@ public:
   //!
   void PerformDraw(SDL_Renderer* renderer);
 
+
 private:
   //!
   static void DoDraw(SDL_Renderer* renderer, Drawable& operation) {}
+  //!
+  static void SetupCamera() {}
+  //!
+  static void UndoCamera() {}
   //! Index of the latest available op spot
   int _opIndex = 0;
   //! All registered blit ops. Trying to use spatial loading to make drawing faster when there are a lot of object on screen
@@ -48,9 +53,11 @@ inline void DrawOperator<Drawable>::DeregisterOp()
 template <typename Drawable>
 inline void DrawOperator<Drawable>::PerformDraw(SDL_Renderer* renderer)
 {
+  SetupCamera();
   // only draw sprites that have been registered for this draw cycle
   for (int i = 0; i < _opIndex; i++)
     DoDraw(renderer, _drawableOperations[i]);
+  UndoCamera();
 
   // reset available ops for next draw cycle
   _opIndex = 0;

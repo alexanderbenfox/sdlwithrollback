@@ -82,6 +82,9 @@
     <Filter Include="External\impl">
       <UniqueIdentifier>{6850317c-edff-4340-b70b-f3d8f598be4f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Core\Math">
+      <UniqueIdentifier>{a1c93834-b4c6-416c-83b7-61637d7d180b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\2DEngine.cpp">
@@ -194,6 +197,9 @@
     </ClCompile>
     <ClCompile Include="..\src\Components\Transform.cpp">
       <Filter>Source Files\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Core\Math\Matrix4.cpp">
+      <Filter>Source Files\Core\Math</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -406,6 +412,9 @@
     </ClInclude>
     <ClInclude Include="..\include\AssetManagement\AnimationEvent.h">
       <Filter>Header Files\AssetManagement</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Core\Math\Matrix.h">
+      <Filter>Header Files\Core\Math</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

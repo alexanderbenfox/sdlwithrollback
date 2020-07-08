@@ -42,6 +42,7 @@
     <ClCompile Include="..\src\Components\RenderComponent.cpp" />
     <ClCompile Include="..\src\Components\Transform.cpp" />
     <ClCompile Include="..\src\Core\Geometry2D\RectHelper.cpp" />
+    <ClCompile Include="..\src\Core\Math\Matrix4.cpp" />
     <ClCompile Include="..\src\DebugGUI\DebugItem.cpp" />
     <ClCompile Include="..\src\DebugGUI\GUIController.cpp" />
     <ClCompile Include="..\src\Entity.cpp" />
@@ -96,6 +97,7 @@
     <ClInclude Include="..\include\Components\Transform.h" />
     <ClInclude Include="..\include\Core\Geometry2D\Rect.h" />
     <ClInclude Include="..\include\Core\Geometry2D\RectHelper.h" />
+    <ClInclude Include="..\include\Core\Math\Matrix.h" />
     <ClInclude Include="..\include\Core\Math\Matrix4.h" />
     <ClInclude Include="..\include\Core\Math\Vector2.h" />
     <ClInclude Include="..\include\Core\Math\Vector3.h" />
