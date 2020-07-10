@@ -26,8 +26,6 @@ public:
   void Destroy();
   //! Starts the game loop. Returns when the game has been ended
   void BeginGameLoop();
-  //! Gets the camera used by the rendering pipeline to cull game entities
-  Camera* GetMainCamera();
   //! Add entity to game entity list and add components to it
   template <class ... Args>
   std::shared_ptr<Entity> CreateEntity();

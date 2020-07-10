@@ -17,17 +17,25 @@ public:
       Transform* transform = std::get<Transform*>(tuple.second);
       Camera* camera = std::get<Camera*>(tuple.second);
 
-      camera->rect.x = static_cast<int>(std::floor(transform->position.x));
-      camera->rect.y = static_cast<int>(std::floor(transform->position.y));
+      if (camera->followPlayers)
+      {
+        Vector2<float> p1Pos = camera->player1->GetComponent<Transform>()->position;
+        Vector2<float> p2Pos = camera->player2->GetComponent<Transform>()->position;
+
+        // clamp camera position
+        transform->position = camera->clamp.Saturate((p1Pos + p2Pos) / 2.0f);
+      }
+
+      camera->rect.x = static_cast<int>(std::floor(transform->position.x)) - camera->rect.w / 2;
+      camera->rect.y = static_cast<int>(std::floor(transform->position.y)) - camera->rect.h / 2;
 
       // also update camera matrix here
-      const Vector2<float> origin(m_nativeWidth / 2.0f, m_nativeHeight / 2.0f);
       camera->matrix =
-        //Mat4::Translation(-transform->position.x, -transform->position.y, 0) *
-        Mat4::Translation(-origin.x, -origin.y, 0) *
+        Mat4::Translation(-transform->position.x, -transform->position.y, 0) *
+        //Mat4::Translation(-origin.x, -origin.y, 0) *
         Mat4::Scale(camera->zoom, camera->zoom, 1.0f) *
         Mat4::RotationZAxis(transform->rotation.x) * // should be z here
-        Mat4::Translation(origin.x, origin.y, 0);
+        Mat4::Translation(camera->origin.x, camera->origin.y, 0);
     }
   }
 };

@@ -17,6 +17,8 @@ public:
   static Matrix4F Scale(float x, float y, float z);
   static Matrix4F Translation(float x, float y, float z);
 
+  static Vector3<float> GetPosition(const Matrix4F& matrix);
+
   // helper for passing matrix to OpenGL context
   static void toMat4(const Matrix4F& mat, float* array);
 

@@ -21,6 +21,8 @@
 
 #include "AssetManagement/StaticAssets/CharacterConfig.h"
 
+const Vector2<float> cameraOrigin(m_nativeWidth / 2.0f, m_nativeHeight / 2.0f);
+
 IScene* SceneHelper::CreateScene(SceneType type)
 {
   switch(type)
@@ -45,6 +47,7 @@ BattleScene::~BattleScene()
   GameManager::Get().DestroyEntity(_borders[2]);
   for (int i = 0; i < _uiEntities.size(); i++)
     GameManager::Get().DestroyEntity(_uiEntities[i]);
+  GameManager::Get().DestroyEntity(_uiCamera);
   GameManager::Get().DestroyEntity(_camera);
 
   // we are moving into the after match cutscene, so only remove game state related components
@@ -61,26 +64,11 @@ void BattleScene::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2)
   _p1 = p1;
   _p2 = p2;
 
-  _borders[0] = GameManager::Get().CreateEntity<Transform, RenderComponent<RenderType>, StaticCollider>();
-  _borders[0]->GetComponent<Transform>()->position.x = (float)m_nativeWidth / 2.0f;
-  _borders[0]->GetComponent<Transform>()->position.y = m_nativeHeight;
-  _borders[0]->GetComponent<RenderComponent<RenderType>>()->Init(ResourceManager::Get().GetAsset<RenderType>("spritesheets\\ryu.png"));
-  _borders[0]->GetComponent<StaticCollider>()->Init(Vector2<double>(0, m_nativeHeight - 40), Vector2<double>(m_nativeWidth, m_nativeHeight + 40.0f));
-  _borders[0]->GetComponent<StaticCollider>()->MoveToTransform(*_borders[0]->GetComponent<Transform>());
-
-  _borders[1] = GameManager::Get().CreateEntity<Transform, RenderComponent<RenderType>, StaticCollider>();
-  _borders[1]->GetComponent<Transform>()->position.x = -100;
-  _borders[1]->GetComponent<Transform>()->position.y = (float)m_nativeHeight / 2.0f;
-  _borders[1]->GetComponent<RenderComponent<RenderType>>()->Init(ResourceManager::Get().GetAsset<RenderType>("spritesheets\\ryu.png"));
-  _borders[1]->GetComponent<StaticCollider>()->Init(Vector2<double>(-200, 0), Vector2<double>(0, m_nativeHeight));
-  _borders[1]->GetComponent<StaticCollider>()->MoveToTransform(*_borders[1]->GetComponent<Transform>());
-
-  _borders[2] = GameManager::Get().CreateEntity<Transform, RenderComponent<RenderType>, StaticCollider>();
-  _borders[2]->GetComponent<Transform>()->position.x = (float)m_nativeWidth + 100.0f;
-  _borders[2]->GetComponent<Transform>()->position.y = (float)m_nativeHeight / 2.0f;
-  _borders[2]->GetComponent<RenderComponent<RenderType>>()->Init(ResourceManager::Get().GetAsset<RenderType>("spritesheets\\ryu.png"));
-  _borders[2]->GetComponent<StaticCollider>()->Init(Vector2<double>(m_nativeWidth, 0), Vector2<double>(m_nativeWidth + 200, m_nativeHeight));
-  _borders[2]->GetComponent<StaticCollider>()->MoveToTransform(*_borders[2]->GetComponent<Transform>());
+  Rect<float> stageRect = Rect<float>(-m_nativeWidth, 0, 2 * m_nativeWidth, m_nativeHeight);
+  StageBorders stage = CreateStageBorders(stageRect, m_nativeWidth, m_nativeHeight);
+  _borders[0] = stage.borders[0];
+  _borders[1] = stage.borders[1];
+  _borders[2] = stage.borders[2];
 
   InitCharacter(Vector2<int>(100, 0), _p1, true);
   InitCharacter(Vector2<int>(400, 0), _p2, false);
@@ -90,8 +78,19 @@ void BattleScene::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2)
   _p1ComboText->GetComponent<UITransform>()->parent = _p2UIAnchor->GetComponent<UITransform>();
 
   // set up camera
+  _uiCamera = GameManager::Get().CreateEntity<Camera, Transform>();
+  _uiCamera->GetComponent<Camera>()->Init(m_nativeWidth, m_nativeHeight);
+  GRenderer.EstablishCamera(RenderLayer::UI, _uiCamera->GetComponent<Camera>().get());
+
   _camera = GameManager::Get().CreateEntity<Camera, Transform>();
   _camera->GetComponent<Camera>()->Init(m_nativeWidth, m_nativeHeight);
+  _camera->GetComponent<Camera>()->followPlayers = true;
+  _camera->GetComponent<Camera>()->player1 = _p1;
+  _camera->GetComponent<Camera>()->player2 = _p2;
+  _camera->GetComponent<Camera>()->origin = cameraOrigin;
+  _camera->GetComponent<Camera>()->clamp = stage.clamp;
+  GRenderer.EstablishCamera(RenderLayer::World, _camera->GetComponent<Camera>().get());
+
 }
 
 void BattleScene::Update(float deltaTime)
@@ -116,6 +115,38 @@ void BattleScene::Update(float deltaTime)
   MoveSystem::DoTick(deltaTime);
 
   CheckBattleEndSystem::DoTick(deltaTime);
+}
+
+BattleScene::StageBorders BattleScene::CreateStageBorders(const Rect<float>& stageRect, int screenWidth, int screenHeight)
+{
+  StageBorders stage;
+  stage.clamp = Rect<float>(stageRect.beg.x + screenWidth / 2, 0, stageRect.end.x - screenWidth / 2, stageRect.end.y - screenHeight / 2);
+
+  const float borderWidth = 200;
+  const float borderHeight = 80;
+
+  stage.borders[0] = GameManager::Get().CreateEntity<Transform, RenderComponent<RenderType>, StaticCollider>();
+  stage.borders[0]->GetComponent<Transform>()->position.x = (stageRect.beg.x + stageRect.end.x) / 2.0f;
+  stage.borders[0]->GetComponent<Transform>()->position.y = stageRect.end.y;
+  stage.borders[0]->GetComponent<RenderComponent<RenderType>>()->Init(ResourceManager::Get().GetAsset<RenderType>("spritesheets\\ryu.png"));
+  stage.borders[0]->GetComponent<StaticCollider>()->Init(Vector2<double>(stageRect.beg.x, stageRect.end.y - borderHeight / 2.0f), Vector2<double>(stageRect.end.x, stageRect.end.y + borderHeight / 2.0f));
+  stage.borders[0]->GetComponent<StaticCollider>()->MoveToTransform(*stage.borders[0]->GetComponent<Transform>());
+
+  stage.borders[1] = GameManager::Get().CreateEntity<Transform, RenderComponent<RenderType>, StaticCollider>();
+  stage.borders[1]->GetComponent<Transform>()->position.x = stageRect.beg.x - 100;
+  stage.borders[1]->GetComponent<Transform>()->position.y = (stageRect.beg.y + stageRect.end.y) / 2.0f;
+  stage.borders[1]->GetComponent<RenderComponent<RenderType>>()->Init(ResourceManager::Get().GetAsset<RenderType>("spritesheets\\ryu.png"));
+  stage.borders[1]->GetComponent<StaticCollider>()->Init(Vector2<double>(-borderWidth, 0), Vector2<double>(0, stageRect.Height()));
+  stage.borders[1]->GetComponent<StaticCollider>()->MoveToTransform(*stage.borders[1]->GetComponent<Transform>());
+
+  stage.borders[2] = GameManager::Get().CreateEntity<Transform, RenderComponent<RenderType>, StaticCollider>();
+  stage.borders[2]->GetComponent<Transform>()->position.x = stageRect.end.x + 100.0f;
+  stage.borders[2]->GetComponent<Transform>()->position.y = (stageRect.beg.y + stageRect.end.y) / 2.0f;
+  stage.borders[2]->GetComponent<RenderComponent<RenderType>>()->Init(ResourceManager::Get().GetAsset<RenderType>("spritesheets\\ryu.png"));
+  stage.borders[2]->GetComponent<StaticCollider>()->Init(Vector2<double>(0, 0), Vector2<double>(borderWidth, stageRect.Height()));
+  stage.borders[2]->GetComponent<StaticCollider>()->MoveToTransform(*stage.borders[2]->GetComponent<Transform>());
+  
+  return stage;
 }
 
 
@@ -254,6 +285,7 @@ PostMatchScene::~PostMatchScene()
   GameManager::Get().DestroyEntity(_borders[0]);
   GameManager::Get().DestroyEntity(_borders[1]);
   GameManager::Get().DestroyEntity(_borders[2]);
+  GameManager::Get().DestroyEntity(_uiCamera);
   GameManager::Get().DestroyEntity(_camera);
 
   // always delete transform last because it will access the other components
@@ -288,30 +320,25 @@ void PostMatchScene::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2
     _p2->GetComponent<CutsceneActor>()->SetActionList(_loserActions, 2);
   }
 
-  _borders[0] = GameManager::Get().CreateEntity<Transform, RenderComponent<RenderType>, StaticCollider>();
-  _borders[0]->GetComponent<Transform>()->position.x = (float)m_nativeWidth / 2.0f;
-  _borders[0]->GetComponent<Transform>()->position.y = m_nativeHeight;
-  _borders[0]->GetComponent<RenderComponent<RenderType>>()->Init(ResourceManager::Get().GetAsset<RenderType>("spritesheets\\ryu.png"));
-  _borders[0]->GetComponent<StaticCollider>()->Init(Vector2<double>(0, m_nativeHeight - 40), Vector2<double>(m_nativeWidth, m_nativeHeight + 40.0f));
-  _borders[0]->GetComponent<StaticCollider>()->MoveToTransform(*_borders[0]->GetComponent<Transform>());
-
-  _borders[1] = GameManager::Get().CreateEntity<Transform, RenderComponent<RenderType>, StaticCollider>();
-  _borders[1]->GetComponent<Transform>()->position.x = -100;
-  _borders[1]->GetComponent<Transform>()->position.y = (float)m_nativeHeight / 2.0f;
-  _borders[1]->GetComponent<RenderComponent<RenderType>>()->Init(ResourceManager::Get().GetAsset<RenderType>("spritesheets\\ryu.png"));
-  _borders[1]->GetComponent<StaticCollider>()->Init(Vector2<double>(-200, 0), Vector2<double>(0, m_nativeHeight));
-  _borders[1]->GetComponent<StaticCollider>()->MoveToTransform(*_borders[1]->GetComponent<Transform>());
-
-  _borders[2] = GameManager::Get().CreateEntity<Transform, RenderComponent<RenderType>, StaticCollider>();
-  _borders[2]->GetComponent<Transform>()->position.x = (float)m_nativeWidth + 100.0f;
-  _borders[2]->GetComponent<Transform>()->position.y = (float)m_nativeHeight / 2.0f;
-  _borders[2]->GetComponent<RenderComponent<RenderType>>()->Init(ResourceManager::Get().GetAsset<RenderType>("spritesheets\\ryu.png"));
-  _borders[2]->GetComponent<StaticCollider>()->Init(Vector2<double>(m_nativeWidth, 0), Vector2<double>(m_nativeWidth + 200, m_nativeHeight));
-  _borders[2]->GetComponent<StaticCollider>()->MoveToTransform(*_borders[2]->GetComponent<Transform>());
+  Rect<float> stageRect = Rect<float>(-m_nativeWidth, 0, 2 * m_nativeWidth, m_nativeHeight);
+  BattleScene::StageBorders stage = BattleScene::CreateStageBorders(stageRect, m_nativeWidth, m_nativeHeight);
+  _borders[0] = stage.borders[0];
+  _borders[1] = stage.borders[1];
+  _borders[2] = stage.borders[2];
 
   // set up camera
+  _uiCamera = GameManager::Get().CreateEntity<Camera, Transform>();
+  _uiCamera->GetComponent<Camera>()->Init(m_nativeWidth, m_nativeHeight);
+  GRenderer.EstablishCamera(RenderLayer::UI, _uiCamera->GetComponent<Camera>().get());
+
   _camera = GameManager::Get().CreateEntity<Camera, Transform>();
   _camera->GetComponent<Camera>()->Init(m_nativeWidth, m_nativeHeight);
+  _camera->GetComponent<Camera>()->followPlayers = true;
+  _camera->GetComponent<Camera>()->player1 = _p1;
+  _camera->GetComponent<Camera>()->player2 = _p2;
+  _camera->GetComponent<Camera>()->origin = cameraOrigin;
+  _camera->GetComponent<Camera>()->clamp = stage.clamp;
+  GRenderer.EstablishCamera(RenderLayer::World, _camera->GetComponent<Camera>().get());
 }
 
 void PostMatchScene::Update(float deltaTime)

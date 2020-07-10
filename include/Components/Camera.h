@@ -19,11 +19,9 @@ public:
   //!
   void Init(int w, int h);
   //!
-  template <typename TextureType>
-  void ConvScreenSpace(BlitOperation<TextureType>* entity);
+  void ConvScreenSpace(RenderCommand* entity);
   //!
-  template <typename TextureType>
-  bool EntityInDisplay(const BlitOperation<TextureType>* entity);
+  bool EntityInDisplay(const RenderCommand* entity);
   //!
   virtual void OnDebug() override
   {
@@ -35,20 +33,24 @@ public:
   Matrix4F matrix;
   //! takes care of the z value not in the transform component
   float zoom = 1.0f;
+  //!
+  bool followPlayers = false;
+  std::shared_ptr<Entity> player1, player2;
+  Vector2<float> origin = Vector2<float>::Zero;
+
+  Rect<float> clamp = Rect<float>(0, 0, m_nativeWidth, m_nativeHeight);
 
 };
 
 //______________________________________________________________________________
-template <typename TextureType>
-inline void Camera::ConvScreenSpace(BlitOperation<TextureType>* entity)
+inline void Camera::ConvScreenSpace(RenderCommand* entity)
 {
   entity->displayRect.x -= rect.x;
   entity->displayRect.y -= rect.y;
 }
 
 //______________________________________________________________________________
-template <typename TextureType>
-inline bool Camera::EntityInDisplay(const BlitOperation<TextureType>* entity)
+inline bool Camera::EntityInDisplay(const RenderCommand* entity)
 {
   return SDLRectOverlap(rect, entity->displayRect);
 }

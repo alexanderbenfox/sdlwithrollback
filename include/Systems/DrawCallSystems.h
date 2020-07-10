@@ -20,7 +20,7 @@ public:
       if (!renderer->GetRenderResource()) continue;
 
       // get a display op to set draw parameters
-      auto displayOp = GRenderer.GetAvailableOp<BlitOperation<RenderType>>();
+      auto displayOp = GRenderer.GetAvailableOp<BlitOperation<RenderType>>(RenderLayer::World);
 
       displayOp->textureRect = renderer->sourceRect;
       displayOp->textureResource = renderer->GetRenderResource();
@@ -59,7 +59,7 @@ public:
       for (GLDrawOperation& drawOp : renderer->GetRenderOps())
       {
         // get a display op to set draw parameters
-        auto displayOp = GRenderer.GetAvailableOp<BlitOperation<RenderType>>();
+        auto displayOp = GRenderer.GetAvailableOp<BlitOperation<RenderType>>(RenderLayer::UI);
 
         const SDL_Rect sourceRect = { 0, 0, (*drawOp.texture)->w(), (*drawOp.texture)->h() };
 
@@ -111,7 +111,7 @@ public:
       };
 
       // get a display op to set draw parameters
-      auto op = GRenderer.GetAvailableOp<DrawPrimitive<RenderType>>();
+      auto op = GRenderer.GetAvailableOp<DrawPrimitive<RenderType>>(RenderLayer::UI);
 
       op->displayRect = uiElement->shownSize;
       op->filled = uiElement->isFilled;

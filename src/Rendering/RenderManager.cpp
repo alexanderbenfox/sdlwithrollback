@@ -14,9 +14,9 @@ template <> void DrawOperator<BlitOperation<GLTexture>>::DoDraw(SDL_Renderer* re
 {
   if (!operation.valid) return;
 
-  GameManager::Get().GetMainCamera()->ConvScreenSpace(&operation);
-  if (GameManager::Get().GetMainCamera()->EntityInDisplay(&operation))
-  {
+  //GameManager::Get().GetMainCamera()->ConvScreenSpace(&operation);
+  //if (GameManager::Get().GetMainCamera()->EntityInDisplay(&operation))
+  //{
     auto srcTexture = operation.textureResource->Get();
     float rotation = 0;
 
@@ -28,7 +28,7 @@ template <> void DrawOperator<BlitOperation<GLTexture>>::DoDraw(SDL_Renderer* re
     {
       std::cout << "I guess this texture isn't valid??" << "\nCaught exception: " << e.what() << "\n";
     }
-  }
+  //}
 }
 
 //______________________________________________________________________________
@@ -36,9 +36,9 @@ template <> void DrawOperator<BlitOperation<SDL_Texture>>::DoDraw(SDL_Renderer* 
 {
   if (!operation.valid) return;
 
-  GameManager::Get().GetMainCamera()->ConvScreenSpace(&operation);
-  if (GameManager::Get().GetMainCamera()->EntityInDisplay(&operation))
-  {
+  //GameManager::Get().GetMainCamera()->ConvScreenSpace(&operation);
+  //if (GameManager::Get().GetMainCamera()->EntityInDisplay(&operation))
+  //{
     auto srcTexture = operation.textureResource->Get();
     float rotation = 0;
 
@@ -55,7 +55,7 @@ template <> void DrawOperator<BlitOperation<SDL_Texture>>::DoDraw(SDL_Renderer* 
     {
       std::cout << "I guess this texture isn't valid??" << "\nCaught exception: " << e.what() << "\n";
     }
-  }
+  //}
 }
 
 //______________________________________________________________________________
@@ -63,6 +63,9 @@ template <> void DrawOperator<DrawPrimitive<GLTexture>>::DoDraw(SDL_Renderer* re
 {
   if (!operation.valid) return;
 
+  //GameManager::Get().GetMainCamera()->ConvScreenSpace(&operation);
+  //if (GameManager::Get().GetMainCamera()->EntityInDisplay(&operation))
+  {
     int xBeg = operation.displayRect.x;
     int yBeg = operation.displayRect.y;
     int xEnd = xBeg + operation.displayRect.w;
@@ -81,6 +84,7 @@ template <> void DrawOperator<DrawPrimitive<GLTexture>>::DoDraw(SDL_Renderer* re
       GL_RenderDrawRectangle(Vector2<int>(xBeg, yBeg), Vector2<int>(xEnd, yEnd), operation.displayColor);
     else
       GL_RenderDrawLines(points, 5, operation.displayColor);
+  }
 }
 
 //______________________________________________________________________________
@@ -88,29 +92,33 @@ template <> void DrawOperator<DrawPrimitive<SDL_Texture>>::DoDraw(SDL_Renderer* 
 {
   if (!operation.valid) return;
 
-  if (!operation.filled)
+  //GameManager::Get().GetMainCamera()->ConvScreenSpace(&operation);
+  //if (GameManager::Get().GetMainCamera()->EntityInDisplay(&operation))
   {
-    int xBeg = operation.displayRect.x;
-    int yBeg = operation.displayRect.y;
-    int xEnd = xBeg + operation.displayRect.w;
-    int yEnd = yBeg + operation.displayRect.h;
-
-    SDL_Point points[5] =
+    if (!operation.filled)
     {
-      {xBeg, yBeg},
-      {xBeg, yEnd},
-      {xEnd, yEnd},
-      {xEnd, yBeg},
-      {xBeg, yBeg}
-    };
+      int xBeg = operation.displayRect.x;
+      int yBeg = operation.displayRect.y;
+      int xEnd = xBeg + operation.displayRect.w;
+      int yEnd = yBeg + operation.displayRect.h;
 
-    SDL_SetRenderDrawColor(GRenderer.GetRenderer(), operation.displayColor.r, operation.displayColor.g, operation.displayColor.b, operation.displayColor.a);
-    SDL_RenderDrawLines(GRenderer.GetRenderer(), points, 5);
-    SDL_SetRenderDrawColor(GRenderer.GetRenderer(), 0, 0, 0, SDL_ALPHA_OPAQUE);
+      SDL_Point points[5] =
+      {
+        {xBeg, yBeg},
+        {xBeg, yEnd},
+        {xEnd, yEnd},
+        {xEnd, yBeg},
+        {xBeg, yBeg}
+      };
+
+      SDL_SetRenderDrawColor(GRenderer.GetRenderer(), operation.displayColor.r, operation.displayColor.g, operation.displayColor.b, operation.displayColor.a);
+      SDL_RenderDrawLines(GRenderer.GetRenderer(), points, 5);
+      SDL_SetRenderDrawColor(GRenderer.GetRenderer(), 0, 0, 0, SDL_ALPHA_OPAQUE);
+    }
   }
 }
 
-template <> void DrawOperator<BlitOperation<GLTexture>>::SetupCamera()
+/*template <> void DrawOperator<BlitOperation<GLTexture>>::SetupCamera()
 {
   glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
@@ -131,6 +139,29 @@ template <> void DrawOperator<BlitOperation<GLTexture>>::UndoCamera()
 
   // unset the camera matrix
   glMultMatrixf(m);
+  // pop matrix
+  glPopMatrix();
+}*/
+
+template <> void DrawOperator<BlitOperation<GLTexture>>::SetupCamera(Camera* camera)
+{
+  glMatrixMode(GL_PROJECTION);
+  glPushMatrix();
+  glLoadIdentity();
+  glOrtho(0, m_nativeWidth, m_nativeHeight, 0, 0, 16);
+
+  const Matrix4F& matrix = camera->matrix;
+  Vector3<float> position = Mat4::GetPosition(matrix);
+  glTranslatef(position.x, position.y, position.z);
+}
+
+template <> void DrawOperator<BlitOperation<GLTexture>>::UndoCamera(Camera* camera)
+{
+  const Matrix4F& matrix = camera->matrix;
+  Vector3<float> negativePos = -Mat4::GetPosition(matrix);
+
+  // unset the camera matrix
+  glTranslatef(negativePos.x, negativePos.y, negativePos.z);
   // pop matrix
   glPopMatrix();
 }
@@ -226,8 +257,14 @@ void RenderManager<TextureType>::ProcessResizeEvent(const SDL_Event& event)
 template <typename TextureType>
 void RenderManager<TextureType>::Draw()
 {
-  _textureDrawer.PerformDraw(_renderer);
-  _primitiveDrawer.PerformDraw(_renderer);
+  for (int layer = 0; layer < (int)RenderLayer::NLayers; layer++)
+  {
+    if (_drawers[layer].camera)
+    {
+      _drawers[layer].textureDrawer.PerformDraw(_renderer, _drawers[layer].camera);
+      _drawers[layer].primitiveDrawer.PerformDraw(_renderer, _drawers[layer].camera);
+    }
+  }
 }
 
 //______________________________________________________________________________

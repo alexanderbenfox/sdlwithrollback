@@ -281,14 +281,6 @@ void GameManager::BeginGameLoop()
 }
 
 //______________________________________________________________________________
-Camera* GameManager::GetMainCamera()
-{
-  if (_currentScene)
-    return _currentScene->GetCamera();
-  return nullptr;
-}
-
-//______________________________________________________________________________
 void GameManager::CheckAgainstSystems(Entity* entity)
 {
   InputSystem::Check(entity);

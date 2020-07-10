@@ -4,6 +4,7 @@
 
 #include "Systems/SceneSystems.h"
 #include "Systems/UISystem.h"
+#include "Systems/MoveSystem.h"
 
 #include "Components/RenderComponent.h"
 #include "Components/Transform.h"
@@ -19,15 +20,10 @@ IScene::~IScene()
     source->Clear();
 }
 
-Camera* IScene::GetCamera()
-{
-  return _camera->GetComponent<Camera>().get();
-}
-
 StartScene::~StartScene()
 {
   GameManager::Get().DestroyEntity(_renderedText);
-  GameManager::Get().DestroyEntity(_camera);
+  GameManager::Get().DestroyEntity(_uiCamera);
 }
 
 void StartScene::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2)
@@ -41,20 +37,22 @@ void StartScene::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2)
   _renderedText->GetComponent<TextRenderer>()->SetText("PRESS ANY BUTTON TO START");
 
   // set up camera
-  _camera = GameManager::Get().CreateEntity<Camera, Transform>();
-  _camera->GetComponent<Camera>()->Init(m_nativeWidth, m_nativeHeight);
+  _uiCamera = GameManager::Get().CreateEntity<Camera, Transform>();
+  _uiCamera->GetComponent<Camera>()->Init(m_nativeWidth, m_nativeHeight);
+  GRenderer.EstablishCamera(RenderLayer::UI, _uiCamera->GetComponent<Camera>().get());
 }
 
 void StartScene::Update(float deltaTime)
 {
   UIPositionUpdateSystem::DoTick(deltaTime);
   StartSceneInputSystem::DoTick(deltaTime);
+  MoveSystemCamera::DoTick(deltaTime);
 }
 
 CharacterSelectScene::~CharacterSelectScene()
 {
   GameManager::Get().DestroyEntity(_portrait);
-  GameManager::Get().DestroyEntity(_camera);
+  GameManager::Get().DestroyEntity(_uiCamera);
 }
 
 void CharacterSelectScene::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2)
@@ -69,20 +67,22 @@ void CharacterSelectScene::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Enti
   _portrait->GetComponent<TextRenderer>()->SetText("Character Select");
 
   // set up camera
-  _camera = GameManager::Get().CreateEntity<Camera, Transform>();
-  _camera->GetComponent<Camera>()->Init(m_nativeWidth, m_nativeHeight);
+  _uiCamera = GameManager::Get().CreateEntity<Camera, Transform>();
+  _uiCamera->GetComponent<Camera>()->Init(m_nativeWidth, m_nativeHeight);
+  GRenderer.EstablishCamera(RenderLayer::UI, _uiCamera->GetComponent<Camera>().get());
 }
 
 void CharacterSelectScene::Update(float deltaTime)
 {
   UIPositionUpdateSystem::DoTick(deltaTime);
   CharacterSelectInputSystem::DoTick(deltaTime);
+  MoveSystemCamera::DoTick(deltaTime);
 }
 
 ResultsScene::~ResultsScene()
 {
   GameManager::Get().DestroyEntity(_resultText);
-  GameManager::Get().DestroyEntity(_camera);
+  GameManager::Get().DestroyEntity(_uiCamera);
 }
 
 void ResultsScene::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2)
@@ -110,12 +110,14 @@ void ResultsScene::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2)
   }
   
   // set up camera
-  _camera = GameManager::Get().CreateEntity<Camera, Transform>();
-  _camera->GetComponent<Camera>()->Init(m_nativeWidth, m_nativeHeight);
+  _uiCamera = GameManager::Get().CreateEntity<Camera, Transform>();
+  _uiCamera->GetComponent<Camera>()->Init(m_nativeWidth, m_nativeHeight);
+  GRenderer.EstablishCamera(RenderLayer::UI, _uiCamera->GetComponent<Camera>().get());
 }
 
 void ResultsScene::Update(float deltaTime)
 {
   UIPositionUpdateSystem::DoTick(deltaTime);
   ResultsSceneSystem::DoTick(deltaTime);
+  MoveSystemCamera::DoTick(deltaTime);
 }

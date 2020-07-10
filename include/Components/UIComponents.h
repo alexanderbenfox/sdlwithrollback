@@ -50,7 +50,7 @@ class UIRectangleRenderComponent : public IComponent, public UIComponent
 public:
   UIRectangleRenderComponent(std::shared_ptr<Entity> owner) : shownSize{ 0, 0, 0, 0 }, IComponent(owner)
   {
-    RenderManager<RenderType>::Get().RegisterDrawable<DrawPrimitive<RenderType>>();
+    RenderManager<RenderType>::Get().RegisterDrawable<DrawPrimitive<RenderType>>(RenderLayer::UI);
 
     if (auto transform = owner->GetComponent<UITransform>())
     {
@@ -61,7 +61,7 @@ public:
 
   virtual ~UIRectangleRenderComponent()
   {
-    RenderManager<RenderType>::Get().DeregisterDrawable<DrawPrimitive<RenderType>>();
+    RenderManager<RenderType>::Get().DeregisterDrawable<DrawPrimitive<RenderType>>(RenderLayer::UI);
   }
 
   SDL_Rect shownSize;

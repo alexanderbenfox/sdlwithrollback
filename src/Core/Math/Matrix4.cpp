@@ -84,6 +84,11 @@ Matrix4F Mat4::Translation(float x, float y, float z)
   return translationMatrix;
 }
 
+Vector3<float> Mat4::GetPosition(const Matrix4F& matrix)
+{
+  return Vector3<float>(matrix[0][3], matrix[1][3], matrix[2][3]);
+}
+
 void Mat4::toMat4(const Matrix4F& mat, float* array)
 {
   for (int i = 0; i < 4; i++)

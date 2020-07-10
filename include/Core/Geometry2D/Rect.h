@@ -30,6 +30,8 @@ struct Rect
   bool Intersects(const Rect<T>& other) const;
   // Get intersecting rectangle (all sides inclusive)
   Rect<T> GetIntersection(const Rect<T>& other) const;
+  //! Returns point saturated to somewhere within the rectangle
+  Vector2<T> Saturate(const Vector2<T>& pt) const;
   
 
   //______________________________________________________________________________
@@ -85,6 +87,20 @@ inline Rect<T> Rect<T>::GetIntersection(const Rect<T>& other) const
 
   Rect<T> intersection(leftX, topY, rightX, bottomY);
   return intersection;
+}
+
+//______________________________________________________________________________
+template <typename T>
+inline Vector2<T> Rect<T>::Saturate(const Vector2<T>& pt) const
+{
+  Vector2<T> point = pt;
+  auto saturateMin = [](T& a, const T& max) { if (a > max) a = max; };
+  auto saturateMax = [](T& a, const T& min) { if (a < min) a = min; };
+  saturateMax(point.x, beg.x);
+  saturateMax(point.y, beg.y);
+  saturateMin(point.x, end.x);
+  saturateMin(point.y, end.y);
+  return point;
 }
 
 //______________________________________________________________________________
