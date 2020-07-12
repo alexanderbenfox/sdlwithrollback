@@ -1,11 +1,12 @@
 #include "AssetManagement/StaticAssets/StaticAssetUtils.h"
 #include "GameManagement.h"
 #include "DebugGUI/GUIController.h"
+#include "Utils.h"
 
 #include <fstream>
 #include <json/json.h>
 
-std::string StaticAssetUtils::jsonWriteOutLocation = "..\\resources\\moveset_data\\ryu_moves.json";
+std::string StaticAssetUtils::jsonWriteOutLocation = StringUtils::CorrectPath("\\moveset_data\\ryu_moves.json");
 bool StaticAssetUtils::loadFromFile = true;
 
 
@@ -51,7 +52,7 @@ void StaticAssetUtils::LoadAnimations(std::unordered_map<std::string, AnimationI
   if (StaticAssetUtils::loadFromFile)
   {
     // load from file and update attack animations for debug
-    LoadCollectionFromJson(collection, attackAnimations, "..\\resources\\moveset_data\\ryu_spritesheets.json", jsonWriteOutLocation);
+    LoadCollectionFromJson(collection, attackAnimations, ResourceManager::Get().GetResourcePath() + StringUtils::CorrectPath("\\moveset_data\\ryu_spritesheets.json"), ResourceManager::Get().GetResourcePath() + jsonWriteOutLocation);
   }
   else
   {
@@ -137,7 +138,7 @@ void StaticAssetUtils::CreateAnimationDebug(std::unordered_map<std::string, Anim
         if (ImGui::Button("Write Out Data"))
         {
           std::fstream dataFile;
-          dataFile.open(jsonWriteOutLocation, std::fstream::in | std::fstream::out);
+          dataFile.open(ResourceManager::Get().GetResourcePath() + jsonWriteOutLocation, std::fstream::in | std::fstream::out);
           Json::Value moveListObj;
 
           if (dataFile.is_open())
@@ -163,7 +164,7 @@ void StaticAssetUtils::CreateAnimationDebug(std::unordered_map<std::string, Anim
           // append new data to existing json
           data.Write(item);
 
-          dataFile.open(jsonWriteOutLocation, std::fstream::out);
+          dataFile.open(ResourceManager::Get().GetResourcePath() + jsonWriteOutLocation, std::fstream::out);
           dataFile << moveListObj.toStyledString() << std::endl;
           dataFile.close();
         }

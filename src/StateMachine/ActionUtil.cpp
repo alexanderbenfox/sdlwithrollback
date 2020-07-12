@@ -95,14 +95,14 @@ IAction* CheckSpecials(const InputBuffer& rawInput, const StateComponent& contex
   if (HasState(rawInput.Latest(), InputState::BTN1) || HasState(rawInput.Latest(), InputState::BTN2) || HasState(rawInput.Latest(), InputState::BTN3))
   {
     //!!!! TESTING SPECIAL MOVES HERE
-    bool donkeyKick = (rawInput.Evaluate(UnivSpecMoveDict) == SpecialInputState::QCF && facingRight) || (rawInput.Evaluate(UnivSpecMoveDict) == SpecialInputState::QCB && !facingRight);
-    bool fireball = donkeyKick && (HasState(rawInput.Latest(), InputState::BTN3));
+    bool fireball = (rawInput.Evaluate(UnivSpecMoveDict) == SpecialInputState::QCF && facingRight) || (rawInput.Evaluate(UnivSpecMoveDict) == SpecialInputState::QCB && !facingRight);
+    bool donkeyKick = fireball && (HasState(rawInput.Latest(), InputState::BTN3));
     bool tatsu = (rawInput.Evaluate(UnivSpecMoveDict) == SpecialInputState::QCF && !facingRight) || (rawInput.Evaluate(UnivSpecMoveDict) == SpecialInputState::QCB && facingRight);
     bool dp = (rawInput.Evaluate(UnivSpecMoveDict) == SpecialInputState::DPF && facingRight) || (rawInput.Evaluate(UnivSpecMoveDict) == SpecialInputState::DPB && !facingRight);
-    if (fireball)
-      return new SpecialMoveAttack<StanceState::STANDING, ActionState::NONE>("SpecialMove1", facingRight);
-    else if (donkeyKick)
+    if (donkeyKick)
       return new SpecialMoveAttack<StanceState::STANDING, ActionState::NONE>("SpecialMove3", facingRight);
+    else if (fireball)
+      return new SpecialMoveAttack<StanceState::STANDING, ActionState::NONE>("SpecialMove1", facingRight);
     else if (tatsu)
       return new SpecialMoveAttack<StanceState::STANDING, ActionState::NONE>("SpecialMove4", facingRight);
     else if (dp)
