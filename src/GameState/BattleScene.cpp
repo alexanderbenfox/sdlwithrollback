@@ -198,7 +198,7 @@ void BattleScene::InitCharacter(Vector2<float> position, std::shared_ptr<Entity>
     _uiEntities.back()->GetComponent<UIRectangleRenderComponent>()->callback = [lifeBarSize](const StateComponent* lastState, const StateComponent* info, UIComponent* comp)
     {
       float p = (float)info->hp / 100.0f;
-      dynamic_cast<UIRectangleRenderComponent*>(comp)->shownSize.w = static_cast<int>((float)lifeBarSize.x * p);
+      dynamic_cast<UIRectangleRenderComponent*>(comp)->shownSize.w = (float)lifeBarSize.x * p;
     };
 
     uiContainer->uiComponents.push_back(_uiEntities.back()->GetComponent<UIRectangleRenderComponent>());

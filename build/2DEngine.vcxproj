@@ -51,6 +51,7 @@
     <ClCompile Include="..\src\GameState\BattleScene.cpp" />
     <ClCompile Include="..\src\GameState\StartScene.cpp" />
     <ClCompile Include="..\src\Rendering\GLTexture.cpp" />
+    <ClCompile Include="..\src\Rendering\OpenGLRenderer.cpp" />
     <ClCompile Include="..\src\Rendering\RenderManager.cpp" />
     <ClCompile Include="..\src\StateMachine\ActionUtil.cpp" />
     <ClCompile Include="..\src\StateMachine\AnimatedAction.cpp" />
@@ -109,7 +110,7 @@
     <ClInclude Include="..\include\GameState\GGPOGameState.h" />
     <ClInclude Include="..\include\GameState\Scene.h" />
     <ClInclude Include="..\include\Rendering\GLTexture.h" />
-    <ClInclude Include="..\include\Rendering\RenderCopy.h" />
+    <ClInclude Include="..\include\Rendering\OpenGLRenderer.h" />
     <ClInclude Include="..\include\Rendering\RenderManager.h" />
     <ClInclude Include="..\include\Rendering\Shader.h" />
     <ClInclude Include="..\include\ResourceManager.h" />

@@ -1,5 +1,6 @@
 #include "Components/RenderComponent.h"
 #include "Components/UIComponents.h"
+#include "GameManagement.h"
 
 TextRenderer::TextRenderer(std::shared_ptr<Entity> owner) : _resource(nullptr), _currentText(""), IComponent(owner) {}
 
@@ -7,7 +8,7 @@ TextRenderer::~TextRenderer()
 {
   // make sure that the blit operations have been cleared
   for (size_t i = 0; i < _string.size(); ++i)
-    RenderManager<GLTexture>::Get().DeregisterDrawable<BlitOperation<GLTexture>>(RenderLayer::UI);
+    GRenderer.DeregisterDrawable<BlitOperation<GLTexture>>(RenderLayer::UI);
 }
 
 void TextRenderer::SetFont(LetterCase& resource)
@@ -21,7 +22,7 @@ void TextRenderer::SetText(const std::string& text)
   {
     // remove the operations from draw manager
     for (size_t i = 0; i < _string.size(); ++i)
-      RenderManager<GLTexture>::Get().DeregisterDrawable<BlitOperation<GLTexture>>(RenderLayer::UI);
+      GRenderer.DeregisterDrawable<BlitOperation<GLTexture>>(RenderLayer::UI);
 
     _currentText = text;
     _string = _resource->CreateStringField(_currentText.c_str(), 600);
@@ -32,7 +33,7 @@ void TextRenderer::SetText(const std::string& text)
     // for each letter, we will have to send a new blit op to the renderer manager
     for (auto& letter : _string)
     {
-      RenderManager<GLTexture>::Get().RegisterDrawable<BlitOperation<GLTexture>>(RenderLayer::UI);
+      GRenderer.RegisterDrawable<BlitOperation<GLTexture>>(RenderLayer::UI);
 
       width = std::max(letter.x + letter.texture->GetInfo().mWidth, width);
       height = std::max(letter.y + letter.texture->GetInfo().mHeight, height);

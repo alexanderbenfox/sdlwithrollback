@@ -49,7 +49,7 @@ EventList Animation::GenerateEvents(const std::vector<AnimationActionEventData>&
 }
 
 //______________________________________________________________________________
-SDL_Rect Animation::GetFrameSrcRect(int animFrame) const
+DrawRect<float> Animation::GetFrameSrcRect(int animFrame) const
 {
   int frame = _animFrameToSheetFrame[animFrame];
   //if invalid frame, just return nothing
@@ -58,8 +58,8 @@ SDL_Rect Animation::GetFrameSrcRect(int animFrame) const
 
   int x = (_startIdx + frame) % _spriteSheet.columns;
   int y = (_startIdx + frame) / _spriteSheet.columns;
-
-  return OpSysConv::CreateSDLRect(x * _spriteSheet.frameSize.x, y * _spriteSheet.frameSize.y, _spriteSheet.frameSize.x, _spriteSheet.frameSize.y );
+  Vector2<float> pos(x * _spriteSheet.frameSize.x, y * _spriteSheet.frameSize.y);
+  return DrawRect<float>(pos.x, pos.y, _spriteSheet.frameSize.x, _spriteSheet.frameSize.y );
 }
 
 

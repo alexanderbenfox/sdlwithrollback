@@ -17,6 +17,7 @@ template <typename Drawable = RenderCommand>
 class DrawOperator
 {
 public:
+  DrawOperator() = default;
   //! Adds a new blit op to the list. Only objects registered here will be drawn
   void RegisterOp();
   //!
@@ -24,16 +25,18 @@ public:
   //! Used by drawn objects to pass their drawing parameters to the resource manager
   Drawable* GetAvailableOp() { return &_drawableOperations[_opIndex++]; }
   //!
-  void PerformDraw(SDL_Renderer* renderer, Camera* camera);
+  void PerformDraw(Camera* camera);
+  //!
+  void PerformDraw(Drawable& operation, Camera* camera);
 
 
 private:
   //!
-  static void DoDraw(SDL_Renderer* renderer, Drawable& operation) {}
+  static void DoDraw(Drawable& operation);
   //!
-  static void SetupCamera(Camera* camera) {}
+  static void SetupCamera(Camera* camera);
   //!
-  static void UndoCamera(Camera* camera) {}
+  static void UndoCamera(Camera* camera);
   //! Index of the latest available op spot
   int _opIndex = 0;
   //! All registered blit ops. Trying to use spatial loading to make drawing faster when there are a lot of object on screen
@@ -59,12 +62,12 @@ inline void DrawOperator<Drawable>::DeregisterOp()
 
 //______________________________________________________________________________
 template <typename Drawable>
-inline void DrawOperator<Drawable>::PerformDraw(SDL_Renderer* renderer, Camera* camera)
+inline void DrawOperator<Drawable>::PerformDraw(Camera* camera)
 {
   SetupCamera(camera);
   // only draw sprites that have been registered for this draw cycle
   for (int i = 0; i < _opIndex; i++)
-    DoDraw(renderer, _drawableOperations[i]);
+    DoDraw(_drawableOperations[i]);
   UndoCamera(camera);
 
   // reset available ops for next draw cycle
@@ -72,7 +75,15 @@ inline void DrawOperator<Drawable>::PerformDraw(SDL_Renderer* renderer, Camera* 
 }
 
 //______________________________________________________________________________
-template <typename TextureType>
+template <typename Drawable>
+inline void DrawOperator<Drawable>::PerformDraw(Drawable& operation, Camera* camera)
+{
+  SetupCamera(camera);
+  DoDraw(operation);
+  UndoCamera(camera);
+}
+
+//______________________________________________________________________________
 class RenderManager
 {
 public:
@@ -92,11 +103,15 @@ public:
   //!
   void* GetGLContext() const { return _glContext; }
 
+  void SwitchTo2D();
+
+  void SwitchTo3D();
+
   //! Adds a new blit op to the list. Only objects registered here will be drawn
   template <typename Drawable>
   void RegisterDrawable(RenderLayer layer)
   {
-    if constexpr (std::is_same_v<Drawable, BlitOperation<TextureType>>)
+    if constexpr (std::is_same_v<Drawable, BlitOperation<GLTexture>>)
       _drawers[(int)layer].textureDrawer.RegisterOp();
     else
       _drawers[(int)layer].primitiveDrawer.RegisterOp();
@@ -105,7 +120,7 @@ public:
   template <typename Drawable>
   void DeregisterDrawable(RenderLayer layer)
   {
-    if constexpr (std::is_same_v<Drawable, BlitOperation<TextureType>>)
+    if constexpr (std::is_same_v<Drawable, BlitOperation<GLTexture>>)
       _drawers[(int)layer].textureDrawer.DeregisterOp();
     else
       _drawers[(int)layer].primitiveDrawer.DeregisterOp();
@@ -114,7 +129,7 @@ public:
   template <typename Drawable>
   Drawable* GetAvailableOp(RenderLayer layer)
   {
-    if constexpr (std::is_same_v<Drawable, BlitOperation<TextureType>>)
+    if constexpr (std::is_same_v<Drawable, BlitOperation<GLTexture>>)
       return _drawers[(int)layer].textureDrawer.GetAvailableOp();
     else
       return _drawers[(int)layer].primitiveDrawer.GetAvailableOp();
@@ -133,13 +148,21 @@ public:
 
   Uint32 GetWindowFormat() const { return _sdlWindowFormat; }
 
+  void Draw3DBackground();
+
+  //! Intended just for debug drawing and helpers SHOULD NOT BE USED BY ENTITIES
+  void DrawPrimitiveDebug(DrawPrimitive<GLTexture>& prim, RenderLayer layer)
+  {
+    _drawers[(int)layer].primitiveDrawer.PerformDraw(prim, _drawers[(int)layer].camera);
+  }
+
 private:
 
   struct LayerDrawers
   {
-    DrawOperator<BlitOperation<TextureType>> textureDrawer;
-    DrawOperator<DrawPrimitive<TextureType>> primitiveDrawer;
-    Camera* camera;
+    DrawOperator<BlitOperation<GLTexture>> textureDrawer;
+    DrawOperator<DrawPrimitive<GLTexture>> primitiveDrawer;
+    Camera* camera = nullptr;
   };
 
   LayerDrawers _drawers[(int)RenderLayer::NLayers];

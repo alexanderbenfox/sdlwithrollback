@@ -22,16 +22,15 @@ public:
       // get a display op to set draw parameters
       auto displayOp = GRenderer.GetAvailableOp<BlitOperation<RenderType>>(RenderLayer::World);
 
-      displayOp->textureRect = renderer->sourceRect;
+      displayOp->srcRect = renderer->sourceRect;
       displayOp->textureResource = renderer->GetRenderResource();
 
       Vector2<int> renderOffset = properties->Offset();
+      Vector2<float> targetPos(transform->position.x + renderOffset.x * transform->scale.x, transform->position.y + renderOffset.y * transform->scale.y);
 
-      displayOp->displayRect = OpSysConv::CreateSDLRect(
-        static_cast<int>(std::floor(transform->position.x + renderOffset.x * transform->scale.x)),
-        static_cast<int>(std::floor(transform->position.y + renderOffset.y * transform->scale.y)),
-        (int)(static_cast<float>(renderer->sourceRect.w) * transform->scale.x),
-        (int)(static_cast<float>(renderer->sourceRect.h) * transform->scale.y));
+      displayOp->targetRect = DrawRect<float>(targetPos.x, targetPos.y,
+        renderer->sourceRect.w * transform->scale.x,
+        renderer->sourceRect.h * transform->scale.y);
 
       // set properties
       displayOp->flip = properties->horizontalFlip ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
@@ -61,19 +60,16 @@ public:
         // get a display op to set draw parameters
         auto displayOp = GRenderer.GetAvailableOp<BlitOperation<RenderType>>(RenderLayer::UI);
 
-        const SDL_Rect sourceRect = { 0, 0, (*drawOp.texture)->w(), (*drawOp.texture)->h() };
-
-        displayOp->textureRect = sourceRect;
+        displayOp->srcRect = DrawRect<float>(0, 0, (*drawOp.texture)->w(), (*drawOp.texture)->h());
         displayOp->textureResource = drawOp.texture;
 
         Vector2<int> drawOffset(drawOp.x, drawOp.y);
         Vector2<int> renderOffset = properties->Offset() + drawOffset;
 
-        displayOp->displayRect = OpSysConv::CreateSDLRect(
-          static_cast<int>(std::floor(displayPosition.x + renderOffset.x * transform->scale.x)),
-          static_cast<int>(std::floor(displayPosition.y + renderOffset.y * transform->scale.y)),
-          (int)(static_cast<float>(sourceRect.w) * transform->scale.x),
-          (int)(static_cast<float>(sourceRect.h) * transform->scale.y));
+        displayOp->targetRect = DrawRect<float>(displayPosition.x + renderOffset.x * transform->scale.x,
+          displayPosition.y + renderOffset.y * transform->scale.y,
+          displayOp->srcRect.w * transform->scale.x,
+          displayOp->srcRect.h * transform->scale.y);
 
         // set properties
         displayOp->flip = properties->horizontalFlip ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
@@ -99,8 +95,8 @@ public:
 
       auto processOps = [uiElement, transform, properties](DrawPrimitive<RenderType>* displayOp)
       {
-        displayOp->displayRect.x += transform->screenPosition.x;
-        displayOp->displayRect.y += transform->screenPosition.y;
+        displayOp->targetRect.x += transform->screenPosition.x;
+        displayOp->targetRect.y += transform->screenPosition.y;
 
         // set properties
         displayOp->flip = properties->horizontalFlip ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
@@ -113,7 +109,7 @@ public:
       // get a display op to set draw parameters
       auto op = GRenderer.GetAvailableOp<DrawPrimitive<RenderType>>(RenderLayer::UI);
 
-      op->displayRect = uiElement->shownSize;
+      op->targetRect = uiElement->shownSize;
       op->filled = uiElement->isFilled;
 
       processOps(op);

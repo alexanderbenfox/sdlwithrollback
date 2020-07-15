@@ -6,6 +6,18 @@
 
 //______________________________________________________________________________
 template <typename T>
+struct DrawRect
+{
+  DrawRect() : x((T)0), y((T)0), w((T)0), h((T)0) {}
+  DrawRect(T x, T y, T w, T h) : x(x), y(y), w(w), h(h) {}
+  T x;
+  T y;
+  T w;
+  T h;
+};
+
+//______________________________________________________________________________
+template <typename T>
 struct Rect
 {
   typedef Vector2<T> PointType;

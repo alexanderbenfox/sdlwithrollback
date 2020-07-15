@@ -36,6 +36,20 @@ public:
         Mat4::Scale(camera->zoom, camera->zoom, 1.0f) *
         Mat4::RotationZAxis(transform->rotation.x) * // should be z here
         Mat4::Translation(camera->origin.x, camera->origin.y, 0);
+
+
+      Vector2<float> worldPosition = transform->position;
+      worldPosition.x /= (static_cast<float>(camera->rect.w) / 1.0f);
+      worldPosition.y /= (static_cast<float>(camera->rect.h) / 1.0f);
+
+      Vector2<float> worldOrigin = camera->origin;
+      worldOrigin.x /= (static_cast<float>(camera->rect.w) / 1.0f);
+      worldOrigin.y /= (static_cast<float>(camera->rect.h) / 1.0f);
+
+      camera->worldMatrix =
+        Mat4::Translation(worldPosition.x + camera->worldMatrixPosition.x, -worldPosition.y + camera->worldMatrixPosition.y, camera->worldMatrixPosition.z) *
+        Mat4::Scale(camera->zoom, camera->zoom, 1.0f) *
+        Mat4::Translation(-worldOrigin.x, worldOrigin.y, 0);
     }
   }
 };

@@ -390,7 +390,7 @@ void GameManager::UpdateInput()
     {
       if (_localInput.window.event == SDL_WINDOWEVENT_RESIZED)
       {
-        RenderManager<RenderType>::Get().ProcessResizeEvent(_localInput);
+        GRenderer.ProcessResizeEvent(_localInput);
       }
     }
   }

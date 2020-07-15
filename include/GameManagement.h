@@ -9,7 +9,7 @@
 #include <thread>
 #include <mutex>
 
-#define GRenderer RenderManager<RenderType>::Get()
+#define GRenderer RenderManager::Get()
 
 //______________________________________________________________________________
 //! Manager of all things related to whats happening in the game

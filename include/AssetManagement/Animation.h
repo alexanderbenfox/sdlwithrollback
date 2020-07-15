@@ -23,7 +23,7 @@ public:
   EventList GenerateEvents(const std::vector<AnimationActionEventData>& attackInfo, FrameData frameData);
 
   //! Translates anim frame to the frame on spritesheet
-  SDL_Rect GetFrameSrcRect(int animFrame) const;
+  DrawRect<float> GetFrameSrcRect(int animFrame) const;
 
   const int GetFrameCount() const { return static_cast<int>(_animFrameToSheetFrame.size()); }
 

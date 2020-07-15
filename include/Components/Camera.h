@@ -19,18 +19,22 @@ public:
   //!
   void Init(int w, int h);
   //!
-  void ConvScreenSpace(RenderCommand* entity);
-  //!
-  bool EntityInDisplay(const RenderCommand* entity);
-  //!
   virtual void OnDebug() override
   {
-    ImGui::InputFloat("Zoom level", &zoom, 0.1f, 1.0f, 2);
+    std::string name = "Camera P" + std::to_string(_owner->GetID());
+    if (ImGui::CollapsingHeader(name.c_str()))
+    {
+      ImGui::InputFloat("Zoom level", &zoom, 0.1f, 1.0f, 2);
+
+      ImGui::InputFloat("pos x", &worldMatrixPosition.x, 0.1f, 1.0f, 2);
+      ImGui::InputFloat("pos y", &worldMatrixPosition.y, 0.1f, 1.0f, 2);
+      ImGui::InputFloat("pos z", &worldMatrixPosition.z, 0.1f, 1.0f, 2);
+    }
   }
   //!
   SDL_Rect rect;
   //!
-  Matrix4F matrix;
+  Matrix4F matrix, worldMatrix;
   //! takes care of the z value not in the transform component
   float zoom = 1.0f;
   //!
@@ -40,17 +44,6 @@ public:
 
   Rect<float> clamp = Rect<float>(0, 0, m_nativeWidth, m_nativeHeight);
 
+  Vector3<float> worldMatrixPosition;
+
 };
-
-//______________________________________________________________________________
-inline void Camera::ConvScreenSpace(RenderCommand* entity)
-{
-  entity->displayRect.x -= rect.x;
-  entity->displayRect.y -= rect.y;
-}
-
-//______________________________________________________________________________
-inline bool Camera::EntityInDisplay(const RenderCommand* entity)
-{
-  return SDLRectOverlap(rect, entity->displayRect);
-}

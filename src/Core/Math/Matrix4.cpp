@@ -1,5 +1,13 @@
 #include "Core/Math/Matrix4.h"
 
+const Matrix4F Mat4::RotateX90 = RotationXAxis(M_PI / 2.0f);
+const Matrix4F Mat4::RotateXN90 = RotationXAxis(-M_PI / 2.0f);
+const Matrix4F Mat4::RotateY90 = RotationYAxis(M_PI / 2.0f);
+const Matrix4F Mat4::RotateYN90 = RotationYAxis(-M_PI / 2.0f);
+const Matrix4F Mat4::RotateZ90 = RotationZAxis(M_PI / 2.0f);
+const Matrix4F Mat4::RotateZN90 = RotationZAxis(-M_PI / 2.0f);
+const Matrix4F Mat4::RotateZ180 = RotationZAxis(M_PI);
+
 /*template <> Matrix<float, 4> Matrix<float, 4>::operator*(const Matrix<float, 4>& matrix2)
 {
   Matrix result;
@@ -50,6 +58,30 @@ Matrix4F Mat4::Create(const float m11, const float m12, const float m13, const f
   return matrix;
 }
 
+Matrix4F Mat4::RotationXAxis(float radians)
+{
+  Matrix4F rotationMatrix = Matrix4F::Identity();
+
+  rotationMatrix[1][1] = std::cosf(radians);
+  rotationMatrix[2][1] = std::sinf(radians);
+  rotationMatrix[1][2] = -rotationMatrix[1][0];
+  rotationMatrix[2][2] = rotationMatrix[0][0];
+
+  return rotationMatrix;
+}
+
+Matrix4F Mat4::RotationYAxis(float radians)
+{
+  Matrix4F rotationMatrix = Matrix4F::Identity();
+
+  rotationMatrix[0][0] = std::cosf(radians);
+  rotationMatrix[0][2] = std::sinf(radians);
+  rotationMatrix[2][0] = -rotationMatrix[1][0];
+  rotationMatrix[2][2] = rotationMatrix[0][0];
+
+  return rotationMatrix;
+}
+
 Matrix4F Mat4::RotationZAxis(float radians)
 {
   Matrix4F rotationMatrix = Matrix4F::Identity();
@@ -68,7 +100,7 @@ Matrix4F Mat4::Scale(float x, float y, float z)
 
   scaleMatrix[0][0] = x;
   scaleMatrix[1][1] = y;
-  scaleMatrix[3][3] = z;
+  scaleMatrix[2][2] = z;
 
   return scaleMatrix;
 }

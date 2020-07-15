@@ -201,6 +201,9 @@
     <ClCompile Include="..\src\Core\Math\Matrix4.cpp">
       <Filter>Source Files\Core\Math</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\Rendering\OpenGLRenderer.cpp">
+      <Filter>Source Files\Rendering</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\AssetManagement\Resource.h">
@@ -416,6 +419,9 @@
     <ClInclude Include="..\include\Core\Math\Matrix.h">
       <Filter>Header Files\Core\Math</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\Rendering\OpenGLRenderer.h">
+      <Filter>Header Files\Rendering</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -424,9 +430,6 @@
     </None>
     <ClInclude Include="..\include\AssetManagement\LetterCase.h">
       <Filter>Header Files\AssetManagement</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\Rendering\RenderCopy.h">
-      <Filter>Header Files\Rendering</Filter>
     </ClInclude>
     <ClInclude Include="..\include\Rendering\RenderManager.h">
       <Filter>Header Files\Rendering</Filter>

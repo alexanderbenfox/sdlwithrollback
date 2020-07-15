@@ -1,75 +1,46 @@
 #include "Rendering/RenderManager.h"
 #include "GameManagement.h"
-#include "Rendering/RenderCopy.h"
+#include "Rendering/OpenGLRenderer.h"
 
 #include "Components/Camera.h"
 
 #include <type_traits>
 
+#include <GL/glut.h>
+
 //! Title of the game in the window... will figure this out lateerrrrr
 const char* Title = "Game Title";
 
 //______________________________________________________________________________
-template <> void DrawOperator<BlitOperation<GLTexture>>::DoDraw(SDL_Renderer* renderer, BlitOperation<GLTexture>& operation)
+template <> void DrawOperator<BlitOperation<GLTexture>>::DoDraw(BlitOperation<GLTexture>& operation)
 {
   if (!operation.valid) return;
+  auto srcTexture = operation.textureResource->Get();
+  float rotation = 0;
 
-  //GameManager::Get().GetMainCamera()->ConvScreenSpace(&operation);
-  //if (GameManager::Get().GetMainCamera()->EntityInDisplay(&operation))
-  //{
-    auto srcTexture = operation.textureResource->Get();
-    float rotation = 0;
-
-    try
-    {
-      GL_RenderCopyEx(srcTexture, &operation.textureRect, &operation.displayRect, rotation, nullptr, operation.flip, operation.displayColor);
-    }
-    catch (std::exception& e)
-    {
-      std::cout << "I guess this texture isn't valid??" << "\nCaught exception: " << e.what() << "\n";
-    }
-  //}
-}
-
-//______________________________________________________________________________
-template <> void DrawOperator<BlitOperation<SDL_Texture>>::DoDraw(SDL_Renderer* renderer, BlitOperation<SDL_Texture>& operation)
-{
-  if (!operation.valid) return;
-
-  //GameManager::Get().GetMainCamera()->ConvScreenSpace(&operation);
-  //if (GameManager::Get().GetMainCamera()->EntityInDisplay(&operation))
-  //{
-    auto srcTexture = operation.textureResource->Get();
-    float rotation = 0;
-
-    try
-    {
-      int w, h;
-      if (SDL_QueryTexture(operation.textureResource->Get(), NULL, NULL, &w, &h) == 0)
-      {
-        SDL_SetTextureColorMod(operation.textureResource->Get(), operation.displayColor.r, operation.displayColor.g, operation.displayColor.b);
-        SDL_RenderCopyEx(renderer, srcTexture, &operation.textureRect, &operation.displayRect, rotation, nullptr, operation.flip);
-      }
-    }
-    catch (std::exception& e)
-    {
-      std::cout << "I guess this texture isn't valid??" << "\nCaught exception: " << e.what() << "\n";
-    }
-  //}
-}
-
-//______________________________________________________________________________
-template <> void DrawOperator<DrawPrimitive<GLTexture>>::DoDraw(SDL_Renderer* renderer, DrawPrimitive<GLTexture>& operation)
-{
-  if (!operation.valid) return;
-
-  //GameManager::Get().GetMainCamera()->ConvScreenSpace(&operation);
-  //if (GameManager::Get().GetMainCamera()->EntityInDisplay(&operation))
+  try
   {
-    int xBeg = operation.displayRect.x;
-    int yBeg = operation.displayRect.y;
-    int xEnd = xBeg + operation.displayRect.w;
-    int yEnd = yBeg + operation.displayRect.h;
+    OpenGLRenderer::RenderQuad2D(srcTexture, operation.srcRect, operation.targetRect, rotation, nullptr, operation.flip, operation.displayColor);
+  }
+  catch (std::exception& e)
+  {
+    std::cout << "I guess this texture isn't valid??" << "\nCaught exception: " << e.what() << "\n";
+  }
+}
+
+//______________________________________________________________________________
+template <> void DrawOperator<DrawPrimitive<GLTexture>>::DoDraw(DrawPrimitive<GLTexture>& operation)
+{
+  if (!operation.valid) return;
+
+  if (operation.filled)
+    OpenGLRenderer::RenderQuad2D(operation.targetRect, 0, nullptr, operation.displayColor);
+  else
+  {
+    int xBeg = operation.targetRect.x;
+    int yBeg = operation.targetRect.y;
+    int xEnd = operation.targetRect.x + operation.targetRect.w;
+    int yEnd = operation.targetRect.y + operation.targetRect.h;
 
     SDL_Point points[5] =
     {
@@ -79,42 +50,7 @@ template <> void DrawOperator<DrawPrimitive<GLTexture>>::DoDraw(SDL_Renderer* re
       {xEnd, yBeg},
       {xBeg, yBeg}
     };
-
-    if (operation.filled)
-      GL_RenderDrawRectangle(Vector2<int>(xBeg, yBeg), Vector2<int>(xEnd, yEnd), operation.displayColor);
-    else
-      GL_RenderDrawLines(points, 5, operation.displayColor);
-  }
-}
-
-//______________________________________________________________________________
-template <> void DrawOperator<DrawPrimitive<SDL_Texture>>::DoDraw(SDL_Renderer* renderer, DrawPrimitive<SDL_Texture>& operation)
-{
-  if (!operation.valid) return;
-
-  //GameManager::Get().GetMainCamera()->ConvScreenSpace(&operation);
-  //if (GameManager::Get().GetMainCamera()->EntityInDisplay(&operation))
-  {
-    if (!operation.filled)
-    {
-      int xBeg = operation.displayRect.x;
-      int yBeg = operation.displayRect.y;
-      int xEnd = xBeg + operation.displayRect.w;
-      int yEnd = yBeg + operation.displayRect.h;
-
-      SDL_Point points[5] =
-      {
-        {xBeg, yBeg},
-        {xBeg, yEnd},
-        {xEnd, yEnd},
-        {xEnd, yBeg},
-        {xBeg, yBeg}
-      };
-
-      SDL_SetRenderDrawColor(GRenderer.GetRenderer(), operation.displayColor.r, operation.displayColor.g, operation.displayColor.b, operation.displayColor.a);
-      SDL_RenderDrawLines(GRenderer.GetRenderer(), points, 5);
-      SDL_SetRenderDrawColor(GRenderer.GetRenderer(), 0, 0, 0, SDL_ALPHA_OPAQUE);
-    }
+    OpenGLRenderer::RenderLines2D(points, 5, operation.displayColor);
   }
 }
 
@@ -143,7 +79,8 @@ template <> void DrawOperator<BlitOperation<GLTexture>>::UndoCamera()
   glPopMatrix();
 }*/
 
-template <> void DrawOperator<BlitOperation<GLTexture>>::SetupCamera(Camera* camera)
+template <typename Drawable>
+void DrawOperator<Drawable>::SetupCamera(Camera* camera)
 {
   glMatrixMode(GL_PROJECTION);
   glPushMatrix();
@@ -155,7 +92,8 @@ template <> void DrawOperator<BlitOperation<GLTexture>>::SetupCamera(Camera* cam
   glTranslatef(position.x, position.y, position.z);
 }
 
-template <> void DrawOperator<BlitOperation<GLTexture>>::UndoCamera(Camera* camera)
+template <typename Drawable>
+void DrawOperator<Drawable>::UndoCamera(Camera* camera)
 {
   const Matrix4F& matrix = camera->matrix;
   Vector3<float> negativePos = -Mat4::GetPosition(matrix);
@@ -166,17 +104,16 @@ template <> void DrawOperator<BlitOperation<GLTexture>>::UndoCamera(Camera* came
   glPopMatrix();
 }
 
+
 //______________________________________________________________________________
-template <typename TextureType>
-RenderManager<TextureType>::RenderManager() :
+RenderManager::RenderManager() :
   _renderer(nullptr),
   _window(nullptr),
   _glContext(nullptr),
   _renderScale(1.0, 1.0) {}
 
 //______________________________________________________________________________
-template <typename TextureType>
-void RenderManager<TextureType>::Init()
+void RenderManager::Init()
 {
   SDL_Init(SDL_INIT_EVERYTHING | SDL_INIT_GAMECONTROLLER | SDL_INIT_JOYSTICK);
   TTF_Init();
@@ -189,30 +126,18 @@ void RenderManager<TextureType>::Init()
   SDL_SetRenderDrawBlendMode(_renderer, SDL_BLENDMODE_BLEND);
 
   // init the gl context and a bunch of other stuff to enable GL
-  if constexpr (std::is_same_v<TextureType, GLTexture>)
-  {
-    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-    SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
+  SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+  SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+  SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
 
-    _glContext = SDL_GL_CreateContext(_window);
-    SDL_GL_MakeCurrent(_window, _glContext);
+  _glContext = SDL_GL_CreateContext(_window);
+  SDL_GL_MakeCurrent(_window, _glContext);
 
-    // Enable vsync
-    SDL_GL_SetSwapInterval(1);
-
-    glClearColor(0.0, 0.0, 0.0, 0.0);
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    glOrtho(0, m_nativeWidth, m_nativeHeight, 0, 0, 16);
-    glEnable(GL_BLEND);
-    glEnable(GL_TEXTURE_2D);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-    SDL_RenderSetScale(_renderer, 1.0f, 1.0f);
-  }
+  // Enable vsync
+  SDL_GL_SetSwapInterval(1);
+  SDL_RenderSetScale(_renderer, 1.0f, 1.0f);
 
 #ifndef _WIN32
   _sdlWindowFormat = SDL_GetWindowPixelFormat(_window);
@@ -222,8 +147,7 @@ void RenderManager<TextureType>::Init()
 }
 
 //______________________________________________________________________________
-template <typename TextureType>
-void RenderManager<TextureType>::Destroy()
+void RenderManager::Destroy()
 {
   SDL_DestroyRenderer(_renderer);
   SDL_DestroyWindow(_window);
@@ -238,8 +162,7 @@ void RenderManager<TextureType>::Destroy()
 }
 
 //______________________________________________________________________________
-template <typename TextureType>
-void RenderManager<TextureType>::ProcessResizeEvent(const SDL_Event& event)
+void RenderManager::ProcessResizeEvent(const SDL_Event& event)
 {
   // get the window event size
   Vector2<int> newWindowSize(event.window.data1, event.window.data2);
@@ -254,27 +177,54 @@ void RenderManager<TextureType>::ProcessResizeEvent(const SDL_Event& event)
 }
 
 //______________________________________________________________________________
-template <typename TextureType>
-void RenderManager<TextureType>::Draw()
+void RenderManager::SwitchTo2D()
 {
+  glEnable(GL_TEXTURE_2D);
+  glClearColor(0.0, 0.0, 0.0, 0.0);
+  glMatrixMode(GL_MODELVIEW);
+  glMatrixMode(GL_PROJECTION);
+  glLoadIdentity();
+  glOrtho(0, m_nativeWidth, m_nativeHeight, 0, 0, 16);
+  glMatrixMode(GL_MODELVIEW);
+
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  glDisable(GL_CULL_FACE);
+  glDisable(GL_DEPTH_TEST);
+}
+
+//______________________________________________________________________________
+void RenderManager::SwitchTo3D()
+{
+  glMatrixMode(GL_PROJECTION);
+  glLoadIdentity();
+  gluPerspective(54.0f, (float)m_nativeWidth / m_nativeHeight, 1.0f, 1000);
+  glMatrixMode(GL_MODELVIEW);
+
+  glDisable(GL_BLEND);
+  glCullFace(GL_BACK);
+  glEnable(GL_CULL_FACE);
+  glEnable(GL_DEPTH_TEST);
+}
+
+//______________________________________________________________________________
+void RenderManager::Draw()
+{
+  SwitchTo3D();
+  Draw3DBackground();
+  SwitchTo2D();
   for (int layer = 0; layer < (int)RenderLayer::NLayers; layer++)
   {
     if (_drawers[layer].camera)
     {
-      _drawers[layer].textureDrawer.PerformDraw(_renderer, _drawers[layer].camera);
-      _drawers[layer].primitiveDrawer.PerformDraw(_renderer, _drawers[layer].camera);
+      _drawers[layer].textureDrawer.PerformDraw(_drawers[layer].camera);
+      _drawers[layer].primitiveDrawer.PerformDraw(_drawers[layer].camera);
     }
   }
 }
 
 //______________________________________________________________________________
-template <> void RenderManager<SDL_Texture>::Clear()
-{
-  SDL_RenderClear(_renderer);
-}
-
-//______________________________________________________________________________
-template <> void RenderManager<GLTexture>::Clear()
+void RenderManager::Clear()
 {
   // clear previous render
   glClearColor(0.0, 0.0, 0.0, 1);
@@ -285,19 +235,76 @@ template <> void RenderManager<GLTexture>::Clear()
 }
 
 //______________________________________________________________________________
-template <> void RenderManager<SDL_Texture>::Present()
-{
-  SDL_RenderPresent(_renderer);
-}
-
-//______________________________________________________________________________
-template <> void RenderManager<GLTexture>::Present()
+void RenderManager::Present()
 {
   SDL_GL_SwapWindow(_window);
 }
 
+//______________________________________________________________________________
+void RenderManager::Draw3DBackground()
+{
+  bool camera = _drawers[(int)RenderLayer::World].camera != nullptr;
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Clear color and depth buffers
+  glMatrixMode(GL_MODELVIEW);     // To operate on model-view matrix
+  glPushMatrix();
+  Matrix4F matrix;
+  if(camera)
+    matrix = _drawers[(int)RenderLayer::World].camera->worldMatrix;
 
+  auto SetUpMatrix = [this, camera, &matrix]()
+  {
+    if (camera)
+    {
+      glLoadIdentity();
+      Vector3<float> camPos = Mat4::GetPosition(matrix);
+      gluLookAt(camPos.x, camPos.y, 5.0, camPos.x, camPos.y, 0.0, 0.0, 1.0, 0.0);
+    }
+  };
 
+  auto UnSetUpMatrix = [this, camera, &matrix]()
+  {
+    if (camera)
+    {
+      const Matrix4F invTranspose = matrix.Transpose() * -1.0f;
+      float m[16];
+      Mat4::toMat4(invTranspose, m);
+    }
+  };
+  
+  const Vector2<float> stageSize(6.0f, 4.0f);
+  float m[16];
 
-template class RenderManager<SDL_Texture>;
-template class RenderManager<GLTexture>;
+  SetUpMatrix();
+  glTranslatef(0.0f, 0.0f, 3.0f);
+  OpenGLRenderer::RenderQuad3D({ 230, 230, 230, 255 }, stageSize, Vector3<float>(0, -1.0f, 0.0f), Vector3<float>(1.0f, 1.0f, 1.0f));
+  
+  SetUpMatrix();
+  glTranslatef(0.0f, 0.0f, 3.0f);
+  Mat4::toMat4(Mat4::RotateZ180, m);
+  glMultMatrixf(m);
+  OpenGLRenderer::RenderQuad3D({ 153, 153, 153, 255 }, stageSize, Vector3<float>(0, -1.0f, 0.0f), Vector3<float>(1.0f, 1.0f, 1.0f));
+
+  SetUpMatrix();
+  glTranslatef(0.0f, 0.0f, 3.0f);
+  Mat4::toMat4(Mat4::RotateZ90, m);
+  glMultMatrixf(m);
+  OpenGLRenderer::RenderQuad3D({ 128, 128, 128, 255 }, stageSize, Vector3<float>(0, -3.0f, 0.0f), Vector3<float>(1.0f, 1.0f, 1.0f));
+
+  SetUpMatrix();
+  glTranslatef(0.0f, 0.0f, 3.0f);
+  Mat4::toMat4(Mat4::RotateZN90, m);
+  glMultMatrixf(m);
+  OpenGLRenderer::RenderQuad3D({ 128, 128, 128, 255 }, stageSize, Vector3<float>(0, -3.0f, 0.0f), Vector3<float>(1.0f, 1.0f, 1.0f));
+
+  
+  SetUpMatrix();
+  const SDL_Color cubeColors[6] = { {0, 255, 0, 255}, {255, 128, 0, 255}, {255, 0, 0, 255}, {255, 255, 0, 255}, {0, 0, 255, 255}, {255, 0, 255, 255} };
+  OpenGLRenderer::RenderCube3D(cubeColors, Vector3<float>(1.0f, 0.0f, 2.0f), Vector3<float>(0.4f, 0.4f, 0.4f));
+
+  SetUpMatrix();
+  const SDL_Color pyramidColors[3] = { {255, 0, 0, 255}, {0, 255, 0, 255}, {0, 0, 255, 255} };
+  OpenGLRenderer::RenderPyramid3D(pyramidColors, Vector3<float>(-1.2f, 0.0f, 2.7f), Vector3<float>(0.3f, 0.3f, 0.3f));
+  UnSetUpMatrix();
+
+  glPopMatrix();
+}
