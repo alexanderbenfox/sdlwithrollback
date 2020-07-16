@@ -36,8 +36,6 @@ public:
   //!
   std::pair<AnchorPoint, Vector2<int>> const& GetMainAnchor() const { return _anchorPoint; }
 
-  int GetFlipMargin() const { return _spriteSheet.frameSize.x - _lMargin; }
-
   struct ImGuiDisplayParams
   {
     void* ptr;

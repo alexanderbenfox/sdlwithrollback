@@ -6,10 +6,14 @@
 
 #include <type_traits>
 
-#include <GL/glut.h>
+#if defined(_WIN32)
+#include <gl/glut.h>
+#else
+#include <GLUT/glut.h>
+#endif
 
-//! Title of the game in the window... will figure this out lateerrrrr
-const char* Title = "Game Title";
+//! Title of the game in the window
+const char* Title = "Duel Engine";
 
 //______________________________________________________________________________
 template <> void DrawOperator<BlitOperation<GLTexture>>::DoDraw(BlitOperation<GLTexture>& operation)

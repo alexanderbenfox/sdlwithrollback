@@ -24,21 +24,25 @@ void EntityCreationData::AddComponents(Transform* creator, const StateComponent*
       params.size = Vector2<float>(instruction.second["entitysizex"].asFloat(), instruction.second["entitysizey"].asFloat());
 
       params.position = Vector2<float>(instruction.second["x"].asFloat(), instruction.second["y"].asFloat());
+      params.position *= creator->scale;
 
       if (instruction.second["relative"].asBool())
       {
         if (!creatorState->onLeftSide)
         {
           params.position.x = -params.position.x;
-          params.position.x += creator->rect.Width();
-          params.position.x -= (params.size.x * scale.x);
+
+          // this is because transform scaling extends from middle... also needs to be FIXED
+          Rect<float> scaleHelper(0, 0, params.size.x, params.size.y);
+          scaleHelper.Scale(Vector2<float>(1, 1), params.scale);
+          params.position.x += (creator->rect.Width() - (params.size.x - scaleHelper.beg.x));
         }
         params.position.x += creator->position.x;
         params.position.y += creator->position.y;
       }
-      
-      params.scale = Vector2<float>(1.0f, 1.0f);
 
+      // return scale to 1 because transform scaling is messed up and needs to be FIXED
+      params.scale = Vector2<float>(1.0f, 1.0f);
       entity->AddComponent<Transform>(params);
     }
     else if (instruction.first == "Animator")

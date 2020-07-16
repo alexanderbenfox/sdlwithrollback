@@ -12,6 +12,7 @@ public:
     for (auto tuple : MainSystem::Tuples)
     {
       StateComponent* hurtboxController = std::get<StateComponent*>(tuple.second);
+
       // reset the merge context
       hurtboxController->hitThisFrame = false;
       hurtboxController->hitOnLeftSide = false;
@@ -19,6 +20,13 @@ public:
 
     if(dt <= 0)
       return;
+
+    // reset hitting state only on timed update
+    for(auto tuple : MainSystem::Tuples)
+    {
+      StateComponent* hurtboxController = std::get<StateComponent*>(tuple.second);
+      hurtboxController->hitting = false;
+    }
 
     for (auto tuple : MainSystem::Tuples)
     {

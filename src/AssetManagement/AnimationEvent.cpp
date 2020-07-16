@@ -1,5 +1,6 @@
 #include "AssetManagement/AnimationEvent.h"
 #include "Components/Hitbox.h"
+#include "Components/Hurtbox.h"
 #include "Components/Rigidbody.h"
 #include "GameManagement.h"
 
@@ -86,14 +87,17 @@ EventList AnimationEventHelper::BuildEventList(const Vector2<int> offset, const 
       trans->GetComponent<Hitbox>()->hitData.damage = frameData.damage;
       trans->GetComponent<Hitbox>()->hitData.knockback = frameData.knockback;
 
-      Rect<double> hitboxBoundsRelativeToAnim(hitbox.beg.x * trans->scale.x, hitbox.beg.y * trans->scale.y, hitbox.end.x * trans->scale.x, hitbox.end.y * trans->scale.y);
-      Vector2<float> transCenterRelativeToAnim(trans->rect.HalfWidth() + offset.x * trans->scale.x, trans->rect.HalfHeight() + offset.y * trans->scale.y);
-      Vector2<double> relativeToTransformCenter = hitboxBoundsRelativeToAnim.GetCenter() - (Vector2<double>)transCenterRelativeToAnim;
+      Rect<double> rect = trans->GetComponent<Hurtbox>()->unscaledRect;
+      Vector2<double> rSize(trans->rect.Width(), trans->rect.Height());
+
+      //Rect<double> hitboxBoundsRelativeToAnim(hitbox.beg.x, hitbox.beg.y, hitbox.end.x * trans->scale.x, hitbox.end.y * trans->scale.y);
+      Vector2<float> transCenterRelativeToAnim(rect.HalfWidth() + offset.x, rect.HalfHeight() + offset.y);
+      Vector2<double> relativeToTransformCenter = hitbox.GetCenter() - (Vector2<double>)transCenterRelativeToAnim;
       if (!state->onLeftSide)
         relativeToTransformCenter.x *= -1.0;
 
-      trans->GetComponent<Hitbox>()->rect = hitboxBoundsRelativeToAnim;
-      trans->GetComponent<Hitbox>()->rect.CenterOnPoint((Vector2<double>)trans->position + relativeToTransformCenter);
+      trans->GetComponent<Hitbox>()->rect = Rect<double>(0, 0, trans->scale.x * hitbox.Width(), trans->scale.y * hitbox.Height());
+      trans->GetComponent<Hitbox>()->rect.CenterOnPoint((Vector2<double>)trans->position + trans->scale * relativeToTransformCenter);
     };
 
     eventCheck(i, DespawnHitbox, hitboxUpdateFunc, hitboxCondition);

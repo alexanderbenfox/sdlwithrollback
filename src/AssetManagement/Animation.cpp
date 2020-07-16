@@ -198,7 +198,7 @@ Vector2<int> AnimationCollection::GetRenderOffset(const std::string& animationNa
   Vector2<int> offset = anchPosition - _anchorPoint[(int)location];
 
   if(flipped)
-    offset.x += (renderedAnim.GetFlipMargin() - transformWidth);
+    offset.x = (renderedAnim.GetFrameWH().x - transformWidth) - offset.x;
 
   return offset;
 }
