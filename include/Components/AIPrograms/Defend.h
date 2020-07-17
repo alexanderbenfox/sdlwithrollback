@@ -22,4 +22,5 @@ struct DefendAfter : DefendAI
   bool isDefending = false;
   std::shared_ptr<ActionTimer> resetTimer;
   std::shared_ptr<Entity> timerEntity;
+  ActionState lastDefendingState = ActionState::NONE;
 };

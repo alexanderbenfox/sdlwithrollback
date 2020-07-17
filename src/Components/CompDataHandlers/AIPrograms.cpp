@@ -58,6 +58,13 @@ InputState DefendAfter::Update(const Transform* t, const StateComponent* s)
       ));
       timerEntity->GetComponent<TimerContainer>()->timings.push_back(resetTimer);
     }
+
+    if(lastDefendingState == ActionState::BLOCKSTUN && s->actionState != ActionState::BLOCKSTUN)
+    {
+      blockCommand |= (InputState::BTN1 | InputState::DOWN);
+    }
+    lastDefendingState = s->actionState;
+
     return blockCommand;
   }
   else

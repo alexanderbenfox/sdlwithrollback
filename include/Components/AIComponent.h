@@ -18,7 +18,7 @@ public:
 
   std::unique_ptr<IAIProgram> program;
 
-  InputState lastDecision;
+  InputState lastDecision = InputState::NONE;
 
 };
 
