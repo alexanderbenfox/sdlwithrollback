@@ -34,7 +34,7 @@ protected:
 };
 
 //______________________________________________________________________________
-//! Drives the animation - only calls the action's on complete function
+//! Drives the animation - only calls the action's on complete function no update
 class SimpleActionTimer : public ActionTimer
 {
 public:

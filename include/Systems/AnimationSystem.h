@@ -1,7 +1,7 @@
 #pragma once
 #include "Systems/ISystem.h"
 #include "Components/Animator.h"
-#include "Components/AttackStateComponent.h"
+#include "Components/StateComponents/AttackStateComponent.h"
 #include "Components/StateComponent.h"
 
 class AttackAnimationSystem : public ISystem<AttackStateComponent, Animator, Transform, StateComponent>

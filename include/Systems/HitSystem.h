@@ -3,6 +3,7 @@
 #include "Components/Hitbox.h"
 #include "Components/Hurtbox.h"
 #include "Components/StateComponent.h"
+#include "Components/StateComponents/HitStateComponent.h"
 
 class HitSystem : public IMultiSystem<SysComponents<Hurtbox, StateComponent, TeamComponent>, SysComponents<Hitbox, Hurtbox, StateComponent, TeamComponent>>
 {
@@ -15,7 +16,6 @@ public:
 
       // reset the merge context
       hurtboxController->hitThisFrame = false;
-      hurtboxController->hitOnLeftSide = false;
     }
 
     if(dt <= 0)

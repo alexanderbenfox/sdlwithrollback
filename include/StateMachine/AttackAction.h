@@ -1,6 +1,6 @@
 #pragma once
 #include "StateMachine/AnimatedAction.h"
-#include "Components/AttackStateComponent.h"
+#include "Components/StateComponents/AttackStateComponent.h"
 
 //______________________________________________________________________________
 template <StanceState Stance, ActionState Action>

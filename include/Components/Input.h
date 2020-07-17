@@ -1,206 +1,17 @@
 #pragma once
 #include <SDL2/SDL.h>
 
-#include "Utils.h"
 #include "Components/IComponent.h"
 #include "DebugGUI/DebugItem.h"
 
-#include <queue>
-#include <unordered_map>
-
-//______________________________________________________________________________
-enum class InputState : unsigned char
-{
-  NONE = 0x00,
-  UP = 0x01,
-  DOWN = 0x02,
-  RIGHT = 0x04,
-  LEFT = 0x08,
-  BTN1 = 0x10,
-  BTN2 = 0x20,
-  BTN3 = 0x40,
-  BTN4 = 0x80
-};
-
-template <> struct std::hash<InputState>
-{
-  std::size_t operator()(const InputState& k) const
-  {
-    return hash<unsigned char>()((unsigned char)k);
-  }
-};
-
-//______________________________________________________________________________
-enum class SpecialInputState : unsigned char
-{
-  NONE = 0x00,
-  QCF = 0x01, // quarter circle forward
-  QCB = 0x02, // quarter circle back
-  DPF = 0x04, // dragon punch forward
-  DPB = 0x08, // dragon punch back
-  RDash = 0x10, // right dash input
-  LDash = 0x20 // left dash input
-};
-
-//______________________________________________________________________________
-void operator|=(InputState& the, InputState other);
-//______________________________________________________________________________
-void operator&=(InputState& the, InputState other);
-//______________________________________________________________________________
-InputState operator&(InputState a, InputState b);
-//______________________________________________________________________________
-InputState operator|(InputState a, InputState b);
-//______________________________________________________________________________
-InputState operator~(InputState const& other);
-
-//______________________________________________________________________________
-static bool HasState(const InputState& state, InputState other) { return (state & other) == other; }
-
-
-//! Input buffer class for storing 
-class InputBuffer
-{
-public:
-  //! construct with a limit to the size of the buffer
-  InputBuffer(int limit);
-  //! push new input state into the buffer and remove oldest state from buffer
-  void Push(InputState item);
-  //! gets the most recently added item
-  InputState const& Latest() const { return _buffer.back(); }
-  //! evaluate possible special motions
-  SpecialInputState Evaluate(const TrieNode<InputState, SpecialInputState>& spMoveDict) const;
-  //!
-  void Clear();
-
-private:
-  std::vector<InputState> _buffer;
-  int _limit;
-
-};
-
-// simple move dict to test this out
-const TrieNode<InputState, SpecialInputState> UnivSpecMoveDict
-{
-  std::make_pair(std::list<InputState>{InputState::DOWN, InputState::DOWN | InputState::RIGHT, InputState::RIGHT}, SpecialInputState::QCF),
-  std::make_pair(std::list<InputState>{InputState::DOWN, InputState::DOWN | InputState::LEFT, InputState::LEFT}, SpecialInputState::QCB),
-  std::make_pair(std::list<InputState>{InputState::RIGHT, InputState::DOWN, InputState::RIGHT | InputState::DOWN}, SpecialInputState::DPF),
-  std::make_pair(std::list<InputState>{InputState::LEFT, InputState::DOWN, InputState::LEFT | InputState::DOWN}, SpecialInputState::DPB),
-  //std::make_pair(std::list<InputState>{InputState::RIGHT | InputState::DOWN, InputState::NONE, InputState::RIGHT | InputState::DOWN}, SpecialInputState::DPF),
-  //std::make_pair(std::list<InputState>{InputState::LEFT | InputState::DOWN, InputState::NONE, InputState::LEFT | InputState::DOWN}, SpecialInputState::DPB),
-  std::make_pair(std::list<InputState>{InputState::RIGHT, InputState::NONE, InputState::RIGHT}, SpecialInputState::RDash),
-  std::make_pair(std::list<InputState>{InputState::LEFT, InputState::NONE, InputState::LEFT}, SpecialInputState::LDash)
-};
-
-
-
-//______________________________________________________________________________
-//! Interface for input handlers
-class IInputHandler
-{
-public:
-  // initialize with input buffer of 6 frames
-  IInputHandler() : _inputBuffer(20) {}
-  //! Destructor
-  virtual ~IInputHandler() {}
-  //! Gets the command based on the type of input received from the controller
-  virtual InputBuffer const& CollectInputState() = 0;
-  //!
-  virtual void ClearInputBuffer() { _inputBuffer.Clear(); }
-
-
-
-protected:
-  //! Last state received by the input controller
-  InputBuffer _inputBuffer;
-
-};
-
-//______________________________________________________________________________
-//! Keyboard handler specification
-class KeyboardInputHandler : public IInputHandler
-{
-public:
-  //!
-  KeyboardInputHandler();
-  //!
-  ~KeyboardInputHandler();
-  //!
-  virtual InputBuffer const& CollectInputState() final;
-  //!
-  void AssignKey(SDL_Keycode keyCode, InputState action)
-  {
-    _config[keyCode] = action;
-  }
-
-private:
-  //!
-  const uint8_t* _keyStates = nullptr;
-  //!
-  ConfigMap<SDL_Keycode, InputState> _config;
-
-};
-
-//______________________________________________________________________________
-//!
-class JoystickInputHandler : public IInputHandler
-{
-public:
-  //!
-  JoystickInputHandler();
-  //!
-  ~JoystickInputHandler();
-  //!
-  virtual InputBuffer const& CollectInputState() final;
-
-  void AssignKey(uint8_t keyCode, InputState action)
-  {
-    _config[keyCode] = action;
-  }
-
-private:
-  //!
-  SDL_Joystick* _gameController = nullptr;
-  //!
-  const int _joyStickID = 0;
-  //!
-  ConfigMap<uint8_t, InputState> _config;
-  
-};
-
-
-//______________________________________________________________________________
-//!
-class GamepadInputHandler : public IInputHandler
-{
-public:
-  //!
-  GamepadInputHandler();
-  //!
-  ~GamepadInputHandler();
-  //!
-  virtual InputBuffer const& CollectInputState() final;
-
-  void AssignKey(SDL_GameControllerButton keyCode, InputState action)
-  {
-    _config[keyCode] = action;
-  }
-
-
-private:
-  //!
-  SDL_GameController* _gameController = nullptr;
-  //!
-  SDL_Joystick* _joyStick;
-  //!
-  const int _joyStickID = 0;
-  //!
-  ConfigMap<SDL_GameControllerButton, InputState> _config;
-  
-};
+#include "Components/InputHandlers/KeyboardHandler.h"
+#include "Components/InputHandlers/JoystickInputHandler.h"
+#include "Components/InputHandlers/GamepadInputHandler.h"
+#include "Components/InputHandlers/AIInputHandler.h"
 
 enum class InputType : int
 {
-  Keyboard = 0, Joystick = 1, Gamepad = 2
+  Keyboard = 0, Joystick = 1, Gamepad = 2, DefendAll = 3, DefendAfter = 4
 };
 
 //______________________________________________________________________________
@@ -228,6 +39,7 @@ protected:
   KeyboardInputHandler _keyboard;
   JoystickInputHandler _joystick;
   GamepadInputHandler _gamepad;
+  AIInputHandler _ai;
 
 };
 

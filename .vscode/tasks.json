@@ -17,6 +17,8 @@
         "src/StateMachine/*.cpp",
         "src/*.cpp",
         "src/Components/*.cpp",
+        "src/Components/CompDataHandlers/*.cpp",
+        "src/Components/StateComponents/*.cpp",
         "src/AssetManagement/*.cpp",
         "src/AssetManagement/StaticAssets/*.cpp",
         "src/GameState/*.cpp",
@@ -43,6 +45,7 @@
         "-o",
         "game.out",
         "--debug"
+        //"-ftime-report"
       ],
       "problemMatcher": [
         "$gcc"

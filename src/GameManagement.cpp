@@ -15,6 +15,7 @@
 #include "Systems/CutsceneSystem.h"
 #include "Systems/CheckBattleEndSystem.h"
 #include "Systems/UISystem.h"
+#include "Systems/AISystem.h"
 
 #include "Systems/Physics.h"
 #include "DebugGUI/GUIController.h"
@@ -167,7 +168,8 @@ void GameManager::Initialize()
 
   //! Initialize them with keyboard handlers
   _p1->GetComponent<GameInputComponent>()->AssignHandler(InputType::Keyboard);
-  _p2->GetComponent<GameInputComponent>()->AssignHandler(InputType::Keyboard);
+  //! Initialize second player as defend all AI
+  _p2->GetComponent<GameInputComponent>()->AssignHandler(InputType::DefendAll);
 
   //! initialize the scene
   ChangeScene(SceneType::START);
@@ -306,6 +308,7 @@ void GameManager::CheckAgainstSystems(Entity* entity)
   UIPositionUpdateSystem::Check(entity);
   UIContainerUpdateSystem::Check(entity);
   DrawUIPrimitivesSystem::Check(entity);
+  UpdateAISystem::Check(entity);
 }
 
 //______________________________________________________________________________

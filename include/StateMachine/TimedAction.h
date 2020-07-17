@@ -4,7 +4,7 @@
 #include "StateMachine/ActionUtil.h"
 
 #include "Components/GameActor.h"
-#include "Components/AttackStateComponent.h"
+#include "Components/StateComponents/HitStateComponent.h"
 
 //! Timed actions drive the animation/action to run for the specified duration
 //______________________________________________________________________________

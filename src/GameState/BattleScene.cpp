@@ -18,6 +18,7 @@
 #include "Systems/CheckBattleEndSystem.h"
 #include "Systems/CutsceneSystem.h"
 #include "Systems/UISystem.h"
+#include "Systems/AISystem.h"
 
 #include "AssetManagement/StaticAssets/CharacterConfig.h"
 
@@ -102,6 +103,7 @@ void BattleScene::Update(float deltaTime)
   HitSystem::DoTick(deltaTime);
 
   PlayerSideSystem::DoTick(deltaTime);
+  UpdateAISystem::DoTick(deltaTime);
   InputSystem::DoTick(deltaTime);
 
   FrameAdvantageSystem::DoTick(deltaTime);

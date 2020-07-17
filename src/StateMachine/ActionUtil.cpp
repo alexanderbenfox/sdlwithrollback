@@ -118,8 +118,8 @@ IAction* CheckHits(const InputState& rawInput, const StateComponent& context)
   bool facingRight = context.onLeftSide;
   if (context.hitThisFrame)
   {
-    bool blockedRight = HasState(rawInput, InputState::LEFT) && !context.hitOnLeftSide;
-    bool blockedLeft = HasState(rawInput, InputState::RIGHT) && context.hitOnLeftSide;
+    bool blockedRight = HasState(rawInput, InputState::LEFT) && context.onLeftSide;
+    bool blockedLeft = HasState(rawInput, InputState::RIGHT) && !context.onLeftSide;
     if (blockedRight || blockedLeft)
       return new OnRecvHitAction<StanceState::STANDING, ActionState::BLOCKSTUN>("Block", facingRight, context.hitData.framesInStunBlock, Vector2<float>::Zero);
     else

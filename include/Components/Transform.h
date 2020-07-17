@@ -25,7 +25,7 @@ struct Transform : public IComponent
   template <typename T>
   void RemoveComponent();
   //!
-  template <typename T>
+  template <typename T = IComponent>
   std::shared_ptr<T> GetComponent();
 
   friend std::ostream& operator<<(std::ostream& os, const Transform& transform);

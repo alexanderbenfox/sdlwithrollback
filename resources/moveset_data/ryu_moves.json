@@ -125,11 +125,11 @@
 			"hitstop" : 10,
 			"knockback" : 
 			{
-				"x" : 120.0,
+				"x" : 180.0,
 				"y" : -100.0
 			},
 			"onblock" : 3,
-			"onhit" : 3,
+			"onhit" : 4,
 			"recovery" : 7,
 			"startup" : 4
 		},
@@ -837,8 +837,8 @@
 			{
 				"movement" : 
 				{
-					"x" : 30,
-					"y" : -150
+					"x" : 30.0,
+					"y" : -150.0
 				}
 			},
 			{},
@@ -860,8 +860,8 @@
 				},
 				"movement" : 
 				{
-					"x" : 50,
-					"y" : -125
+					"x" : 50.0,
+					"y" : -125.0
 				}
 			},
 			{
@@ -897,8 +897,8 @@
 			{
 				"movement" : 
 				{
-					"x" : 50,
-					"y" : -150
+					"x" : 50.0,
+					"y" : -150.0
 				}
 			},
 			{
@@ -944,11 +944,6 @@
 						"x" : 47.0,
 						"y" : 19.0
 					}
-				},
-				"movement" : 
-				{
-					"x" : 0,
-					"y" : -125
 				}
 			},
 			{},
@@ -968,8 +963,8 @@
 				},
 				"movement" : 
 				{
-					"x" : 50,
-					"y" : -160
+					"x" : 50.0,
+					"y" : -160.0
 				}
 			},
 			{
@@ -985,11 +980,6 @@
 						"x" : 62.0,
 						"y" : 19.0
 					}
-				},
-				"movement" : 
-				{
-					"x" : 0,
-					"y" : -50
 				}
 			},
 			{
@@ -1036,11 +1026,6 @@
 						"x" : 62.0,
 						"y" : 19.0
 					}
-				},
-				"movement" : 
-				{
-					"x" : 0,
-					"y" : -50
 				}
 			},
 			{},
@@ -1072,11 +1057,6 @@
 						"x" : 62.0,
 						"y" : 19.0
 					}
-				},
-				"movement" : 
-				{
-					"x" : 0,
-					"y" : -50
 				}
 			},
 			{
@@ -1095,20 +1075,14 @@
 				}
 			},
 			{},
-			{
-				"movement" : 
-				{
-					"x" : -50,
-					"y" : 0
-				}
-			},
+			{},
 			{},
 			{},
 			{}
 		],
 		"framedata" : 
 		{
-			"active" : 28,
+			"active" : 45,
 			"damage" : 4,
 			"hitstop" : 10,
 			"knockback" : 
@@ -1116,9 +1090,9 @@
 				"x" : 400.0,
 				"y" : 100.0
 			},
-			"onblock" : -6,
-			"onhit" : 5,
-			"recovery" : 23,
+			"onblock" : -20,
+			"onhit" : -15,
+			"recovery" : 34,
 			"startup" : 5
 		},
 		"numFrames" : 27,
@@ -1248,7 +1222,7 @@
 		"framedata" : 
 		{
 			"active" : 3,
-			"damage" : 10,
+			"damage" : 4,
 			"hitstop" : 10,
 			"knockback" : 
 			{
@@ -1258,7 +1232,7 @@
 			"onblock" : -2,
 			"onhit" : 3,
 			"recovery" : 7,
-			"startup" : 4
+			"startup" : 3
 		},
 		"numFrames" : 7,
 		"spritesheet" : "spritesheets\\grounded_attacks.png",
