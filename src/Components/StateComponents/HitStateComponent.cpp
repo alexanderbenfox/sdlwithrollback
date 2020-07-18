@@ -24,5 +24,5 @@ void HitStateComponent::SetTimer(ActionTimer* timer)
 
 int HitStateComponent::GetRemainingFrames()
 {
-  return (_linkedTimer->Duration() - 1) - _linkedTimer->currFrame;
+  return _linkedTimer->Duration() - _linkedTimer->currFrame;
 }

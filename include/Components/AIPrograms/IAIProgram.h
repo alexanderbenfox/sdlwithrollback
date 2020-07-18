@@ -1,7 +1,7 @@
 #pragma once
 #include "Components/InputHandlers/InputBuffer.h"
 
-class Transform;
+struct Transform;
 class StateComponent;
 
 struct IAIProgram

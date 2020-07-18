@@ -85,6 +85,21 @@
     <Filter Include="Source Files\Core\Math">
       <UniqueIdentifier>{a1c93834-b4c6-416c-83b7-61637d7d180b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Components\AIPrograms">
+      <UniqueIdentifier>{51a6f393-f5de-4717-b888-eac30eb2ded9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Components\InputHandlers">
+      <UniqueIdentifier>{dbeaf36c-2207-4851-9c18-8778bc6841b4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Components\StateComponents">
+      <UniqueIdentifier>{8729944e-2c7d-426c-91a0-f5b4e0d00635}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Components\CompDataHandlers">
+      <UniqueIdentifier>{90e3ef4d-539b-4a17-8a59-8860e9e2d42d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Components\StateComponents">
+      <UniqueIdentifier>{4b99f7fb-ad79-4edf-bdad-bf56374a8834}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\2DEngine.cpp">
@@ -204,6 +219,18 @@
     <ClCompile Include="..\src\Rendering\OpenGLRenderer.cpp">
       <Filter>Source Files\Rendering</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\Components\CompDataHandlers\AIPrograms.cpp">
+      <Filter>Source Files\Components\CompDataHandlers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Components\CompDataHandlers\InputHandlers.cpp">
+      <Filter>Source Files\Components\CompDataHandlers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Components\StateComponents\AttackStateComponent.cpp">
+      <Filter>Source Files\Components\StateComponents</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Components\StateComponents\HitStateComponent.cpp">
+      <Filter>Source Files\Components\StateComponents</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\AssetManagement\Resource.h">
@@ -280,9 +307,6 @@
     </ClInclude>
     <ClInclude Include="..\include\Systems\TimerSystem.h">
       <Filter>Header Files\Systems</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\Components\AttackStateComponent.h">
-      <Filter>Header Files\Components</Filter>
     </ClInclude>
     <ClInclude Include="..\include\AssetManagement\Text.h">
       <Filter>Header Files\AssetManagement</Filter>
@@ -421,6 +445,42 @@
     </ClInclude>
     <ClInclude Include="..\include\Rendering\OpenGLRenderer.h">
       <Filter>Header Files\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Systems\AISystem.h">
+      <Filter>Header Files\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Components\AIComponent.h">
+      <Filter>Header Files\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Components\AIPrograms\Defend.h">
+      <Filter>Header Files\Components\AIPrograms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Components\AIPrograms\IAIProgram.h">
+      <Filter>Header Files\Components\AIPrograms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Components\InputHandlers\AIInputHandler.h">
+      <Filter>Header Files\Components\InputHandlers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Components\InputHandlers\GamepadInputHandler.h">
+      <Filter>Header Files\Components\InputHandlers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Components\InputHandlers\IInputHandler.h">
+      <Filter>Header Files\Components\InputHandlers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Components\InputHandlers\InputBuffer.h">
+      <Filter>Header Files\Components\InputHandlers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Components\InputHandlers\JoystickInputHandler.h">
+      <Filter>Header Files\Components\InputHandlers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Components\InputHandlers\KeyboardHandler.h">
+      <Filter>Header Files\Components\InputHandlers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Components\StateComponents\AttackStateComponent.h">
+      <Filter>Header Files\Components\StateComponents</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Components\StateComponents\HitStateComponent.h">
+      <Filter>Header Files\Components\StateComponents</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

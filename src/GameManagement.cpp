@@ -169,7 +169,7 @@ void GameManager::Initialize()
   //! Initialize them with keyboard handlers
   _p1->GetComponent<GameInputComponent>()->AssignHandler(InputType::Keyboard);
   //! Initialize second player as defend all AI
-  _p2->GetComponent<GameInputComponent>()->AssignHandler(InputType::DefendAll);
+  _p2->GetComponent<GameInputComponent>()->AssignHandler(InputType::DefendAfter);
 
   //! initialize the scene
   ChangeScene(SceneType::START);

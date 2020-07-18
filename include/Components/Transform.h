@@ -26,7 +26,7 @@ struct Transform : public IComponent
   void RemoveComponent();
   //!
   template <typename T = IComponent>
-  std::shared_ptr<T> GetComponent();
+  std::shared_ptr<T> GetComponent() const;
 
   friend std::ostream& operator<<(std::ostream& os, const Transform& transform);
   friend std::istream& operator>>(std::istream& is, Transform& transform);
@@ -62,7 +62,7 @@ inline void Transform::RemoveComponent()
 }
 
 template <typename T>
-inline std::shared_ptr<T> Transform::GetComponent()
+inline std::shared_ptr<T> Transform::GetComponent() const
 {
   return _owner->GetComponent<T>();
 }

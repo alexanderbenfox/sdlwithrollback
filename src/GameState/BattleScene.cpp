@@ -107,7 +107,7 @@ void BattleScene::Update(float deltaTime)
   InputSystem::DoTick(deltaTime);
 
   FrameAdvantageSystem::DoTick(deltaTime);
-  
+
   AnimationSystem::DoTick(deltaTime);
   AttackAnimationSystem::DoTick(deltaTime);
 

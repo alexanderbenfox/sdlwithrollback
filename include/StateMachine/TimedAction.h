@@ -63,14 +63,13 @@ inline void TimedAction<Stance, Action>::Enact(Entity* actor)
 template <StanceState Stance, ActionState Action>
 inline IAction* TimedAction<Stance, Action>::HandleInput(const InputBuffer& rawInput, const StateComponent& context)
 {
+  IAction* onHitAction = CheckHits(rawInput.Latest(), context, Action == ActionState::BLOCKSTUN);
+  if (onHitAction) return onHitAction;
+
   if (AnimatedAction<Stance, Action>::_complete)
   {
     return GetFollowUpAction(rawInput, context);
   }
-
-  IAction* onHitAction = CheckHits(rawInput.Latest(), context);
-  if (onHitAction)
-    return onHitAction;
 
   return nullptr;
 }
@@ -79,6 +78,10 @@ inline IAction* TimedAction<Stance, Action>::HandleInput(const InputBuffer& rawI
 template <StanceState Stance, ActionState Action>
 inline IAction* TimedAction<Stance, Action>::GetFollowUpAction(const InputBuffer& rawInput, const StateComponent& context)
 {
+  LoopedAction<Stance, ActionState::NONE> followUp(Stance == StanceState::STANDING ? "Idle" : Stance == StanceState::CROUCHING ? "Crouch" : "Jumping", this->_facingRight);
+  IAction* action = followUp.HandleInput(rawInput, context);
+  if (action)
+    return action;
   return new LoopedAction<Stance, ActionState::NONE>(Stance == StanceState::STANDING ? "Idle" : Stance == StanceState::CROUCHING ? "Crouch" : "Jumping", this->_facingRight);
 }
 
@@ -93,7 +96,9 @@ public:
 
   void Enact(Entity* actor) override;
 
-private:
+protected:
+  //! Follows up with idle state
+  virtual IAction* GetFollowUpAction(const InputBuffer& rawInput, const StateComponent& context) override;
 
   float _dashSpeed;
 

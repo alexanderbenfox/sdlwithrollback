@@ -81,7 +81,7 @@ EventList AnimationEventHelper::BuildEventList(const Vector2<int> offset, const 
     std::function<void(Transform*, StateComponent*)> hitboxUpdateFunc = [hitbox, frameData, offset](Transform* trans, StateComponent* state)
     {
       trans->AddComponent<Hitbox>();
-      int framesTilNeutral = frameData.active + frameData.recover + 1;
+      int framesTilNeutral = frameData.active + frameData.recover;
       trans->GetComponent<Hitbox>()->hitData.framesInStunBlock = framesTilNeutral + frameData.onBlockAdvantage;
       trans->GetComponent<Hitbox>()->hitData.framesInStunHit = framesTilNeutral + frameData.onHitAdvantage;
       trans->GetComponent<Hitbox>()->hitData.damage = frameData.damage;

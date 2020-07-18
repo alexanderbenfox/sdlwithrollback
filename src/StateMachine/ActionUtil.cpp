@@ -113,17 +113,19 @@ IAction* CheckSpecials(const InputBuffer& rawInput, const StateComponent& contex
 
 
 //______________________________________________________________________________
-IAction* CheckHits(const InputState& rawInput, const StateComponent& context)
+IAction* CheckHits(const InputState& rawInput, const StateComponent& context, bool canBlock)
 {
   bool facingRight = context.onLeftSide;
   if (context.hitThisFrame)
   {
-    bool blockedRight = HasState(rawInput, InputState::LEFT) && context.onLeftSide;
-    bool blockedLeft = HasState(rawInput, InputState::RIGHT) && !context.onLeftSide;
-    if (blockedRight || blockedLeft)
-      return new OnRecvHitAction<StanceState::STANDING, ActionState::BLOCKSTUN>("Block", facingRight, context.hitData.framesInStunBlock, Vector2<float>::Zero);
-    else
-      return new OnRecvHitAction<StanceState::STANDING, ActionState::HITSTUN>("HeavyHitstun", facingRight, context.hitData.framesInStunHit, context.hitData.knockback, context.hitData.damage);
+    if (canBlock)
+    {
+      bool blockedRight = HasState(rawInput, InputState::LEFT) && context.onLeftSide;
+      bool blockedLeft = HasState(rawInput, InputState::RIGHT) && !context.onLeftSide;
+      if (blockedRight || blockedLeft)
+        return new OnRecvHitAction<StanceState::STANDING, ActionState::BLOCKSTUN>("Block", facingRight, context.hitData.framesInStunBlock, Vector2<float>::Zero);
+    }
+    return new OnRecvHitAction<StanceState::STANDING, ActionState::HITSTUN>("HeavyHitstun", facingRight, context.hitData.framesInStunHit, context.hitData.knockback, context.hitData.damage);
   }
   return nullptr;
 }
@@ -131,15 +133,12 @@ IAction* CheckHits(const InputState& rawInput, const StateComponent& context)
 //______________________________________________________________________________
 IAction* StateLockedHandleInput(const InputBuffer& rawInput, const StateComponent& context, IAction* action, bool actionComplete)
 {
-  if (actionComplete)
-  {
-    return action->GetFollowUpAction(rawInput, context);
-  }
+  // check if hit first
+  IAction* onHitAction = CheckHits(rawInput.Latest(), context, false);
+  if (onHitAction) return onHitAction;
 
-  if (context.hitThisFrame)
-  {
-    return new OnRecvHitAction<StanceState::STANDING, ActionState::HITSTUN>("HeavyHitstun", context.onLeftSide, context.hitData.framesInStunHit, context.hitData.knockback);
-  }
+  // check for follow up after hit
+  if (actionComplete) return action->GetFollowUpAction(rawInput, context);
 
   if (action->GetStance() == StanceState::JUMPING)
   {

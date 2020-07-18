@@ -1,6 +1,7 @@
 #include "Components/AIPrograms/Defend.h"
 #include "Components/GameActor.h"
 #include "Components/Transform.h"
+#include "Components/StateComponents/HitStateComponent.h"
 
 #include "StateMachine/ActionTimer.h"
 
@@ -59,11 +60,25 @@ InputState DefendAfter::Update(const Transform* t, const StateComponent* s)
       timerEntity->GetComponent<TimerContainer>()->timings.push_back(resetTimer);
     }
 
-    if(lastDefendingState == ActionState::BLOCKSTUN && s->actionState != ActionState::BLOCKSTUN)
+    ActionState thisDefendingState = t->GetComponent<HitStateComponent>() != nullptr ? ActionState::BLOCKSTUN : ActionState::NONE;
+    if (thisDefendingState == ActionState::NONE && lastDefendingState == ActionState::BLOCKSTUN)
+    {
+      // if not defending during this time, cancel the anim
+      if (blockCommand == InputState::NONE)
+      {
+        resetTimer->Cancel();
+        wasHit = false;
+        isDefending = false;
+      }
+      blockCommand |= (InputState::BTN1 | InputState::DOWN);
+    }
+    lastDefendingState = thisDefendingState;
+
+    /*if(lastDefendingState == ActionState::BLOCKSTUN && s->actionState != ActionState::BLOCKSTUN)
     {
       blockCommand |= (InputState::BTN1 | InputState::DOWN);
     }
-    lastDefendingState = s->actionState;
+    lastDefendingState = s->actionState;*/
 
     return blockCommand;
   }

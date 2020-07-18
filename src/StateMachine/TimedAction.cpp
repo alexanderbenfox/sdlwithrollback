@@ -43,3 +43,9 @@ void DashAction::Enact(Entity* actor)
 
   actor->GetComponent<TimerContainer>()->timings.push_back(TimedAction<StanceState::STANDING, ActionState::DASHING>::_timer);
 }
+
+//______________________________________________________________________________
+IAction* DashAction::GetFollowUpAction(const InputBuffer& rawInput, const StateComponent& context)
+{
+  return new LoopedAction<StanceState::STANDING, ActionState::NONE>("Idle", this->_facingRight);
+}

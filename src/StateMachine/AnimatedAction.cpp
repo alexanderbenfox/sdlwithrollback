@@ -18,15 +18,15 @@ template <> IAction* LoopedAction<StanceState::STANDING, ActionState::NONE>::Han
 {
   bool facingRight = context.onLeftSide;
 
-  if (context.collision == CollisionSide::NONE)
-    return new LoopedAction<StanceState::JUMPING, ActionState::NONE>("Falling", facingRight);
-
   // process attacks before hits so that if you press a button while attacked, you still get attacked
   IAction* attackAction = GetAttacksFromNeutral<StanceState::STANDING>(rawInput, context);
   if (attackAction) return attackAction;
 
-  IAction* onHitAction = CheckHits(rawInput.Latest(), context);
+  IAction* onHitAction = CheckHits(rawInput.Latest(), context, true);
   if (onHitAction) return onHitAction;
+
+  if (context.collision == CollisionSide::NONE)
+    return new LoopedAction<StanceState::JUMPING, ActionState::NONE>("Falling", facingRight);
 
   //if you arent attacking, you can move forward, move backward, crouch, stand, jumpf, jumpb, jumpn
   //jumping
@@ -78,7 +78,8 @@ template <> IAction* LoopedAction<StanceState::STANDING, ActionState::NONE>::Han
 //______________________________________________________________________________
 template <> IAction* LoopedAction<StanceState::JUMPING, ActionState::NONE>::HandleInput(const InputBuffer& rawInput, const StateComponent& context)
 {
-  IAction* onHitAction = CheckHits(rawInput.Latest(), context);
+  // cannot block while jumping (for now)
+  IAction* onHitAction = CheckHits(rawInput.Latest(), context, false);
   if (onHitAction) return onHitAction;
 
   if (HasState(context.collision, CollisionSide::DOWN))
@@ -95,17 +96,18 @@ template <> IAction* LoopedAction<StanceState::JUMPING, ActionState::NONE>::Hand
 template <> IAction* LoopedAction<StanceState::CROUCHING, ActionState::NONE>::HandleInput(const InputBuffer& rawInput, const StateComponent& context)
 {
   bool facingRight = context.onLeftSide;
+
+  IAction* attackAction = GetAttacksFromNeutral<StanceState::CROUCHING>(rawInput, context);
+  if (attackAction) return attackAction;
+
+  IAction* onHitAction = CheckHits(rawInput.Latest(), context, true);
+  if (onHitAction) return onHitAction;
+
   if (context.collision == CollisionSide::NONE)
   {
     OnActionComplete();
     return new LoopedAction<StanceState::JUMPING, ActionState::NONE>("Jumping", facingRight);
   }
-
-  IAction* attackAction = GetAttacksFromNeutral<StanceState::CROUCHING>(rawInput, context);
-  if (attackAction) return attackAction;
-
-  IAction* onHitAction = CheckHits(rawInput.Latest(), context);
-  if (onHitAction) return onHitAction;
 
   //if you arent attacking, you can move forward, move backward, crouch, stand, jumpf, jumpb, jumpn
   //jumping
@@ -140,16 +142,16 @@ template <> IAction* LoopedAction<StanceState::CROUCHING, ActionState::NONE>::Ha
 //______________________________________________________________________________
 template <> IAction* StateLockedAnimatedAction<StanceState::CROUCHING, ActionState::NONE>::HandleInput(const InputBuffer& rawInput, const StateComponent& context)
 {
-
   bool facingRight = context.onLeftSide;
+
+  IAction* onHitAction = CheckHits(rawInput.Latest(), context, true);
+  if (onHitAction) return onHitAction;
+
   if (context.collision == CollisionSide::NONE)
   {
     OnActionComplete();
     return new LoopedAction<StanceState::JUMPING, ActionState::NONE>("Jumping", facingRight);
   }
-
-  IAction* onHitAction = CheckHits(rawInput.Latest(), context);
-  if (onHitAction) return onHitAction;
 
   if (AnimatedAction<StanceState::CROUCHING, ActionState::NONE>::_complete)
   {
