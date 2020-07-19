@@ -6,6 +6,7 @@
 #include "Components/Rigidbody.h"
 #include "Components/Hurtbox.h"
 #include "Components/Hitbox.h"
+#include "Components/StateComponents/HitStateComponent.h"
 
 class MoveSystemCamera : public ISystem<Transform, Camera>
 {
@@ -102,7 +103,30 @@ public:
   }
 };
 
-class MoveSystem : public ISystem<Transform>
+class MoveThrownEntitySystem : public IMultiSystem<SysComponents<ThrowFollower, TeamComponent>, SysComponents<Transform, Hurtbox, ThrownStateComponent>>
+{
+public:
+  static void DoTick(float dt)
+  {
+    for (auto tuple : MainSystem::Tuples)
+    {
+      ThrowFollower* throwbox = std::get<ThrowFollower*>(tuple.second);
+      TeamComponent* throwerTeam = std::get<TeamComponent*>(tuple.second);
+
+      for (auto subTuple : SubSystem::Tuples)
+      {
+        Transform* trans = std::get<Transform*>(subTuple.second);
+        Hurtbox* box = std::get<Hurtbox*>(subTuple.second);
+
+        auto location = throwbox->rect.GetCenter();
+        Vector2<float> boxOffset(box->rect.HalfWidth(), box->rect.HalfHeight());
+        trans->position = location - boxOffset;
+      }
+    }
+  }
+};
+
+class MoveSystem : public ISystem<>
 {
 public:
   static void DoTick(float dt)
@@ -111,5 +135,6 @@ public:
     MoveSystemPhysCollider::DoTick(dt);
     MoveSystemHurtbox::DoTick(dt);
     MoveSystemHitbox::DoTick(dt);
+    MoveThrownEntitySystem::DoTick(dt);
   }
 };

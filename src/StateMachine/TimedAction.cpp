@@ -49,3 +49,47 @@ IAction* DashAction::GetFollowUpAction(const InputBuffer& rawInput, const StateC
 {
   return new LoopedAction<StanceState::STANDING, ActionState::NONE>("Idle", this->_facingRight);
 }
+
+//______________________________________________________________________________
+ThrownAction::~ThrownAction()
+{
+  // make sure this state component is removed
+  ListenedAction::_listener->GetOwner()->RemoveComponent<ThrownStateComponent>();
+  ListenedAction::_listener->GetOwner()->GetComponent<Rigidbody>()->ignoreDynamicColliders = false;
+}
+
+//______________________________________________________________________________
+inline void ThrownAction::Enact(Entity* actor)
+{
+  TimedAction::Enact(actor);
+
+  actor->AddComponent<ThrownStateComponent>();
+  actor->GetComponent<ThrownStateComponent>()->SetTimer(TimedAction::_timer.get());
+
+  actor->GetComponent<StateComponent>()->thrownThisFrame = false;
+  actor->GetComponent<Rigidbody>()->ignoreDynamicColliders = true;
+
+  //! send damage value
+  if (auto state = actor->GetComponent<StateComponent>())
+  {
+    if (!state->invulnerable)
+    {
+      state->hp -= _damageTaken;
+    }
+  }
+}
+
+//______________________________________________________________________________
+IAction* ThrownAction::GetFollowUpAction(const InputBuffer& rawInput, const StateComponent& context)
+{
+  if (context.hp <= 0)
+    return new StateLockedAnimatedAction<StanceState::STANDING, ActionState::NONE>("KO", context.onLeftSide, Vector2<float>::Zero);
+  return TimedAction::GetFollowUpAction(rawInput, context);
+}
+
+//______________________________________________________________________________
+void ThrownAction::OnActionComplete()
+{
+  ListenedAction::_listener->GetOwner()->RemoveComponent<ThrownStateComponent>();
+  ListenedAction::OnActionComplete();
+}

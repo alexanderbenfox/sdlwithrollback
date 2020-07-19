@@ -39,7 +39,7 @@ class GroundedStaticAttack : public AttackAction<Stance, Action>
 public:
   //!
   GroundedStaticAttack(const std::string& animation, bool facingRight) : AttackAction<Stance, Action>(animation, facingRight, Vector2<float>(0, 0)) {}
-
+  virtual ~GroundedStaticAttack() = default;
 };
 
 //______________________________________________________________________________
@@ -101,3 +101,36 @@ inline void AttackAction<Stance, Action>::OnActionComplete()
   ListenedAction::_listener->GetOwner()->RemoveComponent<AttackStateComponent>();
   StateLockedAnimatedAction<Stance, Action>::OnActionComplete();
 }
+
+//______________________________________________________________________________
+class ThrowInitateAction : public GroundedStaticAttack<StanceState::STANDING, ActionState::NONE>
+{
+public:
+  //!
+  ThrowInitateAction(bool fThrow, bool facingRight) :
+    GroundedStaticAttack<StanceState::STANDING, ActionState::NONE>(fThrow ? "ForwardThrow" : "BackThrow", facingRight) {}
+
+
+  virtual ~ThrowInitateAction()
+  {
+    ListenedAction::_listener->GetOwner()->GetComponent<Rigidbody>()->ignoreDynamicColliders = true;
+  }
+
+  //! Sets dynamic collision detection to false
+  virtual void Enact(Entity* actor) override
+  {
+    actor->GetComponent<Rigidbody>()->ignoreDynamicColliders = true;
+    GroundedStaticAttack<StanceState::STANDING, ActionState::NONE>::Enact(actor);
+  }
+
+  //! Checks for if the throw was successful
+  virtual IAction* HandleInput(const InputBuffer& rawInput, const StateComponent& context) override
+  {
+    // if throw came out this frame and it wasn't a success, go to throw miss
+    if (context.triedToThrowThisFrame && !context.throwSuccess)
+    {
+      return new StateLockedAnimatedAction("ThrowMiss", context.onLeftSide);
+    }
+    return StateLockedAnimatedAction::HandleInput(rawInput, context);
+  }
+};

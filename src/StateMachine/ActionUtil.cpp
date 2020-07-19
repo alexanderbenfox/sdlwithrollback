@@ -31,7 +31,15 @@ template <> IAction* GetAttacksFromNeutral<StanceState::STANDING>(const InputBuf
     return specialMove;
 
   const bool& facingRight = context.onLeftSide;
-  // prioritize attacks
+
+  // first check throws
+  if (HasState(rawInput.Latest(), InputState::BTN4))
+  {
+    bool backthrow = (facingRight && HasState(rawInput.Latest(), InputState::LEFT)) || (!facingRight && HasState(rawInput.Latest(), InputState::RIGHT));
+    return new ThrowInitateAction(!backthrow, facingRight);
+  }
+
+  // then check attacks
   if (HasState(rawInput.Latest(), InputState::BTN1))
   {
     if (HasState(rawInput.Latest(), InputState::DOWN))
@@ -116,6 +124,10 @@ IAction* CheckSpecials(const InputBuffer& rawInput, const StateComponent& contex
 IAction* CheckHits(const InputState& rawInput, const StateComponent& context, bool canBlock)
 {
   bool facingRight = context.onLeftSide;
+  if (context.thrownThisFrame)
+  {
+    return new ThrownAction(facingRight, context.hitData.framesInStunHit, context.hitData.knockback, context.hitData.damage);
+  }
   if (context.hitThisFrame)
   {
     if (canBlock)

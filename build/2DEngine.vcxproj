@@ -39,6 +39,7 @@
     <ClCompile Include="..\src\Components\CompDataHandlers\AIPrograms.cpp" />
     <ClCompile Include="..\src\Components\CompDataHandlers\InputHandlers.cpp" />
     <ClCompile Include="..\src\Components\Components.cpp" />
+    <ClCompile Include="..\src\Components\Hitbox.cpp" />
     <ClCompile Include="..\src\Components\Input.cpp" />
     <ClCompile Include="..\src\Components\Hurtbox.cpp" />
     <ClCompile Include="..\src\Components\RenderComponent.cpp" />

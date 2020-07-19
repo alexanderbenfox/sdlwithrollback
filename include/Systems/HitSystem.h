@@ -47,28 +47,66 @@ public:
         hitboxController->hitting = false;
 
         // if the hitbox has hit something (will change this to checking if it has hit the entity?)
-        if (hitbox->hit)
+        if (hitbox->hitFlag)
           continue;
 
         if (hitbox->rect.Intersects(hurtbox->rect))
         {
           // do hitbox stuff first
-          hitbox->hit = true;
+          hitbox->hitFlag = true;
           hitboxController->hitting = true;
           int strikeDir = hitbox->rect.GetCenter().x > hitterHurtbox->rect.GetCenter().x ? 1 : -1;
 
           // change the state variable that will be evaluated on the processing of inputs. probably a better way to do this...
           hurtboxController->hitThisFrame = true;
-          hurtboxController->hitData = hitbox->hitData;
+          hurtboxController->hitData = hitbox->tData;
 
           // this needs to be made better
           if (strikeDir < 0)
-            hurtboxController->hitData.knockback.x = -hitbox->hitData.knockback.x;
+            hurtboxController->hitData.knockback.x = -hitbox->tData.knockback.x;
 
           GameManager::Get().ActivateHitStop(10);
 
           //! this will trigger self-destruction if this entity is intended to be destroyed on hit
           hitbox->OnCollision(hurtbox);
+        }
+      }
+    }
+  }
+};
+
+class ThrowSystem : public IMultiSystem<SysComponents<Throwbox, TeamComponent, StateComponent>, SysComponents<Hurtbox, TeamComponent, StateComponent>>
+{
+public:
+  static void DoTick(float dt)
+  {
+    for (auto tuple : MainSystem::Tuples)
+    {
+      Throwbox* throwbox = std::get<Throwbox*>(tuple.second);
+
+      if (throwbox->hitFlag)
+        continue;
+
+      TeamComponent* throwerTeam = std::get<TeamComponent*>(tuple.second);
+      StateComponent* throwerController = std::get<StateComponent*>(tuple.second);
+      throwerController->triedToThrowThisFrame = true;
+
+      for (auto subTuple : SubSystem::Tuples)
+      {
+        Hurtbox* throwee = std::get<Hurtbox*>(subTuple.second);
+        TeamComponent* throweeTeam = std::get<TeamComponent*>(subTuple.second);
+        StateComponent* throweeController = std::get<StateComponent*>(subTuple.second);
+
+        if (throwerTeam->team == throweeTeam->team)
+          continue;
+
+        if (throwbox->rect.Intersects(throwee->rect))
+        {
+          throwbox->hitFlag = true;
+          throwerController->throwSuccess = true;
+
+          throweeController->thrownThisFrame = true;
+          throweeController->hitData = throwbox->tData;
         }
       }
     }

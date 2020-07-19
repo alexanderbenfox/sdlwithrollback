@@ -25,11 +25,15 @@ void StaticAssetUtils::LoadAttackAnim(const std::string& name, const AttackAnima
   else
   {
     std::string hitboxSheet = data.loadingInfo.sheet.src;
-    hitboxSheet.erase(hitboxSheet.end() - 4);
+    hitboxSheet.erase(hitboxSheet.end() - 4, hitboxSheet.end());
     hitboxSheet += "_hitboxes.png";
 
-    collection.RegisterAnimation(name, SpriteSheet(data.loadingInfo.sheet.src.c_str(), data.loadingInfo.sheet.rows, data.loadingInfo.sheet.columns), data.loadingInfo.startIndexOnSheet, data.loadingInfo.frames, data.loadingInfo.anchor);
-    collection.SetAnimationEvents(name, CreateEventDataFromHitboxSheet(hitboxSheet.c_str(), data), data.frameData);
+    SpriteSheet sheet(data.loadingInfo.sheet.src.c_str(), data.loadingInfo.sheet.rows, data.loadingInfo.sheet.columns);
+    AttackAnimationData copy = data;
+    copy.loadingInfo.sheet = sheet;
+
+    collection.RegisterAnimation(name, sheet, data.loadingInfo.startIndexOnSheet, data.loadingInfo.frames, data.loadingInfo.anchor);
+    collection.SetAnimationEvents(name, CreateEventDataFromHitboxSheet(hitboxSheet.c_str(), copy), data.frameData);
   }
 
 }
@@ -252,7 +256,7 @@ std::vector<AnimationActionEventData> StaticAssetUtils::CreateEventDataFromHitbo
   for (int i = 0; i < hitboxes.size(); i++)
   {
     eventData[i].hitbox = hitboxes[i];
-    eventData[i].isActive = true;
+    eventData[i].isActive = hitboxes[i].Area() > 0;
   }
   return eventData;
 }

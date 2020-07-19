@@ -12,9 +12,18 @@ public:
   //!
   void SetTimer(ActionTimer* timer);
   //!
-  int GetRemainingFrames();
+  virtual int GetRemainingFrames();
 
-private:
+protected:
   //!
   ActionTimer* _linkedTimer;
+};
+
+//! Attach to entity when it is in the "being thrown" state
+class ThrownStateComponent : public HitStateComponent
+{
+public:
+  //!
+  ThrownStateComponent(std::shared_ptr<Entity> owner) : HitStateComponent(owner) {}
+
 };

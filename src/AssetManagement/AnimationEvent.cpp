@@ -8,6 +8,11 @@
 EventList AnimationEventHelper::BuildEventList(const Vector2<int> offset, const std::vector<AnimationActionEventData>& animEventData, const FrameData& frameData, int totalSheetFrames, std::vector<int>& animFrameToSheetFrame)
 {
   auto DespawnHitbox = [](Transform* trans) { trans->RemoveComponent<Hitbox>(); };
+  auto DespawnThrowStuff = [](Transform* trans)
+  {
+    trans->RemoveComponent<Throwbox>();
+    trans->RemoveComponent<ThrowFollower>();
+  };
   auto EndMovement = [](Transform* trans) {};
 
   std::function<void(Transform*, StateComponent*)> trigger;
@@ -38,7 +43,9 @@ EventList AnimationEventHelper::BuildEventList(const Vector2<int> offset, const 
     startFrame = 0;
   };
 
-  auto eventCheck = [addEventToList, &startFrame, &counter, &eventList, &animationData, &trigger, &updates](int i, const std::function<void(Transform*)>& onComplete, const std::function<void(Transform*, StateComponent*)>& callback, bool conditionMet)
+  auto eventCheck = [addEventToList, &startFrame, &counter, &eventList, &animationData, &trigger, &updates]
+  (int i, const std::function<void(Transform*)>& onComplete, const std::function<void(Transform*, StateComponent*)>& callback, bool conditionMet,
+    std::function<void(Transform*, StateComponent*)>* onTrigger = nullptr)
   {
     if (conditionMet)
     {
@@ -50,7 +57,14 @@ EventList AnimationEventHelper::BuildEventList(const Vector2<int> offset, const 
           finder++;
         }
         startFrame = animationData.sheetFrameToRealFrame[i + finder][0];
-        trigger = callback;
+        if (onTrigger)
+        {
+          trigger = *onTrigger;
+          counter++;
+          return;
+        }
+        else
+          trigger = callback;
       }
 
 
@@ -59,12 +73,22 @@ EventList AnimationEventHelper::BuildEventList(const Vector2<int> offset, const 
       {
         counter++;
         //avoid adding one to update if this is a trigger frame
-        if (isTrigger)
+        if (isTrigger && onTrigger)
         {
-          isTrigger = false;
-          continue;
+          if (counter == 1)
+            continue;
+          else
+            updates.push_back(*onTrigger);
         }
-        updates.push_back(callback);
+        else
+        {
+          if (isTrigger)
+          {
+            isTrigger = false;
+            continue;
+          }
+          updates.push_back(callback);
+        }
       }
     }
     else if (counter > 0)
@@ -78,29 +102,49 @@ EventList AnimationEventHelper::BuildEventList(const Vector2<int> offset, const 
   {
     const Rect<double>& hitbox = animEventData[i].hitbox;
     bool hitboxCondition = hitbox.Area() != 0;
-    std::function<void(Transform*, StateComponent*)> hitboxUpdateFunc = [hitbox, frameData, offset](Transform* trans, StateComponent* state)
+
+    if (frameData.isThrow)
     {
-      trans->AddComponent<Hitbox>();
-      int framesTilNeutral = frameData.active + frameData.recover;
-      trans->GetComponent<Hitbox>()->hitData.framesInStunBlock = framesTilNeutral + frameData.onBlockAdvantage;
-      trans->GetComponent<Hitbox>()->hitData.framesInStunHit = framesTilNeutral + frameData.onHitAdvantage;
-      trans->GetComponent<Hitbox>()->hitData.damage = frameData.damage;
-      trans->GetComponent<Hitbox>()->hitData.knockback = frameData.knockback;
+      // add normal hitbox data
+      std::function<void(Transform*, StateComponent*)> throwInitiate = [hitbox, frameData, offset](Transform* trans, StateComponent* state)
+      {
+        trans->AddComponent<Throwbox>();
+        trans->GetComponent<Throwbox>()->Init(frameData);
+        trans->GetComponent<Throwbox>()->MoveDataBoxAroundTransform(trans, hitbox, offset, state->onLeftSide);
 
-      Rect<double> rect = trans->GetComponent<Hurtbox>()->unscaledRect;
-      Vector2<double> rSize(trans->rect.Width(), trans->rect.Height());
+        state->triedToThrowThisFrame = true;
+      };
 
-      //Rect<double> hitboxBoundsRelativeToAnim(hitbox.beg.x, hitbox.beg.y, hitbox.end.x * trans->scale.x, hitbox.end.y * trans->scale.y);
-      Vector2<float> transCenterRelativeToAnim(rect.HalfWidth() + offset.x, rect.HalfHeight() + offset.y);
-      Vector2<double> relativeToTransformCenter = hitbox.GetCenter() - (Vector2<double>)transCenterRelativeToAnim;
-      if (!state->onLeftSide)
-        relativeToTransformCenter.x *= -1.0;
+      std::function<void(Transform*, StateComponent*)> throwUpdate = [hitbox, frameData, offset](Transform* trans, StateComponent* state)
+      {
+        bool throwSuccess = true;
+        if (trans->GetComponent<Throwbox>())
+        {
+          throwSuccess = trans->GetComponent<Throwbox>()->hitFlag;
+          trans->RemoveComponent<Throwbox>();
+        }
 
-      trans->GetComponent<Hitbox>()->rect = Rect<double>(0, 0, trans->scale.x * hitbox.Width(), trans->scale.y * hitbox.Height());
-      trans->GetComponent<Hitbox>()->rect.CenterOnPoint((Vector2<double>)trans->position + trans->scale * relativeToTransformCenter);
-    };
+        if (throwSuccess)
+        {
+          trans->AddComponent<ThrowFollower>();
+          trans->GetComponent<ThrowFollower>()->Init(frameData);
+          trans->GetComponent<ThrowFollower>()->MoveDataBoxAroundTransform(trans, hitbox, offset, state->onLeftSide);
+        }
+      };
+      eventCheck(i, DespawnThrowStuff, throwUpdate, hitboxCondition, &throwInitiate);
+    }
+    else
+    {
+      // add normal hitbox data
+      std::function<void(Transform*, StateComponent*)> hitboxUpdateFunc = [hitbox, frameData, offset](Transform* trans, StateComponent* state)
+      {
+        trans->AddComponent<Hitbox>();
+        trans->GetComponent<Hitbox>()->Init(frameData);
+        trans->GetComponent<Hitbox>()->MoveDataBoxAroundTransform(trans, hitbox, offset, state->onLeftSide);
+      };
 
-    eventCheck(i, DespawnHitbox, hitboxUpdateFunc, hitboxCondition);
+      eventCheck(i, DespawnHitbox, hitboxUpdateFunc, hitboxCondition);
+    }
   }
 
   if (counter > 0)

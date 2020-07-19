@@ -74,12 +74,6 @@ InputState DefendAfter::Update(const Transform* t, const StateComponent* s)
     }
     lastDefendingState = thisDefendingState;
 
-    /*if(lastDefendingState == ActionState::BLOCKSTUN && s->actionState != ActionState::BLOCKSTUN)
-    {
-      blockCommand |= (InputState::BTN1 | InputState::DOWN);
-    }
-    lastDefendingState = s->actionState;*/
-
     return blockCommand;
   }
   else

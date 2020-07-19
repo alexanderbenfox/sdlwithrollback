@@ -231,6 +231,9 @@
     <ClCompile Include="..\src\Components\StateComponents\HitStateComponent.cpp">
       <Filter>Source Files\Components\StateComponents</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\Components\Hitbox.cpp">
+      <Filter>Source Files\Components</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\AssetManagement\Resource.h">

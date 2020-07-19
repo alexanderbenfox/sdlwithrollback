@@ -292,6 +292,7 @@ void GameManager::CheckAgainstSystems(Entity* entity)
   MoveSystemHurtbox::Check(entity);
   MoveSystemCamera::Check(entity);
   MoveSystemHitbox::Check(entity);
+  MoveThrownEntitySystem::Check(entity);
   AttackAnimationSystem::Check(entity);
   HitSystem::Check(entity);
   TimerSystem::Check(entity);
@@ -309,6 +310,8 @@ void GameManager::CheckAgainstSystems(Entity* entity)
   UIContainerUpdateSystem::Check(entity);
   DrawUIPrimitivesSystem::Check(entity);
   UpdateAISystem::Check(entity);
+  ThrowSystem::Check(entity);
+
 }
 
 //______________________________________________________________________________

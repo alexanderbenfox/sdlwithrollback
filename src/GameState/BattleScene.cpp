@@ -101,6 +101,7 @@ void BattleScene::Update(float deltaTime)
 
   TimerSystem::DoTick(deltaTime);
   HitSystem::DoTick(deltaTime);
+  ThrowSystem::DoTick(deltaTime);
 
   PlayerSideSystem::DoTick(deltaTime);
   UpdateAISystem::DoTick(deltaTime);

@@ -26,6 +26,8 @@ struct FrameData : public IJsonLoadable
   Vector2<float> knockback;
   // number of frames of action pause
   int hitstop;
+  //
+  bool isThrow = false;
 
   virtual void Load(const Json::Value& json) override
   {
@@ -40,6 +42,10 @@ struct FrameData : public IJsonLoadable
       damage = frameData["damage"].asInt();
       knockback = Vector2<float>(frameData["knockback"]["x"].asInt(), frameData["knockback"]["y"].asInt());
       hitstop = frameData["hitstop"].asInt();
+      if (frameData["isThrow"])
+      {
+        isThrow = frameData["isThrow"].asBool();
+      }
     }
   }
 
@@ -62,6 +68,10 @@ struct FrameData : public IJsonLoadable
       frameData["knockback"]["x"] = knockback.x;
       frameData["knockback"]["y"] = knockback.y;
       frameData["hitstop"] = hitstop;
+      if (isThrow)
+      {
+        frameData["isThrow"] = true;
+      }
     }
   }
 };

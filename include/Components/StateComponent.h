@@ -50,10 +50,13 @@ public:
 
   //! Defender hit state information
   bool hitThisFrame = false;
+  bool thrownThisFrame = false;
   HitData hitData;
 
   //! Attacker state information
   bool hitting = false;
+  bool throwSuccess = false;
+  bool triedToThrowThisFrame = false;
 
   int hp = 100;
   bool invulnerable = false;
@@ -66,7 +69,10 @@ public:
   //!
   bool operator==(const StateComponent& other) const
   {
-    return collision == other.collision && onLeftSide == other.onLeftSide && hitThisFrame == other.hitThisFrame && hitting == other.hitting && actionState == other.actionState && stanceState == other.stanceState;
+    return collision == other.collision && onLeftSide == other.onLeftSide &&
+      hitThisFrame == other.hitThisFrame && hitting == other.hitting && thrownThisFrame && other.thrownThisFrame &&
+      actionState == other.actionState && stanceState == other.stanceState &&
+      triedToThrowThisFrame == other.triedToThrowThisFrame && throwSuccess && other.throwSuccess;
   }
 
   bool operator!=(const StateComponent& other) const
@@ -92,11 +98,14 @@ inline StateComponent& StateComponent::operator=(const StateComponent& other)
   this->onLeftSide = other.onLeftSide;
   this->collision = other.collision;
   this->hitThisFrame = other.hitThisFrame;
+  this->thrownThisFrame = other.thrownThisFrame;
   this->hitData = other.hitData;
   this->hitting = other.hitting;
   this->hp = other.hp;
   this->actionState = other.actionState;
   this->stanceState = other.stanceState;
+  this->throwSuccess = other.throwSuccess;
+  this->triedToThrowThisFrame = other.triedToThrowThisFrame;
   return *this;
 }
 
@@ -106,10 +115,13 @@ inline StateComponent& StateComponent::operator=(StateComponent&& other) noexcep
   this->onLeftSide = other.onLeftSide;
   this->collision = other.collision;
   this->hitThisFrame = other.hitThisFrame;
+  this->thrownThisFrame = other.thrownThisFrame;
   this->hitData = other.hitData;
   this->hitting = other.hitting;
   this->hp = other.hp;
   this->actionState = other.actionState;
   this->stanceState = other.stanceState;
+  this->throwSuccess = other.throwSuccess;
+  this->triedToThrowThisFrame = other.triedToThrowThisFrame;
   return *this;
 }

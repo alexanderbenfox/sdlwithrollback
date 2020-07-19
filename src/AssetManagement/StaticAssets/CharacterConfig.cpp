@@ -22,6 +22,7 @@ std::unordered_map<std::string, AnimationInfo> RyuConfig::normalAnimations =
   {"LaunchHitstun", AnimationInfo(blockAndHitstun.src, blockAndHitstun, 27, 9, AnchorPoint::BL)},
   {"BackDash", AnimationInfo(dashes.src, dashes, 0, 6, AnchorPoint::BL)},
   {"ForwardDash", AnimationInfo(dashes.src, dashes, 6, 6, AnchorPoint::BL)},
+  {"ThrowMiss", AnimationInfo(throws.src, throws, 2, 4, AnchorPoint::BL)},
   {"Win", AnimationInfo(winLoseSpriteSheet.src, winLoseSpriteSheet, 0, 6, AnchorPoint::BL)},
   {"KO", AnimationInfo(winLoseSpriteSheet.src, winLoseSpriteSheet, 6, 17, AnchorPoint::BL)}
 };
@@ -82,6 +83,14 @@ std::unordered_map<std::string, AttackAnimationData> RyuConfig::attackAnimations
   AttackAnimationData(
     AnimationInfo(specialMoves.src, specialMoves, 14, 27, AnchorPoint::BL),
     FrameData(7, 18, 4, 5, -6, 10, Vector2<float>(400.0f, 100.0f), hitstopHeavy)) },
+  { "ForwardThrow",
+  AttackAnimationData(
+    AnimationInfo(throws.src, throws, 6, 17, AnchorPoint::BL),
+    FrameData(2, 7, 8, 20, 0, 10, Vector2<float>(400.0f, -400.0f), hitstopHeavy)) },
+  { "BackThrow",
+  AttackAnimationData(
+    AnimationInfo(throws.src, throws, 23, 14, AnchorPoint::BL),
+    FrameData(2, 7, 8, 20, 0, 10, Vector2<float>(-400.0f, -400.0f), hitstopHeavy)) },
 };
 
 AnimationCollection& RyuConfig::FireballAnimations()

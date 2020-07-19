@@ -1,4 +1,100 @@
 {
+	"BackThrow" : 
+	{
+		"anchor" : "BL",
+		"events" : 
+		[
+			{},
+			{},
+			{
+				"hitbox" : 
+				{
+					"position" : 
+					{
+						"x" : 102.0,
+						"y" : 6.0
+					},
+					"size" : 
+					{
+						"x" : 39.0,
+						"y" : 26.0
+					}
+				}
+			},
+			{
+				"hitbox" : 
+				{
+					"position" : 
+					{
+						"x" : 87.0,
+						"y" : 9.0
+					},
+					"size" : 
+					{
+						"x" : 39.0,
+						"y" : 26.0
+					}
+				}
+			},
+			{
+				"hitbox" : 
+				{
+					"position" : 
+					{
+						"x" : 78.0,
+						"y" : 11.0
+					},
+					"size" : 
+					{
+						"x" : 39.0,
+						"y" : 26.0
+					}
+				}
+			},
+			{
+				"hitbox" : 
+				{
+					"position" : 
+					{
+						"x" : 36.0,
+						"y" : 34.0
+					},
+					"size" : 
+					{
+						"x" : 39.0,
+						"y" : 26.0
+					}
+				}
+			},
+			{},
+			{},
+			{},
+			{},
+			{},
+			{},
+			{},
+			{}
+		],
+		"framedata" : 
+		{
+			"active" : 13,
+			"damage" : 10,
+			"hitstop" : 10,
+			"isThrow" : true,
+			"knockback" : 
+			{
+				"x" : -400.0,
+				"y" : -400.0
+			},
+			"onblock" : 0,
+			"onhit" : 20,
+			"recovery" : 17,
+			"startup" : 2
+		},
+		"numFrames" : 14,
+		"spritesheet" : "spritesheets\\throws.png",
+		"startIndex" : 23
+	},
 	"CrouchingHeavy" : 
 	{
 		"anchor" : "BL",
@@ -200,6 +296,133 @@
 		"numFrames" : 11,
 		"spritesheet" : "spritesheets\\grounded_attacks.png",
 		"startIndex" : 16
+	},
+	"ForwardThrow" : 
+	{
+		"anchor" : "BL",
+		"events" : 
+		[
+			{},
+			{},
+			{
+				"hitbox" : 
+				{
+					"position" : 
+					{
+						"x" : 108.0,
+						"y" : 6.0
+					},
+					"size" : 
+					{
+						"x" : 39.0,
+						"y" : 26.0
+					}
+				}
+			},
+			{
+				"hitbox" : 
+				{
+					"position" : 
+					{
+						"x" : 68.0,
+						"y" : 1.0
+					},
+					"size" : 
+					{
+						"x" : 39.0,
+						"y" : 26.0
+					}
+				}
+			},
+			{
+				"hitbox" : 
+				{
+					"position" : 
+					{
+						"x" : 61.0,
+						"y" : 4.0
+					},
+					"size" : 
+					{
+						"x" : 39.0,
+						"y" : 26.0
+					}
+				}
+			},
+			{
+				"hitbox" : 
+				{
+					"position" : 
+					{
+						"x" : 36.0,
+						"y" : 3.0
+					},
+					"size" : 
+					{
+						"x" : 39.0,
+						"y" : 26.0
+					}
+				}
+			},
+			{
+				"hitbox" : 
+				{
+					"position" : 
+					{
+						"x" : 35.0,
+						"y" : 10.0
+					},
+					"size" : 
+					{
+						"x" : 39.0,
+						"y" : 26.0
+					}
+				}
+			},
+			{
+				"hitbox" : 
+				{
+					"position" : 
+					{
+						"x" : 74.0,
+						"y" : 3.0
+					},
+					"size" : 
+					{
+						"x" : 39.0,
+						"y" : 26.0
+					}
+				}
+			},
+			{},
+			{},
+			{},
+			{},
+			{},
+			{},
+			{},
+			{},
+			{}
+		],
+		"framedata" : 
+		{
+			"active" : 18,
+			"damage" : 10,
+			"hitstop" : 10,
+			"isThrow" : true,
+			"knockback" : 
+			{
+				"x" : 400.0,
+				"y" : -400.0
+			},
+			"onblock" : 0,
+			"onhit" : 20,
+			"recovery" : 13,
+			"startup" : 2
+		},
+		"numFrames" : 17,
+		"spritesheet" : "spritesheets\\throws.png",
+		"startIndex" : 6
 	},
 	"JumpingHeavy" : 
 	{

@@ -147,6 +147,7 @@ template <StanceState Stance, ActionState Action>
 inline void OnRecvHitAction<Stance, Action>::Enact(Entity* actor)
 {
   TimedAction<Stance, Action>::Enact(actor);
+
   actor->AddComponent<HitStateComponent>();
   actor->GetComponent<HitStateComponent>()->SetTimer(TimedAction<Stance, Action>::_timer.get());
 
@@ -176,3 +177,30 @@ inline void OnRecvHitAction<Stance, Action>::OnActionComplete()
   ListenedAction::_listener->GetOwner()->RemoveComponent<HitStateComponent>();
   ListenedAction::OnActionComplete();
 }
+
+//______________________________________________________________________________
+class ThrownAction : public TimedAction<StanceState::STANDING, ActionState::HITSTUN>
+{
+public:
+  //!
+  ThrownAction(bool facingRight, int framesInState, Vector2<float> knockback, int damage) :
+    TimedAction("HeavyHitstun", facingRight, framesInState, knockback), _damageTaken(damage) {}
+
+  virtual ~ThrownAction();
+
+  //__________________OVERRIDES________________________________
+  //! Adds hit state component
+  virtual void Enact(Entity* actor) override;
+
+protected:
+  //! Follows up with idle state
+  virtual IAction* GetFollowUpAction(const InputBuffer& rawInput, const StateComponent& context) override;
+  //! Removes hit state component
+  virtual void OnActionComplete() override;
+  //!
+  int _damageTaken = 0;
+  //!
+  bool _killingBlow = false;
+
+};
+
