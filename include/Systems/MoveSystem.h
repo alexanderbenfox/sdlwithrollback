@@ -15,6 +15,8 @@ public:
   {
     for (auto tuple : Tuples)
     {
+      const float lerpFactor = 10.0f;
+
       Transform* transform = std::get<Transform*>(tuple.second);
       Camera* camera = std::get<Camera*>(tuple.second);
 
@@ -24,7 +26,11 @@ public:
         Vector2<float> p2Pos = camera->player2->GetComponent<Transform>()->position;
 
         // clamp camera position
-        transform->position = camera->clamp.Saturate((p1Pos + p2Pos) / 2.0f);
+        Vector2<float> lerpTarget = camera->clamp.Saturate((p1Pos + p2Pos) / 2.0f);
+        Vector2<float> lerp = (lerpTarget - transform->position) * lerpFactor * dt;
+
+        // apply the smooth movement
+        transform->position += lerp;
       }
 
       camera->rect.x = static_cast<int>(std::floor(transform->position.x)) - camera->rect.w / 2;
