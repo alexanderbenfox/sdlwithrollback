@@ -81,6 +81,7 @@ struct HitData
 {
   // how many frames from the moment you get hit will you be unable to do another action
   int framesInStunBlock, framesInStunHit;
+  int activeFrames;
   Vector2<float> knockback;
   int damage;
 

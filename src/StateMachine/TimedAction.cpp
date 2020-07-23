@@ -56,6 +56,7 @@ ThrownAction::~ThrownAction()
   // make sure this state component is removed
   ListenedAction::_listener->GetOwner()->RemoveComponent<ThrownStateComponent>();
   ListenedAction::_listener->GetOwner()->GetComponent<Rigidbody>()->ignoreDynamicColliders = false;
+  _delayTimer->Cancel();
 }
 
 //______________________________________________________________________________
@@ -67,7 +68,17 @@ inline void ThrownAction::Enact(Entity* actor)
   actor->GetComponent<ThrownStateComponent>()->SetTimer(TimedAction::_timer.get());
 
   actor->GetComponent<StateComponent>()->thrownThisFrame = false;
-  actor->GetComponent<Rigidbody>()->ignoreDynamicColliders = true;
+  actor->GetComponent<Rigidbody>()->enabled = false;
+
+  auto rb = actor->GetComponent<Rigidbody>();
+
+  _delayTimer = std::shared_ptr<ActionTimer>(
+    new SimpleActionTimer([rb, this]()
+      {
+        rb->_vel = _velocity;
+        rb->enabled = true;
+      }, _delay));
+  actor->GetComponent<TimerContainer>()->timings.push_back(_delayTimer);
 
   //! send damage value
   if (auto state = actor->GetComponent<StateComponent>())

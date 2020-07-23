@@ -65,4 +65,6 @@ public:
   //!
   ThrowFollower(std::shared_ptr<Entity> entity) : TransferDataBox(entity) {}
 
+  bool startSideLeft = false;
+
 };

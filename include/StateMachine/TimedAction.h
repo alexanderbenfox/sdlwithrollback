@@ -183,8 +183,8 @@ class ThrownAction : public TimedAction<StanceState::STANDING, ActionState::HITS
 {
 public:
   //!
-  ThrownAction(bool facingRight, int framesInState, Vector2<float> knockback, int damage) :
-    TimedAction("HeavyHitstun", facingRight, framesInState, knockback), _damageTaken(damage) {}
+  ThrownAction(bool facingRight, int framesInState, Vector2<float> knockback, int damage, int framesTilThrow) :
+    TimedAction("HeavyHitstun", facingRight, framesInState, knockback), _damageTaken(damage), _delay(framesTilThrow) {}
 
   virtual ~ThrownAction();
 
@@ -201,6 +201,10 @@ protected:
   int _damageTaken = 0;
   //!
   bool _killingBlow = false;
+  //! Timer for delaying knockback
+  std::shared_ptr<ActionTimer> _delayTimer;
+  //! Frames until knockback
+  int _delay;
 
 };
 

@@ -326,6 +326,7 @@ void GameManager::DebugDraws()
   // draw items in debug layer over top of the drawn scene
   ComponentManager<Hurtbox>::Get().Draw();
   ComponentManager<Hitbox>::Get().Draw();
+  ComponentManager<ThrowFollower>::Get().Draw();
 }
 
 //______________________________________________________________________________

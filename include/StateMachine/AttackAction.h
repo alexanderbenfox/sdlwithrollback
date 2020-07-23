@@ -113,13 +113,13 @@ public:
 
   virtual ~ThrowInitateAction()
   {
-    ListenedAction::_listener->GetOwner()->GetComponent<Rigidbody>()->ignoreDynamicColliders = true;
+    ListenedAction::_listener->GetOwner()->GetComponent<Rigidbody>()->enabled = true;
   }
 
   //! Sets dynamic collision detection to false
   virtual void Enact(Entity* actor) override
   {
-    actor->GetComponent<Rigidbody>()->ignoreDynamicColliders = true;
+    actor->GetComponent<Rigidbody>()->enabled = false;
     GroundedStaticAttack<StanceState::STANDING, ActionState::NONE>::Enact(actor);
   }
 

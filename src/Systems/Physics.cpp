@@ -9,6 +9,10 @@ void PhysicsSystem::DoTick(float dt)
     // Apply last frame of acceleration to the velocity
 
     auto rigidbody = std::get<Rigidbody*>(collidingObj);
+
+    if (!rigidbody->enabled)
+      continue;
+
     auto collider = std::get<DynamicCollider*>(collidingObj);
     auto transform = std::get<Transform*>(collidingObj);
 

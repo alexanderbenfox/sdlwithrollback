@@ -126,7 +126,7 @@ IAction* CheckHits(const InputState& rawInput, const StateComponent& context, bo
   bool facingRight = context.onLeftSide;
   if (context.thrownThisFrame)
   {
-    return new ThrownAction(facingRight, context.hitData.framesInStunHit, context.hitData.knockback, context.hitData.damage);
+    return new ThrownAction(facingRight, context.hitData.framesInStunHit, context.hitData.knockback, context.hitData.damage, context.hitData.activeFrames);
   }
   if (context.hitThisFrame)
   {

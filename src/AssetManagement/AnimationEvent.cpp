@@ -122,13 +122,14 @@ EventList AnimationEventHelper::BuildEventList(const Vector2<int> offset, const 
         {
           throwSuccess = trans->GetComponent<Throwbox>()->hitFlag;
           trans->RemoveComponent<Throwbox>();
+          trans->AddComponent<ThrowFollower>();
+          trans->GetComponent<ThrowFollower>()->startSideLeft = state->onLeftSide;
         }
 
         if (throwSuccess)
         {
-          trans->AddComponent<ThrowFollower>();
           trans->GetComponent<ThrowFollower>()->Init(frameData);
-          trans->GetComponent<ThrowFollower>()->MoveDataBoxAroundTransform(trans, hitbox, offset, state->onLeftSide);
+          trans->GetComponent<ThrowFollower>()->MoveDataBoxAroundTransform(trans, hitbox, offset, trans->GetComponent<ThrowFollower>()->startSideLeft);
         }
       };
       eventCheck(i, DespawnThrowStuff, throwUpdate, hitboxCondition, &throwInitiate);
