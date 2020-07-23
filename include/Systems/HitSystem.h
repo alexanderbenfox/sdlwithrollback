@@ -107,6 +107,10 @@ public:
 
           throweeController->thrownThisFrame = true;
           throweeController->hitData = throwbox->tData;
+
+          // this needs to be made better
+          if (throweeController->onLeftSide)
+            throweeController->hitData.knockback.x = -throwbox->tData.knockback.x;
         }
       }
     }

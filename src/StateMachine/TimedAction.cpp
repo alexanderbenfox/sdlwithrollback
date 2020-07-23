@@ -68,7 +68,7 @@ inline void ThrownAction::Enact(Entity* actor)
   actor->GetComponent<ThrownStateComponent>()->SetTimer(TimedAction::_timer.get());
 
   actor->GetComponent<StateComponent>()->thrownThisFrame = false;
-  actor->GetComponent<Rigidbody>()->enabled = false;
+  actor->GetComponent<Rigidbody>()->ignoreDynamicColliders = true;
 
   auto rb = actor->GetComponent<Rigidbody>();
 
@@ -76,7 +76,7 @@ inline void ThrownAction::Enact(Entity* actor)
     new SimpleActionTimer([rb, this]()
       {
         rb->_vel = _velocity;
-        rb->enabled = true;
+        rb->ignoreDynamicColliders = false;
       }, _delay));
   actor->GetComponent<TimerContainer>()->timings.push_back(_delayTimer);
 

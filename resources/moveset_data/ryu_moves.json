@@ -26,7 +26,7 @@
 				{
 					"position" : 
 					{
-						"x" : 87.0,
+						"x" : 37.0,
 						"y" : 9.0
 					},
 					"size" : 
@@ -34,6 +34,11 @@
 						"x" : 39.0,
 						"y" : 26.0
 					}
+				},
+				"movement" :
+				{
+					"x" : 15.0,
+					"y" : 0.0
 				}
 			},
 			{
@@ -41,8 +46,28 @@
 				{
 					"position" : 
 					{
-						"x" : 78.0,
-						"y" : 11.0
+						"x" : 21.0,
+						"y" : 0.0
+					},
+					"size" : 
+					{
+						"x" : 39.0,
+						"y" : 26.0
+					}
+				},
+				"movement" :
+				{
+					"x" : 10.0,
+					"y" : 0.0
+				}
+			},
+			{
+				"hitbox" : 
+				{
+					"position" : 
+					{
+						"x" : 0.0,
+						"y" : -11.0
 					},
 					"size" : 
 					{
@@ -52,44 +77,47 @@
 				}
 			},
 			{
-				"hitbox" : 
+				"movement" :
 				{
-					"position" : 
-					{
-						"x" : -40.0,
-						"y" : 34.0
-					},
-					"size" : 
-					{
-						"x" : 39.0,
-						"y" : 26.0
-					}
+					"x" : -10.0,
+					"y" : 0.0
+				}
+			},
+			{
+				"movement" :
+				{
+					"x" : -13.0,
+					"y" : 0.0
 				}
 			},
 			{},
 			{},
-			{},
-			{},
-			{},
+			{
+				"movement" :
+				{
+					"x" : -15.0,
+					"y" : 0.0
+				}
+			},
 			{},
 			{},
 			{}
 		],
 		"framedata" : 
 		{
-			"active" : 13,
+			"active" : 23,
 			"damage" : 10,
 			"hitstop" : 10,
 			"isThrow" : true,
 			"knockback" : 
 			{
-				"x" : 400.0,
-				"y" : -400.0
+				"x" : -200.0,
+				"y" : -300.0
 			},
 			"onblock" : 0,
-			"onhit" : 20,
-			"recovery" : 17,
-			"startup" : 2
+			"onhit" : 15,
+			"recovery" : 30,
+			"startup" : 3
 		},
 		"numFrames" : 14,
 		"spritesheet" : "spritesheets\\throws.png",
@@ -324,7 +352,7 @@
 				{
 					"position" : 
 					{
-						"x" : 68.0,
+						"x" : 78.0,
 						"y" : 1.0
 					},
 					"size" : 
@@ -332,6 +360,11 @@
 						"x" : 39.0,
 						"y" : 26.0
 					}
+				},
+				"movement" :
+				{
+					"x" : 5.0,
+					"y" : 0.0
 				}
 			},
 			{
@@ -339,7 +372,7 @@
 				{
 					"position" : 
 					{
-						"x" : 61.0,
+						"x" : 88.0,
 						"y" : 4.0
 					},
 					"size" : 
@@ -354,7 +387,7 @@
 				{
 					"position" : 
 					{
-						"x" : 36.0,
+						"x" : 91.0,
 						"y" : 3.0
 					},
 					"size" : 
@@ -369,7 +402,7 @@
 				{
 					"position" : 
 					{
-						"x" : 35.0,
+						"x" : 110.0,
 						"y" : 10.0
 					},
 					"size" : 
@@ -392,33 +425,56 @@
 						"x" : 39.0,
 						"y" : 26.0
 					}
+				},
+				"movement" :
+				{
+					"x" : 30.0,
+					"y" : 0.0
 				}
 			},
 			{},
 			{},
 			{},
-			{},
-			{},
-			{},
+			{
+				"movement" :
+				{
+					"x" : -10.0,
+					"y" : 0.0
+				}
+			},
+			{
+				"movement" :
+				{
+					"x" : -10.0,
+					"y" : 0.0
+				}
+			},
+			{
+				"movement" :
+				{
+					"x" : -10.0,
+					"y" : 0.0
+				}
+			},
 			{},
 			{},
 			{}
 		],
 		"framedata" : 
 		{
-			"active" : 18,
+			"active" : 28,
 			"damage" : 10,
 			"hitstop" : 10,
 			"isThrow" : true,
 			"knockback" : 
 			{
-				"x" : 400.0,
-				"y" : -400.0
+				"x" : 150.0,
+				"y" : 1600.0
 			},
 			"onblock" : 0,
-			"onhit" : 20,
-			"recovery" : 13,
-			"startup" : 2
+			"onhit" : 30,
+			"recovery" : 37,
+			"startup" : 3
 		},
 		"numFrames" : 17,
 		"spritesheet" : "spritesheets\\throws.png",

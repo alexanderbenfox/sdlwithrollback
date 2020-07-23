@@ -132,10 +132,27 @@ void StaticAssetUtils::CreateAnimationDebug(std::unordered_map<std::string, Anim
         ImGui::Text("%d", frame);
         ImGui::EndGroup();
 
+        ImGui::BeginGroup();
+        if (ImGui::CollapsingHeader("FRAME DATA"))
+        {
+          for(int i = 0; i < data.eventData.size(); i++)
+          {
+            std::string str = std::to_string(i);
+            auto mvx = str + "mvx";
+            auto mvy = str + "mvy";
+            ImGui::Text("%d", i);
+            ImGui::SameLine();
+            ImGui::InputFloat(mvx.c_str(), &data.eventData[i].movement.x, 1, 10, 1);
+            ImGui::SameLine();
+            ImGui::InputFloat(mvy.c_str(), &data.eventData[i].movement.y, 1, 10, 1);
+          }
+        }
+        ImGui::EndGroup();
         if (ImGui::Button("Set Frame Data"))
         {
           // generate event list based on new frame data
-          collection.SetAnimationEvents(animName, collection.GetAnimation(animName)->animationEvents, data.frameData);
+          //collection.SetAnimationEvents(animName, collection.GetAnimation(animName)->animationEvents, data.frameData);
+          collection.SetAnimationEvents(animName, data.eventData, data.frameData);
         }
 
         ImGui::Text("Write to json");

@@ -119,7 +119,7 @@ public:
         Hurtbox* box = std::get<Hurtbox*>(subTuple.second);
 
         auto location = throwbox->rect.GetCenter();
-        Vector2<float> boxOffset(0, box->rect.HalfHeight());
+        Vector2<float> boxOffset(0, 0);
         trans->position = location - boxOffset;
       }
     }

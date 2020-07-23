@@ -58,8 +58,6 @@ public:
   bool elasticCollisions;
   //!
   bool ignoreDynamicColliders = false;
-  //!
-  bool enabled = true;
 
   friend std::ostream& operator<<(std::ostream& os, const Rigidbody& rb);
   friend std::istream& operator>>(std::istream& is, Rigidbody& rb);
