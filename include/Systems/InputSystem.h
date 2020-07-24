@@ -55,7 +55,7 @@ public:
       {
         state->actionState = actor->GetActionState();
         state->stanceState = actor->GetStanceState();
-        rigidbody->elasticCollisions = actor->GetActionState() == ActionState::HITSTUN;
+        //rigidbody->elasticCollisions = actor->GetActionState() == ActionState::HITSTUN;
       }
     }
   }

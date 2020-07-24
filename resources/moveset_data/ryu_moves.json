@@ -35,7 +35,7 @@
 						"y" : 26.0
 					}
 				},
-				"movement" :
+				"movement" : 
 				{
 					"x" : 15.0,
 					"y" : 0.0
@@ -55,7 +55,7 @@
 						"y" : 26.0
 					}
 				},
-				"movement" :
+				"movement" : 
 				{
 					"x" : 10.0,
 					"y" : 0.0
@@ -77,14 +77,14 @@
 				}
 			},
 			{
-				"movement" :
+				"movement" : 
 				{
 					"x" : -10.0,
 					"y" : 0.0
 				}
 			},
 			{
-				"movement" :
+				"movement" : 
 				{
 					"x" : -13.0,
 					"y" : 0.0
@@ -93,7 +93,7 @@
 			{},
 			{},
 			{
-				"movement" :
+				"movement" : 
 				{
 					"x" : -15.0,
 					"y" : 0.0
@@ -360,11 +360,6 @@
 						"x" : 39.0,
 						"y" : 26.0
 					}
-				},
-				"movement" :
-				{
-					"x" : 5.0,
-					"y" : 0.0
 				}
 			},
 			{
@@ -425,37 +420,14 @@
 						"x" : 39.0,
 						"y" : 26.0
 					}
-				},
-				"movement" :
-				{
-					"x" : 30.0,
-					"y" : 0.0
 				}
 			},
 			{},
 			{},
 			{},
-			{
-				"movement" :
-				{
-					"x" : -10.0,
-					"y" : 0.0
-				}
-			},
-			{
-				"movement" :
-				{
-					"x" : -10.0,
-					"y" : 0.0
-				}
-			},
-			{
-				"movement" :
-				{
-					"x" : -10.0,
-					"y" : 0.0
-				}
-			},
+			{},
+			{},
+			{},
 			{},
 			{},
 			{}
@@ -472,8 +444,8 @@
 				"y" : 1600.0
 			},
 			"onblock" : 0,
-			"onhit" : 30,
-			"recovery" : 37,
+			"onhit" : -5,
+			"recovery" : 50,
 			"startup" : 3
 		},
 		"numFrames" : 17,
@@ -735,66 +707,7 @@
 			{},
 			{},
 			{},
-			{
-				"createentity" : 
-				{
-					"Animator" : 
-					{
-						"anim" : "Normal",
-						"collection" : "Fireball",
-						"isLooped" : true
-					},
-					"DynamicCollider" : 
-					{
-						"sizex" : 20,
-						"sizey" : 20
-					},
-					"Hitbox" : 
-					{
-						"damage" : 2,
-						"destroyOnHit" : true,
-						"follow" : true,
-						"knockbackx" : 200,
-						"knockbacky" : -200,
-						"stunFramesBlock" : 2,
-						"stunFramesHit" : 10,
-						"x" : 153.0,
-						"y" : 153.0
-					},
-					"Hurtbox" : 
-					{
-						"x" : 153.0,
-						"y" : 153.0
-					},
-					"RenderComponent" : {},
-					"RenderProperties" : 
-					{
-						"color_a" : 255,
-						"color_b" : 255,
-						"color_g" : 255,
-						"color_r" : 255,
-						"offsetCenterX" : -76.5,
-						"offsetCenterY" : -76.5
-					},
-					"Rigidbody" : 
-					{
-						"initVelocityX" : 400.0,
-						"initVelocityY" : 0.0,
-						"useGravity" : false
-					},
-					"StateComponent" : {},
-					"Transform" : 
-					{
-						"entitysizex" : 153.0,
-						"entitysizey" : 153.0,
-						"relative" : true,
-						"scalex" : 0.29999999999999999,
-						"scaley" : 0.29999999999999999,
-						"x" : 110.5,
-						"y" : -10.5
-					}
-				}
-			},
+			{},
 			{
 				"active" : true
 			},
@@ -820,9 +733,9 @@
 				"y" : 100.0
 			},
 			"onblock" : -6,
-			"onhit" : -3,
+			"onhit" : -1,
 			"recovery" : 28,
-			"startup" : 11
+			"startup" : 14
 		},
 		"numFrames" : 14,
 		"spritesheet" : "spritesheets\\special_moves.png",
@@ -967,35 +880,11 @@
 		[
 			{},
 			{},
-			{
-				"movement" : 
-				{
-					"x" : 5,
-					"y" : 0
-				}
-			},
-			{
-				"movement" : 
-				{
-					"x" : 10,
-					"y" : 0
-				}
-			},
-			{
-				"movement" : 
-				{
-					"x" : 20,
-					"y" : 0
-				}
-			},
 			{},
-			{
-				"movement" : 
-				{
-					"x" : 80,
-					"y" : 0
-				}
-			},
+			{},
+			{},
+			{},
+			{},
 			{
 				"hitbox" : 
 				{
@@ -1024,11 +913,6 @@
 						"x" : 64.0,
 						"y" : 30.0
 					}
-				},
-				"movement" : 
-				{
-					"x" : -570,
-					"y" : 0
 				}
 			},
 			{
@@ -1059,39 +943,16 @@
 						"x" : 64.0,
 						"y" : 30.0
 					}
-				},
-				"movement" : 
-				{
-					"x" : 10,
-					"y" : 0
 				}
 			},
-			{
-				"movement" : 
-				{
-					"x" : 50,
-					"y" : 0
-				}
-			},
-			{
-				"movement" : 
-				{
-					"x" : -1,
-					"y" : 0
-				}
-			},
-			{
-				"movement" : 
-				{
-					"x" : -15,
-					"y" : 0
-				}
-			},
+			{},
+			{},
+			{},
 			{}
 		],
 		"framedata" : 
 		{
-			"active" : 5,
+			"active" : 2,
 			"damage" : 10,
 			"hitstop" : 10,
 			"knockback" : 
@@ -1099,10 +960,10 @@
 				"x" : 600.0,
 				"y" : -800.0
 			},
-			"onblock" : -6,
+			"onblock" : -16,
 			"onhit" : 15,
-			"recovery" : 28,
-			"startup" : 25
+			"recovery" : 36,
+			"startup" : 18
 		},
 		"numFrames" : 15,
 		"spritesheet" : "spritesheets\\special_moves.png",
@@ -1208,11 +1069,6 @@
 						"x" : 66.0,
 						"y" : 19.0
 					}
-				},
-				"movement" :
-				{
-					"x" : 0.0,
-					"y" : -55.0
 				}
 			},
 			{
@@ -1264,11 +1120,6 @@
 						"x" : 62.0,
 						"y" : 19.0
 					}
-				},
-				"movement" : 
-				{
-					"x" : -20.0,
-					"y" : 0.0
 				}
 			},
 			{
@@ -1317,13 +1168,7 @@
 					}
 				}
 			},
-			{
-				"movement" :
-				{
-					"x" : -54.0,
-					"y" : 0.0
-				}
-			},
+			{},
 			{
 				"hitbox" : 
 				{
@@ -1367,11 +1212,6 @@
 						"x" : 62.0,
 						"y" : 19.0
 					}
-				},
-				"movement" :
-				{
-					"x" : -55.0,
-					"y" : 0.0
 				}
 			},
 			{},
@@ -1390,10 +1230,10 @@
 				"x" : 400.0,
 				"y" : 100.0
 			},
-			"onblock" : -20,
-			"onhit" : -15,
+			"onblock" : -45,
+			"onhit" : -30,
 			"recovery" : 34,
-			"startup" : 5
+			"startup" : 10
 		},
 		"numFrames" : 27,
 		"spritesheet" : "spritesheets\\special_moves.png",
