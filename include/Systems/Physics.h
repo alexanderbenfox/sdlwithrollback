@@ -55,7 +55,7 @@ public:
       push->amountPushed += push->velocity * dt;
       if (std::fabs(push->amountPushed) >= std::fabs(push->pushAmount))
       {
-        rigidbody->_vel.x -= push->velocity;
+        rigidbody->_vel.x = 0;
         deleteList.push_back(transform);
       }
     }

@@ -87,7 +87,7 @@ public:
 
             hitbox->Owner()->AddComponent<PushComponent>();
             auto push = hitbox->Owner()->GetComponent<PushComponent>();
-            push->pushAmount = -knockback.x/2.0f;
+            push->pushAmount = -knockback.x/4.0f;
             push->velocity = -knockback.x;
             push->init = false;
             push->amountPushed = 0.0f;

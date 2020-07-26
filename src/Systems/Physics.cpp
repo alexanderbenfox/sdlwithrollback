@@ -20,15 +20,6 @@ void PhysicsSystem::DoTick(float dt)
 
     vel += (acc + Vector2<float>(0, addedAcc)) * dt;
 
-    // apply some kind of ground drag here
-    //if (rigidbody->applyGroundDrag && HasState(rigidbody->_lastCollisionSide, CollisionSide::DOWN) && std::fabsf(vel.x) > dragThreshold)
-    //  vel.x += (-vel.x / 4.0f);
-
-
-    // resolve drag velocity
-    vel.x += rigidbody->horizontalDragVelocity;
-    rigidbody->horizontalDragVelocity += (-rigidbody->horizontalDragVelocity / 4.0f);
-
     // Create the movement vector based on speed and acceleration of the object
     double ddt = ToDouble(dt);
 
