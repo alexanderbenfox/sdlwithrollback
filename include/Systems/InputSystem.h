@@ -23,6 +23,15 @@ public:
         {
           Transform* otherTranform = std::get<Transform*>(other.second);
           TeamComponent* otherEntityTeam = std::get<TeamComponent*>(other.second);
+          StateComponent* otherState = std::get<StateComponent*>(other.second);
+
+          if (otherState->onNewState)
+          {
+            if (otherState->actionState == ActionState::HITSTUN)
+              state->comboCounter++;
+            else
+              state->comboCounter = 0;
+          }
 
           if(teamComp->team != otherEntityTeam->team && otherEntityTeam->playerEntity)
             state->onLeftSide = transform->position.x < otherTranform->position.x;

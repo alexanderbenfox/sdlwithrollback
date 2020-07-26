@@ -5,7 +5,7 @@
 #include "Components/StateComponent.h"
 #include "Components/StateComponents/HitStateComponent.h"
 
-class HitSystem : public IMultiSystem<SysComponents<Hurtbox, StateComponent, TeamComponent>, SysComponents<Hitbox, Hurtbox, StateComponent, TeamComponent>>
+class HitSystem : public IMultiSystem<SysComponents<Hurtbox, StateComponent, TeamComponent>, SysComponents<Hitbox, Hurtbox, StateComponent, TeamComponent, Rigidbody>>
 {
 public:
   static void DoTick(float dt)
@@ -40,6 +40,7 @@ public:
         StateComponent* hitboxController = std::get<StateComponent*>(subTuple.second);
         Hurtbox* hitterHurtbox = std::get<Hurtbox*>(subTuple.second);
         TeamComponent* hitterTeam = std::get<TeamComponent*>(subTuple.second);
+        Rigidbody* hitterRb = std::get<Rigidbody*>(subTuple.second);
 
         if (hurtboxTeam->team == hitterTeam->team)
           continue;
@@ -60,10 +61,37 @@ public:
           // change the state variable that will be evaluated on the processing of inputs. probably a better way to do this...
           hurtboxController->hitThisFrame = true;
           hurtboxController->hitData = hitbox->tData;
+          Vector2<float> knockback = hitbox->tData.knockback;
 
           // this needs to be made better
           if (strikeDir < 0)
-            hurtboxController->hitData.knockback.x = -hitbox->tData.knockback.x;
+          {
+            knockback.x *= -1.0f;
+            hurtboxController->hitData.knockback.x = knockback.x;
+          }
+
+          // apply hitter knockback if in the corner here
+          const float cornerKnockback = 150.0f;
+          const float maxCombo = 5.0f;
+          const int startMultiplier = 2;
+          if ((hurtboxController->onLeftSide && HasState(hurtboxController->collision, CollisionSide::LEFT)) ||
+            (!hurtboxController->onLeftSide && HasState(hurtboxController->collision, CollisionSide::RIGHT)))
+          {
+            //hitterRb->_vel.x = ((float)(-strikeDir) * cornerKnockback);
+
+            // only apply knockback up to the threshold
+            //if((hitboxController->onLeftSide && hitterRb->_vel.x > -knockback.x) || (!hitboxController->onLeftSide && hitterRb->_vel.x < -knockback.x))
+              //hitterRb->_vel.x = -((std::min(knockback.x, cornerKnockback) * (float)std::min(hitboxController->comboCounter + startMultiplier, (int)maxCombo)) / maxCombo);
+            //if ((hitboxController->onLeftSide && hitterRb->_vel.x > -knockback.x) || (!hitboxController->onLeftSide && hitterRb->_vel.x < -knockback.x))
+            //  hitterRb->horizontalDragVelocity = -((knockback.x * (float)std::min(hitboxController->comboCounter + startMultiplier, (int)maxCombo)) / maxCombo);
+
+            hitbox->Owner()->AddComponent<PushComponent>();
+            auto push = hitbox->Owner()->GetComponent<PushComponent>();
+            push->pushAmount = -knockback.x/2.0f;
+            push->velocity = -knockback.x;
+            push->init = false;
+            push->amountPushed = 0.0f;
+          }
 
           GameManager::Get().ActivateHitStop(10);
 

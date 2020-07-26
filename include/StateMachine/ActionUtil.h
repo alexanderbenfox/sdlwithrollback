@@ -40,4 +40,10 @@ IAction* CheckSpecials(const InputBuffer& rawInput, const StateComponent& contex
 IAction* CheckHits(const InputState& rawInput, const StateComponent& context, bool canBlock);
 
 //______________________________________________________________________________
+IAction* CheckForDash(const InputBuffer& input, const StateComponent& context);
+
+//______________________________________________________________________________
+IAction* CheckForJumping(const InputState& input, const StateComponent& context);
+
+//______________________________________________________________________________
 IAction* StateLockedHandleInput(const InputBuffer& rawInput, const StateComponent& context, IAction* action, bool actionComplete);

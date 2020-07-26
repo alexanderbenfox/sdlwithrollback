@@ -17,51 +17,26 @@ template <> IAction* StateLockedAnimatedAction<StanceState::CROUCHING, ActionSta
 template <> IAction* LoopedAction<StanceState::STANDING, ActionState::NONE>::HandleInput(const InputBuffer& rawInput, const StateComponent& context)
 {
   bool facingRight = context.onLeftSide;
+  IAction* nextAction = nullptr;
 
   // process attacks before hits so that if you press a button while attacked, you still get attacked
-  IAction* attackAction = GetAttacksFromNeutral<StanceState::STANDING>(rawInput, context);
-  if (attackAction) return attackAction;
+  if (nextAction = GetAttacksFromNeutral<StanceState::STANDING>(rawInput, context)) return nextAction;
 
-  IAction* onHitAction = CheckHits(rawInput.Latest(), context, true);
-  if (onHitAction) return onHitAction;
+  if (nextAction = CheckHits(rawInput.Latest(), context, true)) return nextAction;
 
   if (context.collision == CollisionSide::NONE)
     return new LoopedAction<StanceState::JUMPING, ActionState::NONE>("Falling", facingRight);
 
   //if you arent attacking, you can move forward, move backward, crouch, stand, jumpf, jumpb, jumpn
   //jumping
-
-  if (HasState(rawInput.Latest(), InputState::UP))
-  {
-    if (HasState(rawInput.Latest(), InputState::LEFT))
-      return new LoopedAction<StanceState::JUMPING, ActionState::NONE>("Jumping", facingRight, Vector2<float>(-0.5f * ActionParams::baseWalkSpeed, -UniversalPhysicsSettings::Get().JumpVelocity));
-    else if (HasState(rawInput.Latest(), InputState::RIGHT))
-      return new LoopedAction<StanceState::JUMPING, ActionState::NONE>("Jumping", facingRight, Vector2<float>(0.5f * ActionParams::baseWalkSpeed, -UniversalPhysicsSettings::Get().JumpVelocity));
-    return new LoopedAction<StanceState::JUMPING, ActionState::NONE>("Jumping", facingRight, Vector2<float>(0.0f, -UniversalPhysicsSettings::Get().JumpVelocity));
-  }
+  if (nextAction = CheckForJumping(rawInput.Latest(), context)) return nextAction;
 
   if (HasState(rawInput.Latest(), InputState::DOWN))
   {
     return new StateLockedAnimatedAction<StanceState::CROUCHING, ActionState::NONE>("Crouching", facingRight, Vector2<float>(0, 0));
   }
 
-  // check dashing
-  std::string dashAnimLeft = !facingRight ? "ForwardDash" : "BackDash";
-  std::string dashAnimRight = !facingRight ? "BackDash" : "ForwardDash";
-  if (HasState(rawInput.Latest(), InputState::LEFT))
-  {
-    if (HasState(rawInput.Latest(), InputState::BTN4) || rawInput.Evaluate(UnivSpecMoveDict) == SpecialInputState::LDash)
-    {
-      return new DashAction(dashAnimLeft, facingRight, ActionParams::nDashFrames, -1.5f * ActionParams::baseWalkSpeed);
-    }
-  }
-  else if (HasState(rawInput.Latest(), InputState::RIGHT))
-  {
-    if(HasState(rawInput.Latest(), InputState::BTN4) || rawInput.Evaluate(UnivSpecMoveDict) == SpecialInputState::RDash)
-    {
-      return new DashAction(dashAnimRight, facingRight, ActionParams::nDashFrames, 1.5f * ActionParams::baseWalkSpeed);
-    }
-  }
+  if (nextAction = CheckForDash(rawInput, context)) return nextAction;
 
   std::string walkAnimLeft = !facingRight ? "WalkF" : "WalkB";
   std::string walkAnimRight = !facingRight ? "WalkB" : "WalkF";

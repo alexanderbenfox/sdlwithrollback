@@ -34,6 +34,8 @@ public:
   //!
   virtual void Draw() {}
 
+  virtual Entity* Owner() { return _owner.get(); }
+
 protected:
   //! 
   std::shared_ptr<Entity> _owner;

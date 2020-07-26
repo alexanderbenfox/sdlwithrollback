@@ -49,6 +49,8 @@ public:
   //!
   Vector2<float> _vel;
   //!
+  float horizontalDragVelocity = 0.0f;
+  //!
   Vector2<float> _acc;
   //!
   float _addedAccel = 0.0f;

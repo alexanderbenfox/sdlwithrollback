@@ -3,7 +3,7 @@
 #include "StateMachine/TimedAction.h"
 
 //______________________________________________________________________________
-float ActionParams::baseWalkSpeed = 300.0f * 1.5f;
+float ActionParams::baseWalkSpeed = 520.0f;
 int ActionParams::nDashFrames = 23;
 
 //______________________________________________________________________________
@@ -141,6 +141,50 @@ IAction* CheckHits(const InputState& rawInput, const StateComponent& context, bo
   }
   return nullptr;
 }
+
+//______________________________________________________________________________
+IAction* CheckForDash(const InputBuffer& rawInput, const StateComponent& context)
+{
+  if (!HasState(context.collision, CollisionSide::DOWN))
+    return nullptr;
+
+  const bool facingRight = context.onLeftSide;
+  std::string dashAnimLeft = !facingRight ? "ForwardDash" : "BackDash";
+  std::string dashAnimRight = !facingRight ? "BackDash" : "ForwardDash";
+  if (HasState(rawInput.Latest(), InputState::LEFT))
+  {
+    if (HasState(rawInput.Latest(), InputState::BTN4) || rawInput.Evaluate(UnivSpecMoveDict) == SpecialInputState::LDash)
+    {
+      return new DashAction(dashAnimLeft, facingRight, ActionParams::nDashFrames, -1.5f * ActionParams::baseWalkSpeed);
+    }
+  }
+  else if (HasState(rawInput.Latest(), InputState::RIGHT))
+  {
+    if (HasState(rawInput.Latest(), InputState::BTN4) || rawInput.Evaluate(UnivSpecMoveDict) == SpecialInputState::RDash)
+    {
+      return new DashAction(dashAnimRight, facingRight, ActionParams::nDashFrames, 1.5f * ActionParams::baseWalkSpeed);
+    }
+  }
+  return nullptr;
+}
+
+//______________________________________________________________________________
+IAction* CheckForJumping(const InputState& input, const StateComponent& context)
+{
+  if (!HasState(context.collision, CollisionSide::DOWN))
+    return nullptr;
+
+  if (HasState(input, InputState::UP))
+  {
+    if (HasState(input, InputState::LEFT))
+      return new LoopedAction<StanceState::JUMPING, ActionState::NONE>("Jumping", context.onLeftSide, Vector2<float>(-0.5f * ActionParams::baseWalkSpeed, -UniversalPhysicsSettings::Get().JumpVelocity));
+    else if (HasState(input, InputState::RIGHT))
+      return new LoopedAction<StanceState::JUMPING, ActionState::NONE>("Jumping", context.onLeftSide, Vector2<float>(0.5f * ActionParams::baseWalkSpeed, -UniversalPhysicsSettings::Get().JumpVelocity));
+    return new LoopedAction<StanceState::JUMPING, ActionState::NONE>("Jumping", context.onLeftSide, Vector2<float>(0.0f, -UniversalPhysicsSettings::Get().JumpVelocity));
+  }
+  return nullptr;
+}
+
 
 //______________________________________________________________________________
 IAction* StateLockedHandleInput(const InputBuffer& rawInput, const StateComponent& context, IAction* action, bool actionComplete)

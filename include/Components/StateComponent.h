@@ -52,6 +52,7 @@ public:
   bool hitThisFrame = false;
   bool thrownThisFrame = false;
   HitData hitData;
+  int comboCounter = 0;
 
   //! Attacker state information
   bool hitting = false;

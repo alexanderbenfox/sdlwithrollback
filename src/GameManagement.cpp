@@ -311,6 +311,7 @@ void GameManager::CheckAgainstSystems(Entity* entity)
   DrawUIPrimitivesSystem::Check(entity);
   UpdateAISystem::Check(entity);
   ThrowSystem::Check(entity);
+  PushSystem::Check(entity);
 
 }
 

@@ -26,7 +26,7 @@
 				{
 					"position" : 
 					{
-						"x" : 37.0,
+						"x" : 67.0,
 						"y" : 9.0
 					},
 					"size" : 
@@ -46,7 +46,7 @@
 				{
 					"position" : 
 					{
-						"x" : 21.0,
+						"x" : 51.0,
 						"y" : 0.0
 					},
 					"size" : 
@@ -66,7 +66,7 @@
 				{
 					"position" : 
 					{
-						"x" : 0.0,
+						"x" : 30.0,
 						"y" : -11.0
 					},
 					"size" : 
@@ -360,6 +360,11 @@
 						"x" : 39.0,
 						"y" : 26.0
 					}
+				},
+				"movement" :
+				{
+					"x" : 5.0,
+					"y" : 0.0
 				}
 			},
 			{
@@ -420,14 +425,37 @@
 						"x" : 39.0,
 						"y" : 26.0
 					}
+				},
+				"movement" :
+				{
+					"x" : 30.0,
+					"y" : 0.0
 				}
 			},
 			{},
 			{},
 			{},
-			{},
-			{},
-			{},
+			{
+				"movement" :
+				{
+					"x" : -10.0,
+					"y" : 0.0
+				}
+			},
+			{
+				"movement" :
+				{
+					"x" : -10.0,
+					"y" : 0.0
+				}
+			},
+			{
+				"movement" :
+				{
+					"x" : -10.0,
+					"y" : 0.0
+				}
+			},
 			{},
 			{},
 			{}
@@ -440,7 +468,7 @@
 			"isThrow" : true,
 			"knockback" : 
 			{
-				"x" : 150.0,
+				"x" : 300.0,
 				"y" : 1600.0
 			},
 			"onblock" : 0,
@@ -707,7 +735,66 @@
 			{},
 			{},
 			{},
-			{},
+			{
+				"createentity" : 
+				{
+					"Animator" : 
+					{
+						"anim" : "Normal",
+						"collection" : "Fireball",
+						"isLooped" : true
+					},
+					"DynamicCollider" : 
+					{
+						"sizex" : 20,
+						"sizey" : 20
+					},
+					"Hitbox" : 
+					{
+						"damage" : 2,
+						"destroyOnHit" : true,
+						"follow" : true,
+						"knockbackx" : 200,
+						"knockbacky" : -200,
+						"stunFramesBlock" : 2,
+						"stunFramesHit" : 10,
+						"x" : 153.0,
+						"y" : 153.0
+					},
+					"Hurtbox" : 
+					{
+						"x" : 153.0,
+						"y" : 153.0
+					},
+					"RenderComponent" : {},
+					"RenderProperties" : 
+					{
+						"color_a" : 255,
+						"color_b" : 255,
+						"color_g" : 255,
+						"color_r" : 255,
+						"offsetCenterX" : -76.5,
+						"offsetCenterY" : -76.5
+					},
+					"Rigidbody" : 
+					{
+						"initVelocityX" : 400.0,
+						"initVelocityY" : 0.0,
+						"useGravity" : false
+					},
+					"StateComponent" : {},
+					"Transform" : 
+					{
+						"entitysizex" : 153.0,
+						"entitysizey" : 153.0,
+						"relative" : true,
+						"scalex" : 0.29999999999999999,
+						"scaley" : 0.29999999999999999,
+						"x" : 110.5,
+						"y" : -10.5
+					}
+				}
+			},
 			{
 				"active" : true
 			},
@@ -880,11 +967,35 @@
 		[
 			{},
 			{},
+			{
+				"movement" : 
+				{
+					"x" : 5,
+					"y" : 0
+				}
+			},
+			{
+				"movement" : 
+				{
+					"x" : 10,
+					"y" : 0
+				}
+			},
+			{
+				"movement" : 
+				{
+					"x" : 20,
+					"y" : 0
+				}
+			},
 			{},
-			{},
-			{},
-			{},
-			{},
+			{
+				"movement" : 
+				{
+					"x" : 80,
+					"y" : 0
+				}
+			},
 			{
 				"hitbox" : 
 				{
@@ -913,6 +1024,11 @@
 						"x" : 64.0,
 						"y" : 30.0
 					}
+				},
+				"movement" : 
+				{
+					"x" : -100,
+					"y" : 0
 				}
 			},
 			{
@@ -947,12 +1063,18 @@
 			},
 			{},
 			{},
-			{},
+			{
+				"movement" : 
+				{
+					"x" : -10,
+					"y" : 0
+				}
+			},
 			{}
 		],
 		"framedata" : 
 		{
-			"active" : 2,
+			"active" : 7,
 			"damage" : 10,
 			"hitstop" : 10,
 			"knockback" : 
@@ -1069,6 +1191,11 @@
 						"x" : 66.0,
 						"y" : 19.0
 					}
+				},
+				"movement" :
+				{
+					"x" : 0.0,
+					"y" : -55.0
 				}
 			},
 			{
@@ -1120,6 +1247,11 @@
 						"x" : 62.0,
 						"y" : 19.0
 					}
+				},
+				"movement" : 
+				{
+					"x" : -20.0,
+					"y" : 0.0
 				}
 			},
 			{
@@ -1168,7 +1300,13 @@
 					}
 				}
 			},
-			{},
+			{
+				"movement" :
+				{
+					"x" : -54.0,
+					"y" : 0.0
+				}
+			},
 			{
 				"hitbox" : 
 				{
@@ -1212,6 +1350,11 @@
 						"x" : 62.0,
 						"y" : 19.0
 					}
+				},
+				"movement" :
+				{
+					"x" : -55.0,
+					"y" : 0.0
 				}
 			},
 			{},
@@ -1306,7 +1449,7 @@
 			"hitstop" : 10,
 			"knockback" : 
 			{
-				"x" : 120.0,
+				"x" : 210.0,
 				"y" : -400.0
 			},
 			"onblock" : -6,
@@ -1366,7 +1509,7 @@
 			"hitstop" : 10,
 			"knockback" : 
 			{
-				"x" : 120.0,
+				"x" : 180.0,
 				"y" : -100.0
 			},
 			"onblock" : -2,
@@ -1428,13 +1571,13 @@
 			"hitstop" : 10,
 			"knockback" : 
 			{
-				"x" : 120.0,
+				"x" : 180.0,
 				"y" : -100.0
 			},
-			"onblock" : 2,
-			"onhit" : 4,
-			"recovery" : 12,
-			"startup" : 7
+			"onblock" : 1,
+			"onhit" : 7,
+			"recovery" : 10,
+			"startup" : 5
 		},
 		"numFrames" : 9,
 		"spritesheet" : "spritesheets\\grounded_attacks.png",

@@ -2,6 +2,10 @@
 #include "StateMachine/AnimatedAction.h"
 #include "Components/StateComponents/AttackStateComponent.h"
 
+const bool magicSeries = true;
+const bool dashCancelSpecials = true;
+const bool jumpCancelSpecials = true;
+
 //______________________________________________________________________________
 template <StanceState Stance, ActionState Action>
 class AttackAction : public StateLockedAnimatedAction<Stance, Action>
@@ -30,6 +34,36 @@ protected:
     return new LoopedAction<Stance, ActionState::NONE>(Stance == StanceState::STANDING ? "Idle" : Stance == StanceState::CROUCHING ? "Crouch" : "Jumping", this->_facingRight);
   }
 
+  IAction* CheckMagicSeries(const InputBuffer& rawInput, const StateComponent& context)
+  {
+    if (Action == ActionState::LIGHT && HasState(rawInput.Latest(), InputState::BTN2))
+    {
+      return GetAttacksFromNeutral<Stance>(rawInput, context);
+    }
+    else if (Action == ActionState::MEDIUM && HasState(rawInput.Latest(), InputState::BTN3))
+    {
+      return GetAttacksFromNeutral<Stance>(rawInput, context);
+    }
+    return nullptr;
+  }
+
+  // checks on special cancel and magic series
+  virtual IAction* CheckCancels(const InputBuffer& rawInput, const StateComponent& context)
+  {
+    IAction* action = nullptr;
+
+    // if we are hitting, we can cancel the remaining recovery and active frames into a special move
+    if (context.hitting)
+    {
+      action = CheckSpecials(rawInput, context);
+      if (magicSeries && !action)
+      {
+        action = CheckMagicSeries(rawInput, context);
+      }
+    }
+    return action;
+  }
+
 };
 
 //______________________________________________________________________________
@@ -49,11 +83,22 @@ class SpecialMoveAttack : public AttackAction<Stance, Action>
 public:
   //!
   SpecialMoveAttack(const std::string& animation, bool facingRight) : AttackAction<Stance, Action>(animation, facingRight, Vector2<float>(0, 0)) {}
-  //! Does not check for special cancels
-  virtual IAction* HandleInput(const InputBuffer& rawInput, const StateComponent& context) override
+
+private:
+  // checks both dash and jump cancel
+  virtual IAction* CheckCancels(const InputBuffer& rawInput, const StateComponent& context) override
   {
-    return StateLockedAnimatedAction<Stance, Action>::HandleInput(rawInput, context);
+    if (!context.hitting)
+      return nullptr;
+
+    IAction* cancelAction = nullptr;
+    if (dashCancelSpecials)
+      cancelAction = CheckForDash(rawInput, context);
+    if (jumpCancelSpecials && !cancelAction)
+      cancelAction = CheckForJumping(rawInput.Latest(), context);
+    return cancelAction;
   }
+
 };
 
 //______________________________________________________________________________
@@ -83,15 +128,9 @@ inline void AttackAction<Stance, Action>::Enact(Entity* actor)
 template <StanceState Stance, ActionState Action>
 inline IAction* AttackAction<Stance, Action>::HandleInput(const InputBuffer& rawInput, const StateComponent& context)
 {
-  IAction* action = nullptr;
-
-  // if we are hitting, we can cancel the remaining recovery and active frames into a special move
-  if (context.hitting)
-    action = CheckSpecials(rawInput, context);
-
-  if (!action)
-    return StateLockedAnimatedAction<Stance, Action>::HandleInput(rawInput, context);
-  return action;
+  if (IAction* cancelAction = CheckCancels(rawInput, context))
+    return cancelAction;
+  return StateLockedAnimatedAction<Stance, Action>::HandleInput(rawInput, context);
 }
 
 //______________________________________________________________________________
