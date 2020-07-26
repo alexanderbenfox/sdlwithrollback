@@ -14,8 +14,6 @@ public:
   friend class Rigidbody;
   static void DoTick(float dt);
 
-  const static float dragThreshold;
-
 private:
   static Vector2<double> CreateResolveCollisionVector(OverlapInfo<double>& overlap, const Vector2<double>& movementVector);
   static double ToDouble(const float& f);
@@ -27,10 +25,14 @@ private:
 struct PushComponent : public IComponent
 {
   PushComponent(std::shared_ptr<Entity> entity) : IComponent(entity) {}
+  ~PushComponent()
+  {
+    if(_owner->GetComponent<Rigidbody>())
+      _owner->GetComponent<Rigidbody>()->_vel.x = 0;
+  }
   float pushAmount;
   float amountPushed = 0.0f;
   float velocity;
-  bool init = false;
 };
 
 class PushSystem : public ISystem<Rigidbody, PushComponent, Transform>
@@ -46,12 +48,7 @@ public:
       PushComponent* push = std::get<PushComponent*>(tuple.second);
       Transform* transform = std::get<Transform*>(tuple.second);
 
-      if (!push->init)
-      {
-        rigidbody->_vel.x = push->velocity;
-        push->init = true;
-      }
-      
+      rigidbody->_vel.x = push->velocity;
       push->amountPushed += push->velocity * dt;
       if (std::fabs(push->amountPushed) >= std::fabs(push->pushAmount))
       {

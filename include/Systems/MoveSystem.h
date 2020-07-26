@@ -8,6 +8,41 @@
 #include "Components/Hitbox.h"
 #include "Components/StateComponents/HitStateComponent.h"
 
+
+struct WallMoveComponent : public IComponent
+{
+  WallMoveComponent(std::shared_ptr<Entity> entity) : IComponent(entity) {}
+  bool leftWall;
+};
+
+class MoveWallSystem : public IMultiSystem<SysComponents<Camera>, SysComponents<WallMoveComponent, StaticCollider, Transform>>
+{
+public:
+  static void DoTick(float dt)
+  {
+    for (auto tuple : MainSystem::Tuples)
+    {
+      Camera* camera = std::get<Camera*>(tuple.second);
+      for(auto subTuple : SubSystem::Tuples)
+      {
+        WallMoveComponent* wm = std::get<WallMoveComponent*>(subTuple.second);
+        StaticCollider* collider = std::get<StaticCollider*>(subTuple.second);
+        Transform* transform = std::get<Transform*>(subTuple.second);
+
+        if(wm->leftWall)
+        {
+          transform->position = Vector2<float>(camera->rect.x - collider->rect.HalfWidth(), camera->rect.y + camera->rect.h / 2);
+        }
+        else
+        {
+          transform->position = Vector2<float>(camera->rect.x + camera->rect.w + collider->rect.HalfWidth(), camera->rect.y + camera->rect.h / 2);
+        }
+        collider->MoveToTransform(*transform);
+      }
+    }
+  }
+};
+
 class MoveSystemCamera : public ISystem<Transform, Camera>
 {
 public:
@@ -142,5 +177,6 @@ public:
     MoveSystemHurtbox::DoTick(dt);
     MoveSystemHitbox::DoTick(dt);
     MoveThrownEntitySystem::DoTick(dt);
+    MoveWallSystem::DoTick(dt);
   }
 };

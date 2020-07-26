@@ -72,6 +72,7 @@ public:
 
           // apply hitter knockback if in the corner here
           const float cornerKnockback = 150.0f;
+          const float maxCornerKnockback = 100.0f;
           const float maxCombo = 5.0f;
           const int startMultiplier = 2;
           if ((hurtboxController->onLeftSide && HasState(hurtboxController->collision, CollisionSide::LEFT)) ||
@@ -87,9 +88,9 @@ public:
 
             hitbox->Owner()->AddComponent<PushComponent>();
             auto push = hitbox->Owner()->GetComponent<PushComponent>();
-            push->pushAmount = -knockback.x/4.0f;
-            push->velocity = -knockback.x;
-            push->init = false;
+            float pushBackAmount = knockback.x / 4.0f;
+            push->pushAmount = -std::min(pushBackAmount, maxCornerKnockback);
+            push->velocity = -knockback.x / 2.0f;
             push->amountPushed = 0.0f;
           }
 

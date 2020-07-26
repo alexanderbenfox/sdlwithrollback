@@ -1,7 +1,5 @@
 #include "Systems/Physics.h"
 
-const float PhysicsSystem::dragThreshold = 300.0f;
-
 void PhysicsSystem::DoTick(float dt)
 {
   for (auto tuple : Tuples)

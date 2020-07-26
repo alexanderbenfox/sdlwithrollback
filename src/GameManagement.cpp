@@ -293,6 +293,7 @@ void GameManager::CheckAgainstSystems(Entity* entity)
   MoveSystemCamera::Check(entity);
   MoveSystemHitbox::Check(entity);
   MoveThrownEntitySystem::Check(entity);
+  MoveWallSystem::Check(entity);
   AttackAnimationSystem::Check(entity);
   HitSystem::Check(entity);
   TimerSystem::Check(entity);

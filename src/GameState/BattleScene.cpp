@@ -52,8 +52,8 @@ BattleScene::~BattleScene()
   GameManager::Get().DestroyEntity(_camera);
 
   // we are moving into the after match cutscene, so only remove game state related components
-  _p1->RemoveComponents<GameActor, Hurtbox, StateComponent, UIContainer, TimerContainer>();
-  _p2->RemoveComponents<GameActor, Hurtbox, StateComponent, UIContainer, TimerContainer>();
+  _p1->RemoveComponents<GameActor, Hurtbox, StateComponent, UIContainer, TimerContainer, PushComponent>();
+  _p2->RemoveComponents<GameActor, Hurtbox, StateComponent, UIContainer, TimerContainer, PushComponent>();
 
   //_p1->RemoveComponents<Animator, RenderComponent<RenderType>, RenderProperties, Rigidbody, GameActor, DynamicCollider, Hurtbox, StateComponent, UIContainer, TimerContainer, Transform>();
   //_p1->RemoveComponents<Animator, RenderComponent<RenderType>, RenderProperties, Rigidbody, GameActor, DynamicCollider, Hurtbox, StateComponent, UIContainer, TimerContainer, Transform>();
@@ -142,6 +142,8 @@ BattleScene::StageBorders BattleScene::CreateStageBorders(const Rect<float>& sta
   stage.borders[1]->GetComponent<RenderComponent<RenderType>>()->Init(ResourceManager::Get().GetAsset<RenderType>("spritesheets\\ryu.png"));
   stage.borders[1]->GetComponent<StaticCollider>()->Init(Vector2<double>(-borderWidth, 0), Vector2<double>(0, stageRect.Height()));
   stage.borders[1]->GetComponent<StaticCollider>()->MoveToTransform(*stage.borders[1]->GetComponent<Transform>());
+  stage.borders[1]->AddComponent<WallMoveComponent>();
+  stage.borders[1]->GetComponent<WallMoveComponent>()->leftWall = true;
 
   stage.borders[2] = GameManager::Get().CreateEntity<Transform, RenderComponent<RenderType>, StaticCollider>();
   stage.borders[2]->GetComponent<Transform>()->position.x = stageRect.end.x + 100.0f;
@@ -149,6 +151,8 @@ BattleScene::StageBorders BattleScene::CreateStageBorders(const Rect<float>& sta
   stage.borders[2]->GetComponent<RenderComponent<RenderType>>()->Init(ResourceManager::Get().GetAsset<RenderType>("spritesheets\\ryu.png"));
   stage.borders[2]->GetComponent<StaticCollider>()->Init(Vector2<double>(0, 0), Vector2<double>(borderWidth, stageRect.Height()));
   stage.borders[2]->GetComponent<StaticCollider>()->MoveToTransform(*stage.borders[2]->GetComponent<Transform>());
+  stage.borders[2]->AddComponent<WallMoveComponent>();
+  stage.borders[2]->GetComponent<WallMoveComponent>()->leftWall = false;
   
   return stage;
 }
