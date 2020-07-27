@@ -12,10 +12,10 @@ void Animator::SetAnimations(AnimationCollection* animations)
   _animations = animations;
 }
 
-Animation* Animator::Play(const std::string& name, bool isLooped, bool horizontalFlip, float speed)
+Animation* Animator::Play(const std::string& name, bool isLooped, bool horizontalFlip, float speed, bool forcePlay)
 {
   // dont play again if we are already playing it
-  if (playing && name == currentAnimationName) return _animations->GetAnimation(currentAnimationName);
+  if (!forcePlay && (playing && name == currentAnimationName)) return _animations->GetAnimation(currentAnimationName);
   auto animation = _animations->GetAnimationIt(name);
   if (_animations->IsValid(animation))
   {

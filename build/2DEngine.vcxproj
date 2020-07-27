@@ -43,6 +43,7 @@
     <ClCompile Include="..\src\Components\Input.cpp" />
     <ClCompile Include="..\src\Components\Hurtbox.cpp" />
     <ClCompile Include="..\src\Components\RenderComponent.cpp" />
+    <ClCompile Include="..\src\Components\SFXComponent.cpp" />
     <ClCompile Include="..\src\Components\StateComponents\AttackStateComponent.cpp" />
     <ClCompile Include="..\src\Components\StateComponents\HitStateComponent.cpp" />
     <ClCompile Include="..\src\Components\Transform.cpp" />
@@ -100,6 +101,7 @@
     <ClInclude Include="..\include\Components\InputHandlers\InputBuffer.h" />
     <ClInclude Include="..\include\Components\InputHandlers\JoystickInputHandler.h" />
     <ClInclude Include="..\include\Components\InputHandlers\KeyboardHandler.h" />
+    <ClInclude Include="..\include\Components\SFXComponent.h" />
     <ClInclude Include="..\include\Components\StateComponents\AttackStateComponent.h" />
     <ClInclude Include="..\include\Components\StateComponents\HitStateComponent.h" />
     <ClInclude Include="..\include\Components\UIComponents.h" />

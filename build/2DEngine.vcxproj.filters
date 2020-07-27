@@ -234,6 +234,9 @@
     <ClCompile Include="..\src\Components\Hitbox.cpp">
       <Filter>Source Files\Components</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\Components\SFXComponent.cpp">
+      <Filter>Source Files\Components</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\AssetManagement\Resource.h">
@@ -484,6 +487,9 @@
     </ClInclude>
     <ClInclude Include="..\include\Components\StateComponents\HitStateComponent.h">
       <Filter>Header Files\Components\StateComponents</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Components\SFXComponent.h">
+      <Filter>Header Files\Components</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

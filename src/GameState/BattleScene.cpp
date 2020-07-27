@@ -8,6 +8,7 @@
 #include "Components/Collider.h"
 #include "Components/Input.h"
 #include "Components/RenderComponent.h"
+#include "Components/SFXComponent.h"
 
 #include "Systems/Physics.h"
 #include "Systems/AnimationSystem.h"
@@ -166,7 +167,7 @@ void BattleScene::InitCharacter(Vector2<float> position, std::shared_ptr<Entity>
   // quick hack to make the debug stuff for attacks work... need to remove eventually
   player->RemoveComponents<Transform, Animator>();
 
-  player->AddComponents<Transform, GameInputComponent, Animator, RenderComponent<RenderType>, RenderProperties, Rigidbody, GameActor, DynamicCollider, Hurtbox, StateComponent, TeamComponent>();
+  player->AddComponents<Transform, GameInputComponent, Animator, RenderComponent<RenderType>, RenderProperties, Rigidbody, GameActor, DynamicCollider, Hurtbox, StateComponent, TeamComponent, SFXComponent>();
   player->AddComponents<UIContainer, TimerContainer>();
 
   auto uiContainer = player->GetComponent<UIContainer>();

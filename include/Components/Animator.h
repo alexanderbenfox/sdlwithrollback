@@ -10,7 +10,7 @@ public:
   void SetAnimations(AnimationCollection* animations);
 
   // Setter function
-  Animation* Play(const std::string& name, bool isLooped, bool horizontalFlip, float speed = 1.0f);
+  Animation* Play(const std::string& name, bool isLooped, bool horizontalFlip, float speed = 1.0f, bool forcePlay = false);
 
   void ChangeListener(IAnimatorListener* listener) { _listener = listener; }
 

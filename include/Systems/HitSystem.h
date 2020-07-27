@@ -4,8 +4,9 @@
 #include "Components/Hurtbox.h"
 #include "Components/StateComponent.h"
 #include "Components/StateComponents/HitStateComponent.h"
+#include "Components/SFXComponent.h"
 
-class HitSystem : public IMultiSystem<SysComponents<Hurtbox, StateComponent, TeamComponent>, SysComponents<Hitbox, Hurtbox, StateComponent, TeamComponent, Rigidbody>>
+class HitSystem : public IMultiSystem<SysComponents<Hurtbox, StateComponent, TeamComponent, SFXComponent>, SysComponents<Hitbox, Hurtbox, StateComponent, TeamComponent, Rigidbody>>
 {
 public:
   static void DoTick(float dt)
@@ -33,6 +34,7 @@ public:
       StateComponent* hurtboxController = std::get<StateComponent*>(tuple.second);
       Hurtbox* hurtbox = std::get<Hurtbox*>(tuple.second);
       TeamComponent* hurtboxTeam = std::get<TeamComponent*>(tuple.second);
+      SFXComponent* sfx = std::get<SFXComponent*>(tuple.second);
       
       for(auto subTuple : SubSystem::Tuples)
       {
@@ -95,6 +97,9 @@ public:
           }
 
           GameManager::Get().ActivateHitStop(10);
+
+          Rect<double> intersection = hitbox->rect.GetIntersection(hurtbox->rect);
+          sfx->ShowHitSparks(intersection.GetCenter());
 
           //! this will trigger self-destruction if this entity is intended to be destroyed on hit
           hitbox->OnCollision(hurtbox);
