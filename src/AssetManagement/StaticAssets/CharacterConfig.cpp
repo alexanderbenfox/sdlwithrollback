@@ -13,18 +13,19 @@ std::unordered_map<std::string, AnimationInfo> RyuConfig::normalAnimations =
   { "Falling", AnimationInfo(jumpFall.src, jumpFall, 60, 13, AnchorPoint::BL)},
   { "Crouching", AnimationInfo(crouching.src, crouching, 0, 4, AnchorPoint::BL)},
   { "Crouch", AnimationInfo(crouching.src, crouching, 12, 5, AnchorPoint::BL)},
-  { "Block", AnimationInfo(blockAndHitstun.src, blockAndHitstun, 0, 4, AnchorPoint::BL)},
-  {"LightHitstun", AnimationInfo(blockAndHitstun.src, blockAndHitstun, 4, 3, AnchorPoint::BL)},
-  {"LightHitstun2", AnimationInfo(blockAndHitstun.src, blockAndHitstun, 37, 4, AnchorPoint::BL)},
-  {"MediumHitstun", AnimationInfo(blockAndHitstun.src, blockAndHitstun, 8, 10, AnchorPoint::BL)},
-  {"MediumHitstun2", AnimationInfo(blockAndHitstun.src, blockAndHitstun, 19, 9, AnchorPoint::BL)},
-  {"HeavyHitstun", AnimationInfo(blockAndHitstun.src, blockAndHitstun, 42, 12, AnchorPoint::BL)},
-  {"LaunchHitstun", AnimationInfo(blockAndHitstun.src, blockAndHitstun, 27, 9, AnchorPoint::BL)},
-  {"BackDash", AnimationInfo(dashes.src, dashes, 0, 6, AnchorPoint::BL)},
-  {"ForwardDash", AnimationInfo(dashes.src, dashes, 6, 6, AnchorPoint::BL)},
-  {"ThrowMiss", AnimationInfo(throws.src, throws, 2, 4, AnchorPoint::BL)},
-  {"Win", AnimationInfo(winLoseSpriteSheet.src, winLoseSpriteSheet, 0, 6, AnchorPoint::BL)},
-  {"KO", AnimationInfo(winLoseSpriteSheet.src, winLoseSpriteSheet, 6, 17, AnchorPoint::BL)}
+  { "BlockLow", AnimationInfo(blocks.src, blocks, 0, 5, AnchorPoint::BL)},
+  { "BlockMid", AnimationInfo(blocks.src, blocks, 5, 4, AnchorPoint::BL)},
+  { "BlockHigh", AnimationInfo(blocks.src, blocks, 9, 6, AnchorPoint::BL)},
+  { "LightHitstun", AnimationInfo(hitstun.src, hitstun, 0, 3, AnchorPoint::BL)},
+  { "MedHitstun", AnimationInfo(hitstun.src, hitstun, 3, 11, AnchorPoint::BL)},
+  { "MedHitstun2", AnimationInfo(hitstun.src, hitstun, 14, 10, AnchorPoint::BL)},
+  { "HeavyHitstun", AnimationInfo(hitstun.src, hitstun, 24, 7, AnchorPoint::BL)},
+  { "CrouchingHitstun", AnimationInfo(hitstun.src, hitstun, 56, 11, AnchorPoint::BL)},
+  { "BackDash", AnimationInfo(dashes.src, dashes, 0, 6, AnchorPoint::BL)},
+  { "ForwardDash", AnimationInfo(dashes.src, dashes, 6, 6, AnchorPoint::BL)},
+  { "ThrowMiss", AnimationInfo(throws.src, throws, 2, 4, AnchorPoint::BL)},
+  { "Win", AnimationInfo(winLoseSpriteSheet.src, winLoseSpriteSheet, 0, 6, AnchorPoint::BL)},
+  { "KO", AnimationInfo(winLoseSpriteSheet.src, winLoseSpriteSheet, 6, 17, AnchorPoint::BL)}
 };
 
 std::unordered_map<std::string, AttackAnimationData> RyuConfig::attackAnimations = 

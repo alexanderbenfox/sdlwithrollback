@@ -177,6 +177,5 @@ public:
     MoveSystemHurtbox::DoTick(dt);
     MoveSystemHitbox::DoTick(dt);
     MoveThrownEntitySystem::DoTick(dt);
-    MoveWallSystem::DoTick(dt);
   }
 };

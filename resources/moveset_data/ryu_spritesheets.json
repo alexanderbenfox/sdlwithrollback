@@ -65,7 +65,7 @@
     }
   },
   {
-    "sheet_location": "spritesheets\\block_mid_hitstun.png",
+    "sheet_location": "spritesheets\\hitstun_standing&crouching.png",
     "rows": 8,
     "columns": 7,
     "frameSize": {
@@ -133,6 +133,19 @@
     "sheet_location": "spritesheets\\special_moves.png",
     "rows": 10,
     "columns": 8,
+    "frameSize": {
+      "x": 0,
+      "y": 0
+    },
+    "sheetSize": {
+      "x": 0,
+      "y": 0
+    }
+  },
+{
+    "sheet_location": "spritesheets\\knockdowns.png",
+    "rows": 9,
+    "columns": 6,
     "frameSize": {
       "x": 0,
       "y": 0

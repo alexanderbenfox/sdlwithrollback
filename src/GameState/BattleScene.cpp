@@ -53,8 +53,8 @@ BattleScene::~BattleScene()
   GameManager::Get().DestroyEntity(_camera);
 
   // we are moving into the after match cutscene, so only remove game state related components
-  _p1->RemoveComponents<GameActor, Hurtbox, StateComponent, UIContainer, TimerContainer, PushComponent>();
-  _p2->RemoveComponents<GameActor, Hurtbox, StateComponent, UIContainer, TimerContainer, PushComponent>();
+  _p1->RemoveComponents<GameActor, Hurtbox, StateComponent, UIContainer, PushComponent, Rigidbody, TimerContainer>();
+  _p2->RemoveComponents<GameActor, Hurtbox, StateComponent, UIContainer, PushComponent, Rigidbody, TimerContainer>();
 
   //_p1->RemoveComponents<Animator, RenderComponent<RenderType>, RenderProperties, Rigidbody, GameActor, DynamicCollider, Hurtbox, StateComponent, UIContainer, TimerContainer, Transform>();
   //_p1->RemoveComponents<Animator, RenderComponent<RenderType>, RenderProperties, Rigidbody, GameActor, DynamicCollider, Hurtbox, StateComponent, UIContainer, TimerContainer, Transform>();
@@ -118,6 +118,8 @@ void BattleScene::Update(float deltaTime)
   PhysicsSystem::DoTick(deltaTime);
   // update the location of the colliders
   MoveSystem::DoTick(deltaTime);
+  // move walls according to camera position
+  MoveWallSystem::DoTick(deltaTime);
 
   CheckBattleEndSystem::DoTick(deltaTime);
 }

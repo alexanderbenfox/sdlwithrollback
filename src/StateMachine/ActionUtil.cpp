@@ -135,9 +135,25 @@ IAction* CheckHits(const InputState& rawInput, const StateComponent& context, bo
       bool blockedRight = HasState(rawInput, InputState::LEFT) && context.onLeftSide;
       bool blockedLeft = HasState(rawInput, InputState::RIGHT) && !context.onLeftSide;
       if (blockedRight || blockedLeft)
-        return new OnRecvHitAction<StanceState::STANDING, ActionState::BLOCKSTUN>("Block", facingRight, context.hitData.framesInStunBlock, Vector2<float>::Zero);
+      {
+        if(HasState(rawInput, InputState::DOWN))
+          return new OnRecvHitAction<StanceState::CROUCHING, ActionState::BLOCKSTUN>("BlockLow", facingRight, context.hitData.framesInStunBlock, Vector2<float>::Zero);
+        else
+          return new OnRecvHitAction<StanceState::STANDING, ActionState::BLOCKSTUN>("BlockMid", facingRight, context.hitData.framesInStunBlock, Vector2<float>::Zero);
+      }
     }
-    return new OnRecvHitAction<StanceState::STANDING, ActionState::HITSTUN>("HeavyHitstun", facingRight, context.hitData.framesInStunHit, context.hitData.knockback, context.hitData.damage);
+
+    if (HasState(rawInput, InputState::DOWN) && context.hitData.framesInStunHit < 16)
+    {
+      return new OnRecvHitAction<StanceState::CROUCHING, ActionState::HITSTUN>("CrouchingHitstun", facingRight, context.hitData.framesInStunHit, context.hitData.knockback, context.hitData.damage);
+    }
+    else
+    {
+      std::string hitstunAnim = "LightHitstun";
+      if (context.hitData.framesInStunHit > 5) hitstunAnim = "MedHitstun";
+      if (context.hitData.framesInStunHit > 10) hitstunAnim = "HeavyHitstun";
+      return new OnRecvHitAction<StanceState::STANDING, ActionState::HITSTUN>(hitstunAnim, facingRight, context.hitData.framesInStunHit, context.hitData.knockback, context.hitData.damage);
+    }
   }
   return nullptr;
 }
