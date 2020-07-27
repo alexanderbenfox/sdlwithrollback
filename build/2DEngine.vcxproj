@@ -136,6 +136,7 @@
     <ClInclude Include="..\include\StateMachine\AnimatedAction.h" />
     <ClInclude Include="..\include\StateMachine\AttackAction.h" />
     <ClInclude Include="..\include\StateMachine\IAction.h" />
+    <ClInclude Include="..\include\StateMachine\RecvHit.h" />
     <ClInclude Include="..\include\StateMachine\StateEnums.h" />
     <ClInclude Include="..\include\StateMachine\TimedAction.h" />
     <ClInclude Include="..\include\Systems\AISystem.h" />

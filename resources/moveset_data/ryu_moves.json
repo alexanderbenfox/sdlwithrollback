@@ -1080,12 +1080,13 @@
 			"knockback" : 
 			{
 				"x" : 400.0,
-				"y" : -500.0
+				"y" : -700.0
 			},
 			"onblock" : -16,
 			"onhit" : 15,
 			"recovery" : 36,
-			"startup" : 18
+			"startup" : 18,
+			"knockdown" : true
 		},
 		"numFrames" : 15,
 		"spritesheet" : "spritesheets\\special_moves.png",
@@ -1371,12 +1372,13 @@
 			"knockback" : 
 			{
 				"x" : 400.0,
-				"y" : 100.0
+				"y" : -420.0
 			},
 			"onblock" : -45,
 			"onhit" : -30,
 			"recovery" : 34,
-			"startup" : 10
+			"startup" : 10,
+			"knockdown" : true
 		},
 		"numFrames" : 27,
 		"spritesheet" : "spritesheets\\special_moves.png",

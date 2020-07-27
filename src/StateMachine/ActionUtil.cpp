@@ -1,6 +1,7 @@
 #include "StateMachine/ActionUtil.h"
 #include "StateMachine/AttackAction.h"
 #include "StateMachine/TimedAction.h"
+#include "StateMachine/RecvHit.h"
 
 //______________________________________________________________________________
 float ActionParams::baseWalkSpeed = 520.0f;
@@ -121,7 +122,7 @@ IAction* CheckSpecials(const InputBuffer& rawInput, const StateComponent& contex
 
 
 //______________________________________________________________________________
-IAction* CheckHits(const InputState& rawInput, const StateComponent& context, bool canBlock)
+IAction* CheckHits(const InputState& rawInput, const StateComponent& context, bool canBlock, bool inKnockdown)
 {
   bool facingRight = context.onLeftSide;
   if (context.thrownThisFrame)
@@ -130,6 +131,7 @@ IAction* CheckHits(const InputState& rawInput, const StateComponent& context, bo
   }
   if (context.hitThisFrame)
   {
+    GameManager::Get().ActivateHitStop(10);
     if (canBlock)
     {
       bool blockedRight = HasState(rawInput, InputState::LEFT) && context.onLeftSide;
@@ -137,22 +139,28 @@ IAction* CheckHits(const InputState& rawInput, const StateComponent& context, bo
       if (blockedRight || blockedLeft)
       {
         if(HasState(rawInput, InputState::DOWN))
-          return new OnRecvHitAction<StanceState::CROUCHING, ActionState::BLOCKSTUN>("BlockLow", facingRight, context.hitData.framesInStunBlock, Vector2<float>::Zero);
+          return new HitOrBlockStunAction<StanceState::CROUCHING, ActionState::BLOCKSTUN>("BlockLow", facingRight, context.hitData.framesInStunBlock, Vector2<float>::Zero, 0);
         else
-          return new OnRecvHitAction<StanceState::STANDING, ActionState::BLOCKSTUN>("BlockMid", facingRight, context.hitData.framesInStunBlock, Vector2<float>::Zero);
+          return new HitOrBlockStunAction<StanceState::STANDING, ActionState::BLOCKSTUN>("BlockMid", facingRight, context.hitData.framesInStunBlock, Vector2<float>::Zero, 0);
       }
+    }
+
+    // check for knockdown stuff first
+    if (inKnockdown || context.hitData.knockdown)
+    {
+      return new KnockdownAirborneAction(context.onLeftSide, context.hitData.knockback, context.hitData.damage);
     }
 
     if (HasState(rawInput, InputState::DOWN) && context.hitData.framesInStunHit < 16)
     {
-      return new OnRecvHitAction<StanceState::CROUCHING, ActionState::HITSTUN>("CrouchingHitstun", facingRight, context.hitData.framesInStunHit, context.hitData.knockback, context.hitData.damage);
+      return new HitOrBlockStunAction<StanceState::CROUCHING, ActionState::HITSTUN>("CrouchingHitstun", facingRight, context.hitData.framesInStunHit, context.hitData.knockback, context.hitData.damage);
     }
     else
     {
       std::string hitstunAnim = "LightHitstun";
-      if (context.hitData.framesInStunHit > 5) hitstunAnim = "MedHitstun";
-      if (context.hitData.framesInStunHit > 10) hitstunAnim = "HeavyHitstun";
-      return new OnRecvHitAction<StanceState::STANDING, ActionState::HITSTUN>(hitstunAnim, facingRight, context.hitData.framesInStunHit, context.hitData.knockback, context.hitData.damage);
+      if (context.hitData.framesInStunHit > 10) hitstunAnim = "MedHitstun";
+      if (context.hitData.framesInStunHit > 15) hitstunAnim = "HeavyHitstun";
+      return new HitOrBlockStunAction<StanceState::STANDING, ActionState::HITSTUN>(hitstunAnim, facingRight, context.hitData.framesInStunHit, context.hitData.knockback, context.hitData.damage);
     }
   }
   return nullptr;
@@ -206,7 +214,7 @@ IAction* CheckForJumping(const InputState& input, const StateComponent& context)
 IAction* StateLockedHandleInput(const InputBuffer& rawInput, const StateComponent& context, IAction* action, bool actionComplete)
 {
   // check if hit first
-  IAction* onHitAction = CheckHits(rawInput.Latest(), context, false);
+  IAction* onHitAction = CheckHits(rawInput.Latest(), context, false, false);
   if (onHitAction) return onHitAction;
 
   // check for follow up after hit

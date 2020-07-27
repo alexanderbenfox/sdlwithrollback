@@ -4,9 +4,14 @@
 #include "Components/GameActor.h"
 #include "Components/Animator.h"
 
+#include "StateMachine/RecvHit.h"
+#include "Systems/Physics.h"
+
 //______________________________________________________________________________
 void DashAction::Enact(Entity* actor)
 {
+  actor->RemoveComponent<PushComponent>();
+
   this->_loopedAnimation = false;
   AnimatedAction<StanceState::STANDING, ActionState::DASHING>::Enact(actor);
   AnimatedAction<StanceState::STANDING, ActionState::DASHING>::_complete = false;
@@ -75,27 +80,16 @@ inline void ThrownAction::Enact(Entity* actor)
   _delayTimer = std::shared_ptr<ActionTimer>(
     new SimpleActionTimer([rb, this]()
       {
-        rb->_vel = _velocity;
         rb->ignoreDynamicColliders = false;
+        OnActionComplete();
       }, _delay));
   actor->GetComponent<TimerContainer>()->timings.push_back(_delayTimer);
-
-  //! send damage value
-  if (auto state = actor->GetComponent<StateComponent>())
-  {
-    if (!state->invulnerable)
-    {
-      state->hp -= _damageTaken;
-    }
-  }
 }
 
 //______________________________________________________________________________
 IAction* ThrownAction::GetFollowUpAction(const InputBuffer& rawInput, const StateComponent& context)
 {
-  if (context.hp <= 0)
-    return new StateLockedAnimatedAction<StanceState::STANDING, ActionState::NONE>("KO", context.onLeftSide, Vector2<float>::Zero);
-  return TimedAction::GetFollowUpAction(rawInput, context);
+  return new KnockdownAirborneAction(context.onLeftSide, _velocity, _damageTaken);
 }
 
 //______________________________________________________________________________
@@ -103,4 +97,6 @@ void ThrownAction::OnActionComplete()
 {
   ListenedAction::_listener->GetOwner()->RemoveComponent<ThrownStateComponent>();
   ListenedAction::OnActionComplete();
+
+
 }

@@ -10,6 +10,7 @@ void TransferDataBox::Init(const FrameData& frameData)
   tData.damage = frameData.damage;
   tData.knockback = frameData.knockback;
   tData.activeFrames = frameData.active;
+  tData.knockdown = frameData.knockdown;
 }
 
 void TransferDataBox::MoveDataBoxAroundTransform(const Transform* transform, const Rect<double>& box, const Vector2<float> offset, bool onLeft)

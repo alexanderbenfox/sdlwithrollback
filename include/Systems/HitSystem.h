@@ -97,7 +97,6 @@ public:
           }
           
           sfx->showLocation = (Vector2<float>)hitbox->rect.GetIntersection(hurtbox->rect).GetCenter();
-          GameManager::Get().ActivateHitStop(10);
 
           //! this will trigger self-destruction if this entity is intended to be destroyed on hit
           hitbox->OnCollision(hurtbox);

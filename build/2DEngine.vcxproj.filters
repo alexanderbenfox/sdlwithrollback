@@ -491,6 +491,9 @@
     <ClInclude Include="..\include\Components\SFXComponent.h">
       <Filter>Header Files\Components</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\StateMachine\RecvHit.h">
+      <Filter>Header Files\StateMachine</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

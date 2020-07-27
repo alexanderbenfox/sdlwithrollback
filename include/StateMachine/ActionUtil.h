@@ -37,7 +37,7 @@ template <StanceState Stance> IAction* GetAttacksFromNeutral(const InputBuffer& 
 IAction* CheckSpecials(const InputBuffer& rawInput, const StateComponent& context);
 
 //______________________________________________________________________________
-IAction* CheckHits(const InputState& rawInput, const StateComponent& context, bool canBlock);
+IAction* CheckHits(const InputState& rawInput, const StateComponent& context, bool canBlock, bool inKnockdown);
 
 //______________________________________________________________________________
 IAction* CheckForDash(const InputBuffer& input, const StateComponent& context);
