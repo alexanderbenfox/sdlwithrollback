@@ -10,7 +10,7 @@ public:
   void SetAnimations(AnimationCollection* animations);
 
   // Setter function
-  Animation* Play(const std::string& name, bool isLooped, bool horizontalFlip, float speed = 1.0f, bool forcePlay = false);
+  Animation* Play(const std::string& name, bool isLooped, float speed = 1.0f, bool forcePlay = false);
 
   void ChangeListener(IAnimatorListener* listener) { _listener = listener; }
 
@@ -58,6 +58,6 @@ template <> struct ComponentInitParams<Animator>
   static void Init(Animator& component, const ComponentInitParams<Animator>& params)
   {
     component.SetAnimations(params.collection);
-    component.Play(params.name, params.isLooped, params.horizontalFlip, params.speed);
+    component.Play(params.name, params.isLooped, params.speed);
   }
 };

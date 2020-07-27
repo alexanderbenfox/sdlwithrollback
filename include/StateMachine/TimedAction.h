@@ -5,6 +5,7 @@
 
 #include "Components/GameActor.h"
 #include "Components/StateComponents/HitStateComponent.h"
+#include "Components/SFXComponent.h"
 
 //! Timed actions drive the animation/action to run for the specified duration
 //______________________________________________________________________________
@@ -158,6 +159,15 @@ inline void OnRecvHitAction<Stance, Action>::Enact(Entity* actor)
     {
       state->hp -= _damageTaken;
     }
+  }
+
+  if(Action == ActionState::BLOCKSTUN)
+  {
+    actor->GetComponent<SFXComponent>()->ShowBlockSparks();
+  }
+  else
+  {
+    actor->GetComponent<SFXComponent>()->ShowHitSparks();
   }
 }
 

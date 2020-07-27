@@ -101,7 +101,7 @@ inline void AnimatedAction<Stance, Action>::Enact(Entity* actor)
     animator->ChangeListener(this);
     if (animator->AnimationLib() && animator->AnimationLib()->GetAnimation(_animation))
     {
-      Animation* actionAnimation = animator->Play(_animation, _loopedAnimation, !_facingRight);
+      Animation* actionAnimation = animator->Play(_animation, _loopedAnimation);
 
       // set the offset in the properties component (needs to be in a system)
       if (auto properties = actor->GetComponent<RenderProperties>())

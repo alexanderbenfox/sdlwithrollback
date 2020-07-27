@@ -95,11 +95,9 @@ public:
             push->velocity = -knockback.x / 2.0f;
             push->amountPushed = 0.0f;
           }
-
+          
+          sfx->showLocation = (Vector2<float>)hitbox->rect.GetIntersection(hurtbox->rect).GetCenter();
           GameManager::Get().ActivateHitStop(10);
-
-          Rect<double> intersection = hitbox->rect.GetIntersection(hurtbox->rect);
-          sfx->ShowHitSparks(intersection.GetCenter());
 
           //! this will trigger self-destruction if this entity is intended to be destroyed on hit
           hitbox->OnCollision(hurtbox);
