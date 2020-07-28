@@ -104,10 +104,10 @@ IAction* CheckSpecials(const InputBuffer& rawInput, const StateComponent& contex
   if (HasState(rawInput.Latest(), InputState::BTN1) || HasState(rawInput.Latest(), InputState::BTN2) || HasState(rawInput.Latest(), InputState::BTN3))
   {
     //!!!! TESTING SPECIAL MOVES HERE
-    bool fireball = (rawInput.Evaluate(UnivSpecMoveDict) == SpecialInputState::QCF && facingRight) || (rawInput.Evaluate(UnivSpecMoveDict) == SpecialInputState::QCB && !facingRight);
+    bool fireball = (rawInput.GetLastSpecialInput() == SpecialInputState::QCF && facingRight) || (rawInput.GetLastSpecialInput() == SpecialInputState::QCB && !facingRight);
     bool donkeyKick = fireball && (HasState(rawInput.Latest(), InputState::BTN3));
-    bool tatsu = (rawInput.Evaluate(UnivSpecMoveDict) == SpecialInputState::QCF && !facingRight) || (rawInput.Evaluate(UnivSpecMoveDict) == SpecialInputState::QCB && facingRight);
-    bool dp = (rawInput.Evaluate(UnivSpecMoveDict) == SpecialInputState::DPF && facingRight) || (rawInput.Evaluate(UnivSpecMoveDict) == SpecialInputState::DPB && !facingRight);
+    bool tatsu = (rawInput.GetLastSpecialInput() == SpecialInputState::QCF && !facingRight) || (rawInput.GetLastSpecialInput() == SpecialInputState::QCB && facingRight);
+    bool dp = (rawInput.GetLastSpecialInput() == SpecialInputState::DPF && facingRight) || (rawInput.GetLastSpecialInput() == SpecialInputState::DPB && !facingRight);
     if (donkeyKick)
       return new SpecialMoveAttack<StanceState::STANDING, ActionState::NONE>("SpecialMove3", facingRight);
     else if (fireball)
@@ -177,14 +177,14 @@ IAction* CheckForDash(const InputBuffer& rawInput, const StateComponent& context
   std::string dashAnimRight = !facingRight ? "BackDash" : "ForwardDash";
   if (HasState(rawInput.Latest(), InputState::LEFT))
   {
-    if (HasState(rawInput.Latest(), InputState::BTN4) || rawInput.Evaluate(UnivSpecMoveDict) == SpecialInputState::LDash)
+    if (HasState(rawInput.Latest(), InputState::BTN4) || rawInput.GetLastSpecialInput() == SpecialInputState::LDash)
     {
       return new DashAction(dashAnimLeft, facingRight, ActionParams::nDashFrames, -1.5f * ActionParams::baseWalkSpeed);
     }
   }
   else if (HasState(rawInput.Latest(), InputState::RIGHT))
   {
-    if (HasState(rawInput.Latest(), InputState::BTN4) || rawInput.Evaluate(UnivSpecMoveDict) == SpecialInputState::RDash)
+    if (HasState(rawInput.Latest(), InputState::BTN4) || rawInput.GetLastSpecialInput() == SpecialInputState::RDash)
     {
       return new DashAction(dashAnimRight, facingRight, ActionParams::nDashFrames, 1.5f * ActionParams::baseWalkSpeed);
     }

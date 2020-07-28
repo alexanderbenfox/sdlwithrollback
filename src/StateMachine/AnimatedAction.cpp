@@ -167,6 +167,7 @@ template <> IAction* StateLockedAnimatedAction<StanceState::CROUCHING, ActionSta
   return new LoopedAction<StanceState::STANDING, ActionState::NONE>("Idle", facingRight, Vector2<float>(0.0, 0.0));
 }
 
+#ifndef _WIN32
 //______________________________________________________________________________
 template <> IAction* StateLockedAnimatedAction<StanceState::KNOCKDOWN, ActionState::HITSTUN>::HandleInput(const InputBuffer& rawInput, const StateComponent& context)
 {
@@ -181,3 +182,4 @@ template <> IAction* StateLockedAnimatedAction<StanceState::KNOCKDOWN, ActionSta
     return new LoopedAction<StanceState::STANDING, ActionState::NONE>("Idle", context.onLeftSide);
   return nullptr;
 }
+#endif

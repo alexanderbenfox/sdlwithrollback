@@ -1,5 +1,6 @@
 #pragma once
 #include <functional>
+#include <unordered_map>
 #include "Utils.h"
 
 //______________________________________________________________________________
@@ -50,6 +51,64 @@ InputState operator~(InputState const& other);
 //______________________________________________________________________________
 static bool HasState(const InputState& state, InputState other) { return (state & other) == other; }
 
+
+struct BufferItem
+{
+  std::list<InputState> sequence;
+
+  friend bool operator==(const BufferItem& k1, const BufferItem& k2)
+  {
+    if (k1.sequence.size() != k2.sequence.size())
+      return false;
+    return std::equal(k1.sequence.begin(), k1.sequence.end(), k2.sequence.begin(), [](InputState a, InputState b) { return a == b; });
+  }
+
+  // hasher
+  std::size_t operator()(BufferItem item) const
+  {
+    std::size_t hash = 0;
+    for (auto& state : sequence)
+      hash_combine(hash, static_cast<std::size_t>(state));
+    return hash;
+  }
+};
+
+class SpecialMovesBuffer
+{
+public:
+  SpecialMovesBuffer(int limit, const TrieNode<InputState, SpecialInputState>& dict) : _limit(limit), _dictionary(dict) {}
+
+  void PushInput(const InputState& input);
+
+  SpecialInputState const& GetLastSpecialInput() const;
+
+  void Clear();
+
+
+private:
+  const TrieNode<InputState, SpecialInputState>& _dictionary;
+  std::list<InputState> _latestCompletedSequence = {};
+  //std::vector<std::pair<int, std::list<InputState>>> _prefixes;
+  std::unordered_map<BufferItem, int, BufferItem> _prefixes;
+
+  SpecialInputState _latestInput = SpecialInputState::NONE;
+
+  int _limit;
+};
+
+
+
+// simple move dict to test this out
+const TrieNode<InputState, SpecialInputState> UnivSpecMoveDict
+{
+  std::make_pair(std::list<InputState>{InputState::DOWN, InputState::DOWN | InputState::RIGHT, InputState::RIGHT}, SpecialInputState::QCF),
+  std::make_pair(std::list<InputState>{InputState::DOWN, InputState::DOWN | InputState::LEFT, InputState::LEFT}, SpecialInputState::QCB),
+  std::make_pair(std::list<InputState>{InputState::RIGHT, InputState::DOWN, InputState::RIGHT | InputState::DOWN}, SpecialInputState::DPF),
+  std::make_pair(std::list<InputState>{InputState::LEFT, InputState::DOWN, InputState::LEFT | InputState::DOWN}, SpecialInputState::DPB),
+  std::make_pair(std::list<InputState>{InputState::RIGHT, InputState::NONE, InputState::RIGHT}, SpecialInputState::RDash),
+  std::make_pair(std::list<InputState>{InputState::LEFT, InputState::NONE, InputState::LEFT}, SpecialInputState::LDash)
+};
+
 //! Input buffer class for storing 
 class InputBuffer
 {
@@ -61,23 +120,14 @@ public:
   //! gets the most recently added item
   InputState const& Latest() const { return _buffer.back(); }
   //! evaluate possible special motions
-  SpecialInputState Evaluate(const TrieNode<InputState, SpecialInputState>& spMoveDict) const;
+  //SpecialInputState Evaluate(const TrieNode<InputState, SpecialInputState>& spMoveDict) const;
+  SpecialInputState const& GetLastSpecialInput() const { return _spMovesBuffer.GetLastSpecialInput(); }
   //!
   void Clear();
 
 private:
   std::vector<InputState> _buffer;
+  SpecialMovesBuffer _spMovesBuffer;
   int _limit;
 
-};
-
-// simple move dict to test this out
-const TrieNode<InputState, SpecialInputState> UnivSpecMoveDict
-{
-  std::make_pair(std::list<InputState>{InputState::DOWN, InputState::DOWN | InputState::RIGHT, InputState::RIGHT}, SpecialInputState::QCF),
-  std::make_pair(std::list<InputState>{InputState::DOWN, InputState::DOWN | InputState::LEFT, InputState::LEFT}, SpecialInputState::QCB),
-  std::make_pair(std::list<InputState>{InputState::RIGHT, InputState::DOWN, InputState::RIGHT | InputState::DOWN}, SpecialInputState::DPF),
-  std::make_pair(std::list<InputState>{InputState::LEFT, InputState::DOWN, InputState::LEFT | InputState::DOWN}, SpecialInputState::DPB),
-  std::make_pair(std::list<InputState>{InputState::RIGHT, InputState::NONE, InputState::RIGHT}, SpecialInputState::RDash),
-  std::make_pair(std::list<InputState>{InputState::LEFT, InputState::NONE, InputState::LEFT}, SpecialInputState::LDash)
 };

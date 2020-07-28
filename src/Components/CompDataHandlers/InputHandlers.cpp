@@ -42,7 +42,80 @@ InputState operator~(InputState const& other)
 }
 
 //______________________________________________________________________________
-InputBuffer::InputBuffer(int limit) : _limit(limit)
+void SpecialMovesBuffer::PushInput(const InputState& input)
+{
+  _latestCompletedSequence = {};
+
+  // only concerned with directional input here, so we just look at the bottom 4 bits
+  unsigned char chopped = (unsigned char)input << 4;
+  InputState curr = (InputState)(chopped >> 4);
+
+  std::vector<std::pair<BufferItem, int>> toAdd;
+  for (auto it = _prefixes.begin(); it != _prefixes.end();)
+  {
+    it->second++;
+    if (it->second > _limit)
+    {
+      it = _prefixes.erase(it);
+      continue;
+    }
+
+    const std::list<InputState>& frontier = it->first.sequence;
+
+    // copy frontier and push our next state onto the end
+    std::list<InputState> searchInput = frontier;
+    searchInput.push_back(curr);
+    TrieReturnValue result = _dictionary.Search(searchInput);
+
+    if (result == TrieReturnValue::Leaf)
+    {
+      _latestCompletedSequence = searchInput;
+    }
+    else if (result == TrieReturnValue::Branch)
+    {
+      toAdd.push_back(std::make_pair(BufferItem{ searchInput }, it->second));
+    }
+    it++;
+  }
+
+  // either insert new sequence or update existing age
+  for (auto& item : toAdd)
+  {
+    if (_prefixes.find(item.first) == _prefixes.end())
+      _prefixes.insert(item);
+    else
+      _prefixes[item.first] = item.second;
+  }
+
+  std::list<InputState> list = { curr };
+  TrieReturnValue result = _dictionary.Search(list);
+  if (result == TrieReturnValue::Branch)
+  {
+    _prefixes.insert(std::make_pair(BufferItem{ list }, 0));
+  }
+
+  if (_latestCompletedSequence.empty())
+    _latestInput = SpecialInputState::NONE;
+  else
+    _latestInput = _dictionary.GetKeyValue(_latestCompletedSequence);
+}
+
+//______________________________________________________________________________
+const SpecialInputState& SpecialMovesBuffer::GetLastSpecialInput() const
+{
+  return _latestInput;
+}
+
+//______________________________________________________________________________
+void SpecialMovesBuffer::Clear()
+{
+  _latestCompletedSequence = {};
+  _prefixes.clear();
+  _latestInput = SpecialInputState::NONE;
+}
+
+//______________________________________________________________________________
+InputBuffer::InputBuffer(int limit) : _limit(limit), _spMovesBuffer(limit, UnivSpecMoveDict)
 {
   // construct by initializing the queue 
   while (_buffer.size() < _limit)
@@ -55,10 +128,12 @@ void InputBuffer::Push(InputState item)
   _buffer.push_back(item);
   // pop
   _buffer.erase(_buffer.begin());
+
+  _spMovesBuffer.PushInput(item);
 }
 
 //______________________________________________________________________________
-SpecialInputState InputBuffer::Evaluate(const TrieNode<InputState, SpecialInputState>& spMoveDict) const
+/*SpecialInputState InputBuffer::Evaluate(const TrieNode<InputState, SpecialInputState>& spMoveDict) const
 {
   std::list<InputState> latestCompletedSequence = {};
   std::deque<std::list<InputState>> prefixes;
@@ -104,13 +179,14 @@ SpecialInputState InputBuffer::Evaluate(const TrieNode<InputState, SpecialInputS
   if (latestCompletedSequence.empty())
     return SpecialInputState::NONE;
   return spMoveDict.GetKeyValue(latestCompletedSequence);
-}
+}*/
 
 //______________________________________________________________________________
 void InputBuffer::Clear()
 {
   for(int i = 0; i < _limit; i++)
     _buffer[i] = InputState::NONE;
+  _spMovesBuffer.Clear();
 }
 
 //______________________________________________________________________________
