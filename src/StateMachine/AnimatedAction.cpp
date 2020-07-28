@@ -20,23 +20,23 @@ template <> IAction* LoopedAction<StanceState::STANDING, ActionState::NONE>::Han
   IAction* nextAction = nullptr;
 
   // process attacks before hits so that if you press a button while attacked, you still get attacked
-  if (nextAction = GetAttacksFromNeutral<StanceState::STANDING>(rawInput, context)) return nextAction;
+  if ((nextAction = GetAttacksFromNeutral<StanceState::STANDING>(rawInput, context))) return nextAction;
 
-  if (nextAction = CheckHits(rawInput.Latest(), context, true, false)) return nextAction;
+  if ((nextAction = CheckHits(rawInput.Latest(), context, true, false))) return nextAction;
 
   if (context.collision == CollisionSide::NONE)
     return new LoopedAction<StanceState::JUMPING, ActionState::NONE>("Falling", facingRight);
 
   //if you arent attacking, you can move forward, move backward, crouch, stand, jumpf, jumpb, jumpn
   //jumping
-  if (nextAction = CheckForJumping(rawInput.Latest(), context)) return nextAction;
+  if ((nextAction = CheckForJumping(rawInput.Latest(), context))) return nextAction;
 
   if (HasState(rawInput.Latest(), InputState::DOWN))
   {
     return new StateLockedAnimatedAction<StanceState::CROUCHING, ActionState::NONE>("Crouching", facingRight, Vector2<float>(0, 0));
   }
 
-  if (nextAction = CheckForDash(rawInput, context)) return nextAction;
+  if ((nextAction = CheckForDash(rawInput, context))) return nextAction;
 
   std::string walkAnimLeft = !facingRight ? "WalkF" : "WalkB";
   std::string walkAnimRight = !facingRight ? "WalkB" : "WalkF";
@@ -165,4 +165,19 @@ template <> IAction* StateLockedAnimatedAction<StanceState::CROUCHING, ActionSta
 
   // if not holding down, brought back to standing
   return new LoopedAction<StanceState::STANDING, ActionState::NONE>("Idle", facingRight, Vector2<float>(0.0, 0.0));
+}
+
+//______________________________________________________________________________
+template <> IAction* StateLockedAnimatedAction<StanceState::KNOCKDOWN, ActionState::HITSTUN>::HandleInput(const InputBuffer& rawInput, const StateComponent& context)
+{
+  if (_complete) return new StateLockedAnimatedAction<StanceState::KNOCKDOWN, ActionState::NONE>("Knockdown_OnGround", context.onLeftSide);
+  return nullptr;
+}
+
+//______________________________________________________________________________
+template <> IAction* StateLockedAnimatedAction<StanceState::KNOCKDOWN, ActionState::NONE>::HandleInput(const InputBuffer& rawInput, const StateComponent& context)
+{
+  if (rawInput.Latest() != InputState::NONE || _complete)
+    return new LoopedAction<StanceState::STANDING, ActionState::NONE>("Idle", context.onLeftSide);
+  return nullptr;
 }

@@ -117,7 +117,7 @@
 			"onblock" : 0,
 			"onhit" : 15,
 			"recovery" : 30,
-			"startup" : 3
+			"startup" : 5
 		},
 		"numFrames" : 14,
 		"spritesheet" : "spritesheets\\throws.png",
@@ -474,7 +474,7 @@
 			"onblock" : 0,
 			"onhit" : -5,
 			"recovery" : 50,
-			"startup" : 3
+			"startup" : 5
 		},
 		"numFrames" : 17,
 		"spritesheet" : "spritesheets\\throws.png",

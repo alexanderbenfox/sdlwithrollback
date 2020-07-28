@@ -196,16 +196,6 @@ template <> IAction* StateLockedAnimatedAction<StanceState::CROUCHING, ActionSta
 
 // KNOCKDOWN STATES
 //______________________________________________________________________________
-template <> IAction* StateLockedAnimatedAction<StanceState::KNOCKDOWN, ActionState::HITSTUN>::HandleInput(const InputBuffer& rawInput, const StateComponent& context)
-{
-  if (_complete) return new StateLockedAnimatedAction<StanceState::KNOCKDOWN, ActionState::NONE>("Knockdown_OnGround", context.onLeftSide);
-  return nullptr;
-}
-
-template <> IAction* StateLockedAnimatedAction<StanceState::KNOCKDOWN, ActionState::NONE>::HandleInput(const InputBuffer& rawInput, const StateComponent& context)
-{
-  if (rawInput.Latest() != InputState::NONE || _complete)
-    return new LoopedAction<StanceState::STANDING, ActionState::NONE>("Idle", context.onLeftSide);
-  return nullptr;
-}
+template <> IAction* StateLockedAnimatedAction<StanceState::KNOCKDOWN, ActionState::HITSTUN>::HandleInput(const InputBuffer& rawInput, const StateComponent& context);
+template <> IAction* StateLockedAnimatedAction<StanceState::KNOCKDOWN, ActionState::NONE>::HandleInput(const InputBuffer& rawInput, const StateComponent& context);
 

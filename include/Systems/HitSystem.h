@@ -95,7 +95,7 @@ public:
             push->velocity = -knockback.x / 2.0f;
             push->amountPushed = 0.0f;
           }
-          
+
           sfx->showLocation = (Vector2<float>)hitbox->rect.GetIntersection(hurtbox->rect).GetCenter();
 
           //! this will trigger self-destruction if this entity is intended to be destroyed on hit
@@ -128,7 +128,7 @@ public:
         TeamComponent* throweeTeam = std::get<TeamComponent*>(subTuple.second);
         StateComponent* throweeController = std::get<StateComponent*>(subTuple.second);
 
-        if (throwerTeam->team == throweeTeam->team)
+        if (throweeController->stanceState == StanceState::KNOCKDOWN || throwerTeam->team == throweeTeam->team)
           continue;
 
         if (throwbox->rect.Intersects(throwee->rect))

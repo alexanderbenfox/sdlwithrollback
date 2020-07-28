@@ -58,7 +58,7 @@ inline void OnRecvHitAction<Stance, Action>::Enact(Entity* actor)
   {
     actor->GetComponent<SFXComponent>()->ShowBlockSparks();
   }
-  else
+  else if (Action == ActionState::HITSTUN)
   {
     actor->GetComponent<SFXComponent>()->ShowHitSparks();
   }
