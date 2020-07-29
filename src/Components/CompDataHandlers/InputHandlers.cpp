@@ -80,18 +80,13 @@ void SpecialMovesBuffer::PushInput(const InputState& input)
 
   // either insert new sequence or update existing age
   for (auto& item : toAdd)
-  {
-    if (_prefixes.find(item.first) == _prefixes.end())
-      _prefixes.insert(item);
-    else
-      _prefixes[item.first] = item.second;
-  }
+    _prefixes[item.first] = item.second;
 
   std::list<InputState> list = { curr };
   TrieReturnValue result = _dictionary.Search(list);
   if (result == TrieReturnValue::Branch)
   {
-    _prefixes.insert(std::make_pair(BufferItem{ list }, 0));
+    _prefixes[BufferItem{ list }] = 0;
   }
 
   if (_latestCompletedSequence.empty())

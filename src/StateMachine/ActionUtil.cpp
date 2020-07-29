@@ -209,7 +209,6 @@ IAction* CheckForJumping(const InputState& input, const StateComponent& context)
   return nullptr;
 }
 
-
 //______________________________________________________________________________
 IAction* StateLockedHandleInput(const InputBuffer& rawInput, const StateComponent& context, IAction* action, bool actionComplete)
 {

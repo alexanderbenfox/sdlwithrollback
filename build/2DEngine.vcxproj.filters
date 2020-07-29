@@ -494,6 +494,9 @@
     <ClInclude Include="..\include\StateMachine\RecvHit.h">
       <Filter>Header Files\StateMachine</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\Systems\DestroyEntitiesSystem.h">
+      <Filter>Header Files\Systems</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

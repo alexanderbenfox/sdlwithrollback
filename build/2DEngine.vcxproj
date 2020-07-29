@@ -143,6 +143,7 @@
     <ClInclude Include="..\include\Systems\AnimationSystem.h" />
     <ClInclude Include="..\include\Systems\CheckBattleEndSystem.h" />
     <ClInclude Include="..\include\Systems\CutsceneSystem.h" />
+    <ClInclude Include="..\include\Systems\DestroyEntitiesSystem.h" />
     <ClInclude Include="..\include\Systems\DrawCallSystems.h" />
     <ClInclude Include="..\include\Systems\HitSystem.h" />
     <ClInclude Include="..\include\Systems\InputSystem.h" />
