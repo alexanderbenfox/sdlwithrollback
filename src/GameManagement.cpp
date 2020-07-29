@@ -16,6 +16,7 @@
 #include "Systems/CheckBattleEndSystem.h"
 #include "Systems/UISystem.h"
 #include "Systems/AISystem.h"
+#include "Systems/DestroyEntitiesSystem.h"
 
 #include "Systems/Physics.h"
 #include "DebugGUI/GUIController.h"
@@ -313,6 +314,7 @@ void GameManager::CheckAgainstSystems(Entity* entity)
   UpdateAISystem::Check(entity);
   ThrowSystem::Check(entity);
   PushSystem::Check(entity);
+  DestroyEntitiesSystem::Check(entity);
 
 }
 
@@ -353,6 +355,8 @@ void GameManager::RequestSceneChange(SceneType newSceneType)
 void GameManager::ChangeScene(SceneType scene)
 {
   _currentScene.reset();
+
+  DestroyEntitiesSystem::DoTick(0.0);
 
   for (auto& func : _onSceneChangeFunctionQueue)
     func();

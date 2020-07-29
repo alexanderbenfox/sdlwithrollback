@@ -4,6 +4,8 @@
 #include "Components/Rigidbody.h"
 #include "GameManagement.h"
 
+#include "Systems/DestroyEntitiesSystem.h"
+
 //______________________________________________________________________________
 EventList AnimationEventHelper::BuildEventList(const Vector2<int> offset, const std::vector<AnimationActionEventData>& animEventData, const FrameData& frameData, int totalSheetFrames, std::vector<int>& animFrameToSheetFrame)
 {
@@ -183,7 +185,7 @@ EventList AnimationEventHelper::BuildEventList(const Vector2<int> offset, const 
     {
       auto creationEvent = [data](Transform* trans, StateComponent* state)
       {
-        std::shared_ptr<Entity> eventEntity = GameManager::Get().CreateEntity<>();
+        std::shared_ptr<Entity> eventEntity = GameManager::Get().CreateEntity<DestroyOnSceneEnd>();
         data.AddComponents(trans, state, eventEntity);
         //trans->AddChild(eventEntity);
       };
