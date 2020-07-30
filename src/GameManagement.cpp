@@ -11,12 +11,12 @@
 #include "Systems/InputSystem.h"
 #include "Systems/HitSystem.h"
 #include "Systems/TimerSystem.h"
-#include "Systems/SceneSystems.h"
 #include "Systems/CutsceneSystem.h"
 #include "Systems/CheckBattleEndSystem.h"
 #include "Systems/UISystem.h"
 #include "Systems/AISystem.h"
 #include "Systems/DestroyEntitiesSystem.h"
+#include "Systems/MenuSystem.h"
 
 #include "Systems/Physics.h"
 #include "DebugGUI/GUIController.h"
@@ -302,9 +302,6 @@ void GameManager::CheckAgainstSystems(Entity* entity)
   SpriteDrawCallSystem::Check(entity);
   UITextDrawCallSystem::Check(entity);
   PlayerSideSystem::Check(entity);
-  StartSceneInputSystem::Check(entity);
-  CharacterSelectInputSystem::Check(entity);
-  ResultsSceneSystem::Check(entity);
   CutsceneSystem::Check(entity);
   CutsceneMovementSystem::Check(entity);
   CheckBattleEndSystem::Check(entity);
@@ -315,7 +312,8 @@ void GameManager::CheckAgainstSystems(Entity* entity)
   ThrowSystem::Check(entity);
   PushSystem::Check(entity);
   DestroyEntitiesSystem::Check(entity);
-
+  MenuInputSystem::Check(entity);
+  UpdateMenuStateSystem::Check(entity);
 }
 
 //______________________________________________________________________________

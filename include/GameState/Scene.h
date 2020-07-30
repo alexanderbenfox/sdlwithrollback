@@ -32,7 +32,6 @@ public:
 
 protected:
   std::shared_ptr<Entity> _p1, _p2;
-  std::shared_ptr<Entity> _renderedText;
   std::shared_ptr<Entity> _uiCamera;
 
 };
@@ -46,7 +45,6 @@ public:
   
 protected:
   std::shared_ptr<Entity> _p1, _p2;
-  std::shared_ptr<Entity> _portrait;
   std::shared_ptr<Entity> _uiCamera;
 
 };

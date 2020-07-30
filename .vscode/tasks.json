@@ -19,6 +19,7 @@
         "src/Components/*.cpp",
         "src/Components/CompDataHandlers/*.cpp",
         "src/Components/StateComponents/*.cpp",
+        "src/Core/Prefab/*.cpp",
         "src/AssetManagement/*.cpp",
         "src/AssetManagement/StaticAssets/*.cpp",
         "src/GameState/*.cpp",

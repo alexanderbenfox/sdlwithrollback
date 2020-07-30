@@ -119,6 +119,8 @@ public:
   void Push(InputState item);
   //! gets the most recently added item
   InputState const& Latest() const { return _buffer.back(); }
+  //! gets most recently added item if it was just pressed this frame
+  InputState LatestPressed() const;
   //! evaluate possible special motions
   //SpecialInputState Evaluate(const TrieNode<InputState, SpecialInputState>& spMoveDict) const;
   SpecialInputState const& GetLastSpecialInput() const { return _spMovesBuffer.GetLastSpecialInput(); }

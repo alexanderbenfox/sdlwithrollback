@@ -53,6 +53,7 @@ public:
       TextRenderer* renderer = std::get<TextRenderer*>(tuple.second);
       RenderProperties* properties = std::get<RenderProperties*>(tuple.second);
       UITransform* transform = std::get<UITransform*>(tuple.second);
+
       Vector2<float> displayPosition = transform->screenPosition;
 
       for (GLDrawOperation& drawOp : renderer->GetRenderOps())

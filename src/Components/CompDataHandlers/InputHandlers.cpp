@@ -177,6 +177,16 @@ void InputBuffer::Push(InputState item)
 }*/
 
 //______________________________________________________________________________
+InputState InputBuffer::LatestPressed() const
+{
+  InputState latest = _buffer[_limit - 1];
+  
+  if(HasState(_buffer[_limit - 2], latest))
+    return InputState::NONE;
+  return latest;
+}
+
+//______________________________________________________________________________
 void InputBuffer::Clear()
 {
   for(int i = 0; i < _limit; i++)
