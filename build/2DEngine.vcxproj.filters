@@ -100,6 +100,12 @@
     <Filter Include="Source Files\Components\StateComponents">
       <UniqueIdentifier>{4b99f7fb-ad79-4edf-bdad-bf56374a8834}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Core\Prefab">
+      <UniqueIdentifier>{c8dc1d70-074d-48fe-a2e4-288a149e8e65}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Core\Prefab">
+      <UniqueIdentifier>{0987e242-43be-4a09-8e65-674b187c961f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\2DEngine.cpp">
@@ -236,6 +242,9 @@
     </ClCompile>
     <ClCompile Include="..\src\Components\SFXComponent.cpp">
       <Filter>Source Files\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Core\Prefab\MenuButtonArray.cpp">
+      <Filter>Source Files\Core\Prefab</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -419,9 +428,6 @@
     <ClInclude Include="..\include\StateMachine\AttackAction.h">
       <Filter>Header Files\StateMachine</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\Systems\SceneSystems.h">
-      <Filter>Header Files\Systems</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\Components\CutsceneActor.h">
       <Filter>Header Files\Components</Filter>
     </ClInclude>
@@ -496,6 +502,12 @@
     </ClInclude>
     <ClInclude Include="..\include\Systems\DestroyEntitiesSystem.h">
       <Filter>Header Files\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Systems\MenuSystem.h">
+      <Filter>Header Files\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Core\Prefab\MenuButtonArray.h">
+      <Filter>Header Files\Core\Prefab</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -1,6 +1,8 @@
 #pragma once
 #include "Core/Math/Vector2.h"
 
+#include <functional>
+
 class MenuButtonArray
 {
 public:

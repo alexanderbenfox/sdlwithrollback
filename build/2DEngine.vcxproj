@@ -49,6 +49,7 @@
     <ClCompile Include="..\src\Components\Transform.cpp" />
     <ClCompile Include="..\src\Core\Geometry2D\RectHelper.cpp" />
     <ClCompile Include="..\src\Core\Math\Matrix4.cpp" />
+    <ClCompile Include="..\src\Core\Prefab\MenuButtonArray.cpp" />
     <ClCompile Include="..\src\DebugGUI\DebugItem.cpp" />
     <ClCompile Include="..\src\DebugGUI\GUIController.cpp" />
     <ClCompile Include="..\src\Entity.cpp" />
@@ -119,6 +120,7 @@
     <ClInclude Include="..\include\Core\Math\Matrix4.h" />
     <ClInclude Include="..\include\Core\Math\Vector2.h" />
     <ClInclude Include="..\include\Core\Math\Vector3.h" />
+    <ClInclude Include="..\include\Core\Prefab\MenuButtonArray.h" />
     <ClInclude Include="..\include\DebugGUI\DebugItem.h" />
     <ClInclude Include="..\include\DebugGUI\GUIController.h" />
     <ClInclude Include="..\include\Entity.h" />
@@ -148,9 +150,9 @@
     <ClInclude Include="..\include\Systems\HitSystem.h" />
     <ClInclude Include="..\include\Systems\InputSystem.h" />
     <ClInclude Include="..\include\Systems\ISystem.h" />
+    <ClInclude Include="..\include\Systems\MenuSystem.h" />
     <ClInclude Include="..\include\Systems\MoveSystem.h" />
     <ClInclude Include="..\include\Systems\Physics.h" />
-    <ClInclude Include="..\include\Systems\SceneSystems.h" />
     <ClInclude Include="..\include\Systems\TimerSystem.h" />
     <ClInclude Include="..\include\Systems\UISystem.h" />
     <ClInclude Include="..\include\Timer.h" />
