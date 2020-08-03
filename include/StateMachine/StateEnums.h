@@ -4,7 +4,7 @@
 //all of the possible states for animation??
 enum class StanceState
 {
-  CROUCHING, STANDING, JUMPING
+  CROUCHING, STANDING, JUMPING, KNOCKDOWN
 };
 
 //______________________________________________________________________________

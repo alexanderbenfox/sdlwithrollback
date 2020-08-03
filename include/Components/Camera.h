@@ -1,5 +1,6 @@
 #pragma once
 #include "IComponent.h"
+#include "Core/Math/Matrix4.h"
 #include "AssetManagement/BlitOperation.h"
 
 //!
@@ -10,34 +11,39 @@ static bool SDLRectOverlap(const SDL_Rect& a, const SDL_Rect& b)
 }
 
 //!
-class Camera : public IComponent
+class Camera : public IComponent, public DebugItem
 {
 public:
   //!
-  Camera(std::shared_ptr<Entity> entity) : IComponent(entity) {}
+  Camera(std::shared_ptr<Entity> entity) : IComponent(entity), DebugItem("Camera") {}
   //!
   void Init(int w, int h);
   //!
-  template <typename TextureType>
-  void ConvScreenSpace(BlitOperation<TextureType>* entity);
-  //!
-  template <typename TextureType>
-  bool EntityInDisplay(const BlitOperation<TextureType>* entity);
+  virtual void OnDebug() override
+  {
+    std::string name = "Camera P" + std::to_string(_owner->GetID());
+    if (ImGui::CollapsingHeader(name.c_str()))
+    {
+      ImGui::InputFloat("Zoom level", &zoom, 0.1f, 1.0f, 2);
+
+      ImGui::InputFloat("pos x", &worldMatrixPosition.x, 0.1f, 1.0f, 2);
+      ImGui::InputFloat("pos y", &worldMatrixPosition.y, 0.1f, 1.0f, 2);
+      ImGui::InputFloat("pos z", &worldMatrixPosition.z, 0.1f, 1.0f, 2);
+    }
+  }
   //!
   SDL_Rect rect;
+  //!
+  Matrix4F matrix, worldMatrix;
+  //! takes care of the z value not in the transform component
+  float zoom = 1.0f;
+  //!
+  bool followPlayers = false;
+  std::shared_ptr<Entity> player1, player2;
+  Vector2<float> origin = Vector2<float>::Zero;
+
+  Rect<float> clamp = Rect<float>(0, 0, m_nativeWidth, m_nativeHeight);
+
+  Vector3<float> worldMatrixPosition;
+
 };
-
-//______________________________________________________________________________
-template <typename TextureType>
-inline void Camera::ConvScreenSpace(BlitOperation<TextureType>* entity)
-{
-  entity->displayRect.x -= rect.x;
-  entity->displayRect.y -= rect.y;
-}
-
-//______________________________________________________________________________
-template <typename TextureType>
-inline bool Camera::EntityInDisplay(const BlitOperation<TextureType>* entity)
-{
-  return SDLRectOverlap(rect, entity->displayRect);
-}

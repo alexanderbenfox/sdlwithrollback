@@ -24,25 +24,28 @@ class RenderComponent : public IComponent
 public:
   RenderComponent(std::shared_ptr<Entity> owner) : sourceRect{ 0, 0, 0, 0 }, IComponent(owner)
   {
-    RenderManager<TextureType>::Get().template RegisterDrawable<BlitOperation<TextureType>>();
+    RenderManager::Get().template RegisterDrawable<BlitOperation<TextureType>>(RenderLayer::World);
   }
 
   ~RenderComponent()
   {
-    RenderManager<TextureType>::Get().template DeregisterDrawable<BlitOperation<TextureType>>();
+    RenderManager::Get().template DeregisterDrawable<BlitOperation<TextureType>>(RenderLayer::World);
   }
 
   //! Init with a resource
   void Init(Resource<TextureType>& resource)
   {
     _resource = std::unique_ptr<ResourceWrapper<TextureType>>(new ResourceWrapper<TextureType>(resource));
-    sourceRect = { 0, 0, resource.GetInfo().mWidth, resource.GetInfo().mHeight };
+    sourceRect = DrawRect<float>(0, 0, resource.GetInfo().mWidth, resource.GetInfo().mHeight);
   }
 
   void SetRenderResource(Resource<TextureType>& resource)
   {
-    _resource.reset();
-    _resource = std::unique_ptr<ResourceWrapper<TextureType>>(new ResourceWrapper<TextureType>(resource));
+    if (_resource == nullptr || &_resource->GetResource() != &resource)
+    {
+      _resource.reset();
+      _resource = std::unique_ptr<ResourceWrapper<TextureType>>(new ResourceWrapper<TextureType>(resource));
+    }
   }
 
   Resource<TextureType>* GetRenderResource()
@@ -53,7 +56,7 @@ public:
   }
 
   //! Source of display location on texture
-  SDL_Rect sourceRect;
+  DrawRect<float> sourceRect;
     
 protected:
   //!
@@ -104,4 +107,18 @@ protected:
   //!
   SDL_Color _displayColor;
   
+};
+
+template <> struct ComponentInitParams<RenderProperties>
+{
+  Vector2<int> offsetFromCenter;
+  Uint8 r = 255;
+  Uint8 g = 255;
+  Uint8 b = 255;
+  Uint8 a = 255;
+  static void Init(RenderProperties& component, const ComponentInitParams<RenderProperties>& params)
+  {
+    component.baseRenderOffset = params.offsetFromCenter;
+    component.SetDisplayColor(params.r, params.g, params.b, params.a);
+  }
 };

@@ -1,9 +1,10 @@
 #include "StateMachine/ActionUtil.h"
 #include "StateMachine/AttackAction.h"
 #include "StateMachine/TimedAction.h"
+#include "StateMachine/RecvHit.h"
 
 //______________________________________________________________________________
-float ActionParams::baseWalkSpeed = 300.0f * 1.5f;
+float ActionParams::baseWalkSpeed = 520.0f;
 int ActionParams::nDashFrames = 23;
 
 //______________________________________________________________________________
@@ -25,18 +26,21 @@ float Interpolation::Plateau::F(float x, float xMax, float yMax)
 }
 
 //______________________________________________________________________________
-template <> IAction* GetAttacksFromNeutral<StanceState::STANDING>(const InputBuffer& rawInput, bool facingRight)
+template <> IAction* GetAttacksFromNeutral<StanceState::STANDING>(const InputBuffer& rawInput, const StateComponent& context)
 {
-  if (HasState(rawInput.Latest(), InputState::BTN1) || HasState(rawInput.Latest(), InputState::BTN2) || HasState(rawInput.Latest(), InputState::BTN3))
+  if (auto specialMove = CheckSpecials(rawInput, context))
+    return specialMove;
+
+  const bool& facingRight = context.onLeftSide;
+
+  // first check throws
+  if (HasState(rawInput.Latest(), InputState::BTN4))
   {
-    //!!!! TESTING SPECIAL MOVES HERE
-    bool qcf = rawInput.Evaluate(UnivSpecMoveDict) == SpecialInputState::QCF && facingRight;
-    bool qcb = rawInput.Evaluate(UnivSpecMoveDict) == SpecialInputState::QCB && !facingRight;
-    if (qcf || qcb)
-      return new GroundedStaticAttack<StanceState::STANDING, ActionState::NONE>("SpecialMove1", facingRight);
+    bool backthrow = (facingRight && HasState(rawInput.Latest(), InputState::LEFT)) || (!facingRight && HasState(rawInput.Latest(), InputState::RIGHT));
+    return new ThrowInitateAction(!backthrow, facingRight);
   }
 
-  // prioritize attacks
+  // then check attacks
   if (HasState(rawInput.Latest(), InputState::BTN1))
   {
     if (HasState(rawInput.Latest(), InputState::DOWN))
@@ -64,29 +68,29 @@ template <> IAction* GetAttacksFromNeutral<StanceState::STANDING>(const InputBuf
 }
 
 //______________________________________________________________________________
-template <> IAction* GetAttacksFromNeutral<StanceState::CROUCHING>(const InputBuffer& rawInput, bool facingRight)
+template <> IAction* GetAttacksFromNeutral<StanceState::CROUCHING>(const InputBuffer& rawInput, const StateComponent& context)
 {
-  return GetAttacksFromNeutral<StanceState::STANDING>(rawInput, facingRight);
+  return GetAttacksFromNeutral<StanceState::STANDING>(rawInput, context);
 }
 
 //______________________________________________________________________________
-template <> IAction* GetAttacksFromNeutral<StanceState::JUMPING>(const InputBuffer& rawInput, bool facingRight)
+template <> IAction* GetAttacksFromNeutral<StanceState::JUMPING>(const InputBuffer& rawInput, const StateComponent& context)
 {
   // prioritize attacks
   // when attacking in the air, facing direction is not changed
   if (HasState(rawInput.Latest(), InputState::BTN1))
   {
-    return new AttackAction<StanceState::JUMPING, ActionState::LIGHT>("JumpingLight", facingRight);
+    return new AttackAction<StanceState::JUMPING, ActionState::LIGHT>("JumpingLight", context.onLeftSide);
   }
 
   else if (HasState(rawInput.Latest(), InputState::BTN2))
   {
-    return new AttackAction<StanceState::JUMPING, ActionState::MEDIUM>("JumpingMedium", facingRight);
+    return new AttackAction<StanceState::JUMPING, ActionState::MEDIUM>("JumpingMedium", context.onLeftSide);
   }
 
   else if (HasState(rawInput.Latest(), InputState::BTN3))
   {
-    return new AttackAction<StanceState::JUMPING, ActionState::HEAVY>("JumpingHeavy", facingRight);
+    return new AttackAction<StanceState::JUMPING, ActionState::HEAVY>("JumpingHeavy", context.onLeftSide);
   }
 
   // state hasn't changed
@@ -94,18 +98,113 @@ template <> IAction* GetAttacksFromNeutral<StanceState::JUMPING>(const InputBuff
 }
 
 //______________________________________________________________________________
-IAction* CheckHits(const InputState& rawInput, const StateComponent& context)
+IAction* CheckSpecials(const InputBuffer& rawInput, const StateComponent& context)
+{
+  const bool& facingRight = context.onLeftSide;
+  if (HasState(rawInput.Latest(), InputState::BTN1) || HasState(rawInput.Latest(), InputState::BTN2) || HasState(rawInput.Latest(), InputState::BTN3))
+  {
+    //!!!! TESTING SPECIAL MOVES HERE
+    bool fireball = (rawInput.GetLastSpecialInput() == SpecialInputState::QCF && facingRight) || (rawInput.GetLastSpecialInput() == SpecialInputState::QCB && !facingRight);
+    bool donkeyKick = fireball && (HasState(rawInput.Latest(), InputState::BTN3));
+    bool tatsu = (rawInput.GetLastSpecialInput() == SpecialInputState::QCF && !facingRight) || (rawInput.GetLastSpecialInput() == SpecialInputState::QCB && facingRight);
+    bool dp = (rawInput.GetLastSpecialInput() == SpecialInputState::DPF && facingRight) || (rawInput.GetLastSpecialInput() == SpecialInputState::DPB && !facingRight);
+    if (donkeyKick)
+      return new SpecialMoveAttack<StanceState::STANDING, ActionState::NONE>("SpecialMove3", facingRight);
+    else if (fireball)
+      return new SpecialMoveAttack<StanceState::STANDING, ActionState::NONE>("SpecialMove1", facingRight);
+    else if (tatsu)
+      return new SpecialMoveAttack<StanceState::STANDING, ActionState::NONE>("SpecialMove4", facingRight);
+    else if (dp)
+      return new SpecialMoveAttack<StanceState::STANDING, ActionState::NONE>("SpecialMove2", facingRight);
+  }
+  return nullptr;
+}
+
+
+//______________________________________________________________________________
+IAction* CheckHits(const InputState& rawInput, const StateComponent& context, bool canBlock, bool inKnockdown)
 {
   bool facingRight = context.onLeftSide;
+  if (context.thrownThisFrame)
+  {
+    return new ThrownAction(facingRight, context.hitData.framesInStunHit, context.hitData.knockback, context.hitData.damage, context.hitData.activeFrames);
+  }
   if (context.hitThisFrame)
   {
-    bool blockedRight = HasState(rawInput, InputState::LEFT) && !context.hitOnLeftSide;
-    bool blockedLeft = HasState(rawInput, InputState::RIGHT) && context.hitOnLeftSide;
-    int neutralFrame = context.frameData.active + context.frameData.recover + 1;
-    if (blockedRight || blockedLeft)
-      return new OnRecvHitAction<StanceState::STANDING, ActionState::BLOCKSTUN>("Block", facingRight, neutralFrame + context.frameData.onBlockAdvantage, Vector2<float>::Zero);
+    GameManager::Get().ActivateHitStop(10);
+    if (canBlock)
+    {
+      bool blockedRight = HasState(rawInput, InputState::LEFT) && context.onLeftSide;
+      bool blockedLeft = HasState(rawInput, InputState::RIGHT) && !context.onLeftSide;
+      if (blockedRight || blockedLeft)
+      {
+        if(HasState(rawInput, InputState::DOWN))
+          return new HitOrBlockStunAction<StanceState::CROUCHING, ActionState::BLOCKSTUN>("BlockLow", facingRight, context.hitData.framesInStunBlock, Vector2<float>::Zero, 0);
+        else
+          return new HitOrBlockStunAction<StanceState::STANDING, ActionState::BLOCKSTUN>("BlockMid", facingRight, context.hitData.framesInStunBlock, Vector2<float>::Zero, 0);
+      }
+    }
+
+    // check for knockdown stuff first
+    if (inKnockdown || context.hitData.knockdown)
+    {
+      return new KnockdownAirborneAction(context.onLeftSide, context.hitData.knockback, context.hitData.damage);
+    }
+
+    if (HasState(rawInput, InputState::DOWN) && context.hitData.framesInStunHit < 16)
+    {
+      return new HitOrBlockStunAction<StanceState::CROUCHING, ActionState::HITSTUN>("CrouchingHitstun", facingRight, context.hitData.framesInStunHit, context.hitData.knockback, context.hitData.damage);
+    }
     else
-      return new OnRecvHitAction<StanceState::STANDING, ActionState::HITSTUN>("HeavyHitstun", facingRight, neutralFrame + context.frameData.onHitAdvantage, context.frameData.knockback, context.frameData.damage);
+    {
+      std::string hitstunAnim = "LightHitstun";
+      if (context.hitData.framesInStunHit > 10) hitstunAnim = "MedHitstun";
+      if (context.hitData.framesInStunHit > 15) hitstunAnim = "HeavyHitstun";
+      return new HitOrBlockStunAction<StanceState::STANDING, ActionState::HITSTUN>(hitstunAnim, facingRight, context.hitData.framesInStunHit, context.hitData.knockback, context.hitData.damage);
+    }
+  }
+  return nullptr;
+}
+
+//______________________________________________________________________________
+IAction* CheckForDash(const InputBuffer& rawInput, const StateComponent& context)
+{
+  if (!HasState(context.collision, CollisionSide::DOWN))
+    return nullptr;
+
+  const bool facingRight = context.onLeftSide;
+  std::string dashAnimLeft = !facingRight ? "ForwardDash" : "BackDash";
+  std::string dashAnimRight = !facingRight ? "BackDash" : "ForwardDash";
+  if (HasState(rawInput.Latest(), InputState::LEFT))
+  {
+    if (HasState(rawInput.Latest(), InputState::BTN4) || rawInput.GetLastSpecialInput() == SpecialInputState::LDash)
+    {
+      return new DashAction(dashAnimLeft, facingRight, ActionParams::nDashFrames, -1.5f * ActionParams::baseWalkSpeed);
+    }
+  }
+  else if (HasState(rawInput.Latest(), InputState::RIGHT))
+  {
+    if (HasState(rawInput.Latest(), InputState::BTN4) || rawInput.GetLastSpecialInput() == SpecialInputState::RDash)
+    {
+      return new DashAction(dashAnimRight, facingRight, ActionParams::nDashFrames, 1.5f * ActionParams::baseWalkSpeed);
+    }
+  }
+  return nullptr;
+}
+
+//______________________________________________________________________________
+IAction* CheckForJumping(const InputState& input, const StateComponent& context)
+{
+  if (!HasState(context.collision, CollisionSide::DOWN))
+    return nullptr;
+
+  if (HasState(input, InputState::UP))
+  {
+    if (HasState(input, InputState::LEFT))
+      return new LoopedAction<StanceState::JUMPING, ActionState::NONE>("Jumping", context.onLeftSide, Vector2<float>(-0.5f * ActionParams::baseWalkSpeed, -UniversalPhysicsSettings::Get().JumpVelocity));
+    else if (HasState(input, InputState::RIGHT))
+      return new LoopedAction<StanceState::JUMPING, ActionState::NONE>("Jumping", context.onLeftSide, Vector2<float>(0.5f * ActionParams::baseWalkSpeed, -UniversalPhysicsSettings::Get().JumpVelocity));
+    return new LoopedAction<StanceState::JUMPING, ActionState::NONE>("Jumping", context.onLeftSide, Vector2<float>(0.0f, -UniversalPhysicsSettings::Get().JumpVelocity));
   }
   return nullptr;
 }
@@ -113,28 +212,12 @@ IAction* CheckHits(const InputState& rawInput, const StateComponent& context)
 //______________________________________________________________________________
 IAction* StateLockedHandleInput(const InputBuffer& rawInput, const StateComponent& context, IAction* action, bool actionComplete)
 {
-  //!!!! TESTING SPECIAL MOVE CANCELS HERE
-  if (context.hitting)
-  {
-    if (HasState(rawInput.Latest(), InputState::BTN1) || HasState(rawInput.Latest(), InputState::BTN2) || HasState(rawInput.Latest(), InputState::BTN3))
-    {
-      bool qcf = rawInput.Evaluate(UnivSpecMoveDict) == SpecialInputState::QCF && context.onLeftSide;
-      bool qcb = rawInput.Evaluate(UnivSpecMoveDict) == SpecialInputState::QCB && !context.onLeftSide;
-      if (qcf || qcb)
-        return new GroundedStaticAttack<StanceState::STANDING, ActionState::NONE>("SpecialMove1", context.onLeftSide);
-    }
-  }
+  // check if hit first
+  IAction* onHitAction = CheckHits(rawInput.Latest(), context, false, false);
+  if (onHitAction) return onHitAction;
 
-  if (actionComplete)
-  {
-    return action->GetFollowUpAction(rawInput, context);
-  }
-
-  if (context.hitThisFrame)
-  {
-    int neutralFrame = context.frameData.active + context.frameData.recover + 1;
-    return new OnRecvHitAction<StanceState::STANDING, ActionState::HITSTUN>("HeavyHitstun", context.onLeftSide, neutralFrame + context.frameData.onHitAdvantage, context.frameData.knockback);
-  }
+  // check for follow up after hit
+  if (actionComplete) return action->GetFollowUpAction(rawInput, context);
 
   if (action->GetStance() == StanceState::JUMPING)
   {

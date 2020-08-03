@@ -14,45 +14,6 @@ const int hitstopHeavy = 10;
 class GLTexture;
 typedef GLTexture RenderType;
 
-struct FrameData
-{
-  // # of start up frames, active frames, and recovery frames
-  int startUp, active, recover;
-  // # of frames the receiver should be stunned on hit or block after attacker returns to neutral (can be + or -)
-  int onHitAdvantage, onBlockAdvantage;
-  // damage that the move does
-  int damage;
-  // knockback vector oriented from attack's source
-  Vector2<float> knockback;
-  // number of frames of action pause
-  int hitstop;
-};
-
-enum class AnchorPoint
-{
-  TL, TR, BL, BR, Size
-};
-
-struct SpriteSheet
-{
-  SpriteSheet(const char* src, int rows, int columns);
-  SpriteSheet(const char* src, int rows, int columns, bool dontLoad) : src(src), rows(rows), columns(columns) {}
-  //!
-  std::string src;
-  //!
-  Vector2<int> frameSize;
-  Vector2<int> sheetSize;
-  //!
-  int rows, columns;
-};
-
-struct AnimationInfo
-{
-  SpriteSheet sheet;
-  int startIndexOnSheet;
-  int frames;
-  AnchorPoint anchor;
-};
 
 class ConstComponentIDGenerator
 {

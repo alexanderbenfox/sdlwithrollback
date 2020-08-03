@@ -11,10 +11,12 @@
 #include "Systems/InputSystem.h"
 #include "Systems/HitSystem.h"
 #include "Systems/TimerSystem.h"
-#include "Systems/SceneSystems.h"
 #include "Systems/CutsceneSystem.h"
 #include "Systems/CheckBattleEndSystem.h"
 #include "Systems/UISystem.h"
+#include "Systems/AISystem.h"
+#include "Systems/DestroyEntitiesSystem.h"
+#include "Systems/MenuSystem.h"
 
 #include "Systems/Physics.h"
 #include "DebugGUI/GUIController.h"
@@ -167,7 +169,8 @@ void GameManager::Initialize()
 
   //! Initialize them with keyboard handlers
   _p1->GetComponent<GameInputComponent>()->AssignHandler(InputType::Keyboard);
-  _p2->GetComponent<GameInputComponent>()->AssignHandler(InputType::Keyboard);
+  //! Initialize second player as defend all AI
+  _p2->GetComponent<GameInputComponent>()->AssignHandler(InputType::DefendAfter);
 
   //! initialize the scene
   ChangeScene(SceneType::START);
@@ -281,14 +284,6 @@ void GameManager::BeginGameLoop()
 }
 
 //______________________________________________________________________________
-Camera* GameManager::GetMainCamera()
-{
-  if (_currentScene)
-    return _currentScene->GetCamera();
-  return nullptr;
-}
-
-//______________________________________________________________________________
 void GameManager::CheckAgainstSystems(Entity* entity)
 {
   InputSystem::Check(entity);
@@ -297,6 +292,9 @@ void GameManager::CheckAgainstSystems(Entity* entity)
   MoveSystemPhysCollider::Check(entity);
   MoveSystemHurtbox::Check(entity);
   MoveSystemCamera::Check(entity);
+  MoveSystemHitbox::Check(entity);
+  MoveThrownEntitySystem::Check(entity);
+  MoveWallSystem::Check(entity);
   AttackAnimationSystem::Check(entity);
   HitSystem::Check(entity);
   TimerSystem::Check(entity);
@@ -304,15 +302,18 @@ void GameManager::CheckAgainstSystems(Entity* entity)
   SpriteDrawCallSystem::Check(entity);
   UITextDrawCallSystem::Check(entity);
   PlayerSideSystem::Check(entity);
-  StartSceneInputSystem::Check(entity);
-  CharacterSelectInputSystem::Check(entity);
-  ResultsSceneSystem::Check(entity);
   CutsceneSystem::Check(entity);
   CutsceneMovementSystem::Check(entity);
   CheckBattleEndSystem::Check(entity);
   UIPositionUpdateSystem::Check(entity);
   UIContainerUpdateSystem::Check(entity);
   DrawUIPrimitivesSystem::Check(entity);
+  UpdateAISystem::Check(entity);
+  ThrowSystem::Check(entity);
+  PushSystem::Check(entity);
+  DestroyEntitiesSystem::Check(entity);
+  MenuInputSystem::Check(entity);
+  UpdateMenuStateSystem::Check(entity);
 }
 
 //______________________________________________________________________________
@@ -327,6 +328,7 @@ void GameManager::DebugDraws()
   // draw items in debug layer over top of the drawn scene
   ComponentManager<Hurtbox>::Get().Draw();
   ComponentManager<Hitbox>::Get().Draw();
+  ComponentManager<ThrowFollower>::Get().Draw();
 }
 
 //______________________________________________________________________________
@@ -335,8 +337,7 @@ void GameManager::DestroyEntity(std::shared_ptr<Entity> entity)
   auto it = std::find(_gameEntities.begin(), _gameEntities.end(), entity);
   if(it != _gameEntities.end())
   {
-    (*it)->RemoveAllComponents();  
-    long count = it->use_count();
+    (*it)->RemoveAllComponents();
     _gameEntities.erase(it, it + 1);
   }
 }
@@ -351,6 +352,14 @@ void GameManager::RequestSceneChange(SceneType newSceneType)
 //______________________________________________________________________________
 void GameManager::ChangeScene(SceneType scene)
 {
+  _currentScene.reset();
+
+  DestroyEntitiesSystem::DoTick(0.0);
+
+  for (auto& func : _onSceneChangeFunctionQueue)
+    func();
+  _onSceneChangeFunctionQueue.clear();
+
   _currentScene = std::unique_ptr<IScene>(SceneHelper::CreateScene(scene));
   _currentScene->Init(_p1, _p2);
   _currentSceneType = scene;
@@ -374,6 +383,13 @@ void GameManager::PostUpdate()
     ChangeScene(_currentSceneType);
     _sceneChangeRequested = false;
   }
+
+  if (!_endOfFrameQueue.empty())
+  {
+    for (auto& func : _endOfFrameQueue)
+      func();
+    _endOfFrameQueue.clear();
+  }
 }
 
 //______________________________________________________________________________
@@ -385,7 +401,7 @@ void GameManager::UpdateInput()
     {
       if (_localInput.window.event == SDL_WINDOWEVENT_RESIZED)
       {
-        RenderManager<RenderType>::Get().ProcessResizeEvent(_localInput);
+        GRenderer.ProcessResizeEvent(_localInput);
       }
     }
   }

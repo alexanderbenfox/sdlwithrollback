@@ -9,7 +9,7 @@
 #include <thread>
 #include <mutex>
 
-#define GRenderer RenderManager<RenderType>::Get()
+#define GRenderer RenderManager::Get()
 
 //______________________________________________________________________________
 //! Manager of all things related to whats happening in the game
@@ -26,8 +26,6 @@ public:
   void Destroy();
   //! Starts the game loop. Returns when the game has been ended
   void BeginGameLoop();
-  //! Gets the camera used by the rendering pipeline to cull game entities
-  Camera* GetMainCamera();
   //! Add entity to game entity list and add components to it
   template <class ... Args>
   std::shared_ptr<Entity> CreateEntity();
@@ -43,8 +41,25 @@ public:
   void DebugDraws();
 
   void DestroyEntity(std::shared_ptr<Entity> entity);
+
+  
+
   //! request scene change at end of update loop
   void RequestSceneChange(SceneType newSceneType);
+  //! Schedules a function to be ran when scene is changed
+  void TriggerOnSceneChange(std::function<void()> function)
+  {
+    _onSceneChangeFunctionQueue.push_back(function);
+  }
+
+  //! Schedules some functor to be called at the end of the update loop
+  void TriggerEndOfFrame(std::function<void()> function)
+  {
+    _endOfFrameQueue.push_back(function);
+  }
+
+  
+
 
 private:
   void ChangeScene(SceneType scene);
@@ -69,6 +84,8 @@ private:
   SceneType _currentSceneType;
   //
   bool _sceneChangeRequested = false;
+  //
+  std::vector<std::function<void()>> _onSceneChangeFunctionQueue, _endOfFrameQueue;
   
 
   //______________________________________________________________________________

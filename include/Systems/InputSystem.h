@@ -6,7 +6,7 @@
 #include "Components/Transform.h"
 #include "Components/Rigidbody.h"
 
-class PlayerSideSystem : public ISystem<Transform, StateComponent>
+class PlayerSideSystem : public ISystem<Transform, StateComponent, TeamComponent>
 {
 public:
   static void DoTick(float dt)
@@ -15,13 +15,26 @@ public:
     {
       Transform* transform = std::get<Transform*>(tuple.second);
       StateComponent* state = std::get<StateComponent*>(tuple.second);
+      TeamComponent* teamComp = std::get<TeamComponent*>(tuple.second);
 
       for (auto& other : Tuples)
       {
         if (other != tuple)
         {
           Transform* otherTranform = std::get<Transform*>(other.second);
-          state->onLeftSide = transform->position.x < otherTranform->position.x;
+          TeamComponent* otherEntityTeam = std::get<TeamComponent*>(other.second);
+          StateComponent* otherState = std::get<StateComponent*>(other.second);
+
+          if (otherState->onNewState)
+          {
+            if (otherState->actionState == ActionState::HITSTUN)
+              state->comboCounter++;
+            else
+              state->comboCounter = 0;
+          }
+
+          if(teamComp->team != otherEntityTeam->team && otherEntityTeam->playerEntity)
+            state->onLeftSide = transform->position.x < otherTranform->position.x;
         }
       }
     }
@@ -51,7 +64,7 @@ public:
       {
         state->actionState = actor->GetActionState();
         state->stanceState = actor->GetStanceState();
-        rigidbody->elasticCollisions = actor->GetActionState() == ActionState::HITSTUN;
+        //rigidbody->elasticCollisions = actor->GetActionState() == ActionState::HITSTUN;
       }
     }
   }

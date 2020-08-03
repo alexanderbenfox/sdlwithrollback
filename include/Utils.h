@@ -46,6 +46,16 @@ namespace StringUtils
       emit(*it);
     return ss.str();
   }
+
+  static std::string CorrectPath(std::string file)
+  {
+#ifndef _WIN32
+    auto split = StringUtils::Split(file, '\\');
+    if(split.size() > 1)
+      file = StringUtils::Connect(split.begin(), split.end(), '/');
+#endif
+    return file;
+  }
 }
 
 namespace OpSysConv

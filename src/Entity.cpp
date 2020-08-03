@@ -3,8 +3,6 @@
 #include "Components/Collider.h"
 #include "GameManagement.h"
 
-Entity::~Entity() {}
-
 void Entity::RemoveAllComponents()
 {
   for(auto func : _deleteComponent)
@@ -14,59 +12,9 @@ void Entity::RemoveAllComponents()
   CheckAgainstSystems(this);
 }
 
-void Entity::ParseCommand(const std::string& command)
+void Entity::DestroySelf()
 {
-  auto split = StringUtils::Split(command, ' ');
-
-  if (split.size() > 5)
-    return;
-
-  std::string component = split[0];
-  std::string function = split[1];
-  std::string parameter = split[2];
-  std::string subparameter = split[3];
-  std::string value = split[4];
-  Transform& transform = *GetComponent<Transform>();
-
-  if (component == "transform")
-  {
-    if (function == "set")
-    {
-      if (parameter == "scale")
-      {
-
-        //adjust side of collider so you dont fall through ground
-        float newScaleValue = std::stof(value);
-
-        if (subparameter == "x")
-        {
-          SetScale(Vector2<float>(newScaleValue, transform.scale.y));
-        }
-        if (subparameter == "y")
-        {
-          SetScale(Vector2<float>(transform.scale.x, newScaleValue));
-        }
-      }
-
-      if (parameter == "rotation")
-      {
-        if (subparameter == "x")
-        {
-          transform.rotation.x = std::stof(value);
-        }
-        if (subparameter == "y")
-        {
-          transform.rotation.y = std::stof(value);
-        }
-      }
-    }
-  }
-}
-
-std::string Entity::GetIdentifier()
-{
-  std::string id = std::string("entity") + std::to_string(_creationId);
-  return id;
+  GameManager::Get().TriggerEndOfFrame([this]() { GameManager::Get().DestroyEntity(shared_from_this()); });
 }
 
 void Entity::SetScale(Vector2<float> scale)

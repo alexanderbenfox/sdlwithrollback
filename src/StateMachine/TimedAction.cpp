@@ -1,13 +1,17 @@
 #include "StateMachine/TimedAction.h"
 
-#include "Components/AttackStateComponent.h"
 #include "Components/Rigidbody.h"
 #include "Components/GameActor.h"
 #include "Components/Animator.h"
 
+#include "StateMachine/RecvHit.h"
+#include "Systems/Physics.h"
+
 //______________________________________________________________________________
 void DashAction::Enact(Entity* actor)
 {
+  actor->RemoveComponent<PushComponent>();
+
   this->_loopedAnimation = false;
   AnimatedAction<StanceState::STANDING, ActionState::DASHING>::Enact(actor);
   AnimatedAction<StanceState::STANDING, ActionState::DASHING>::_complete = false;
@@ -43,4 +47,56 @@ void DashAction::Enact(Entity* actor)
     TimedAction<StanceState::STANDING, ActionState::DASHING>::_duration));
 
   actor->GetComponent<TimerContainer>()->timings.push_back(TimedAction<StanceState::STANDING, ActionState::DASHING>::_timer);
+}
+
+//______________________________________________________________________________
+IAction* DashAction::GetFollowUpAction(const InputBuffer& rawInput, const StateComponent& context)
+{
+  return new LoopedAction<StanceState::STANDING, ActionState::NONE>("Idle", this->_facingRight);
+}
+
+//______________________________________________________________________________
+ThrownAction::~ThrownAction()
+{
+  // make sure this state component is removed
+  ListenedAction::_listener->GetOwner()->RemoveComponent<ThrownStateComponent>();
+  ListenedAction::_listener->GetOwner()->GetComponent<Rigidbody>()->ignoreDynamicColliders = false;
+  _delayTimer->Cancel();
+}
+
+//______________________________________________________________________________
+inline void ThrownAction::Enact(Entity* actor)
+{
+  TimedAction::Enact(actor);
+
+  actor->AddComponent<ThrownStateComponent>();
+  actor->GetComponent<ThrownStateComponent>()->SetTimer(TimedAction::_timer.get());
+
+  actor->GetComponent<StateComponent>()->thrownThisFrame = false;
+  actor->GetComponent<Rigidbody>()->ignoreDynamicColliders = true;
+
+  auto rb = actor->GetComponent<Rigidbody>();
+
+  _delayTimer = std::shared_ptr<ActionTimer>(
+    new SimpleActionTimer([rb, this]()
+      {
+        rb->ignoreDynamicColliders = false;
+        OnActionComplete();
+      }, _delay));
+  actor->GetComponent<TimerContainer>()->timings.push_back(_delayTimer);
+}
+
+//______________________________________________________________________________
+IAction* ThrownAction::GetFollowUpAction(const InputBuffer& rawInput, const StateComponent& context)
+{
+  return new KnockdownAirborneAction(context.onLeftSide, _velocity, _damageTaken);
+}
+
+//______________________________________________________________________________
+void ThrownAction::OnActionComplete()
+{
+  ListenedAction::_listener->GetOwner()->RemoveComponent<ThrownStateComponent>();
+  ListenedAction::OnActionComplete();
+
+
 }

@@ -1,6 +1,10 @@
 #pragma once
 #include "StateMachine/AnimatedAction.h"
-#include "Components/AttackStateComponent.h"
+#include "Components/StateComponents/AttackStateComponent.h"
+
+const bool magicSeries = true;
+const bool dashCancelSpecials = true;
+const bool jumpCancelSpecials = true;
 
 //______________________________________________________________________________
 template <StanceState Stance, ActionState Action>
@@ -18,7 +22,8 @@ public:
 
   //! Adds attack state component
   virtual void Enact(Entity* actor) override;
-
+  //! Checks for special cancels
+  virtual IAction* HandleInput(const InputBuffer& rawInput, const StateComponent& context) override;
 protected:
 
   //! Removes attack state component
@@ -27,6 +32,36 @@ protected:
   virtual IAction* GetFollowUpAction(const InputBuffer& rawInput, const StateComponent& context) override
   {
     return new LoopedAction<Stance, ActionState::NONE>(Stance == StanceState::STANDING ? "Idle" : Stance == StanceState::CROUCHING ? "Crouch" : "Jumping", this->_facingRight);
+  }
+
+  IAction* CheckMagicSeries(const InputBuffer& rawInput, const StateComponent& context)
+  {
+    if (Action == ActionState::LIGHT && HasState(rawInput.Latest(), InputState::BTN2))
+    {
+      return GetAttacksFromNeutral<Stance>(rawInput, context);
+    }
+    else if (Action == ActionState::MEDIUM && HasState(rawInput.Latest(), InputState::BTN3))
+    {
+      return GetAttacksFromNeutral<Stance>(rawInput, context);
+    }
+    return nullptr;
+  }
+
+  // checks on special cancel and magic series
+  virtual IAction* CheckCancels(const InputBuffer& rawInput, const StateComponent& context)
+  {
+    IAction* action = nullptr;
+
+    // if we are hitting, we can cancel the remaining recovery and active frames into a special move
+    if (context.hitting)
+    {
+      action = CheckSpecials(rawInput, context);
+      if (magicSeries && !action)
+      {
+        action = CheckMagicSeries(rawInput, context);
+      }
+    }
+    return action;
   }
 
 };
@@ -38,6 +73,31 @@ class GroundedStaticAttack : public AttackAction<Stance, Action>
 public:
   //!
   GroundedStaticAttack(const std::string& animation, bool facingRight) : AttackAction<Stance, Action>(animation, facingRight, Vector2<float>(0, 0)) {}
+  virtual ~GroundedStaticAttack() = default;
+};
+
+//______________________________________________________________________________
+template <StanceState Stance, ActionState Action>
+class SpecialMoveAttack : public AttackAction<Stance, Action>
+{
+public:
+  //!
+  SpecialMoveAttack(const std::string& animation, bool facingRight) : AttackAction<Stance, Action>(animation, facingRight, Vector2<float>(0, 0)) {}
+
+private:
+  // checks both dash and jump cancel
+  virtual IAction* CheckCancels(const InputBuffer& rawInput, const StateComponent& context) override
+  {
+    if (!context.hitting)
+      return nullptr;
+
+    IAction* cancelAction = nullptr;
+    if (dashCancelSpecials)
+      cancelAction = CheckForDash(rawInput, context);
+    if (jumpCancelSpecials && !cancelAction)
+      cancelAction = CheckForJumping(rawInput.Latest(), context);
+    return cancelAction;
+  }
 
 };
 
@@ -66,8 +126,50 @@ inline void AttackAction<Stance, Action>::Enact(Entity* actor)
 
 //______________________________________________________________________________
 template <StanceState Stance, ActionState Action>
+inline IAction* AttackAction<Stance, Action>::HandleInput(const InputBuffer& rawInput, const StateComponent& context)
+{
+  if (IAction* cancelAction = CheckCancels(rawInput, context))
+    return cancelAction;
+  return StateLockedAnimatedAction<Stance, Action>::HandleInput(rawInput, context);
+}
+
+//______________________________________________________________________________
+template <StanceState Stance, ActionState Action>
 inline void AttackAction<Stance, Action>::OnActionComplete()
 {
   ListenedAction::_listener->GetOwner()->RemoveComponent<AttackStateComponent>();
   StateLockedAnimatedAction<Stance, Action>::OnActionComplete();
 }
+
+//______________________________________________________________________________
+class ThrowInitateAction : public GroundedStaticAttack<StanceState::STANDING, ActionState::NONE>
+{
+public:
+  //!
+  ThrowInitateAction(bool fThrow, bool facingRight) :
+    GroundedStaticAttack<StanceState::STANDING, ActionState::NONE>(fThrow ? "ForwardThrow" : "BackThrow", facingRight) {}
+
+
+  virtual ~ThrowInitateAction()
+  {
+    ListenedAction::_listener->GetOwner()->GetComponent<Rigidbody>()->ignoreDynamicColliders = false;
+  }
+
+  //! Sets dynamic collision detection to false
+  virtual void Enact(Entity* actor) override
+  {
+    actor->GetComponent<Rigidbody>()->ignoreDynamicColliders = true;
+    GroundedStaticAttack<StanceState::STANDING, ActionState::NONE>::Enact(actor);
+  }
+
+  //! Checks for if the throw was successful
+  virtual IAction* HandleInput(const InputBuffer& rawInput, const StateComponent& context) override
+  {
+    // if throw came out this frame and it wasn't a success, go to throw miss
+    if (context.triedToThrowThisFrame && !context.throwSuccess)
+    {
+      return new StateLockedAnimatedAction("ThrowMiss", context.onLeftSide);
+    }
+    return StateLockedAnimatedAction::HandleInput(rawInput, context);
+  }
+};

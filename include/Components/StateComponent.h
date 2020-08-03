@@ -3,11 +3,25 @@
 #include "Core/Geometry2D/RectHelper.h"
 #include "DebugGUI/DebugItem.h"
 #include "StateMachine/StateEnums.h"
+#include "AssetManagement/StaticAssets/AnimationAssetData.h"
 
 //! marks the entity as the loser of the round
 struct LoserComponent : public IComponent
 {
   LoserComponent(std::shared_ptr<Entity> owner) : IComponent(owner) {}
+};
+
+//! marks which team the entity is on (team A == player 1 and team B == player 2)
+struct TeamComponent : public IComponent
+{
+  enum class Team
+  {
+    TeamA, TeamB
+  };
+  TeamComponent(std::shared_ptr<Entity> owner) : IComponent(owner) {}
+
+  Team team = Team::TeamA;
+  bool playerEntity = false;
 };
 
 //! hitbox is the area that will hit the opponent
@@ -22,6 +36,11 @@ public:
   StateComponent(StateComponent&& other);
   StateComponent& operator=(const StateComponent& other);
   StateComponent& operator=(StateComponent&& other) noexcept;
+
+  //! Adds loser component to entity
+  void MarkLoser();
+  //! Allows different fields to be changed through the debug menu
+  virtual void OnDebug() override;
   
   //! is player on left side of the other player
   bool onLeftSide;
@@ -31,36 +50,30 @@ public:
 
   //! Defender hit state information
   bool hitThisFrame = false;
-  bool hitOnLeftSide = false;
-  FrameData frameData;
+  bool thrownThisFrame = false;
+  HitData hitData;
+  int comboCounter = 0;
 
   //! Attacker state information
   bool hitting = false;
+  bool throwSuccess = false;
+  bool triedToThrowThisFrame = false;
 
   int hp = 100;
+  bool invulnerable = false;
 
   ActionState actionState;
   StanceState stanceState;
 
   bool onNewState = false;
 
-  //! Adds loser component to entity
-  void MarkLoser();
-
-  virtual void OnDebug() override
-  {
-    //ImGui::Text("Player %d State Component", _owner->GetID());
-    if(hitting)
-      ImGui::Text("IsHitting");
-    else
-      ImGui::Text("NotHitting");
-    ImGui::Text("HP = %d", hp);
-  }
-
   //!
   bool operator==(const StateComponent& other) const
   {
-    return collision == other.collision && onLeftSide == other.onLeftSide && hitThisFrame == other.hitThisFrame && hitting == other.hitting && actionState == other.actionState && stanceState == other.stanceState;
+    return collision == other.collision && onLeftSide == other.onLeftSide &&
+      hitThisFrame == other.hitThisFrame && hitting == other.hitting && thrownThisFrame && other.thrownThisFrame &&
+      actionState == other.actionState && stanceState == other.stanceState &&
+      triedToThrowThisFrame == other.triedToThrowThisFrame && throwSuccess && other.throwSuccess;
   }
 
   bool operator!=(const StateComponent& other) const
@@ -86,12 +99,14 @@ inline StateComponent& StateComponent::operator=(const StateComponent& other)
   this->onLeftSide = other.onLeftSide;
   this->collision = other.collision;
   this->hitThisFrame = other.hitThisFrame;
-  this->hitOnLeftSide = other.hitOnLeftSide;
-  this->frameData = other.frameData;
+  this->thrownThisFrame = other.thrownThisFrame;
+  this->hitData = other.hitData;
   this->hitting = other.hitting;
   this->hp = other.hp;
   this->actionState = other.actionState;
   this->stanceState = other.stanceState;
+  this->throwSuccess = other.throwSuccess;
+  this->triedToThrowThisFrame = other.triedToThrowThisFrame;
   return *this;
 }
 
@@ -101,11 +116,13 @@ inline StateComponent& StateComponent::operator=(StateComponent&& other) noexcep
   this->onLeftSide = other.onLeftSide;
   this->collision = other.collision;
   this->hitThisFrame = other.hitThisFrame;
-  this->hitOnLeftSide = other.hitOnLeftSide;
-  this->frameData = other.frameData;
+  this->thrownThisFrame = other.thrownThisFrame;
+  this->hitData = other.hitData;
   this->hitting = other.hitting;
   this->hp = other.hp;
   this->actionState = other.actionState;
   this->stanceState = other.stanceState;
+  this->throwSuccess = other.throwSuccess;
+  this->triedToThrowThisFrame = other.triedToThrowThisFrame;
   return *this;
 }

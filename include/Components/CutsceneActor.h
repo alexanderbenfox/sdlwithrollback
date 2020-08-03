@@ -83,7 +83,7 @@ struct PlayAnimation : public CutsceneAction, public IAnimatorListener
   }
   void Begin(Animator* animator, RenderComponent<RenderType>* renderer, RenderProperties* properties) override
   {
-    animator->Play(anim, false, false);
+    animator->Play(anim, false);
     animator->ChangeListener(this);
 
     auto& actionAnimation = animator->GetCurrentAnimation();

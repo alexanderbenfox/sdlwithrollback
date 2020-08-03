@@ -10,6 +10,13 @@ class Entity;
 // IDEA: Split up components into their data and functions that change that data
 // Based on reducers in redux??
 
+
+template <typename T>
+struct ComponentInitParams
+{
+  static void Init(T& component, const ComponentInitParams<T>& params) {}
+};
+
 class IComponent
 {
 public:
@@ -27,10 +34,7 @@ public:
   //!
   virtual void Draw() {}
 
-  //virtual bool ShareOwner(IComponent* component)
-  //{
-  ///  return component->_owner == _owner;
-  //}
+  virtual Entity* Owner() { return _owner.get(); }
 
 protected:
   //! 

@@ -31,10 +31,19 @@ struct Interpolation
 
 //______________________________________________________________________________
 // partial specialization
-template <StanceState Stance> IAction* GetAttacksFromNeutral(const InputBuffer& rawInput, bool facingRight);
+template <StanceState Stance> IAction* GetAttacksFromNeutral(const InputBuffer& rawInput, const StateComponent& context);
 
 //______________________________________________________________________________
-IAction* CheckHits(const InputState& rawInput, const StateComponent& context);
+IAction* CheckSpecials(const InputBuffer& rawInput, const StateComponent& context);
 
 //______________________________________________________________________________
-IAction* StateLockedHandleInput(const InputState& rawInput, const StateComponent& context, IAction* action, bool actionComplete);
+IAction* CheckHits(const InputState& rawInput, const StateComponent& context, bool canBlock, bool inKnockdown);
+
+//______________________________________________________________________________
+IAction* CheckForDash(const InputBuffer& input, const StateComponent& context);
+
+//______________________________________________________________________________
+IAction* CheckForJumping(const InputState& input, const StateComponent& context);
+
+//______________________________________________________________________________
+IAction* StateLockedHandleInput(const InputBuffer& rawInput, const StateComponent& context, IAction* action, bool actionComplete);

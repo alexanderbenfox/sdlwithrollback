@@ -11,18 +11,51 @@
 #include "Components/GameActor.h"
 #include "Components/Rigidbody.h"
 #include "Components/RenderComponent.h"
+#include "Components/UIComponents.h"
 
 #include "StateMachine/AnimatedAction.h"
-
-#include "Rendering/RenderCopy.h"
 #include "Core/Math/Vector2.h"
 
 #include <cassert>
 
 //______________________________________________________________________________
+UIRectangleRenderComponent::UIRectangleRenderComponent(std::shared_ptr<Entity> owner) : shownSize{ 0, 0, 0, 0 }, IComponent(owner)
+{
+  GRenderer.RegisterDrawable<DrawPrimitive<RenderType>>(RenderLayer::UI);
+
+  if (auto transform = owner->GetComponent<UITransform>())
+  {
+    shownSize.w = transform->rect.Width();
+    shownSize.h = transform->rect.Height();
+  }
+}
+
+//______________________________________________________________________________
+UIRectangleRenderComponent::~UIRectangleRenderComponent()
+{
+  GRenderer.DeregisterDrawable<DrawPrimitive<RenderType>>(RenderLayer::UI);
+}
+
+//______________________________________________________________________________
 void StateComponent::MarkLoser()
 {
   _owner->AddComponent<LoserComponent>();
+}
+
+//______________________________________________________________________________
+void StateComponent::OnDebug()
+{
+  std::string name = "State P" + std::to_string(_owner->GetID());
+  if (ImGui::CollapsingHeader(name.c_str()))
+  {
+    //ImGui::Text("Player %d State Component", _owner->GetID());
+    if (hitting)
+      ImGui::Text("IsHitting");
+    else
+      ImGui::Text("NotHitting");
+    ImGui::Text("HP = %d", hp);
+    ImGui::Checkbox("Invulnerable", &invulnerable);
+  }
 }
 
 //______________________________________________________________________________
@@ -48,30 +81,13 @@ void RectCollider<T>::Draw()
   if (!_drawDebug)
     return;
 
-  int xBeg = static_cast<int>(std::floor(rect.beg.x));
-  int yBeg = static_cast<int>(std::floor(rect.beg.y));
-  int xEnd = static_cast<int>(std::ceil(rect.end.x));
-  int yEnd = static_cast<int>(std::ceil(rect.end.y));
+  DrawPrimitive<RenderType> draw;
+  draw.displayColor = { 255, 255, 255, 255 };
+  draw.filled = false;
+  draw.targetRect = DrawRect<float>(rect.beg.x, rect.beg.y, rect.Width(), rect.Height());
+  draw.valid = true;
 
-  SDL_Point points[5] = 
-  {
-    {xBeg, yBeg},
-    {xBeg, yEnd},
-    {xEnd, yEnd},
-    {xEnd, yBeg},
-    {xBeg, yBeg}
-  };
-
-  if constexpr (std::is_same_v<RenderType, SDL_Texture>)
-  {
-    SDL_SetRenderDrawColor(GRenderer.GetRenderer(), 255, 255, 255, SDL_ALPHA_OPAQUE);
-    SDL_RenderDrawLines(GRenderer.GetRenderer(), points, 5);
-    SDL_SetRenderDrawColor(GRenderer.GetRenderer(), 0, 0, 0, SDL_ALPHA_OPAQUE);
-  }
-  else if constexpr (std::is_same_v<RenderType, GLTexture>)
-  {
-    GL_RenderDrawLines(points, 5, SDL_Color{ 255, 255, 255, 255 });
-  }
+  GRenderer.DrawPrimitiveDebug(draw, RenderLayer::World);
 }
 
 //______________________________________________________________________________
@@ -153,22 +169,6 @@ bool GameActor::EvaluateInputContext(const InputBuffer& input, const StateCompon
     }
   }
   return false;
-}
-
-std::ostream& operator<<(std::ostream& os, const Transform& transform)
-{
-  os << transform.position;
-  os << transform.scale;
-  os << transform.rotation;
-  return os;
-}
-
-std::istream& operator>>(std::istream& is, Transform& transform)
-{
-  is >> transform.position;
-  is >> transform.rotation;
-  is >> transform.scale;
-  return is;
 }
 
 std::ostream& operator<<(std::ostream& os, const GameActor& actor)

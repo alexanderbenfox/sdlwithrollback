@@ -1,0 +1,52 @@
+{
+  "Hadoken": {
+    "spritesheet": "spritesheets\\special_moves.png",
+    "anchor": "BL",
+    "startIndex": 0,
+    "numFrames" :  14,
+    "framedata": {
+      "startup": 11,
+      "active": 3,
+      "recovery": 28,
+      "onhit": -3,
+      "onblock": -6,
+      "damage": 10,
+      "knockback": {
+        "x": 400,
+        "y": 100
+      },
+      "hitstop" : 10
+    },
+
+    "events": [
+      {
+        "hitbox": {
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "size": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        "movement": {
+          "x": 0,
+          "y": 0
+        }
+        "createEntity": {
+          "relativeCreationPosition": {
+            "x": 0,
+            "y": 0
+          },
+          "components": [
+            {
+              "component": "Transform",
+              "initParams" :  ""
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

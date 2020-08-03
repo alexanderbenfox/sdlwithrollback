@@ -2,14 +2,18 @@
 #include "GameManagement.h"
 #include "ResourceManager.h"
 
-#include "Systems/SceneSystems.h"
 #include "Systems/UISystem.h"
+#include "Systems/MoveSystem.h"
+#include "Systems/MenuSystem.h"
+#include "Systems/DestroyEntitiesSystem.h"
 
 #include "Components/RenderComponent.h"
 #include "Components/Transform.h"
 #include "Components/Camera.h"
 #include "Components/Input.h"
 #include "Components/StateComponent.h"
+
+#include "Core/Prefab/MenuButtonArray.h"
 
 IScene::~IScene()
 {
@@ -19,15 +23,10 @@ IScene::~IScene()
     source->Clear();
 }
 
-Camera* IScene::GetCamera()
-{
-  return _camera->GetComponent<Camera>().get();
-}
-
 StartScene::~StartScene()
 {
-  GameManager::Get().DestroyEntity(_renderedText);
-  GameManager::Get().DestroyEntity(_camera);
+  GameManager::Get().DestroyEntity(_uiCamera);
+  _p1->RemoveComponent<MenuState>();
 }
 
 void StartScene::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2)
@@ -35,26 +34,32 @@ void StartScene::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2)
   _p1 = p1;
   _p2 = p2;
 
-  _renderedText = GameManager::Get().CreateEntity<UITransform, TextRenderer, RenderProperties>();
-  _renderedText->GetComponent<UITransform>()->anchor = UIAnchor::Center;
-  _renderedText->GetComponent<TextRenderer>()->SetFont(ResourceManager::Get().GetFontWriter("fonts\\Eurostile.ttf", 36));
-  _renderedText->GetComponent<TextRenderer>()->SetText("PRESS ANY BUTTON TO START");
+  _p1->AddComponent<MenuState>();
+
+  MenuButtonArray menu(1, 1, 0.3f);
+  menu.CreateMenuOption("PRESS BTN1 TO START", [](){ GameManager::Get().RequestSceneChange(SceneType::CSELECT); }, Vector2<int>(0, 0));
 
   // set up camera
-  _camera = GameManager::Get().CreateEntity<Camera, Transform>();
-  _camera->GetComponent<Camera>()->Init(m_nativeWidth, m_nativeHeight);
+  _uiCamera = GameManager::Get().CreateEntity<Camera, Transform>();
+  _uiCamera->GetComponent<Camera>()->Init(m_nativeWidth, m_nativeHeight);
+  GRenderer.EstablishCamera(RenderLayer::UI, _uiCamera->GetComponent<Camera>().get());
 }
 
 void StartScene::Update(float deltaTime)
 {
   UIPositionUpdateSystem::DoTick(deltaTime);
-  StartSceneInputSystem::DoTick(deltaTime);
+    // menu movement and selection
+  MenuInputSystem::DoTick(deltaTime);
+  // change button highlight and callback if selected
+  UpdateMenuStateSystem::DoTick(deltaTime);
+
+  MoveSystemCamera::DoTick(deltaTime);
 }
 
 CharacterSelectScene::~CharacterSelectScene()
 {
-  GameManager::Get().DestroyEntity(_portrait);
-  GameManager::Get().DestroyEntity(_camera);
+  GameManager::Get().DestroyEntity(_uiCamera);
+  _p1->RemoveComponent<MenuState>();
 }
 
 void CharacterSelectScene::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2)
@@ -62,33 +67,44 @@ void CharacterSelectScene::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Enti
   _p1 = p1;
   _p2 = p2;
 
-  //_portrait = GameManager::Get().CreateEntity<Transform, RenderComponent<RenderType>, RenderProperties>();
-  _portrait = GameManager::Get().CreateEntity<UITransform, TextRenderer, RenderProperties>();
-  _portrait->GetComponent<UITransform>()->anchor = UIAnchor::Center;
-  _portrait->GetComponent<TextRenderer>()->SetFont(ResourceManager::Get().GetFontWriter("fonts\\Eurostile.ttf", 36));
-  _portrait->GetComponent<TextRenderer>()->SetText("Character Select");
+  _p1->AddComponent<MenuState>();
+
+  MenuButtonArray menu(2, 2, 0.2f);
+  menu.CreateMenuOption("Press To Start", [](){ GameManager::Get().RequestSceneChange(SceneType::BATTLE); }, Vector2<int>(0, 0));
+  menu.CreateMenuOption("This Does Nothing", [](){}, Vector2<int>(1, 0));
+  menu.CreateMenuOption("This Does Nothing", [](){}, Vector2<int>(0, 1));
+  menu.CreateMenuOption("Press To Go Back", [](){ GameManager::Get().RequestSceneChange(SceneType::START); }, Vector2<int>(1, 1));
 
   // set up camera
-  _camera = GameManager::Get().CreateEntity<Camera, Transform>();
-  _camera->GetComponent<Camera>()->Init(m_nativeWidth, m_nativeHeight);
+  _uiCamera = GameManager::Get().CreateEntity<Camera, Transform>();
+  _uiCamera->GetComponent<Camera>()->Init(m_nativeWidth, m_nativeHeight);
+  GRenderer.EstablishCamera(RenderLayer::UI, _uiCamera->GetComponent<Camera>().get());
 }
 
 void CharacterSelectScene::Update(float deltaTime)
 {
   UIPositionUpdateSystem::DoTick(deltaTime);
-  CharacterSelectInputSystem::DoTick(deltaTime);
+  // menu movement and selection
+  MenuInputSystem::DoTick(deltaTime);
+  // change button highlight and callback if selected
+  UpdateMenuStateSystem::DoTick(deltaTime);
+
+  MoveSystemCamera::DoTick(deltaTime);
 }
 
 ResultsScene::~ResultsScene()
 {
   GameManager::Get().DestroyEntity(_resultText);
-  GameManager::Get().DestroyEntity(_camera);
+  GameManager::Get().DestroyEntity(_uiCamera);
+  _p1->RemoveComponent<MenuState>();
 }
 
 void ResultsScene::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2)
 {
   _p1 = p1;
   _p2 = p2;
+
+  _p1->AddComponent<MenuState>();
 
   _resultText = GameManager::Get().CreateEntity<UITransform, TextRenderer, RenderProperties>();
   _resultText->GetComponent<UITransform>()->anchor = UIAnchor::Center;
@@ -108,14 +124,25 @@ void ResultsScene::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2)
   {
     _resultText->GetComponent<TextRenderer>()->SetText("NOBODY LOST. SOMETHING WENT HORRIBLY WRONG.");
   }
+
+  MenuButtonArray menu(3, 3, 0.1f);
+  menu.CreateMenuOption("OK", [](){ GameManager::Get().RequestSceneChange(SceneType::START); }, Vector2<int>(1, 2));
+
+  _p1->GetComponent<MenuState>()->currentFocus = Vector2<int>(1, 2);
   
   // set up camera
-  _camera = GameManager::Get().CreateEntity<Camera, Transform>();
-  _camera->GetComponent<Camera>()->Init(m_nativeWidth, m_nativeHeight);
+  _uiCamera = GameManager::Get().CreateEntity<Camera, Transform>();
+  _uiCamera->GetComponent<Camera>()->Init(m_nativeWidth, m_nativeHeight);
+  GRenderer.EstablishCamera(RenderLayer::UI, _uiCamera->GetComponent<Camera>().get());
 }
 
 void ResultsScene::Update(float deltaTime)
 {
   UIPositionUpdateSystem::DoTick(deltaTime);
-  ResultsSceneSystem::DoTick(deltaTime);
+    // menu movement and selection
+  MenuInputSystem::DoTick(deltaTime);
+  // change button highlight and callback if selected
+  UpdateMenuStateSystem::DoTick(deltaTime);
+
+  MoveSystemCamera::DoTick(deltaTime);
 }

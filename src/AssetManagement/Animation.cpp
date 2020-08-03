@@ -1,12 +1,22 @@
 #include "AssetManagement/Animation.h"
 #include "Components/Hitbox.h"
+#include "Components/Rigidbody.h"
 #include "GameManagement.h"
 #include "ResourceManager.h"
 #include <math.h>
+#include <fstream>
+
+#include <json/json.h>
 
 //______________________________________________________________________________
 SpriteSheet::SpriteSheet(const char* src, int rows, int columns) : src(src), rows(rows), columns(columns),
   sheetSize(0, 0), frameSize(0, 0)
+{
+  GenerateSheetInfo();
+}
+
+//______________________________________________________________________________
+void SpriteSheet::GenerateSheetInfo()
 {
   sheetSize = ResourceManager::Get().GetTextureWidthAndHeight(src);
   frameSize = Vector2<int>(sheetSize.x / columns, sheetSize.y / rows);
@@ -32,123 +42,14 @@ Animation::Animation(const SpriteSheet& sheet, int startIndexOnSheet, int frames
 }
 
 //______________________________________________________________________________
-EventInitParams Animation::GenerateAttackEvent(const char* hitboxesSheet, FrameData frameData)
+EventList Animation::GenerateEvents(const std::vector<AnimationActionEventData>& attackInfo, FrameData frameData)
 {
-  return GenerateAttackEvent(GetHitboxesFromFile(hitboxesSheet), frameData);
+  animationEvents = attackInfo;
+  return AnimationEventHelper::BuildEventList(Vector2<int>(_lMargin, _tMargin), attackInfo, frameData, _frames, _animFrameToSheetFrame);
 }
 
 //______________________________________________________________________________
-EventInitParams Animation::GenerateAttackEvent(const std::vector<Rect<double>>& hitboxInfo, FrameData frameData)
-{
-  auto DespawnHitbox = [](Transform* trans)
-  {
-    trans->RemoveComponent<Hitbox>();
-  };
-
-  int startUpFrames = -1;
-  int activeFrames = -1;
-  int recoveryFrames = -1;
-
-  std::function<void(Transform*,StateComponent*)> trigger;
-  std::vector<std::function<void(Transform*,StateComponent*)>> updates;
-
-  for (int i = 0; i < hitboxInfo.size(); i++)
-  {
-    const Rect<double>& hitbox = hitboxInfo[i];
-    if (hitbox.Area() != 0)
-    {
-      Vector2<double> dataOffset(_lMargin, _tMargin);
-
-      if (startUpFrames != -1)
-      {
-        auto UpdateHitbox = [hitbox, dataOffset](Transform* trans, StateComponent* state)
-        {
-          Rect<double> hitboxBoundsRelativeToAnim(hitbox.beg.x * trans->scale.x, hitbox.beg.y * trans->scale.y, hitbox.end.x * trans->scale.x, hitbox.end.y * trans->scale.y);
-          Vector2<float> transCenterRelativeToAnim(trans->rect.HalfWidth() + dataOffset.x * trans->scale.x, trans->rect.HalfHeight() + dataOffset.y * trans->scale.y);
-          Vector2<double> relativeToTransformCenter = hitboxBoundsRelativeToAnim.GetCenter() - (Vector2<double>)transCenterRelativeToAnim;
-          if (!state->onLeftSide)
-            relativeToTransformCenter.x *= -1.0;
-
-          trans->GetComponent<Hitbox>()->rect = hitboxBoundsRelativeToAnim;
-          trans->GetComponent<Hitbox>()->rect.CenterOnPoint((Vector2<double>)trans->position + relativeToTransformCenter);
-        };
-        updates.push_back(UpdateHitbox);
-
-        if (activeFrames == -1)
-          activeFrames = i - startUpFrames + 1;
-      }
-      else
-      {
-        startUpFrames = i;
-        trigger = [hitbox, frameData, dataOffset](Transform* trans, StateComponent* state)
-        {
-          trans->AddComponent<Hitbox>();
-          trans->GetComponent<Hitbox>()->frameData = frameData;
-
-          Rect<double> hitboxBoundsRelativeToAnim(hitbox.beg.x * trans->scale.x, hitbox.beg.y * trans->scale.y, hitbox.end.x * trans->scale.x, hitbox.end.y * trans->scale.y);
-          Vector2<float> transCenterRelativeToAnim(trans->rect.HalfWidth() + dataOffset.x * trans->scale.x, trans->rect.HalfHeight() + dataOffset.y * trans->scale.y);
-          Vector2<double> relativeToTransformCenter = hitboxBoundsRelativeToAnim.GetCenter() - (Vector2<double>)transCenterRelativeToAnim;
-          if (!state->onLeftSide)
-            relativeToTransformCenter.x *= -1.0;
-
-          trans->GetComponent<Hitbox>()->rect = hitboxBoundsRelativeToAnim;
-          trans->GetComponent<Hitbox>()->rect.CenterOnPoint((Vector2<double>)trans->position + relativeToTransformCenter);
-        };
-      }
-    }
-  }
-  if (activeFrames != -1)
-    recoveryFrames = _frames - (startUpFrames + activeFrames);
-    
-  // using data for frame counts, construct the animated event in place
-  if (startUpFrames > 0)
-  {
-    int animLastStartUpFrameIdx = startUpFrames - 1;
-    int animLastActiveFrameIdx = animLastStartUpFrameIdx + activeFrames;
-    // allow for a frame of "active" to seep into recovery for hitstop effect
-    int animLastRecoveryFrameIdx = animLastActiveFrameIdx + recoveryFrames - 1;
-
-    int lastStartUpFrameIdx = frameData.startUp - 2;
-    int lastActiveFrameIdx = lastStartUpFrameIdx + frameData.active;
-    int lastRecoveryFrameIdx = lastActiveFrameIdx + frameData.recover;
-
-    int totalFramesAdjusted = lastRecoveryFrameIdx + 1;
-
-    _animFrameToSheetFrame.resize(totalFramesAdjusted);
-    for (int i = 0; i < _animFrameToSheetFrame.size(); i++)
-    {
-
-      // set up the pre active frames
-      if (i <= lastStartUpFrameIdx)
-      {
-
-        //_animFrameToSheetFrame[i] = std::min(animLastStartUpFrameIdx, i);
-        _animFrameToSheetFrame[i] = (int)std::ceil(static_cast<double>(i) / static_cast<double>(lastStartUpFrameIdx) * static_cast<double>(animLastStartUpFrameIdx));
-      }
-      else if (i <= lastActiveFrameIdx)
-      {
-        //_animFrameToSheetFrame[i] = std::min(animLastActiveFrameIdx, i - lastStartUpFrameIdx + animLastStartUpFrameIdx);
-        double idx = static_cast<double>(i - lastStartUpFrameIdx);
-        _animFrameToSheetFrame[i] = (int)std::ceil(idx / (double)frameData.active * static_cast<double>(activeFrames)) + animLastStartUpFrameIdx;
-      }
-      else
-      {
-        //_animFrameToSheetFrame[i] = std::min(animLastRecoveryFrameIdx, i - lastActiveFrameIdx + animLastActiveFrameIdx);
-        double idx = static_cast<double>(i - lastActiveFrameIdx);
-        //_animFrameToSheetFrame[i] = std::ceil(idx / std::ceil(fData.recover * gameFramePerAnimationFrame) * static_cast<double>(recoveryFrames)) + animLastActiveFrameIdx;
-        _animFrameToSheetFrame[i] = (int)std::ceil(idx / (double)frameData.recover * static_cast<double>(recoveryFrames)) + animLastActiveFrameIdx;
-      }
-    }
-
-    // do not need to adjust this because events only update on new animations
-    while ((int)updates.size() < (frameData.active - 1))
-      updates.push_back(updates.back());
-  }
-  return std::make_tuple(frameData.startUp - 1, frameData.active, trigger, updates, DespawnHitbox);
-}
-
-//______________________________________________________________________________
-SDL_Rect Animation::GetFrameSrcRect(int animFrame) const
+DrawRect<float> Animation::GetFrameSrcRect(int animFrame) const
 {
   int frame = _animFrameToSheetFrame[animFrame];
   //if invalid frame, just return nothing
@@ -157,8 +58,8 @@ SDL_Rect Animation::GetFrameSrcRect(int animFrame) const
 
   int x = (_startIdx + frame) % _spriteSheet.columns;
   int y = (_startIdx + frame) / _spriteSheet.columns;
-
-  return OpSysConv::CreateSDLRect(x * _spriteSheet.frameSize.x, y * _spriteSheet.frameSize.y, _spriteSheet.frameSize.x, _spriteSheet.frameSize.y );
+  Vector2<float> pos(x * _spriteSheet.frameSize.x, y * _spriteSheet.frameSize.y);
+  return DrawRect<float>(pos.x, pos.y, _spriteSheet.frameSize.x, _spriteSheet.frameSize.y );
 }
 
 
@@ -246,34 +147,6 @@ Animation::ImGuiDisplayParams Animation::GetUVCoordsForFrame(int displayHeight, 
 }
 
 //______________________________________________________________________________
-std::vector<Rect<double>> Animation::GetHitboxesFromFile(const char* hitboxesSheet)
-{
-  std::vector<Rect<double>> rects;
-  rects.reserve(std::size_t(_frames + 1));
-
-  std::string hitBoxFile = hitboxesSheet;
-#ifndef _WIN32
-  auto split = StringUtils::Split(hitBoxFile, '\\');
-  if (split.size() > 1)
-    hitBoxFile = StringUtils::Connect(split.begin(), split.end(), '/');
-#endif
-  Resource<SDL_Texture> hitboxes = Resource<SDL_Texture>(ResourceManager::Get().GetResourcePath() + hitBoxFile);
-  hitboxes.Load();
-  if (hitboxes.IsLoaded())
-  {
-    for (int i = 0; i < _frames; i++)
-    {
-      int x = (_startIdx + i) % _spriteSheet.columns;
-      int y = (_startIdx + i) / _spriteSheet.columns;
-
-      Rect<double> hitbox = ResourceManager::FindRect(hitboxes, _spriteSheet.frameSize, Vector2<int>(x * _spriteSheet.frameSize.x, y * _spriteSheet.frameSize.y));
-      rects.push_back(hitbox);
-    }
-  }
-  return rects;
-}
-
-//______________________________________________________________________________
 void AnimationCollection::RegisterAnimation(const std::string& animationName, const SpriteSheet& sheet, int startIndexOnSheet, int frames, AnchorPoint anchor)
 {
   if (_animations.find(animationName) == _animations.end())
@@ -293,21 +166,19 @@ void AnimationCollection::RegisterAnimation(const std::string& animationName, co
 }
 
 //______________________________________________________________________________
-void AnimationCollection::SetHitboxEvents(const std::string& animationName, const char* hitboxesSheet, FrameData frameData)
+void AnimationCollection::SetAnimationEvents(const std::string& animationName, const std::vector<AnimationActionEventData>& eventData, const FrameData& frameData)
 {
   if (_animations.find(animationName) != _animations.end())
   {
     Animation& animation = _animations.find(animationName)->second;
-    if(_events.find(animationName) == _events.end())
+    if (_events.find(animationName) == _events.end())
     {
-      _events.emplace(std::make_pair(animationName, std::make_shared<EventList>()));
-      _events[animationName]->emplace(std::piecewise_construct, std::make_tuple(frameData.startUp - 1), animation.GenerateAttackEvent(hitboxesSheet, frameData));
+      _events.emplace(std::make_pair(animationName, std::make_shared<EventList>(animation.GenerateEvents(eventData, frameData))));
     }
     else
     {
       //for now just replace
-      _events[animationName] = std::make_shared<EventList>();
-      _events[animationName]->emplace(std::piecewise_construct, std::make_tuple(frameData.startUp - 1), animation.GenerateAttackEvent(hitboxesSheet, frameData));
+      _events[animationName] = std::make_shared<EventList>(animation.GenerateEvents(eventData, frameData));
     }
   }
 }
@@ -327,7 +198,7 @@ Vector2<int> AnimationCollection::GetRenderOffset(const std::string& animationNa
   Vector2<int> offset = anchPosition - _anchorPoint[(int)location];
 
   if(flipped)
-    offset.x += (renderedAnim.GetFlipMargin() - transformWidth);
+    offset.x = (renderedAnim.GetFrameWH().x - transformWidth) - offset.x;
 
   return offset;
 }

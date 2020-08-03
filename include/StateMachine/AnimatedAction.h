@@ -1,5 +1,6 @@
 #pragma once
 #include "StateMachine/IAction.h"
+#include "StateMachine/ActionUtil.h"
 #include "Components/Animator.h"
 
 #include "Components/Rigidbody.h"
@@ -48,6 +49,10 @@ protected:
   Vector2<float> _velocity;
   //!
   bool _movementType;
+  //!
+  bool _forceAnimRestart = false;
+  //!
+  float _playSpeed = 1.0f;
 
 };
 
@@ -101,7 +106,7 @@ inline void AnimatedAction<Stance, Action>::Enact(Entity* actor)
     animator->ChangeListener(this);
     if (animator->AnimationLib() && animator->AnimationLib()->GetAnimation(_animation))
     {
-      Animation* actionAnimation = animator->Play(_animation, _loopedAnimation, !_facingRight);
+      Animation* actionAnimation = animator->Play(_animation, _loopedAnimation, _playSpeed, _forceAnimRestart);
 
       // set the offset in the properties component (needs to be in a system)
       if (auto properties = actor->GetComponent<RenderProperties>())
@@ -188,3 +193,25 @@ template <> IAction* StateLockedAnimatedAction<StanceState::CROUCHING, ActionSta
 
 //______________________________________________________________________________
 template <> IAction* StateLockedAnimatedAction<StanceState::CROUCHING, ActionState::NONE>::HandleInput(const InputBuffer& rawInput, const StateComponent& context);
+
+// KNOCKDOWN STATES
+//______________________________________________________________________________
+#ifndef _WIN32
+template <> IAction* StateLockedAnimatedAction<StanceState::KNOCKDOWN, ActionState::HITSTUN>::HandleInput(const InputBuffer& rawInput, const StateComponent& context);
+template <> IAction* StateLockedAnimatedAction<StanceState::KNOCKDOWN, ActionState::NONE>::HandleInput(const InputBuffer& rawInput, const StateComponent& context);
+#else
+//______________________________________________________________________________
+template <> IAction* StateLockedAnimatedAction<StanceState::KNOCKDOWN, ActionState::HITSTUN>::HandleInput(const InputBuffer& rawInput, const StateComponent& context)
+{
+  if (_complete) return new StateLockedAnimatedAction<StanceState::KNOCKDOWN, ActionState::NONE>("Knockdown_OnGround", context.onLeftSide);
+  return nullptr;
+}
+
+//______________________________________________________________________________
+template <> IAction* StateLockedAnimatedAction<StanceState::KNOCKDOWN, ActionState::NONE>::HandleInput(const InputBuffer& rawInput, const StateComponent& context)
+{
+  if (rawInput.Latest() != InputState::NONE || _complete)
+    return new LoopedAction<StanceState::STANDING, ActionState::NONE>("Idle", context.onLeftSide);
+  return nullptr;
+}
+#endif

@@ -10,7 +10,7 @@ public:
   void SetAnimations(AnimationCollection* animations);
 
   // Setter function
-  Animation* Play(const std::string& name, bool isLooped, bool horizontalFlip, float speed = 1.0f);
+  Animation* Play(const std::string& name, bool isLooped, float speed = 1.0f, bool forcePlay = false);
 
   void ChangeListener(IAnimatorListener* listener) { _listener = listener; }
 
@@ -46,4 +46,18 @@ protected:
   //!
   std::unordered_map<std::string, Animation>::iterator _currentAnimation;
 
+};
+
+template <> struct ComponentInitParams<Animator>
+{
+  AnimationCollection* collection;
+  std::string name;
+  bool isLooped;
+  bool horizontalFlip;
+  float speed = 1.0f;
+  static void Init(Animator& component, const ComponentInitParams<Animator>& params)
+  {
+    component.SetAnimations(params.collection);
+    component.Play(params.name, params.isLooped, params.speed);
+  }
 };
