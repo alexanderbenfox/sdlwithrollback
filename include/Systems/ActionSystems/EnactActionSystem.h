@@ -110,7 +110,7 @@ struct EnactActionDamageSystem : public ISystem<EnactActionComponent, ReceivedDa
 
       if (!action->fromGrapple)
       {
-        GameManager::Get().ActivateHitStop(7);
+        GameManager::Get().ActivateHitStop(9);
       }
     }
   }
