@@ -72,8 +72,6 @@ protected:
   std::shared_ptr<Entity> _borders[3];
   std::shared_ptr<Entity> _p1UIAnchor, _p2UIAnchor, _p1ComboText, _p2ComboText;
   std::vector<std::shared_ptr<Entity>> _uiEntities;
-  int _comboCounterP1 = 0;
-  int _comboCounterP2 = 0;
 
   std::shared_ptr<Entity> _uiCamera, _camera;
 

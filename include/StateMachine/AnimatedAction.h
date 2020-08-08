@@ -8,11 +8,13 @@
 #include "Components/RenderComponent.h"
 #include "Components/Hurtbox.h"
 
+#include "Core/Interfaces/Serializable.h"
+
 #include "GameManagement.h"
 
 //______________________________________________________________________________
 template <StanceState Stance, ActionState Action>
-class AnimatedAction : public ListenedAction, public IAnimatorListener
+class AnimatedAction : public ListenedAction, public IAnimatorListener, public ISerializable
 {
 public:
   //!
@@ -33,6 +35,30 @@ public:
 
   virtual StanceState GetStance() override { return Stance; }
   virtual ActionState GetAction() override { return Action; }
+
+  virtual void Serialize(std::ostream& os) override
+  {
+    os << _complete;
+    os << _animation;
+    os << _loopedAnimation;
+    os << _facingRight;
+    os << _velocity;
+    os << _movementType;
+    os << _forceAnimRestart;
+    os << _playSpeed;
+  }
+
+  virtual void Deserialize(std::istream& is) override
+  {
+    is >> _complete;
+    is >> _animation;
+    is >> _loopedAnimation;
+    is >> _facingRight;
+    is >> _velocity;
+    is >> _movementType;
+    is >> _forceAnimRestart;
+    is >> _playSpeed;
+  }
 
 protected:
   //!

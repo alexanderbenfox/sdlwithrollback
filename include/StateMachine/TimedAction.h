@@ -1,9 +1,8 @@
 #pragma once
 #include "StateMachine/AnimatedAction.h"
-#include "StateMachine/ActionTimer.h"
 #include "StateMachine/ActionUtil.h"
 
-#include "Components/GameActor.h"
+#include "Components/TimerContainer.h"
 #include "Components/StateComponents/HitStateComponent.h"
 #include "Components/SFXComponent.h"
 
@@ -32,6 +31,18 @@ public:
 
   //!
   virtual IAction* HandleInput(const InputBuffer& rawInput, const StateComponent& context) override;
+
+  virtual void Serialize(std::ostream& os) override
+  {
+    AnimatedAction<Stance, Action>::Serialize(os);
+    os << _duration;
+  }
+
+  virtual void Deserialize(std::istream& is) override
+  {
+    AnimatedAction<Stance, Action>::Deserialize(is);
+    is >> _duration;
+  }
 
 protected:
   //! Follows up with idle state
@@ -107,18 +118,34 @@ protected:
 };
 
 //______________________________________________________________________________
-class ThrownAction : public TimedAction<StanceState::STANDING, ActionState::HITSTUN>
+class GrappledAction : public TimedAction<StanceState::STANDING, ActionState::HITSTUN>
 {
 public:
   //!
-  ThrownAction(bool facingRight, int framesInState, Vector2<float> knockback, int damage, int framesTilThrow) :
+  GrappledAction(bool facingRight, int framesInState, Vector2<float> knockback, int damage, int framesTilThrow) :
     TimedAction("HeavyHitstun", facingRight, framesInState, knockback), _damageTaken(damage), _delay(framesTilThrow) {}
 
-  virtual ~ThrownAction();
+  virtual ~GrappledAction();
 
   //__________________OVERRIDES________________________________
   //! Adds hit state component
   virtual void Enact(Entity* actor) override;
+
+  virtual void Serialize(std::ostream& os) override
+  {
+    TimedAction<StanceState::STANDING, ActionState::HITSTUN>::Serialize(os);
+    os << _damageTaken;
+    os << _killingBlow;
+    os << _delay;
+  }
+
+  virtual void Deserialize(std::istream& is) override
+  {
+    TimedAction<StanceState::STANDING, ActionState::HITSTUN>::Deserialize(is);
+    is >> _damageTaken;
+    is >> _killingBlow;
+    is >> _delay;
+  }
 
 protected:
   //! Follows up with idle state

@@ -19,6 +19,20 @@ public:
   //! Creates blockstun sfx and transfers damage
   virtual void Enact(Entity* actor) override;
 
+  virtual void Serialize(std::ostream& os) override
+  {
+    TimedAction<Stance, Action>::Serialize(os);
+    os << _damageTaken;
+    os << _killingBlow;
+  }
+
+  virtual void Deserialize(std::istream& is) override
+  {
+    TimedAction<Stance, Action>::Deserialize(is);
+    is >> _damageTaken;
+    is >> _killingBlow;
+  }
+
 protected:
   //! Follows up with idle state
   virtual IAction* GetFollowUpAction(const InputBuffer& rawInput, const StateComponent& context) override;

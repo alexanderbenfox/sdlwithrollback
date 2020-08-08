@@ -1,5 +1,5 @@
 #include "Components/AIPrograms/Defend.h"
-#include "Components/GameActor.h"
+#include "Components/TimerContainer.h"
 #include "Components/Transform.h"
 #include "Components/StateComponents/HitStateComponent.h"
 

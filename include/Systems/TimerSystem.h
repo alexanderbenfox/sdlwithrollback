@@ -1,7 +1,6 @@
 #pragma once
 #include "Systems/ISystem.h"
-#include "Systems/AnimationSystem.h"
-#include "Components/GameActor.h"
+#include "Components/TimerContainer.h"
 
 class TimerSystem : public ISystem<TimerContainer>
 {

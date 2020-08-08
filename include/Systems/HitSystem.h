@@ -118,30 +118,30 @@ public:
       if (throwbox->hitFlag)
         continue;
 
-      TeamComponent* throwerTeam = std::get<TeamComponent*>(tuple.second);
-      StateComponent* throwerController = std::get<StateComponent*>(tuple.second);
-      throwerController->triedToThrowThisFrame = true;
+      TeamComponent* grapplerTeam = std::get<TeamComponent*>(tuple.second);
+      StateComponent* grapplerController = std::get<StateComponent*>(tuple.second);
+      grapplerController->triedToThrowThisFrame = true;
 
       for (auto subTuple : SubSystem::Tuples)
       {
-        Hurtbox* throwee = std::get<Hurtbox*>(subTuple.second);
-        TeamComponent* throweeTeam = std::get<TeamComponent*>(subTuple.second);
-        StateComponent* throweeController = std::get<StateComponent*>(subTuple.second);
+        Hurtbox* grappledHurtbox = std::get<Hurtbox*>(subTuple.second);
+        TeamComponent* grappledTeam = std::get<TeamComponent*>(subTuple.second);
+        StateComponent* grappledController = std::get<StateComponent*>(subTuple.second);
 
-        if (throweeController->stanceState == StanceState::KNOCKDOWN || throwerTeam->team == throweeTeam->team)
+        if (grappledController->stanceState == StanceState::KNOCKDOWN || grapplerTeam->team == grappledTeam->team)
           continue;
 
-        if (throwbox->rect.Intersects(throwee->rect))
+        if (throwbox->rect.Intersects(grappledHurtbox->rect))
         {
           throwbox->hitFlag = true;
-          throwerController->throwSuccess = true;
+          grapplerController->throwSuccess = true;
 
-          throweeController->thrownThisFrame = true;
-          throweeController->hitData = throwbox->tData;
+          grappledController->thrownThisFrame = true;
+          grappledController->hitData = throwbox->tData;
 
           // this needs to be made better
-          if (throweeController->onLeftSide)
-            throweeController->hitData.knockback.x = -throwbox->tData.knockback.x;
+          if (grappledController->onLeftSide)
+            grappledController->hitData.knockback.x = -throwbox->tData.knockback.x;
         }
       }
     }

@@ -14,6 +14,23 @@ public:
   //! num frames the total action goes for
   int const Duration() { return _totalFrames; }
 
+  friend std::ostream& operator<<(std::ostream& os, const ActionTimer& tm)
+  {
+    os << tm.playTime;
+    os << tm.currFrame;
+    os << tm._totalFrames;
+    return os;
+  }
+
+  friend std::istream& operator>>(std::istream& is, ActionTimer& tm)
+  {
+    is >> tm.playTime;
+    is >> tm.currFrame;
+    is >> tm._totalFrames;
+    return is;
+  }
+
+
 
   //! gets whether or not this action has been cancelled preemptively
   virtual bool const Cancelled() = 0;
@@ -60,7 +77,6 @@ public:
 
   //! nothing happens on update
   virtual void Update() override {}
-
 
 protected:
   CompleteFunc _callback;

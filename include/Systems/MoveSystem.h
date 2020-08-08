@@ -8,6 +8,8 @@
 #include "Components/Hitbox.h"
 #include "Components/StateComponents/HitStateComponent.h"
 
+#include "Components/ActionComponents.h"
+
 
 struct WallMoveComponent : public IComponent
 {
@@ -144,7 +146,7 @@ public:
   }
 };
 
-class MoveThrownEntitySystem : public IMultiSystem<SysComponents<ThrowFollower, TeamComponent>, SysComponents<Transform, Hurtbox, ThrownStateComponent>>
+class MoveThrownEntitySystem : public IMultiSystem<SysComponents<ThrowFollower, TeamComponent>, SysComponents<Transform, Hurtbox, ReceivedGrappleAction>>
 {
 public:
   static void DoTick(float dt)

@@ -20,10 +20,10 @@ protected:
 };
 
 //! Attach to entity when it is in the "being thrown" state
-class ThrownStateComponent : public HitStateComponent
+class GrappledStateComponent : public HitStateComponent
 {
 public:
   //!
-  ThrownStateComponent(std::shared_ptr<Entity> owner) : HitStateComponent(owner) {}
+  GrappledStateComponent(std::shared_ptr<Entity> owner) : HitStateComponent(owner) {}
 
 };

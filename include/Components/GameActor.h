@@ -13,68 +13,64 @@ public:
   GameActor(std::shared_ptr<Entity> owner);
   //!
   ~GameActor();
-  //!
-  virtual void OnFrameBegin() override {}
-  //! Finishes all of the completed actions in the queue
-  virtual void OnFrameEnd() override;
   //! 
   virtual void OnActionComplete(IAction* action) override;
   //!
-  virtual Entity* GetOwner() override { return _owner.get(); }
+  virtual std::shared_ptr<Entity> GetOwner() override { return _owner; }
   //!
-  virtual void SetStateInfo(StanceState stance, ActionState action) override
-  {
-    _currAction = action;
-    _currStance = stance;
-  }
-  //!
-
+  virtual void SetStateInfo(StanceState stance, ActionState action) override;
   //!
   void BeginNewAction(IAction* action);
   //! returns true if entered a new action
   bool EvaluateInputContext(const InputBuffer& input, const StateComponent* stateInfo);
-  //!
-  bool IsPerformingAction() const { return _currentAction != nullptr; }
+
+  StanceState const& GetStanceState() { return _currStance; }
+  ActionState const& GetActionState() { return _currAction; }
 
   friend std::ostream& operator<<(std::ostream& os, const GameActor& actor);
   friend std::istream& operator>>(std::istream& is, GameActor& actor);
 
-  InputState& GetInputState() { return _lastInput; }
-  //GameContext& GetContext() { return _lastContext; }
+  bool actionTimerComplete = false;
 
-  //! Context that will be merged with the input context when inputs are evaluated
-  //GameContext mergeContext;
+  void TransferInputData(const InputBuffer& buffer, const StateComponent* stateInfo)
+  {
+    newInputs = false;
+    if (forceNewInputOnNextFrame || buffer.Latest() != _lastInput || buffer.GetLastSpecialInput() != _lastSpInput)
+    {
+      _lastInput = buffer.Latest();
+      _lastSpInput = buffer.GetLastSpecialInput();
+      newInputs = true;
+    }
+    forceNewInputOnNextFrame = false;
 
-  //IAction* const GetAction() {return _currentAction;}
-  StanceState const& GetStanceState() { return _currStance; }
-  ActionState const& GetActionState() { return _currAction; }
+    if (stateInfo->collision != _lastState.collision || stateInfo->onNewState)
+    {
+      _lastState = *stateInfo;
+      newInputs = true;
+    }
+  }
+
+  bool newInputs = true;
+  bool forceNewInputOnNextFrame = false;
+
+  InputState const& LastButtons() { return _lastInput; }
+  SpecialInputState const& LastSpecial() { return _lastSpInput; }
 
 private:
   //!
   IAction* _currentAction;
-  //!
-  std::set<IAction*> _actionsFinished;
 
   //!
   InputState _lastInput;
+  SpecialInputState _lastSpInput;
+
   //!
   StateComponent _lastState;
 
   bool _newState;
+  
 
   StanceState _currStance;
   ActionState _currAction;
 
-
-};
-
-struct TimerContainer : public IComponent
-{
-  TimerContainer(std::shared_ptr<Entity> owner) : IComponent(owner) {}
-  virtual ~TimerContainer()
-  {
-    for(auto timing : timings)
-      timing->OnComplete();
-  }
-  std::vector<std::shared_ptr<ActionTimer>> timings;
 };

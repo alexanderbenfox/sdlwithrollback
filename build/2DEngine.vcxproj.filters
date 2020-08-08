@@ -106,6 +106,12 @@
     <Filter Include="Source Files\Core\Prefab">
       <UniqueIdentifier>{0987e242-43be-4a09-8e65-674b187c961f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Core\Interfaces">
+      <UniqueIdentifier>{86f76332-ff72-4c25-89e2-e64c07cc2d44}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Systems\ActionSystems">
+      <UniqueIdentifier>{7116f5d6-5102-47cf-8b13-f41380f0184e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\2DEngine.cpp">
@@ -245,6 +251,12 @@
     </ClCompile>
     <ClCompile Include="..\src\Core\Prefab\MenuButtonArray.cpp">
       <Filter>Source Files\Core\Prefab</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\Systems\ActionSystems\ActionHandleInputSystem.cpp">
+      <Filter>Header Files\Systems\ActionSystems</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\Core\Prefab\ActionFactory.cpp">
+      <Filter>Header Files\Core\Prefab</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -508,6 +520,27 @@
     </ClInclude>
     <ClInclude Include="..\include\Core\Prefab\MenuButtonArray.h">
       <Filter>Header Files\Core\Prefab</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Components\TimerContainer.h">
+      <Filter>Header Files\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Core\Interfaces\Serializable.h">
+      <Filter>Header Files\Core\Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Components\ActionComponents.h">
+      <Filter>Header Files\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Systems\ActionSystems\ActionListenerSystem.h">
+      <Filter>Header Files\Systems\ActionSystems</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Systems\ActionSystems\ActionHandleInputSystem.h">
+      <Filter>Header Files\Systems\ActionSystems</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Core\Prefab\ActionFactory.h">
+      <Filter>Header Files\Core\Prefab</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Systems\ActionSystems\EnactActionSystem.h">
+      <Filter>Header Files\Systems\ActionSystems</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

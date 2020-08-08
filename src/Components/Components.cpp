@@ -107,30 +107,17 @@ GameActor::~GameActor()
 }
 
 //______________________________________________________________________________
-void GameActor::OnFrameEnd()
+void GameActor::OnActionComplete(IAction* action)
 {
-  // complete actions
-  /*for (auto finished : _actionsFinished)
-  {
-    if (finished == _currentAction)
-    {
-      delete _currentAction;
-      _currentAction = nullptr;
-    }
-  }
-  _actionsFinished.clear();*/
+  _newState = true;
+  action->SetComplete();
 }
 
 //______________________________________________________________________________
-void GameActor::OnActionComplete(IAction* action)
+void GameActor::SetStateInfo(StanceState stance, ActionState action)
 {
-  /*IAction* nextAction = action->GetFollowUpAction();
-  if (nextAction == action)
-    return;
-  if(nextAction)
-    BeginNewAction(nextAction);*/
-  _newState = true;
-  action->SetComplete();
+  _currAction = action;
+  _currStance = stance;
 }
 
 //______________________________________________________________________________

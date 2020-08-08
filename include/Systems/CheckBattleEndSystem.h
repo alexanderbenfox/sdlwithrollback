@@ -11,14 +11,16 @@ public:
     bool readyToTransition = false;
     for(auto& tuple : Tuples)
     {
-      StateComponent* state = std::get<StateComponent*>(tuple.second);
+      // just including game actor so this only affects controllable units
       GameActor* actor = std::get<GameActor*>(tuple.second);
+      StateComponent* state = std::get<StateComponent*>(tuple.second);
+      
       if(state->hp <= 0)
       {
         state->MarkLoser();
       }
 
-      if(actor->GetActionState() != ActionState::HITSTUN && state->hp <= 0)
+      if(state->actionState != ActionState::HITSTUN && state->hp <= 0)
       {
         readyToTransition = true;
       }

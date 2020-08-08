@@ -56,21 +56,21 @@ IAction* DashAction::GetFollowUpAction(const InputBuffer& rawInput, const StateC
 }
 
 //______________________________________________________________________________
-ThrownAction::~ThrownAction()
+GrappledAction::~GrappledAction()
 {
   // make sure this state component is removed
-  ListenedAction::_listener->GetOwner()->RemoveComponent<ThrownStateComponent>();
+  ListenedAction::_listener->GetOwner()->RemoveComponent<GrappledStateComponent>();
   ListenedAction::_listener->GetOwner()->GetComponent<Rigidbody>()->ignoreDynamicColliders = false;
   _delayTimer->Cancel();
 }
 
 //______________________________________________________________________________
-inline void ThrownAction::Enact(Entity* actor)
+inline void GrappledAction::Enact(Entity* actor)
 {
   TimedAction::Enact(actor);
 
-  actor->AddComponent<ThrownStateComponent>();
-  actor->GetComponent<ThrownStateComponent>()->SetTimer(TimedAction::_timer.get());
+  actor->AddComponent<GrappledStateComponent>();
+  actor->GetComponent<GrappledStateComponent>()->SetTimer(TimedAction::_timer.get());
 
   actor->GetComponent<StateComponent>()->thrownThisFrame = false;
   actor->GetComponent<Rigidbody>()->ignoreDynamicColliders = true;
@@ -87,15 +87,15 @@ inline void ThrownAction::Enact(Entity* actor)
 }
 
 //______________________________________________________________________________
-IAction* ThrownAction::GetFollowUpAction(const InputBuffer& rawInput, const StateComponent& context)
+IAction* GrappledAction::GetFollowUpAction(const InputBuffer& rawInput, const StateComponent& context)
 {
   return new KnockdownAirborneAction(context.onLeftSide, _velocity, _damageTaken);
 }
 
 //______________________________________________________________________________
-void ThrownAction::OnActionComplete()
+void GrappledAction::OnActionComplete()
 {
-  ListenedAction::_listener->GetOwner()->RemoveComponent<ThrownStateComponent>();
+  ListenedAction::_listener->GetOwner()->RemoveComponent<GrappledStateComponent>();
   ListenedAction::OnActionComplete();
 
 

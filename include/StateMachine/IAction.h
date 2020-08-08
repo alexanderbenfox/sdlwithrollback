@@ -11,7 +11,7 @@ class IActionListener
 public:
   virtual void OnActionComplete(IAction*) = 0;
 
-  virtual Entity* GetOwner() = 0;
+  virtual std::shared_ptr<Entity> GetOwner() = 0;
 
   virtual void SetStateInfo(StanceState stance, ActionState action) = 0;
 };

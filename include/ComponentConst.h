@@ -1,6 +1,8 @@
 #pragma once
 #include "Core/Math/Vector2.h"
 
+const float secPerFrame = 1.0f / 60.0f;
+
 const float avg_animation_fps = 24.0f;
 const float third_strike_fps = 16.0f;
 

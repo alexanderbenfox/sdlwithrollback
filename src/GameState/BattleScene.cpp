@@ -21,6 +21,11 @@
 #include "Systems/UISystem.h"
 #include "Systems/AISystem.h"
 
+#include "Systems/ActionSystems/EnactActionSystem.h"
+#include "Systems/ActionSystems/ActionListenerSystem.h"
+#include "Systems/ActionSystems/ActionHandleInputSystem.h"
+#include "Core/Prefab/ActionFactory.h"
+
 #include "AssetManagement/StaticAssets/CharacterConfig.h"
 
 const Vector2<float> cameraOrigin(m_nativeWidth / 2.0f, m_nativeHeight / 2.0f);
@@ -75,6 +80,13 @@ void BattleScene::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2)
   InitCharacter(Vector2<int>(100, 0), _p1, true);
   InitCharacter(Vector2<int>(400, 0), _p2, false);
 
+  //set player state to neutral
+  ActionFactory::GoToNeutralAction(_p1.get(), _p1->GetComponent<StateComponent>().get());
+  ActionFactory::GoToNeutralAction(_p2.get(), _p2->GetComponent<StateComponent>().get());
+  ActionFactory::DisableActionListenerForEntities();
+  _p1->AddComponent<InputListenerComponent>();
+  _p2->AddComponent<InputListenerComponent>();
+
   // set the combo text anchors to the other side
   _p2ComboText->GetComponent<UITransform>()->parent = _p1UIAnchor->GetComponent<UITransform>();
   _p1ComboText->GetComponent<UITransform>()->parent = _p2UIAnchor->GetComponent<UITransform>();
@@ -100,26 +112,46 @@ void BattleScene::Update(float deltaTime)
   UIPositionUpdateSystem::DoTick(deltaTime);
   UIContainerUpdateSystem::DoTick(deltaTime);
 
+  // update timer systems together
+  TimedActionSystem::DoTick(deltaTime);
   TimerSystem::DoTick(deltaTime);
+
   HitSystem::DoTick(deltaTime);
   ThrowSystem::DoTick(deltaTime);
   PushSystem::DoTick(deltaTime);
 
-  PlayerSideSystem::DoTick(deltaTime);
+  
   UpdateAISystem::DoTick(deltaTime);
+
+  //
+
   InputSystem::DoTick(deltaTime);
+  // update player side system here cause it forces new state
+  PlayerSideSystem::DoTick(deltaTime);
+
+  HandleUpdateAggregate::DoTick(deltaTime);
+
+  //
 
   FrameAdvantageSystem::DoTick(deltaTime);
 
-  AnimationSystem::DoTick(deltaTime);
+  AnimationListenerSystem::DoTick(deltaTime);
   AttackAnimationSystem::DoTick(deltaTime);
-
+  AnimationSystem::DoTick(deltaTime);
+  
   // resolve collisions
   PhysicsSystem::DoTick(deltaTime);
   // update the location of the colliders
   MoveSystem::DoTick(deltaTime);
   // move walls according to camera position
   MoveWallSystem::DoTick(deltaTime);
+
+  // Check action transitions after physics
+  StateTransitionAggregate::DoTick(deltaTime);
+
+  // Enact new action states then clean them up
+  EnactAggregate::DoTick(deltaTime);
+  CleanUpActionSystem::PostUpdate();
 
   CheckBattleEndSystem::DoTick(deltaTime);
 }
@@ -165,6 +197,7 @@ void BattleScene::InitCharacter(Vector2<float> position, std::shared_ptr<Entity>
 {
   Vector2<int> textureSize = ResourceManager::Get().GetTextureWidthAndHeight("spritesheets\\ryu.png");
   Vector2<double> entitySize(static_cast<double>(textureSize.x) * .75, static_cast<double>(textureSize.y) * .95);
+  position.y = static_cast<float>(m_nativeHeight) - static_cast<float>(entitySize.y);
 
   // quick hack to make the debug stuff for attacks work... need to remove eventually
   player->RemoveComponents<Transform, Animator>();
@@ -224,16 +257,14 @@ void BattleScene::InitCharacter(Vector2<float> position, std::shared_ptr<Entity>
     _uiEntities.back()->GetComponent<UITransform>()->anchor = UIAnchor::BL;
     _uiEntities.back()->GetComponent<UITransform>()->position = Vector2<float>(5.0f, 20.0f);
     std::shared_ptr<Entity> comboTextEntity = _uiEntities.back();
-    int& comboCounter = isPlayer1 ? _comboCounterP1 : _comboCounterP2;
 
     // set the ui data transfer callback
-    _uiEntities.back()->GetComponent<UITransform>()->callback = [comboTextEntity, &comboCounter](const StateComponent* lastState, const StateComponent* newState, UIComponent* comp)
+    _uiEntities.back()->GetComponent<UITransform>()->callback = [comboTextEntity](const StateComponent* lastState, const StateComponent* newState, UIComponent* comp)
     {
       if (newState->onNewState)
       {
         if (newState->actionState != ActionState::HITSTUN && lastState->actionState == ActionState::HITSTUN)
         {
-          comboCounter = 0;
           // remove render properties to hide the text
           std::shared_ptr<ActionTimer> endComboText = std::shared_ptr<ActionTimer>(new SimpleActionTimer(
             [comboTextEntity]() { comboTextEntity->RemoveComponent<RenderProperties>(); },
@@ -245,10 +276,7 @@ void BattleScene::InitCharacter(Vector2<float> position, std::shared_ptr<Entity>
           comboTextEntity->AddComponent<RenderProperties>();
         }
 
-        if (newState->actionState == ActionState::HITSTUN)
-          comboCounter++;
-
-        std::string comboText = "Combo: " + std::to_string(comboCounter);
+        std::string comboText = "Combo: " + std::to_string(newState->comboCounter);
         comboTextEntity->GetComponent<TextRenderer>()->SetText(comboText);
       }
     };
@@ -289,6 +317,11 @@ void BattleScene::InitCharacter(Vector2<float> position, std::shared_ptr<Entity>
     player->GetComponent<TeamComponent>()->team = TeamComponent::Team::TeamB;
 
   player->GetComponent<TeamComponent>()->playerEntity = true;
+
+
+  //! Janky loading
+  player->GetComponent<SFXComponent>()->ShowHitSparks();
+  player->GetComponent<SFXComponent>()->ShowBlockSparks();
 }
 
 PostMatchScene::~PostMatchScene()

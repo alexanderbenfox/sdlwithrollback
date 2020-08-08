@@ -26,6 +26,8 @@
     <ClCompile Include="..\imgui\impl\imgui_impl_opengl2.cpp" />
     <ClCompile Include="..\imgui\impl\imgui_impl_opengl3.cpp" />
     <ClCompile Include="..\imgui\impl\imgui_impl_sdl.cpp" />
+    <ClCompile Include="..\include\Core\Prefab\ActionFactory.cpp" />
+    <ClCompile Include="..\include\Systems\ActionSystems\ActionHandleInputSystem.cpp" />
     <ClCompile Include="..\src\2DEngine.cpp" />
     <ClCompile Include="..\src\AssetManagement\Animation.cpp" />
     <ClCompile Include="..\src\AssetManagement\AnimationEvent.cpp" />
@@ -87,6 +89,7 @@
     <ClInclude Include="..\include\AssetManagement\StaticAssets\StaticAssetUtils.h" />
     <ClInclude Include="..\include\AssetManagement\Text.h" />
     <ClInclude Include="..\include\ComponentConst.h" />
+    <ClInclude Include="..\include\Components\ActionComponents.h" />
     <ClInclude Include="..\include\Components\AIComponent.h" />
     <ClInclude Include="..\include\Components\AIPrograms\Defend.h" />
     <ClInclude Include="..\include\Components\AIPrograms\IAIProgram.h" />
@@ -105,6 +108,7 @@
     <ClInclude Include="..\include\Components\SFXComponent.h" />
     <ClInclude Include="..\include\Components\StateComponents\AttackStateComponent.h" />
     <ClInclude Include="..\include\Components\StateComponents\HitStateComponent.h" />
+    <ClInclude Include="..\include\Components\TimerContainer.h" />
     <ClInclude Include="..\include\Components\UIComponents.h" />
     <ClInclude Include="..\include\Components\Hitbox.h" />
     <ClInclude Include="..\include\Components\Hurtbox.h" />
@@ -116,10 +120,12 @@
     <ClInclude Include="..\include\Components\Transform.h" />
     <ClInclude Include="..\include\Core\Geometry2D\Rect.h" />
     <ClInclude Include="..\include\Core\Geometry2D\RectHelper.h" />
+    <ClInclude Include="..\include\Core\Interfaces\Serializable.h" />
     <ClInclude Include="..\include\Core\Math\Matrix.h" />
     <ClInclude Include="..\include\Core\Math\Matrix4.h" />
     <ClInclude Include="..\include\Core\Math\Vector2.h" />
     <ClInclude Include="..\include\Core\Math\Vector3.h" />
+    <ClInclude Include="..\include\Core\Prefab\ActionFactory.h" />
     <ClInclude Include="..\include\Core\Prefab\MenuButtonArray.h" />
     <ClInclude Include="..\include\DebugGUI\DebugItem.h" />
     <ClInclude Include="..\include\DebugGUI\GUIController.h" />
@@ -141,6 +147,9 @@
     <ClInclude Include="..\include\StateMachine\RecvHit.h" />
     <ClInclude Include="..\include\StateMachine\StateEnums.h" />
     <ClInclude Include="..\include\StateMachine\TimedAction.h" />
+    <ClInclude Include="..\include\Systems\ActionSystems\ActionHandleInputSystem.h" />
+    <ClInclude Include="..\include\Systems\ActionSystems\ActionListenerSystem.h" />
+    <ClInclude Include="..\include\Systems\ActionSystems\EnactActionSystem.h" />
     <ClInclude Include="..\include\Systems\AISystem.h" />
     <ClInclude Include="..\include\Systems\AnimationSystem.h" />
     <ClInclude Include="..\include\Systems\CheckBattleEndSystem.h" />
@@ -260,6 +269,7 @@
       <AdditionalIncludeDirectories>external\ggpo\include;..\include;external\sdl2-ttf_x64-windows\include;external\sdl2-image_x64-windows\include;external\jsoncpp_x64-windows\include;external\sdl2_x64-windows\include\SDL2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -306,6 +316,7 @@
       <AdditionalIncludeDirectories>external\ggpo\include;..\include;external\sdl2-ttf_x64-windows\include;external\sdl2-image_x64-windows\include;external\jsoncpp_x64-windows\include;external\sdl2_x64-windows\include\SDL2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

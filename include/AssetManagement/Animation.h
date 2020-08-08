@@ -11,7 +11,7 @@
 #include <unordered_map>
 
 //!
-const float secPerFrame = 1.0f / 60.0f;
+
 const float gameFramePerAnimationFrame = (1.0f / secPerFrame) / animation_fps;
 
 //______________________________________________________________________________

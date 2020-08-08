@@ -21,20 +21,12 @@ class IComponent
 {
 public:
   IComponent(std::shared_ptr<Entity> owner) : _owner(owner) {}
-  //!
-  virtual ~IComponent() {}
-  //!
-  virtual void OnFrameBegin() {}
-  //!
-  virtual void OnFrameEnd() {}
-  //!
-  virtual void PreUpdate() {}
-  //!
-  virtual void PostUpdate() {}
-  //!
-  virtual void Draw() {}
-
+  //! 
+  virtual ~IComponent() = default;
+  //! Gets the entity that owns the component
   virtual Entity* Owner() { return _owner.get(); }
+  //! Draw the component for debug
+  virtual void Draw() {}
 
 protected:
   //! 

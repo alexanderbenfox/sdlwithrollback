@@ -18,6 +18,10 @@
 #include "Systems/DestroyEntitiesSystem.h"
 #include "Systems/MenuSystem.h"
 
+#include "Systems/ActionSystems/EnactActionSystem.h"
+#include "Systems/ActionSystems/ActionListenerSystem.h"
+#include "Systems/ActionSystems/ActionHandleInputSystem.h"
+
 #include "Systems/Physics.h"
 #include "DebugGUI/GUIController.h"
 
@@ -314,6 +318,11 @@ void GameManager::CheckAgainstSystems(Entity* entity)
   DestroyEntitiesSystem::Check(entity);
   MenuInputSystem::Check(entity);
   UpdateMenuStateSystem::Check(entity);
+
+  AnimationListenerSystem::Check(entity);
+  StateTransitionAggregate::Check(entity);
+  HandleUpdateAggregate::Check(entity);
+  EnactAggregate::Check(entity);
 }
 
 //______________________________________________________________________________
@@ -382,6 +391,10 @@ void GameManager::PostUpdate()
   {
     ChangeScene(_currentSceneType);
     _sceneChangeRequested = false;
+
+    // HERE: avoid unwanted scheduled tasks running in new scene
+    // added deferments from StateMachine systems are causing problems
+    // on scene change
   }
 
   if (!_endOfFrameQueue.empty())

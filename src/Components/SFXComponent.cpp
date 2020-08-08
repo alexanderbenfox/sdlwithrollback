@@ -1,6 +1,6 @@
 #include "Components/SFXComponent.h"
 #include "GameManagement.h"
-#include "Components/GameActor.h"
+#include "Components/TimerContainer.h"
 
 static AnimationCollection HitSFXAnimationCollection;
 SpriteSheet hitblockSparks("sfx\\hitblocksparks.png", 8, 7, true);

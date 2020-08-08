@@ -142,15 +142,15 @@ inline void AttackAction<Stance, Action>::OnActionComplete()
 }
 
 //______________________________________________________________________________
-class ThrowInitateAction : public GroundedStaticAttack<StanceState::STANDING, ActionState::NONE>
+class GrappleAction : public GroundedStaticAttack<StanceState::STANDING, ActionState::NONE>
 {
 public:
   //!
-  ThrowInitateAction(bool fThrow, bool facingRight) :
+  GrappleAction(bool fThrow, bool facingRight) :
     GroundedStaticAttack<StanceState::STANDING, ActionState::NONE>(fThrow ? "ForwardThrow" : "BackThrow", facingRight) {}
 
 
-  virtual ~ThrowInitateAction()
+  virtual ~GrappleAction()
   {
     ListenedAction::_listener->GetOwner()->GetComponent<Rigidbody>()->ignoreDynamicColliders = false;
   }

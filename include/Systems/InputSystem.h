@@ -6,7 +6,7 @@
 #include "Components/Transform.h"
 #include "Components/Rigidbody.h"
 
-class PlayerSideSystem : public ISystem<Transform, StateComponent, TeamComponent>
+class PlayerSideSystem : public ISystem<Transform, StateComponent, TeamComponent, GameActor>
 {
 public:
   static void DoTick(float dt)
@@ -16,6 +16,7 @@ public:
       Transform* transform = std::get<Transform*>(tuple.second);
       StateComponent* state = std::get<StateComponent*>(tuple.second);
       TeamComponent* teamComp = std::get<TeamComponent*>(tuple.second);
+      GameActor* actor = std::get<GameActor*>(tuple.second);
 
       for (auto& other : Tuples)
       {
@@ -31,10 +32,18 @@ public:
               state->comboCounter++;
             else
               state->comboCounter = 0;
+
+            otherState->onNewState = false;
           }
 
-          if(teamComp->team != otherEntityTeam->team && otherEntityTeam->playerEntity)
+
+          bool lastSide = state->onLeftSide;
+          if (teamComp->team != otherEntityTeam->team && otherEntityTeam->playerEntity)
+          {
             state->onLeftSide = transform->position.x < otherTranform->position.x;
+            if (state->onLeftSide != lastSide)
+              actor->newInputs = true;
+          }
         }
       }
     }
@@ -53,11 +62,13 @@ public:
       Rigidbody* rigidbody = std::get<Rigidbody*>(tuple.second);
       StateComponent* state = std::get<StateComponent*>(tuple.second);
 
-      const InputBuffer& unitInputState = inputHandler->QueryInput();
+      //const InputBuffer& unitInputState = inputHandler->QueryInput();
 
       state->collision = rigidbody->_lastCollisionSide;
+      actor->TransferInputData(inputHandler->QueryInput(), state);
+      
 
-      state->onNewState = false;
+      /*state->onNewState = false;
 
       // if evaluation leads to changing state, do on state change code
       if ((state->onNewState = actor->EvaluateInputContext(unitInputState, state)))
@@ -65,7 +76,7 @@ public:
         state->actionState = actor->GetActionState();
         state->stanceState = actor->GetStanceState();
         //rigidbody->elasticCollisions = actor->GetActionState() == ActionState::HITSTUN;
-      }
+      }*/
     }
   }
 };

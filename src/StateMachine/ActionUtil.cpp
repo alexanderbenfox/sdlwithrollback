@@ -37,7 +37,7 @@ template <> IAction* GetAttacksFromNeutral<StanceState::STANDING>(const InputBuf
   if (HasState(rawInput.Latest(), InputState::BTN4))
   {
     bool backthrow = (facingRight && HasState(rawInput.Latest(), InputState::LEFT)) || (!facingRight && HasState(rawInput.Latest(), InputState::RIGHT));
-    return new ThrowInitateAction(!backthrow, facingRight);
+    return new GrappleAction(!backthrow, facingRight);
   }
 
   // then check attacks
@@ -127,7 +127,7 @@ IAction* CheckHits(const InputState& rawInput, const StateComponent& context, bo
   bool facingRight = context.onLeftSide;
   if (context.thrownThisFrame)
   {
-    return new ThrownAction(facingRight, context.hitData.framesInStunHit, context.hitData.knockback, context.hitData.damage, context.hitData.activeFrames);
+    return new GrappledAction(facingRight, context.hitData.framesInStunHit, context.hitData.knockback, context.hitData.damage, context.hitData.activeFrames);
   }
   if (context.hitThisFrame)
   {
