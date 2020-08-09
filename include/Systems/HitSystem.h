@@ -126,6 +126,8 @@ public:
           // this needs to be made better
           if (grappledController->onLeftSide)
             grappledController->hitData.knockback.x = -throwbox->tData.knockback.x;
+
+          grappledController->Owner()->AddComponent<ReceivedGrappleAction>();
         }
       }
     }

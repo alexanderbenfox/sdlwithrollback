@@ -141,6 +141,7 @@ void HandleInputGrappling::DoTick(float dt)
         
         entity->RemoveComponent<AttackActionComponent>();
         entity->RemoveComponent<AttackStateComponent>();
+        entity->RemoveComponent<GrappleActionComponent>();
 
         // set empty component for follow up action
         entity->AddComponent<TransitionToNeutral>();
@@ -148,6 +149,9 @@ void HandleInputGrappling::DoTick(float dt)
       });
       ActionFactory::SetEntityDecided(entity.get());
     }
+
+    // check to see if the grappling action was cancelled by getting hit
+
   }
   ActionFactory::DisableActionListenerForEntities();
   GameManager::Get().RunScheduledTasks();
@@ -488,6 +492,27 @@ void CheckAttackInputSystem::DoTick(float dt)
     }
   }
   ActionFactory::DisableActionListenerForEntities();
+  GameManager::Get().RunScheduledTasks();
+}
+
+//______________________________________________________________________________
+void CheckGrappleCancelOnHit::DoTick(float dt)
+{
+  for (auto t1 : MainSystem::Tuples)
+  {
+    StateComponent* grapplerState = std::get<StateComponent*>(t1.second);
+    if (grapplerState->hitThisFrame)
+    {
+      for (auto t2 : SubSystem::Tuples)
+      {
+        Transform* transform = std::get<Transform*>(t2.second);
+        StateComponent* state = std::get<StateComponent*>(t2.second);
+
+        state->thrownThisFrame = false;
+        GameManager::Get().ScheduleTask([transform]() { transform->RemoveComponent<ReceivedGrappleAction>(); });
+      }
+    }
+  }
   GameManager::Get().RunScheduledTasks();
 }
 

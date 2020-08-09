@@ -254,7 +254,7 @@
 			},
 			"onblock" : 3,
 			"onhit" : 4,
-			"recovery" : 7,
+			"recovery" : 8,
 			"startup" : 4
 		},
 		"numFrames" : 7,

@@ -415,7 +415,10 @@ void ActionFactory::ResetActionComponents(Entity* entity)
 
   entity->RemoveComponents<CancelOnHitGround, CancelOnDash, CancelOnJump, CancelOnSpecial, CancelOnNormal>();
 
+  // these components should be merged....
   entity->RemoveComponent<AttackActionComponent>();
+  entity->RemoveComponent<AttackStateComponent>();
+
   entity->RemoveComponent<GrappleActionComponent>();
   entity->RemoveComponent<MovingActionComponent>();
   entity->RemoveComponent<ReceivedDamageAction>();

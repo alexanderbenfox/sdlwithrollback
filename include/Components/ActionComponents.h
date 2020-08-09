@@ -4,6 +4,7 @@
 
 #include "Components/Rigidbody.h"
 #include "Components/StateComponent.h"
+#include "Components/Actors/GameActor.h"
 
 struct AnimatedActionComponent : public IComponent
 {
@@ -198,11 +199,11 @@ struct DashingAction : public IComponent
 {
   DashingAction(std::shared_ptr<Entity> e) : IComponent(e)
   {
-    _owner->GetComponent<StateComponent>()->onNewState = true;
+    _owner->GetComponent<GameActor>()->forceNewInputOnNextFrame = true;
   }
   ~DashingAction()
   {
-    _owner->GetComponent<StateComponent>()->onNewState = true;
+    _owner->GetComponent<GameActor>()->forceNewInputOnNextFrame = true;
   }
   float dashSpeed = 0.0f;
 };
@@ -211,11 +212,11 @@ struct JumpingAction : public IComponent
 {
   JumpingAction(std::shared_ptr<Entity> e) : IComponent(e)
   {
-    _owner->GetComponent<StateComponent>()->onNewState = true;
+    _owner->GetComponent<GameActor>()->forceNewInputOnNextFrame = true;
   }
   ~JumpingAction()
   {
-    _owner->GetComponent<StateComponent>()->onNewState = true;
+    _owner->GetComponent<GameActor>()->forceNewInputOnNextFrame = true;
   }
 };
 
@@ -223,11 +224,11 @@ struct CrouchingAction : public IComponent
 {
   CrouchingAction(std::shared_ptr<Entity> e) : IComponent(e)
   {
-    _owner->GetComponent<StateComponent>()->onNewState = true;
+    _owner->GetComponent<GameActor>()->forceNewInputOnNextFrame = true;
   }
   ~CrouchingAction()
   {
-    _owner->GetComponent<StateComponent>()->onNewState = true;
+    _owner->GetComponent<GameActor>()->forceNewInputOnNextFrame = true;
   }
 };
 

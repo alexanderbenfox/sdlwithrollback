@@ -31,7 +31,7 @@ struct HandleInputCrouch : public ISystem<InputListenerComponent, CrouchingActio
   static void DoTick(float dt);
 };
 
-struct HandleInputGrappling : public ISystem<InputListenerComponent, GameActor, StateComponent>
+struct HandleInputGrappling : public ISystem<InputListenerComponent, GrappleActionComponent, GameActor, StateComponent>
 {
   static void DoTick(float dt);
 };
@@ -72,6 +72,12 @@ struct CheckDashSystem : public ISystem<InputListenerComponent, AbleToDash, Game
 };
 
 struct CheckAttackInputSystem : public ISystem<InputListenerComponent, AbleToAttackState, GameActor, StateComponent>
+{
+  static void DoTick(float dt);
+};
+
+//! Kind of a weird system for cancelling out of action before it occurs
+struct CheckGrappleCancelOnHit : public IMultiSystem<SysComponents<GrappleActionComponent, StateComponent>, SysComponents<ReceivedGrappleAction, Transform, StateComponent>>
 {
   static void DoTick(float dt);
 };
@@ -145,6 +151,8 @@ struct StateTransitionAggregate
     CheckKnockdownOTG::Check(entity);
 
     CheckCrouchingFollowUp::Check(entity);
+
+    CheckGrappleCancelOnHit::Check(entity);
   }
 
   static void DoTick(float dt)
@@ -160,6 +168,9 @@ struct StateTransitionAggregate
     HitGroundCancelActionSystem::DoTick(dt);
     SpecialMoveCancelActionSystem::DoTick(dt);
     TargetComboCancelActionSystem::DoTick(dt);
+
+    // Because of this a 5 frame start up normal will beat a 5 frame start up throw... is that right?? 
+    CheckGrappleCancelOnHit::DoTick(dt);
 
     // determine active states - will cancel any subsequent action selection (order matters here)
     CheckHitThisFrameSystem::DoTick(dt);
