@@ -1,5 +1,7 @@
 #pragma once
 #include "Systems/ISystem.h"
+
+#include "Systems/WallPush/WallPushComponent.h"
 #include "Components/Hitbox.h"
 #include "Components/Hurtbox.h"
 #include "Components/StateComponent.h"
@@ -11,14 +13,6 @@ class HitSystem : public IMultiSystem<SysComponents<Hurtbox, StateComponent, Tea
 public:
   static void DoTick(float dt)
   {
-    for (auto tuple : MainSystem::Tuples)
-    {
-      StateComponent* hurtboxController = std::get<StateComponent*>(tuple.second);
-
-      // reset the merge context
-      hurtboxController->hitThisFrame = false;
-    }
-
     if(dt <= 0)
       return;
 
@@ -73,23 +67,13 @@ public:
           }
 
           // apply hitter knockback if in the corner here
-          const float cornerKnockback = 150.0f;
-          const float maxCornerKnockback = 100.0f;
-          const float maxCombo = 5.0f;
-          const int startMultiplier = 2;
           if ((hurtboxController->onLeftSide && HasState(hurtboxController->collision, CollisionSide::LEFT)) ||
             (!hurtboxController->onLeftSide && HasState(hurtboxController->collision, CollisionSide::RIGHT)))
           {
-            //hitterRb->_vel.x = ((float)(-strikeDir) * cornerKnockback);
+            const float maxCornerKnockback = 100.0f;
 
-            // only apply knockback up to the threshold
-            //if((hitboxController->onLeftSide && hitterRb->_vel.x > -knockback.x) || (!hitboxController->onLeftSide && hitterRb->_vel.x < -knockback.x))
-              //hitterRb->_vel.x = -((std::min(knockback.x, cornerKnockback) * (float)std::min(hitboxController->comboCounter + startMultiplier, (int)maxCombo)) / maxCombo);
-            //if ((hitboxController->onLeftSide && hitterRb->_vel.x > -knockback.x) || (!hitboxController->onLeftSide && hitterRb->_vel.x < -knockback.x))
-            //  hitterRb->horizontalDragVelocity = -((knockback.x * (float)std::min(hitboxController->comboCounter + startMultiplier, (int)maxCombo)) / maxCombo);
-
-            hitbox->Owner()->AddComponent<PushComponent>();
-            auto push = hitbox->Owner()->GetComponent<PushComponent>();
+            hitbox->Owner()->AddComponent<WallPushComponent>();
+            auto push = hitbox->Owner()->GetComponent<WallPushComponent>();
             float pushBackAmount = knockback.x / 4.0f;
             push->pushAmount = -std::min(pushBackAmount, maxCornerKnockback);
             push->velocity = -knockback.x / 2.0f;

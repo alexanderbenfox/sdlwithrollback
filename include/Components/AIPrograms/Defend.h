@@ -23,4 +23,5 @@ struct DefendAfter : DefendAI
   std::shared_ptr<ActionTimer> resetTimer;
   std::shared_ptr<Entity> timerEntity;
   ActionState lastDefendingState = ActionState::NONE;
+
 };

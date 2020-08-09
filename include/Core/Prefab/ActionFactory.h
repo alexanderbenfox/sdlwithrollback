@@ -1,11 +1,16 @@
 #pragma once
 #include "Components/StateComponent.h"
 #include "Components/Animator.h"
+#include "Components/Actors/GameActor.h"
 
 //! static utility class for adding appropriate components to entity
 class ActionFactory
 {
 public:
+  static void SetAerialState(Entity* entity);
+
+  static void SetCrouchingState(Entity* entity, StateComponent* state);
+
   static void SetKnockdownAirborne(Entity* entity, StateComponent* state);
 
   static void SetKnockdownGroundOTG(Entity* entity, StateComponent* state);
@@ -33,11 +38,12 @@ public:
   static void EnableAbility(Entity* entity);
 
   static void SetEntityDecided(Entity* entity) { _actionDecided.push_back(entity); }
-
-  
-
   //! for the list of entities set to new actions, remove their 'waiting for action input' flag
   static void DisableActionListenerForEntities();
+
+
+  //! Hacky utility for checking cancels on ryu character right now.... will remove once the character system is figured out
+  static bool ActorDidSpecialInputRyu(GameActor* actor, StateComponent* state);
   
 
 private:

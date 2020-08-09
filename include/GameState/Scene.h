@@ -1,6 +1,6 @@
 #pragma once
 #include "Entity.h"
-#include "Components/CutsceneActor.h"
+#include "Components/Actors/CutsceneActor.h"
 
 class Camera;
 

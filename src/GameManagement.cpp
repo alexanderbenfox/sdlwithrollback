@@ -17,6 +17,7 @@
 #include "Systems/AISystem.h"
 #include "Systems/DestroyEntitiesSystem.h"
 #include "Systems/MenuSystem.h"
+#include "Systems/WallPush/WallPushSystem.h"
 
 #include "Systems/ActionSystems/EnactActionSystem.h"
 #include "Systems/ActionSystems/ActionListenerSystem.h"
@@ -28,6 +29,8 @@
 #include "GameState/Scene.h"
 
 #include "StateMachine/ActionUtil.h"
+
+#include "Components/Actors/GameActor.h"
 
 #ifdef _DEBUG
 //used for debugger
@@ -168,8 +171,8 @@ void GameManager::Initialize()
   GRenderer.Init();
 
   //! initialize our player controllable entities
-  _p1 = CreateEntity<GameInputComponent>();
-  _p2 = CreateEntity<GameInputComponent>();
+  _p1 = CreateEntity<GameInputComponent, Actor>();
+  _p2 = CreateEntity<GameInputComponent, Actor>();
 
   //! Initialize them with keyboard handlers
   _p1->GetComponent<GameInputComponent>()->AssignHandler(InputType::Keyboard);
@@ -293,11 +296,6 @@ void GameManager::CheckAgainstSystems(Entity* entity)
   InputSystem::Check(entity);
   PhysicsSystem::Check(entity);
   AnimationSystem::Check(entity);
-  MoveSystemPhysCollider::Check(entity);
-  MoveSystemHurtbox::Check(entity);
-  MoveSystemCamera::Check(entity);
-  MoveSystemHitbox::Check(entity);
-  MoveThrownEntitySystem::Check(entity);
   MoveWallSystem::Check(entity);
   AttackAnimationSystem::Check(entity);
   HitSystem::Check(entity);
@@ -314,15 +312,20 @@ void GameManager::CheckAgainstSystems(Entity* entity)
   DrawUIPrimitivesSystem::Check(entity);
   UpdateAISystem::Check(entity);
   ThrowSystem::Check(entity);
-  PushSystem::Check(entity);
+  WallPushSystem::Check(entity);
   DestroyEntitiesSystem::Check(entity);
   MenuInputSystem::Check(entity);
   UpdateMenuStateSystem::Check(entity);
 
   AnimationListenerSystem::Check(entity);
+
+  // start moving stuff to aggregate systems like this
   StateTransitionAggregate::Check(entity);
   HandleUpdateAggregate::Check(entity);
   EnactAggregate::Check(entity);
+
+  // another aggregate system
+  MoveSystem::Check(entity);
 }
 
 //______________________________________________________________________________

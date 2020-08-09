@@ -199,12 +199,12 @@ public:
 
 
   // Constructor
-  TrieNode() : _endpoint(false) {}
+  TrieNode() : _endpoint(false), _value() {}
   TrieNode(std::initializer_list<std::pair<std::list<T>, V>> initList);
 
-  void InsertSequence(std::list<T> sequenceKey, V value);
-  TrieReturnValue Search(std::list<T> sequence) const;
-  V GetKeyValue(std::list<T> key) const;
+  void InsertSequence(const std::list<T>& sequenceKey, V value);
+  TrieReturnValue Search(const std::list<T>& sequence) const;
+  V const& GetKeyValue(const std::list<T>& key) const;
 
 protected:
   // mark as friend so root can manipulate the other nodes
@@ -226,7 +226,7 @@ inline TrieNode<T, V>::TrieNode(std::initializer_list<std::pair<std::list<T>, V>
 }
 
 template <typename T, typename V>
-inline void TrieNode<T, V>::InsertSequence(std::list<T> sequenceKey, V value)
+inline void TrieNode<T, V>::InsertSequence(const std::list<T>& sequenceKey, V value)
 {
   // start from root node
   TrieNode<T, V>* curr = this;
@@ -247,7 +247,7 @@ inline void TrieNode<T, V>::InsertSequence(std::list<T> sequenceKey, V value)
 }
 
 template <typename T, typename V>
-inline TrieReturnValue TrieNode<T, V>::Search(std::list<T> sequence) const
+inline TrieReturnValue TrieNode<T, V>::Search(const std::list<T>& sequence) const
 {
   const TrieNode* item = Lookup(sequence);
   if(item == nullptr)
@@ -258,12 +258,12 @@ inline TrieReturnValue TrieNode<T, V>::Search(std::list<T> sequence) const
 }
 
 template <typename T, typename V>
-inline V TrieNode<T, V>::GetKeyValue(std::list<T> key) const
+inline const V& TrieNode<T, V>::GetKeyValue(const std::list<T>& key) const
 {
   const TrieNode* item = Lookup(key);
   if (item)
     return item->_value;
-  return V();
+  return _value;
 }
 
 template <typename T, typename V>

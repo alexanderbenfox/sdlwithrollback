@@ -74,3 +74,9 @@ private:
   ActionState _currAction;
 
 };
+
+//! Empty flag for identifying entity as an actor in the scene
+struct Actor : public IComponent
+{
+  Actor(std::shared_ptr<Entity> e) : IComponent(e) {}
+};

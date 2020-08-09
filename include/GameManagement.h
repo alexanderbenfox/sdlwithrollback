@@ -58,6 +58,18 @@ public:
     _endOfFrameQueue.push_back(function);
   }
 
+  //! Schedules some functor to be ran on request
+  void ScheduleTask(std::function<void()> function)
+  {
+    _scheduledTasks.push_back(function);
+  }
+
+  void RunScheduledTasks()
+  {
+    for (auto& func : _scheduledTasks)
+      func();
+    _scheduledTasks.clear();
+  }
   
 
 
@@ -85,7 +97,7 @@ private:
   //
   bool _sceneChangeRequested = false;
   //
-  std::vector<std::function<void()>> _onSceneChangeFunctionQueue, _endOfFrameQueue;
+  std::vector<std::function<void()>> _onSceneChangeFunctionQueue, _endOfFrameQueue, _scheduledTasks;
   
 
   //______________________________________________________________________________

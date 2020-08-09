@@ -3,12 +3,15 @@
 
 #include "Components/Camera.h"
 #include "Components/Animator.h"
-#include "Components/GameActor.h"
+
 #include "Components/Rigidbody.h"
 #include "Components/Collider.h"
 #include "Components/Input.h"
 #include "Components/RenderComponent.h"
 #include "Components/SFXComponent.h"
+
+#include "Components/Actors/GameActor.h"
+#include "Components/Actors/CutsceneActor.h"
 
 #include "Systems/Physics.h"
 #include "Systems/AnimationSystem.h"
@@ -20,6 +23,7 @@
 #include "Systems/CutsceneSystem.h"
 #include "Systems/UISystem.h"
 #include "Systems/AISystem.h"
+#include "Systems/WallPush/WallPushSystem.h"
 
 #include "Systems/ActionSystems/EnactActionSystem.h"
 #include "Systems/ActionSystems/ActionListenerSystem.h"
@@ -58,8 +62,8 @@ BattleScene::~BattleScene()
   GameManager::Get().DestroyEntity(_camera);
 
   // we are moving into the after match cutscene, so only remove game state related components
-  _p1->RemoveComponents<GameActor, Hurtbox, StateComponent, UIContainer, PushComponent, Rigidbody, TimerContainer>();
-  _p2->RemoveComponents<GameActor, Hurtbox, StateComponent, UIContainer, PushComponent, Rigidbody, TimerContainer>();
+  _p1->RemoveComponents<GameActor, Hurtbox, StateComponent, UIContainer, WallPushComponent, Rigidbody, TimerContainer>();
+  _p2->RemoveComponents<GameActor, Hurtbox, StateComponent, UIContainer, WallPushComponent, Rigidbody, TimerContainer>();
 
   //_p1->RemoveComponents<Animator, RenderComponent<RenderType>, RenderProperties, Rigidbody, GameActor, DynamicCollider, Hurtbox, StateComponent, UIContainer, TimerContainer, Transform>();
   //_p1->RemoveComponents<Animator, RenderComponent<RenderType>, RenderProperties, Rigidbody, GameActor, DynamicCollider, Hurtbox, StateComponent, UIContainer, TimerContainer, Transform>();
@@ -96,49 +100,56 @@ void BattleScene::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2)
   _uiCamera->GetComponent<Camera>()->Init(m_nativeWidth, m_nativeHeight);
   GRenderer.EstablishCamera(RenderLayer::UI, _uiCamera->GetComponent<Camera>().get());
 
-  _camera = GameManager::Get().CreateEntity<Camera, Transform>();
+  // add camera follows players component so that it is flagged for that system
+  _camera = GameManager::Get().CreateEntity<Camera, Transform, CameraFollowsPlayers>();
   _camera->GetComponent<Camera>()->Init(m_nativeWidth, m_nativeHeight);
-  _camera->GetComponent<Camera>()->followPlayers = true;
-  _camera->GetComponent<Camera>()->player1 = _p1;
-  _camera->GetComponent<Camera>()->player2 = _p2;
   _camera->GetComponent<Camera>()->origin = cameraOrigin;
   _camera->GetComponent<Camera>()->clamp = stage.clamp;
+
   GRenderer.EstablishCamera(RenderLayer::World, _camera->GetComponent<Camera>().get());
 
 }
 
 void BattleScene::Update(float deltaTime)
 {
-  UIPositionUpdateSystem::DoTick(deltaTime);
-  UIContainerUpdateSystem::DoTick(deltaTime);
+  // transition entities to neutral before enacting
+  TransitionToNeutralSystem::DoTick(deltaTime);
 
-  // update timer systems together
-  TimedActionSystem::DoTick(deltaTime);
-  TimerSystem::DoTick(deltaTime);
-
+  // check the hitboxes potentially just created
   HitSystem::DoTick(deltaTime);
   ThrowSystem::DoTick(deltaTime);
-  PushSystem::DoTick(deltaTime);
+  WallPushSystem::DoTick(deltaTime);
 
-  
-  UpdateAISystem::DoTick(deltaTime);
-
-  //
-
-  InputSystem::DoTick(deltaTime);
   // update player side system here cause it forces new state
   PlayerSideSystem::DoTick(deltaTime);
 
+  // update based on state at start of frame
+  UpdateAISystem::DoTick(deltaTime);
+
+  ////++++ state machine section ++++////
+  InputSystem::DoTick(deltaTime);
+
+  // Check action state machine after all game context gets updated
+  StateTransitionAggregate::DoTick(deltaTime);
   HandleUpdateAggregate::DoTick(deltaTime);
 
-  //
+  // Enact new action states then clean them up
+  EnactAggregate::DoTick(deltaTime);
+  CleanUpActionSystem::PostUpdate();
 
-  FrameAdvantageSystem::DoTick(deltaTime);
+  ////++++ end state machine section ++++////
 
+  // update timer systems after state has been chosen
+  TimedActionSystem::DoTick(deltaTime);
+
+
+  // update animation listener
   AnimationListenerSystem::DoTick(deltaTime);
-  AttackAnimationSystem::DoTick(deltaTime);
   AnimationSystem::DoTick(deltaTime);
-  
+  // advance attack event schedules before checking hitboxes
+  AttackAnimationSystem::DoTick(deltaTime);
+
+
   // resolve collisions
   PhysicsSystem::DoTick(deltaTime);
   // update the location of the colliders
@@ -146,13 +157,21 @@ void BattleScene::Update(float deltaTime)
   // move walls according to camera position
   MoveWallSystem::DoTick(deltaTime);
 
-  // Check action transitions after physics
-  StateTransitionAggregate::DoTick(deltaTime);
 
-  // Enact new action states then clean them up
-  EnactAggregate::DoTick(deltaTime);
-  CleanUpActionSystem::PostUpdate();
+  ////++++ section for state dependent auxilliary info systems ++++////
 
+// do stuff that requires up to date actions
+  FrameAdvantageSystem::DoTick(deltaTime);
+
+  // update AI timers, UI timers (all non-state timers)
+  TimerSystem::DoTick(deltaTime);
+
+  UIPositionUpdateSystem::DoTick(deltaTime);
+  UIContainerUpdateSystem::DoTick(deltaTime);
+
+  ////++++ end section for state dependent auxilliary info systems ++++////
+
+  // check for battle complete and scene change
   CheckBattleEndSystem::DoTick(deltaTime);
 }
 
@@ -319,9 +338,20 @@ void BattleScene::InitCharacter(Vector2<float> position, std::shared_ptr<Entity>
   player->GetComponent<TeamComponent>()->playerEntity = true;
 
 
+  // add this component for doing magic series
+  if (!player->GetComponent<HasTargetCombo>())
+  {
+    player->AddComponent<HasTargetCombo>();
+
+    auto magicSeriesMap = player->GetComponent<HasTargetCombo>();
+    magicSeriesMap->links[ActionState::LIGHT] = InputState::BTN2;
+    magicSeriesMap->links[ActionState::MEDIUM] = InputState::BTN3;
+  }
+
   //! Janky loading
   player->GetComponent<SFXComponent>()->ShowHitSparks();
   player->GetComponent<SFXComponent>()->ShowBlockSparks();
+
 }
 
 PostMatchScene::~PostMatchScene()
@@ -333,6 +363,7 @@ PostMatchScene::~PostMatchScene()
   GameManager::Get().DestroyEntity(_camera);
 
   // always delete transform last because it will access the other components
+  // in this case, no longer 'acting' so actor comp can be removed
   _p1->RemoveComponents<Animator, RenderComponent<RenderType>, RenderProperties, Rigidbody, DynamicCollider, CutsceneActor, Transform>();
   _p2->RemoveComponents<Animator, RenderComponent<RenderType>, RenderProperties, Rigidbody, DynamicCollider, CutsceneActor, Transform>();
 }
@@ -375,11 +406,9 @@ void PostMatchScene::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2
   _uiCamera->GetComponent<Camera>()->Init(m_nativeWidth, m_nativeHeight);
   GRenderer.EstablishCamera(RenderLayer::UI, _uiCamera->GetComponent<Camera>().get());
 
-  _camera = GameManager::Get().CreateEntity<Camera, Transform>();
+  // add camera follows players component so that it is flagged for that system
+  _camera = GameManager::Get().CreateEntity<Camera, Transform, CameraFollowsPlayers>();
   _camera->GetComponent<Camera>()->Init(m_nativeWidth, m_nativeHeight);
-  _camera->GetComponent<Camera>()->followPlayers = true;
-  _camera->GetComponent<Camera>()->player1 = _p1;
-  _camera->GetComponent<Camera>()->player2 = _p2;
   _camera->GetComponent<Camera>()->origin = cameraOrigin;
   _camera->GetComponent<Camera>()->clamp = stage.clamp;
   GRenderer.EstablishCamera(RenderLayer::World, _camera->GetComponent<Camera>().get());

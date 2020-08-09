@@ -112,6 +112,12 @@
     <Filter Include="Header Files\Systems\ActionSystems">
       <UniqueIdentifier>{7116f5d6-5102-47cf-8b13-f41380f0184e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Components\Actors">
+      <UniqueIdentifier>{ae32b962-8ec8-4112-a15a-0a4c48cba7e3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Systems\WallPush">
+      <UniqueIdentifier>{a6e54fa6-cc08-4691-be9e-7963b56d5633}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\2DEngine.cpp">
@@ -258,6 +264,9 @@
     <ClCompile Include="..\include\Core\Prefab\ActionFactory.cpp">
       <Filter>Header Files\Core\Prefab</Filter>
     </ClCompile>
+    <ClCompile Include="..\include\Systems\WallPush\WallPushSystem.cpp">
+      <Filter>Header Files\Systems\WallPush</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\AssetManagement\Resource.h">
@@ -279,9 +288,6 @@
       <Filter>Header Files\Components</Filter>
     </ClInclude>
     <ClInclude Include="..\include\Components\ComponentManager.h">
-      <Filter>Header Files\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\Components\GameActor.h">
       <Filter>Header Files\Components</Filter>
     </ClInclude>
     <ClInclude Include="..\include\Components\IComponent.h">
@@ -440,9 +446,6 @@
     <ClInclude Include="..\include\StateMachine\AttackAction.h">
       <Filter>Header Files\StateMachine</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\Components\CutsceneActor.h">
-      <Filter>Header Files\Components</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\Systems\CheckBattleEndSystem.h">
       <Filter>Header Files\Systems</Filter>
     </ClInclude>
@@ -541,6 +544,18 @@
     </ClInclude>
     <ClInclude Include="..\include\Systems\ActionSystems\EnactActionSystem.h">
       <Filter>Header Files\Systems\ActionSystems</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Components\Actors\CutsceneActor.h">
+      <Filter>Header Files\Components\Actors</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Components\Actors\GameActor.h">
+      <Filter>Header Files\Components\Actors</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Systems\WallPush\WallPushComponent.h">
+      <Filter>Header Files\Systems\WallPush</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Systems\WallPush\WallPushSystem.h">
+      <Filter>Header Files\Systems\WallPush</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

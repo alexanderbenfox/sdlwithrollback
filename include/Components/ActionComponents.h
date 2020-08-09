@@ -135,6 +135,17 @@ struct CancelOnJump : public IComponent
   CancelOnJump(std::shared_ptr<Entity> e) : IComponent(e) {}
 };
 
+struct CancelOnSpecial : public IComponent
+{
+  CancelOnSpecial(std::shared_ptr<Entity> e) : IComponent(e) {}
+};
+
+// this component will work in conjunction with the HasTargetCombo component (and other action mapping components of that type)
+struct CancelOnNormal : public IComponent
+{
+  CancelOnNormal(std::shared_ptr<Entity> e) : IComponent(e) {}
+};
+
 //! Components that describe the enacting parameters for a given action type
 
 struct AttackActionComponent : public IComponent
@@ -243,4 +254,22 @@ struct WaitForAnimationComplete : public IComponent
 struct WaitingForJumpAirborne : public IComponent
 {
   WaitingForJumpAirborne(std::shared_ptr<Entity> e) : IComponent(e) {}
+};
+
+
+
+
+// for input state
+#include "Components/InputHandlers/InputBuffer.h"
+
+
+//! Character type identifier components??
+// Works with the CancelOnNormal component
+
+struct HasTargetCombo : public IComponent
+{
+  HasTargetCombo(std::shared_ptr<Entity> e) : IComponent(e) {}
+  //! Defines which normals can be cancelled into each other
+  std::unordered_map<ActionState, InputState> links;
+
 };

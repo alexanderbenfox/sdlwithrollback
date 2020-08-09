@@ -1,7 +1,7 @@
 #pragma once
 #include "Systems/ISystem.h"
 #include "Components/StateComponent.h"
-#include "Components/GameActor.h"
+#include "Components/Actors/GameActor.h"
 
 class CheckBattleEndSystem : public ISystem<StateComponent, GameActor>
 {

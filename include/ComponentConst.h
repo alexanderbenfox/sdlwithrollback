@@ -21,8 +21,12 @@ class ConstComponentIDGenerator
 {
 public:
   static int ID;
-  static int NextID()
+  static int NextID(bool& isInitialized, int value)
   {
-      return ID++;
+    if (isInitialized)
+      return value;
+
+    isInitialized = true;
+    return ID++;
   }
 };

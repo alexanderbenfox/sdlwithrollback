@@ -38,8 +38,13 @@ template <typename T>
 struct ComponentTraits
 {
   static int ID;
+  static bool ID_Initialized;
+
   static const uint64_t GetSignature() { return 1LL << ID; }
 };
 
 template <class T>
-int ComponentTraits<T>::ID = ConstComponentIDGenerator::NextID();
+int ComponentTraits<T>::ID = ConstComponentIDGenerator::NextID(ComponentTraits<T>::ID_Initialized, ComponentTraits<T>::ID);
+
+template <class T>
+bool ComponentTraits<T>::ID_Initialized = false;

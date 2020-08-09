@@ -3,9 +3,9 @@
 
 #include "Components/ActionComponents.h"
 #include "Components/Animator.h"
-#include "Components/GameActor.h"
 #include "Components/RenderComponent.h"
 #include "Components/Hurtbox.h"
+#include "Components/Actors/GameActor.h"
 
 struct EnactAnimationActionSystem : public ISystem<EnactActionComponent, AnimatedActionComponent, Animator, RenderProperties, RenderComponent<RenderType>, Hurtbox, GameActor>
 {

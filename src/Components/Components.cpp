@@ -8,10 +8,10 @@
 #include "Components/Animator.h"
 #include "Components/Camera.h"
 #include "Components/Collider.h"
-#include "Components/GameActor.h"
 #include "Components/Rigidbody.h"
 #include "Components/RenderComponent.h"
 #include "Components/UIComponents.h"
+#include "Components/Actors/GameActor.h"
 
 #include "StateMachine/AnimatedAction.h"
 #include "Core/Math/Vector2.h"

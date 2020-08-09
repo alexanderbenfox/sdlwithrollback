@@ -7,6 +7,7 @@
 #include "Components/Hurtbox.h"
 #include "Components/Hitbox.h"
 #include "Components/StateComponents/HitStateComponent.h"
+#include "Components/Actors/GameActor.h"
 
 #include "Components/ActionComponents.h"
 
@@ -52,23 +53,8 @@ public:
   {
     for (auto tuple : Tuples)
     {
-      const float lerpFactor = 10.0f;
-
       Transform* transform = std::get<Transform*>(tuple.second);
       Camera* camera = std::get<Camera*>(tuple.second);
-
-      if (camera->followPlayers)
-      {
-        Vector2<float> p1Pos = camera->player1->GetComponent<Transform>()->position;
-        Vector2<float> p2Pos = camera->player2->GetComponent<Transform>()->position;
-
-        // clamp camera position
-        Vector2<float> lerpTarget = camera->clamp.Saturate((p1Pos + p2Pos) / 2.0f);
-        Vector2<float> lerp = (lerpTarget - transform->position) * lerpFactor * dt;
-
-        // apply the smooth movement
-        transform->position += lerp;
-      }
 
       camera->rect.x = static_cast<int>(std::floor(transform->position.x)) - camera->rect.w / 2;
       camera->rect.y = static_cast<int>(std::floor(transform->position.y)) - camera->rect.h / 2;
@@ -94,6 +80,38 @@ public:
         Mat4::Translation(worldPosition.x + camera->worldMatrixPosition.x, -worldPosition.y + camera->worldMatrixPosition.y, camera->worldMatrixPosition.z) *
         Mat4::Scale(camera->zoom, camera->zoom, 1.0f) *
         Mat4::Translation(-worldOrigin.x, worldOrigin.y, 0);
+    }
+  }
+};
+
+//! Follows any 'acting' unit... want to use actor component for this but its messed up....
+class CameraFollowPlayerSystem : public IMultiSystem<SysComponents<Transform, Camera, CameraFollowsPlayers>, SysComponents<Transform, Actor>>
+{
+public:
+  static void DoTick(float dt)
+  {
+    const float lerpFactor = 10.0f;
+
+    for (auto t1 : MainSystem::Tuples)
+    {
+      int nTargets = 0;
+      Vector2<float> aggregatePosition;
+      for (auto t2 : SubSystem::Tuples)
+      {
+        Transform* transform = std::get<Transform*>(t2.second);
+        aggregatePosition += transform->position;
+        nTargets++;
+      }
+
+      Transform* transform = std::get<Transform*>(t1.second);
+      Camera* camera = std::get<Camera*>(t1.second);
+
+      // clamp camera position
+      Vector2<float> lerpTarget = camera->clamp.Saturate(aggregatePosition / static_cast<float>(nTargets));
+      Vector2<float> lerp = (lerpTarget - transform->position) * lerpFactor * dt;
+
+      // apply the smooth movement to camera position
+      transform->position += lerp;
     }
   }
 };
@@ -172,12 +190,24 @@ public:
 class MoveSystem : public ISystem<>
 {
 public:
+  static void Check(Entity* e)
+  {
+    MoveSystemPhysCollider::Check(e);
+    MoveSystemHurtbox::Check(e);
+    MoveSystemHitbox::Check(e);
+    MoveThrownEntitySystem::Check(e);
+    CameraFollowPlayerSystem::Check(e);
+    MoveSystemCamera::Check(e);
+  }
+
   static void DoTick(float dt)
   {
-    MoveSystemCamera::DoTick(dt);
     MoveSystemPhysCollider::DoTick(dt);
     MoveSystemHurtbox::DoTick(dt);
     MoveSystemHitbox::DoTick(dt);
     MoveThrownEntitySystem::DoTick(dt);
+
+    CameraFollowPlayerSystem::DoTick(dt);
+    MoveSystemCamera::DoTick(dt);
   }
 };

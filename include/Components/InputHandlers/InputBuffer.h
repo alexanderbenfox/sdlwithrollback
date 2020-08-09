@@ -105,8 +105,8 @@ const TrieNode<InputState, SpecialInputState> UnivSpecMoveDict
   std::make_pair(std::list<InputState>{InputState::DOWN, InputState::DOWN | InputState::LEFT, InputState::LEFT}, SpecialInputState::QCB),
   std::make_pair(std::list<InputState>{InputState::RIGHT, InputState::DOWN, InputState::RIGHT | InputState::DOWN}, SpecialInputState::DPF),
   std::make_pair(std::list<InputState>{InputState::LEFT, InputState::DOWN, InputState::LEFT | InputState::DOWN}, SpecialInputState::DPB),
-  std::make_pair(std::list<InputState>{InputState::RIGHT, InputState::NONE, InputState::RIGHT}, SpecialInputState::RDash),
-  std::make_pair(std::list<InputState>{InputState::LEFT, InputState::NONE, InputState::LEFT}, SpecialInputState::LDash)
+  std::make_pair(std::list<InputState>{InputState::NONE, InputState::RIGHT, InputState::NONE, InputState::RIGHT}, SpecialInputState::RDash),
+  std::make_pair(std::list<InputState>{InputState::NONE, InputState::LEFT, InputState::NONE, InputState::LEFT}, SpecialInputState::LDash)
 };
 
 //! Input buffer class for storing 

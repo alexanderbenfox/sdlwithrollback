@@ -28,6 +28,7 @@
     <ClCompile Include="..\imgui\impl\imgui_impl_sdl.cpp" />
     <ClCompile Include="..\include\Core\Prefab\ActionFactory.cpp" />
     <ClCompile Include="..\include\Systems\ActionSystems\ActionHandleInputSystem.cpp" />
+    <ClCompile Include="..\include\Systems\WallPush\WallPushSystem.cpp" />
     <ClCompile Include="..\src\2DEngine.cpp" />
     <ClCompile Include="..\src\AssetManagement\Animation.cpp" />
     <ClCompile Include="..\src\AssetManagement\AnimationEvent.cpp" />
@@ -90,6 +91,8 @@
     <ClInclude Include="..\include\AssetManagement\Text.h" />
     <ClInclude Include="..\include\ComponentConst.h" />
     <ClInclude Include="..\include\Components\ActionComponents.h" />
+    <ClInclude Include="..\include\Components\Actors\CutsceneActor.h" />
+    <ClInclude Include="..\include\Components\Actors\GameActor.h" />
     <ClInclude Include="..\include\Components\AIComponent.h" />
     <ClInclude Include="..\include\Components\AIPrograms\Defend.h" />
     <ClInclude Include="..\include\Components\AIPrograms\IAIProgram.h" />
@@ -97,8 +100,6 @@
     <ClInclude Include="..\include\Components\Camera.h" />
     <ClInclude Include="..\include\Components\Collider.h" />
     <ClInclude Include="..\include\Components\ComponentManager.h" />
-    <ClInclude Include="..\include\Components\CutsceneActor.h" />
-    <ClInclude Include="..\include\Components\GameActor.h" />
     <ClInclude Include="..\include\Components\InputHandlers\AIInputHandler.h" />
     <ClInclude Include="..\include\Components\InputHandlers\GamepadInputHandler.h" />
     <ClInclude Include="..\include\Components\InputHandlers\IInputHandler.h" />
@@ -164,6 +165,8 @@
     <ClInclude Include="..\include\Systems\Physics.h" />
     <ClInclude Include="..\include\Systems\TimerSystem.h" />
     <ClInclude Include="..\include\Systems\UISystem.h" />
+    <ClInclude Include="..\include\Systems\WallPush\WallPushComponent.h" />
+    <ClInclude Include="..\include\Systems\WallPush\WallPushSystem.h" />
     <ClInclude Include="..\include\Timer.h" />
     <ClInclude Include="..\include\Utils.h" />
   </ItemGroup>
@@ -177,6 +180,7 @@
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>My2DEngine</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.18362.0</WindowsTargetPlatformVersion>
+    <ProjectName>FGDuelEngine</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">

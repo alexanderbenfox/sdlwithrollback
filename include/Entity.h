@@ -8,12 +8,7 @@
 #include "Components/ComponentManager.h"
 #include "Utils.h"
 
-template <typename T, typename... Rest>
-bool constexpr all_base_of_bigboysss()
-{
-  return (std::is_base_of_v<T, Rest> && ...);
-}
-
+//! Global entity id counter
 static int EntityID = 0;
 
 //______________________________________________________________________________
@@ -23,17 +18,25 @@ class Entity : public std::enable_shared_from_this<Entity>
 public:
   //! Increment creation id counter
   Entity() : ComponentBitFlag(0x0), _creationId(EntityID++) {}
-  //!
+  //! Default deleter
   ~Entity() = default;
-  //!
+
+  //! Removes all added components by calling list of deleter functions
   void RemoveAllComponents();
+  //! Requests the game manager destroys this entity at the end of the frame
+  void DestroySelf();
+  //! Sets scale among all scalable components attached to this... THERE MUST BE A BETTER WAY
+  void SetScale(Vector2<float> scale);
+  //! Gets a unique id for the entity
+  int GetID() const { return _creationId; }
+
   //! Retrieves the components of type specified or nullptr if there is no component of that type present
   template <typename T = IComponent> 
   std::shared_ptr<T> GetComponent();
   //! Adds the component of the type specified to this entity
   template <typename T = IComponent>
   void AddComponent();
-  //! Adds the component of the type specified to this entity
+  //! Adds the component with initialization parameters
   template <typename T = IComponent>
   void AddComponent(const ComponentInitParams<T>& initParams);
   //! Multi-parameter component add
@@ -48,29 +51,38 @@ public:
   //! Helper for the systems
   template <typename ... T>
   std::tuple<std::add_pointer_t<T>...> MakeComponentTuple();
-  //! Requests the game manager destroys this entity at the end of the frame
-  void DestroySelf();
-  //! Sets scale among all scalable components attached to this... THERE MUST BE A BETTER WAY
-  void SetScale(Vector2<float> scale);
-  //! Gets a unique id for the entity
-  int GetID() const {return _creationId;}
+
   //! Bit flag for the components currently attached
   uint64_t ComponentBitFlag;
 
 protected:
-  //! Pointers to all components attached to the object. The component objects exist in their respective manager singleton objects
-  std::unordered_map<std::type_index, std::shared_ptr<IComponent>> _components;
-  std::unordered_map<std::type_index, std::function<void()>> _deleteComponent;
-  //!
-  int _creationId;
-  //!
+  //! Creates a pointer to give to system tuple in MakeComponentTuple
   template <typename T>
   void SetPointerElement(T*& element) { element = GetComponent<T>().get(); }
-  //!
-  static void CheckAgainstSystems(Entity* entity);
+  
   //! Don't remove deletion function here. This is used for removing components internally if we do not know the type
   template <typename T>
   void RemoveComponentInternal();
+
+  //! Add component of type specified type to the entity without calling check against systems
+  template <typename T = IComponent>
+  void AddComponentNoSystemCheck();
+  //! Removes component of type specified type from the entity without calling check against systems
+  template <typename T = IComponent>
+  void RemoveComponentNoSystemCheck();
+
+  //! Checks against all existing systems (currently hardcoded in the game manager)
+  static void CheckAgainstSystems(Entity* entity);
+
+
+  //! Protected Members
+
+  //! Pointers to all components attached to the object. The component objects exist in their respective manager singleton objects
+  std::unordered_map<std::type_index, std::shared_ptr<IComponent>> _components;
+  //! Functors for deleting components en masse (without knowing type at runtime) uses RemoveComponentInternal
+  std::unordered_map<std::type_index, std::function<void()>> _deleteComponent;
+  //! This entity ID (and order of creation)
+  int _creationId;
 
 };
 
@@ -115,9 +127,9 @@ inline void Entity::AddComponents()
 {
   // recursive control path enders
   if (!all_base_of<IComponent, T, Rest...>() || std::is_same_v<T, IComponent>)
-    return;
+    return CheckAgainstSystems(this);
 
-  AddComponent<T>();
+  AddComponentNoSystemCheck<T>();
   AddComponents<Rest...>();
 }
 
@@ -141,11 +153,12 @@ inline void Entity::RemoveComponent()
 template <typename T, typename ... Rest>
 inline void Entity::RemoveComponents()
 {
-  // recursive control path enders
+  // recursive control path ender will check the system 
   if (!all_base_of<IComponent, T, Rest...>() || std::is_same_v<T, IComponent>)
-    return;
+    return CheckAgainstSystems(this);
 
-  RemoveComponent<T>();
+  // use no system check here so it can be a little more efficient
+  RemoveComponentNoSystemCheck<T>();
   RemoveComponents<Rest...>();
 }
 
@@ -167,5 +180,30 @@ inline void Entity::RemoveComponentInternal()
     ComponentBitFlag &= ~ComponentTraits<T>::GetSignature();
     ComponentManager<T>::Get().Erase(GetComponent<T>());
     _components.erase(std::type_index(typeid(T)));
+  }
+}
+
+//______________________________________________________________________________
+template <typename T>
+inline void Entity::AddComponentNoSystemCheck()
+{
+  if (_components.find(std::type_index(typeid(T))) == _components.end())
+  {
+    ComponentBitFlag |= ComponentTraits<T>::GetSignature();
+    _components.insert(std::make_pair(std::type_index(typeid(T)), ComponentManager<T>::Get().Create(std::shared_ptr<Entity>(shared_from_this()))));
+    _deleteComponent.insert(std::make_pair(std::type_index(typeid(T)), [this]() { RemoveComponentInternal<T>(); }));
+  }
+}
+
+//______________________________________________________________________________
+template <typename T>
+inline void Entity::RemoveComponentNoSystemCheck()
+{
+  if (_components.find(std::type_index(typeid(T))) != _components.end())
+  {
+    ComponentBitFlag &= ~ComponentTraits<T>::GetSignature();
+    ComponentManager<T>::Get().Erase(GetComponent<T>());
+    _components.erase(std::type_index(typeid(T)));
+    _deleteComponent.erase(std::type_index(typeid(T)));
   }
 }

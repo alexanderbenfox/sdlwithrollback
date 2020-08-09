@@ -4,9 +4,9 @@
 #include "Components/Animator.h"
 
 #include "Components/Rigidbody.h"
-#include "Components/GameActor.h"
 #include "Components/RenderComponent.h"
 #include "Components/Hurtbox.h"
+#include "Components/Actors/GameActor.h"
 
 #include "Core/Interfaces/Serializable.h"
 

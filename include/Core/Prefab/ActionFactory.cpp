@@ -1,10 +1,11 @@
 #include "Core/Prefab/ActionFactory.h"
 
 #include "Components/ActionComponents.h"
-#include "Components/GameActor.h"
 #include "Components/Animator.h"
 #include "Components/StateComponents/AttackStateComponent.h"
 #include "Components/StateComponents/HitStateComponent.h"
+#include "Components/Actors/GameActor.h"
+#include "Systems/WallPush/WallPushComponent.h"
 
 #include "StateMachine/ActionUtil.h"
 
@@ -13,12 +14,33 @@
 //! Define action decided list
 std::vector<Entity*> ActionFactory::_actionDecided;
 
+
+void ActionFactory::SetAerialState(Entity* entity)
+{
+  GameManager::Get().ScheduleTask([entity]()
+    {
+      entity->RemoveComponents<AbleToJump, AbleToCrouch, AbleToDash, AbleToWalk>();
+      entity->AddComponent<JumpingAction>();
+    });
+}
+
+void ActionFactory::SetCrouchingState(Entity* entity, StateComponent* state)
+{
+  GameManager::Get().ScheduleTask([entity, state]()
+  {
+    entity->AddComponent<AnimatedActionComponent>({ state->onLeftSide, true, true, 1.0f, "Crouch" });
+    entity->AddComponent<EnactActionComponent>();
+
+    entity->RemoveComponent<TransitionToCrouching>();
+  });
+}
+
 void ActionFactory::SetKnockdownAirborne(Entity* entity, StateComponent* state)
 {
   // since this will set to new state, remove input listener flag
   _actionDecided.push_back(entity);
 
-  GameManager::Get().TriggerEndOfFrame([entity, state]()
+  GameManager::Get().ScheduleTask([entity, state]()
     {
       RemoveTransitionComponents(entity);
       DisableAbility(entity);
@@ -59,7 +81,7 @@ void ActionFactory::SetKnockdownGroundOTG(Entity* entity, StateComponent* state)
   // since this will set to new state, remove input listener flag
   _actionDecided.push_back(entity);
 
-  GameManager::Get().TriggerEndOfFrame([entity, state]()
+  GameManager::Get().ScheduleTask([entity, state]()
     {
       RemoveTransitionComponents(entity);
       DisableAbility(entity);
@@ -101,7 +123,7 @@ void ActionFactory::SetKnockdownGroundInvincible(Entity* entity, StateComponent*
   // since this will set to new state, remove input listener flag
   _actionDecided.push_back(entity);
 
-  GameManager::Get().TriggerEndOfFrame([entity, state]()
+  GameManager::Get().ScheduleTask([entity, state]()
     {
       RemoveTransitionComponents(entity);
       DisableAbility(entity);
@@ -142,7 +164,7 @@ void ActionFactory::SetBlockStunAction(Entity* entity, StateComponent* state, bo
   // since this will set to new state, remove input listener flag
   _actionDecided.push_back(entity);
 
-  GameManager::Get().TriggerEndOfFrame([entity, state, crouching]()
+  GameManager::Get().ScheduleTask([entity, state, crouching]()
     {
       RemoveTransitionComponents(entity);
       DisableAbility(entity);
@@ -187,7 +209,7 @@ void ActionFactory::SetHitStunAction(Entity* entity, StateComponent* state, bool
   // since this will set to new state, remove input listener flag
   _actionDecided.push_back(entity);
 
-  GameManager::Get().TriggerEndOfFrame([entity, state, crouching]()
+  GameManager::Get().ScheduleTask([entity, state, crouching]()
     {
       RemoveTransitionComponents(entity);
       DisableAbility(entity);
@@ -198,11 +220,11 @@ void ActionFactory::SetHitStunAction(Entity* entity, StateComponent* state, bool
       entity->GetComponent<GameActor>()->actionTimerComplete = false;
 
       std::string hitstunAnim = "LightHitstun";
-      if (state->hitData.framesInStunHit > 10) hitstunAnim = "MedHitstun";
-      if (state->hitData.framesInStunHit > 15) hitstunAnim = "HeavyHitstun";
+      if (state->hitData.framesInStunHit > 20) hitstunAnim = "MedHitstun";
+      if (state->hitData.framesInStunHit > 30) hitstunAnim = "HeavyHitstun";
 
       // set up animation
-      entity->AddComponent<AnimatedActionComponent>({ state->onLeftSide, false, true, 1.0f, (crouching && state->hitData.framesInStunHit < 16) ? "CrouchingHitstun" : hitstunAnim });
+      entity->AddComponent<AnimatedActionComponent>({ state->onLeftSide, false, true, 1.0f, (crouching && state->hitData.framesInStunHit < 35) ? "CrouchingHitstun" : hitstunAnim });
 
       // set up movement action for knockback
       entity->AddComponent<MovingActionComponent>();
@@ -233,7 +255,7 @@ void ActionFactory::SetGrappledAction(Entity* entity, StateComponent* state)
   // since this will set to new state, remove input listener flag
   _actionDecided.push_back(entity);
 
-  GameManager::Get().TriggerEndOfFrame([entity, state]()
+  GameManager::Get().ScheduleTask([entity, state]()
     {
       RemoveTransitionComponents(entity);
       DisableAbility(entity);
@@ -266,7 +288,7 @@ void ActionFactory::SetAttackAction(Entity* entity, StateComponent* state, const
   // since this will set to new state, remove input listener flag
   _actionDecided.push_back(entity);
 
-  GameManager::Get().TriggerEndOfFrame([entity, state, attackName, actionType]()
+  GameManager::Get().ScheduleTask([entity, state, attackName, actionType]()
     {
       RemoveTransitionComponents(entity);
       DisableAbility(entity);
@@ -283,6 +305,12 @@ void ActionFactory::SetAttackAction(Entity* entity, StateComponent* state, const
       entity->AddComponent<AttackActionComponent>();
       entity->GetComponent<AttackActionComponent>()->type = actionType;
 
+      // mark action type here
+      state->actionState = actionType;
+
+      // NOTE: THIS IS BUGGED WITH MOVES THAT HAVE UPWARDS MOVEMENT ON THE FIRST FRAME
+      // THIS IS BECAUSE THE MOVEMENT FUNCTIONS FOR MOVES RUN THROUGH THE GENERIC TIMER SYSTEM
+      // NEED TO FIX THIS - ORDERING IS A PAIN
       if (HasState(state->collision, CollisionSide::DOWN))
       {
         // set up movement action for stopping movement
@@ -299,7 +327,7 @@ void ActionFactory::SetAttackAction(Entity* entity, StateComponent* state, const
       entity->AddComponent<TransitionToNeutral>();
 
       // add cancels here
-      entity->AddComponent<CancelOnHitGround>();
+      entity->AddComponents<CancelOnHitGround, CancelOnSpecial, CancelOnNormal>();
 
       entity->AddComponent<EnactActionComponent>();
     });
@@ -310,7 +338,7 @@ void ActionFactory::SetDashAction(Entity* entity, StateComponent* state, Animato
   // since this will set to new state, remove input listener flag
   _actionDecided.push_back(entity);
 
-  GameManager::Get().TriggerEndOfFrame([entity, state, animator, dashDirectionForward]()
+  GameManager::Get().ScheduleTask([entity, state, animator, dashDirectionForward]()
     {
       RemoveTransitionComponents(entity);
       DisableAbility(entity);
@@ -321,7 +349,7 @@ void ActionFactory::SetDashAction(Entity* entity, StateComponent* state, Animato
       std::string animationName = dashDirectionForward ? "ForwardDash" : "BackDash";
       // set up animation
       float dashPlaySpeed = static_cast<float>(animator->AnimationLib()->GetAnimation(animationName)->GetFrameCount()) / static_cast<float>(ActionParams::nDashFrames);
-      entity->AddComponent<AnimatedActionComponent>({ state->onLeftSide, false, false, dashPlaySpeed, animationName });
+      entity->AddComponent<AnimatedActionComponent>({ state->onLeftSide, false, true, dashPlaySpeed, animationName });
 
       entity->AddComponent<DashingAction>();
       entity->GetComponent<DashingAction>()->dashSpeed = ActionParams::baseWalkSpeed * 1.5f;
@@ -342,26 +370,25 @@ void ActionFactory::SetDashAction(Entity* entity, StateComponent* state, Animato
       entity->AddComponent<TransitionToNeutral>();
 
       entity->AddComponent<EnactActionComponent>();
+
+      entity->RemoveComponent<AbleToDash>();
     });
 }
 
 void ActionFactory::GoToNeutralAction(Entity* entity, StateComponent* state)
 {
   // since this will set to new state, remove input listener flag
-  _actionDecided.push_back(entity);
+  // not necessary for this since a follow up is possible?
+  //_actionDecided.push_back(entity);
 
-  GameManager::Get().TriggerEndOfFrame([entity, state]()
+  GameManager::Get().ScheduleTask([entity, state]()
     {
       ResetActionComponents(entity);
       // Always reset action complete flag on new action
       entity->GetComponent<GameActor>()->actionTimerComplete = false;
 
       entity->AddComponent<EnactActionComponent>();
-
-      if (entity->GetComponent<CrouchingAction>())
-        entity->AddComponent<AnimatedActionComponent>({ state->onLeftSide, true, false, 1.0f, "Crouch" });
-      else
-        entity->AddComponent<AnimatedActionComponent>({ state->onLeftSide, true, false, 1.0f, "Idle" });
+      entity->AddComponent<AnimatedActionComponent>({ state->onLeftSide, true, false, 1.0f, "Idle" });
 
       // set up movement action for stopping movement
       entity->AddComponent<MovingActionComponent>();
@@ -386,9 +413,7 @@ void ActionFactory::ResetActionComponents(Entity* entity)
   // remove all state dependent components (hopefully this doesn't fuck performance)
   RemoveTransitionComponents(entity);
 
-  entity->RemoveComponent<CancelOnHitGround>();
-  entity->RemoveComponent<CancelOnDash>();
-  entity->RemoveComponent<CancelOnJump>();
+  entity->RemoveComponents<CancelOnHitGround, CancelOnDash, CancelOnJump, CancelOnSpecial, CancelOnNormal>();
 
   entity->RemoveComponent<AttackActionComponent>();
   entity->RemoveComponent<GrappleActionComponent>();
@@ -428,8 +453,11 @@ void ActionFactory::DisableAbility(Entity* entity)
 
 void ActionFactory::EnableAbility(Entity* entity)
 {
+  // add things that give control to player
   entity->AddComponents<AbleToAttackState, AbleToSpecialAttackState, AbleToDash, AbleToJump, AbleToWalk, AbleToCrouch>();
-  entity->GetComponent<GameActor>()->newInputs = true;
+
+  // remove things that take control away from player
+  entity->RemoveComponent<WallPushComponent>();
 }
 
 void ActionFactory::DisableActionListenerForEntities()
@@ -439,4 +467,19 @@ void ActionFactory::DisableActionListenerForEntities()
     entity->RemoveComponent<InputListenerComponent>();
   }
   _actionDecided.clear();
+}
+
+bool ActionFactory::ActorDidSpecialInputRyu(GameActor* actor, StateComponent* state)
+{
+  // only for ryu right now... probably need some kind of move mapping component
+  if (HasState(actor->LastButtons(), InputState::BTN1) || HasState(actor->LastButtons(), InputState::BTN2) || HasState(actor->LastButtons(), InputState::BTN3))
+  {
+    bool fireball = (actor->LastSpecial() == SpecialInputState::QCF && state->onLeftSide) || (actor->LastSpecial() == SpecialInputState::QCB && !state->onLeftSide);
+    bool donkeyKick = fireball && (HasState(actor->LastButtons(), InputState::BTN3));
+    bool tatsu = (actor->LastSpecial() == SpecialInputState::QCF && !state->onLeftSide) || (actor->LastSpecial() == SpecialInputState::QCB && state->onLeftSide);
+    bool dp = (actor->LastSpecial() == SpecialInputState::DPF && state->onLeftSide) || (actor->LastSpecial() == SpecialInputState::DPB && !state->onLeftSide);
+
+    return fireball || donkeyKick || tatsu || dp;
+  }
+  return false;
 }

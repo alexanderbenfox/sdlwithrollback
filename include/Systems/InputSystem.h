@@ -1,12 +1,12 @@
 #pragma once
 #include "Systems/ISystem.h"
-#include "Components/GameActor.h"
 #include "Components/Input.h"
+#include "Components/Actors/GameActor.h"
 
 #include "Components/Transform.h"
 #include "Components/Rigidbody.h"
 
-class PlayerSideSystem : public ISystem<Transform, StateComponent, TeamComponent, GameActor>
+class PlayerSideSystem : public ISystem<Transform, StateComponent, TeamComponent, GameActor, Actor>
 {
 public:
   static void DoTick(float dt)

@@ -1,16 +1,17 @@
 #include "StateMachine/TimedAction.h"
 
 #include "Components/Rigidbody.h"
-#include "Components/GameActor.h"
 #include "Components/Animator.h"
+#include "Components/Actors/GameActor.h"
 
 #include "StateMachine/RecvHit.h"
-#include "Systems/Physics.h"
+
+#include "Systems/WallPush/WallPushComponent.h"
 
 //______________________________________________________________________________
 void DashAction::Enact(Entity* actor)
 {
-  actor->RemoveComponent<PushComponent>();
+  actor->RemoveComponent<WallPushComponent>();
 
   this->_loopedAnimation = false;
   AnimatedAction<StanceState::STANDING, ActionState::DASHING>::Enact(actor);

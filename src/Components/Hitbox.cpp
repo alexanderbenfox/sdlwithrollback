@@ -4,9 +4,20 @@
 
 void TransferDataBox::Init(const FrameData& frameData)
 {
-  int framesTilNeutral = frameData.active + frameData.recover;
+  // can act on the frame following the last recovery frame 
+  int framesTilNeutral = frameData.active + frameData.recover + 1;
+
+  //! frames in stun are defined by the frame that the player can ACT on following recieving this type of action
+
+  // this is kind of a hack right now until i figure out why this doesnt work
+  // problem is that you can't "act" on this frame for some reason so has to be on the next frame
+  // PLEASE FIX LATER probably something in the way that AnimationListenerSystem is updated
+  tData.framesInStunHit = framesTilNeutral + frameData.onHitAdvantage + 1;
+
+  // does not happen for blocking because it is done through the TimedActionSystem
   tData.framesInStunBlock = framesTilNeutral + frameData.onBlockAdvantage;
-  tData.framesInStunHit = framesTilNeutral + frameData.onHitAdvantage;
+
+  // transfer the rest of the attack data through this
   tData.damage = frameData.damage;
   tData.knockback = frameData.knockback;
   tData.activeFrames = frameData.active;

@@ -3,7 +3,7 @@
 
 #include "Components/ActionComponents.h"
 #include "Components/Animator.h"
-#include "Components/GameActor.h"
+#include "Components/Actors/GameActor.h"
 
 struct AnimationListenerSystem : public ISystem<WaitForAnimationComplete, Animator, GameActor>
 {
