@@ -17,11 +17,11 @@ public:
       return;
 
     // reset hitting state only on timed update
-    for(auto tuple : MainSystem::Tuples)
+    /*for(auto tuple : MainSystem::Tuples)
     {
       StateComponent* hurtboxController = std::get<StateComponent*>(tuple.second);
       hurtboxController->hitting = false;
-    }
+    }*/
 
     for (auto tuple : MainSystem::Tuples)
     {

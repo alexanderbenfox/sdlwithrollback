@@ -169,6 +169,8 @@ struct MovingActionComponent : public IComponent
 {
   MovingActionComponent(std::shared_ptr<Entity> e) : IComponent(e) {}
 
+  //
+  bool horizontalMovementOnly = false;
   Vector2<float> velocity;
 };
 

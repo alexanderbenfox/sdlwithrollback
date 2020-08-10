@@ -192,6 +192,7 @@ void CheckForMove::DoTick(float dt)
 
         actor->GetOwner()->AddComponent<MovingActionComponent>();
         actor->GetOwner()->GetComponent<MovingActionComponent>()->velocity = movementVector;
+        actor->GetOwner()->GetComponent<MovingActionComponent>()->horizontalMovementOnly = true;
 
         // add states for potential outside influence
         actor->GetOwner()->AddComponent<HittableState>();
@@ -242,6 +243,8 @@ void CheckForJump::DoTick(float dt)
 
         actor->GetOwner()->AddComponent<MovingActionComponent>();
         actor->GetOwner()->GetComponent<MovingActionComponent>()->velocity = movementVector;
+        actor->GetOwner()->GetComponent<MovingActionComponent>()->horizontalMovementOnly = false;
+
         actor->GetOwner()->AddComponent<AnimatedActionComponent>({ state->onLeftSide, false, false, 1.0f, "Jumping" });
 
         // transition when fully off the ground
@@ -302,6 +305,7 @@ void CheckForBeginCrouching::DoTick(float dt)
 
         actor->GetOwner()->AddComponent<MovingActionComponent>();
         actor->GetOwner()->GetComponent<MovingActionComponent>()->velocity = Vector2<float>::Zero;
+        actor->GetOwner()->GetComponent<MovingActionComponent>()->horizontalMovementOnly = true;
 
         actor->GetOwner()->AddComponent<AnimatedActionComponent>({ state->onLeftSide, false, false, 1.0f, "Crouching" });
         actor->GetOwner()->AddComponent<WaitForAnimationComplete>();

@@ -42,8 +42,9 @@ void PhysicsSystem::DoTick(float dt)
     // Add the movement vector to the entityd
     transform->position += (vel + instVelocity) * dt;
 
-    // end of frame, change the collision sides for this frame
-    rigidbody->_lastCollisionSide = futureCorrection.collisionSides;
+    // end of frame, update the collision sides for this frame if not in hit stop
+    if(dt > 0)
+      rigidbody->_lastCollisionSide = futureCorrection.collisionSides;
   }
 }
 

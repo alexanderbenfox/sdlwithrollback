@@ -56,6 +56,7 @@ void ActionFactory::SetKnockdownAirborne(Entity* entity, StateComponent* state)
       // set up movement action for knockback
       entity->AddComponent<MovingActionComponent>();
       entity->GetComponent<MovingActionComponent>()->velocity = state->hitData.knockback;
+      entity->GetComponent<MovingActionComponent>()->horizontalMovementOnly = false;
 
       // set empty component for follow up action
       entity->AddComponent<TransitionToKnockdownGroundOTG>();;
@@ -97,6 +98,7 @@ void ActionFactory::SetKnockdownGroundOTG(Entity* entity, StateComponent* state)
       // set up movement action for knockback
       entity->AddComponent<MovingActionComponent>();
       entity->GetComponent<MovingActionComponent>()->velocity = Vector2<float>::Zero;
+      entity->GetComponent<MovingActionComponent>()->horizontalMovementOnly = true;
 
       // freeze in this state until animation is done
       entity->AddComponent<WaitForAnimationComplete>();
@@ -182,6 +184,7 @@ void ActionFactory::SetBlockStunAction(Entity* entity, StateComponent* state, bo
         // set up movement action for stopping movement
         entity->AddComponent<MovingActionComponent>();
         entity->GetComponent<MovingActionComponent>()->velocity = Vector2<float>::Zero;
+        entity->GetComponent<MovingActionComponent>()->horizontalMovementOnly = true;
       }
 
       // freeze in this state 
@@ -229,6 +232,7 @@ void ActionFactory::SetHitStunAction(Entity* entity, StateComponent* state, bool
       // set up movement action for knockback
       entity->AddComponent<MovingActionComponent>();
       entity->GetComponent<MovingActionComponent>()->velocity = state->hitData.knockback;
+      entity->GetComponent<MovingActionComponent>()->horizontalMovementOnly = false;
 
       // freeze in this state 
       entity->AddComponent<TimedActionComponent>();
@@ -266,10 +270,6 @@ void ActionFactory::SetGrappledAction(Entity* entity, StateComponent* state)
       // set up animation
       entity->AddComponent<AnimatedActionComponent>({ state->onLeftSide, false, true, 1.0f, "HeavyHitstun" });
 
-      // set up movement action for stopping movement
-      //entity->AddComponent<MovingActionComponent>();
-      //entity->GetComponent<MovingActionComponent>()->velocity = Vector2<float>::Zero;
-
       entity->AddComponent<ReceivedGrappleAction>();
       entity->GetComponent<ReceivedGrappleAction>()->damageAndKnockbackDelay = state->hitData.activeFrames;
       entity->GetComponent<ReceivedGrappleAction>()->damageAmount = state->hitData.damage;
@@ -293,6 +293,11 @@ void ActionFactory::SetAttackAction(Entity* entity, StateComponent* state, const
       RemoveTransitionComponents(entity);
       DisableAbility(entity);
 
+      // resetting state component... i dont really like this
+      state->hitting = false;
+      // mark action type here
+      state->actionState = actionType;
+
       // Always reset action complete flag on new action
       entity->GetComponent<GameActor>()->actionTimerComplete = false;
 
@@ -305,9 +310,6 @@ void ActionFactory::SetAttackAction(Entity* entity, StateComponent* state, const
       entity->AddComponent<AttackActionComponent>();
       entity->GetComponent<AttackActionComponent>()->type = actionType;
 
-      // mark action type here
-      state->actionState = actionType;
-
       // NOTE: THIS IS BUGGED WITH MOVES THAT HAVE UPWARDS MOVEMENT ON THE FIRST FRAME
       // THIS IS BECAUSE THE MOVEMENT FUNCTIONS FOR MOVES RUN THROUGH THE GENERIC TIMER SYSTEM
       // NEED TO FIX THIS - ORDERING IS A PAIN
@@ -316,6 +318,7 @@ void ActionFactory::SetAttackAction(Entity* entity, StateComponent* state, const
         // set up movement action for stopping movement
         entity->AddComponent<MovingActionComponent>();
         entity->GetComponent<MovingActionComponent>()->velocity = Vector2<float>::Zero;
+        entity->GetComponent<MovingActionComponent>()->horizontalMovementOnly = true;
       }
 
       // add states for potential inputs
@@ -393,6 +396,7 @@ void ActionFactory::GoToNeutralAction(Entity* entity, StateComponent* state)
       // set up movement action for stopping movement
       entity->AddComponent<MovingActionComponent>();
       entity->GetComponent<MovingActionComponent>()->velocity = Vector2<float>::Zero;
+      entity->GetComponent<MovingActionComponent>()->horizontalMovementOnly = true;
 
       // add states for potential outside influence
       entity->AddComponent<HittableState>();

@@ -80,7 +80,10 @@ struct EnactActionMovementSystem : public ISystem<EnactActionComponent, MovingAc
       MovingActionComponent* action = std::get<MovingActionComponent*>(tuple.second);
       Rigidbody* rb = std::get<Rigidbody*>(tuple.second);
 
-      rb->_vel = action->velocity;
+      if (action->horizontalMovementOnly)
+        rb->_vel.x = action->velocity.x;
+      else
+        rb->_vel = action->velocity;
     }
   }
 };
