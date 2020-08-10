@@ -13,6 +13,9 @@
 #include "Components/Actors/GameActor.h"
 #include "Components/Actors/CutsceneActor.h"
 
+// for wall push
+#include "Components/ActionComponents.h"
+
 #include "Systems/Physics.h"
 #include "Systems/AnimationSystem.h"
 #include "Systems/MoveSystem.h"

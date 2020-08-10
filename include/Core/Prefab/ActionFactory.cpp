@@ -5,7 +5,6 @@
 #include "Components/StateComponents/AttackStateComponent.h"
 #include "Components/StateComponents/HitStateComponent.h"
 #include "Components/Actors/GameActor.h"
-#include "Systems/WallPush/WallPushComponent.h"
 
 #include "StateMachine/ActionUtil.h"
 

@@ -1,7 +1,9 @@
 #pragma once
 #include "Systems/ISystem.h"
 
-#include "Systems/WallPush/WallPushComponent.h"
+// for wall push
+#include "Components/ActionComponents.h"
+
 #include "Components/Hitbox.h"
 #include "Components/Hurtbox.h"
 #include "Components/StateComponent.h"

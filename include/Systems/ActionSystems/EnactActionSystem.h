@@ -160,6 +160,20 @@ struct CleanUpActionSystem : public ISystem<EnactActionComponent, StateComponent
   }
 };
 
+// all empty components need to be put in a system or they dont generate an id
+// so thats why this is here
+/*struct LoserSystem : public ISystem<LoserComponent>
+{
+  static void PostUpdate()
+  {
+    std::vector<Entity*> entities;
+    for (auto tuple : Tuples)
+    {
+      LoserComponent* action = std::get<LoserComponent*>(tuple.second);
+    }
+  }
+};*/
+
 struct EnactAggregate
 {
   static void Check(Entity* entity)
@@ -171,6 +185,9 @@ struct EnactAggregate
     EnactActionDamageSystem::Check(entity);
     EnactGrappledSystem::Check(entity);
     CleanUpActionSystem::Check(entity);
+
+    // just needs to be here to generate component id for losercomponent
+    //LoserSystem::Check(entity);
   }
 
   static void DoTick(float dt)

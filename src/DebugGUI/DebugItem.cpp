@@ -3,7 +3,7 @@
 DebugItem::DebugItem(const char* groupName) : debugGroup(groupName)
 {
   std::function<void()> func = [this]() { OnDebug(); };
-  debugID = GUIController::Get().AddImguiWindowFunction(debugGroup, func);
+  debugID = GUIController::Get().AddImguiWindowFunction("Debug Components", debugGroup, func);
 }
 
 DebugItem& DebugItem::operator=(const DebugItem& other)
@@ -21,5 +21,5 @@ DebugItem& DebugItem::operator=(DebugItem&& other) noexcept
 DebugItem::~DebugItem()
 {
   if(debugID >= 0)
-    GUIController::Get().RemoveImguiWindowFunction(debugGroup, debugID);
+    GUIController::Get().RemoveImguiWindowFunction("Debug Components", debugGroup, debugID);
 }

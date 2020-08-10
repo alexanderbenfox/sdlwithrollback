@@ -6,7 +6,8 @@
 
 #include "StateMachine/RecvHit.h"
 
-#include "Systems/WallPush/WallPushComponent.h"
+// for wall push
+#include "Components/ActionComponents.h"
 
 //______________________________________________________________________________
 void DashAction::Enact(Entity* actor)

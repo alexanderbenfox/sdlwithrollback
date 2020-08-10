@@ -35,8 +35,8 @@ public:
 
 
 
-  int AddImguiWindowFunction(const std::string& group, std::function<void()>& function);
-  void RemoveImguiWindowFunction(const std::string& group, int index);
+  int AddImguiWindowFunction(const std::string& window, const std::string& category, std::function<void()>& function);
+  void RemoveImguiWindowFunction(const std::string& window, const std::string& category, int index);
 
 private:
   GUIController() = default;
@@ -50,8 +50,9 @@ private:
 
   bool _drawComponentDebug = true;
 
-  std::unordered_map<std::string, std::vector<std::function<void()>>> _imguiWindowGroups;
+  typedef std::unordered_map<std::string, std::vector<std::function<void()>>> WindowGrouping;
 
+  std::unordered_map<std::string, WindowGrouping> _imguiWindows;
 };
 
 struct DropDown

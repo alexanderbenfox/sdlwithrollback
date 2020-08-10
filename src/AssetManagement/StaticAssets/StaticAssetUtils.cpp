@@ -84,7 +84,7 @@ void StaticAssetUtils::CreateAnimationDebug(std::unordered_map<std::string, Anim
     ImGui::EndGroup();
   };
 
-  GUIController::Get().AddImguiWindowFunction("Ryu Attack Animations", f);
+  GUIController::Get().AddImguiWindowFunction("Ryu Character Data", "Attack Animations", f);
 
   for (auto& anim : attackAnimations)
   {
@@ -191,7 +191,7 @@ void StaticAssetUtils::CreateAnimationDebug(std::unordered_map<std::string, Anim
         }
       }
     };
-    GUIController::Get().AddImguiWindowFunction("Ryu Attack Animations", ModFrameData);
+    GUIController::Get().AddImguiWindowFunction("Ryu Character Data", "Attack Animations", ModFrameData);
   }
 }
 

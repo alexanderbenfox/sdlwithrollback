@@ -129,12 +129,16 @@ void GUIController::MainLoop(SDL_Event& event)
 
   if(showGUI)
   {
-    for (auto& group : _imguiWindowGroups)
+    for (auto& window : _imguiWindows)
     {
-      ImGui::Begin(group.first.c_str());
-      for (auto& func : group.second)
+      ImGui::Begin(window.first.c_str());
+      for(auto& category : window.second)
       {
-        func();
+        ImGui::Text(category.first.c_str());
+        for (auto& func : category.second)
+        {
+          func();
+        }
       }
       ImGui::End();
     }
@@ -150,29 +154,38 @@ void GUIController::CleanUp()
 }
 
 
-int GUIController::AddImguiWindowFunction(const std::string& group, std::function<void()>& function)
+int GUIController::AddImguiWindowFunction(const std::string& window, const std::string& category, std::function<void()>& function)
 {
-  auto it = _imguiWindowGroups.find(group);
-  if (it == _imguiWindowGroups.end())
+  auto windowsIt = _imguiWindows.find(window);
+  if (windowsIt == _imguiWindows.end())
   {
-    _imguiWindowGroups.emplace(group, std::vector<std::function<void()>>());
+    _imguiWindows.emplace(window, WindowGrouping());
   }
-  _imguiWindowGroups[group].push_back(function);
+  auto categoryIt = _imguiWindows[window].find(category);
+  if (categoryIt == _imguiWindows[window].end())
+  {
+    _imguiWindows[window].emplace(category, std::vector<std::function<void()>>());
+  }
+  _imguiWindows[window][category].push_back(function);
 
   // return the index of the new item
-  return _imguiWindowGroups[group].size() - 1;
+  return _imguiWindows[window][category].size() - 1;
 }
 
-void GUIController::RemoveImguiWindowFunction(const std::string& group, int index)
+void GUIController::RemoveImguiWindowFunction(const std::string& window, const std::string& category, int index)
 {
-  auto it = _imguiWindowGroups.find(group);
-  if (it != _imguiWindowGroups.end())
+  auto windowsIt = _imguiWindows.find(window);
+  if (windowsIt != _imguiWindows.end())
   {
-    // if its out of range just delete the last one. this is a shitty solution to a shitty problem
-    if(index > it->second.size() - 1)
-      index = it->second.size() - 1;
+    auto it = _imguiWindows[window].find(category);
+    if (it != _imguiWindows[window].end())
+    {
+      // if its out of range just delete the last one. this is a shitty solution to a shitty problem
+      if(index > it->second.size() - 1)
+        index = it->second.size() - 1;
 
-    it->second.erase(it->second.begin() + index);
+      it->second.erase(it->second.begin() + index);
+    }
   }
 }
 

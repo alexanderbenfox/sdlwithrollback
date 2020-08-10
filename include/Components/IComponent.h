@@ -40,7 +40,9 @@ struct ComponentTraits
   static int ID;
   static bool ID_Initialized;
 
-  static const uint64_t GetSignature() { return 1LL << ID; }
+  static const __uint128_t GetSignature() { return static_cast<__uint128_t>(1) << ID; } 
+
+  //static const uint64_t GetSignature() { return 1LL << ID; }
 };
 
 template <class T>

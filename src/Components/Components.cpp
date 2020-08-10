@@ -18,6 +18,18 @@
 
 #include <cassert>
 
+#include "Components/ActionComponents.h"
+
+//______________________________________________________________________________
+WallPushComponent::WallPushComponent(std::shared_ptr<Entity> entity) : IComponent(entity) {}
+
+//______________________________________________________________________________
+WallPushComponent::~WallPushComponent()
+{
+  if (_owner->GetComponent<Rigidbody>())
+    _owner->GetComponent<Rigidbody>()->_vel.x = 0;
+}
+
 //______________________________________________________________________________
 UIRectangleRenderComponent::UIRectangleRenderComponent(std::shared_ptr<Entity> owner) : shownSize{ 0, 0, 0, 0 }, IComponent(owner)
 {
@@ -55,6 +67,11 @@ void StateComponent::OnDebug()
       ImGui::Text("NotHitting");
     ImGui::Text("HP = %d", hp);
     ImGui::Checkbox("Invulnerable", &invulnerable);
+
+    if(ImGui::Button("Mark Loser"))
+    {
+      MarkLoser();
+    }
   }
 }
 

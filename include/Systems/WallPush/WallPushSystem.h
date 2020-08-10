@@ -1,6 +1,8 @@
 #pragma once
 #include "Systems/ISystem.h"
-#include "Systems/WallPush/WallPushComponent.h"
+// for wall push
+#include "Components/ActionComponents.h"
+#include "Components/Rigidbody.h"
 
 class WallPushSystem : public ISystem<Rigidbody, WallPushComponent, Transform>
 {

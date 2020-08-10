@@ -20,13 +20,15 @@ typedef GLTexture RenderType;
 class ConstComponentIDGenerator
 {
 public:
-  static int ID;
-  static int NextID(bool& isInitialized, int value)
+  static int NextID(bool& isInitialized, int& value)
   {
+    static int ID = 0;
+
     if (isInitialized)
       return value;
 
     isInitialized = true;
-    return ID++;
+    value = ID++;
+    return value;
   }
 };

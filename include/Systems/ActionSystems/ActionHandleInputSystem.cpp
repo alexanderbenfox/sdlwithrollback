@@ -396,7 +396,9 @@ void CheckSpecialAttackInputSystem::DoTick(float dt)
         GameManager::Get().ScheduleTask([state]()
         {
           // add additional cancelables for special moves here
-          state->Owner()->AddComponents<CancelOnDash, CancelOnJump>();
+          // these might not work because they aren't implemented in any systems
+          // so they don't generate signatures
+          // state->Owner()->AddComponents<CancelOnDash, CancelOnJump>();
 
           // no cancel on hit ground for stuff like tatsu
           state->Owner()->RemoveComponents<CancelOnHitGround, CancelOnNormal, CancelOnSpecial>();

@@ -38,8 +38,6 @@
 #include <iostream>
 #endif
 
-int ConstComponentIDGenerator::ID = 0;
-
 //______________________________________________________________________________
 void ResourceManager::Initialize()
 {
@@ -222,7 +220,7 @@ void GameManager::BeginGameLoop()
     ImGui::PlotLines("Update speed over time (ms/frame) - updated every 10 frames", [](void* data, int idx) { return (float)((long long*)data)[idx]/ 1000000.0f; }, tracker.GetValues(), tracker.NumValues(), 0, nullptr, FLT_MAX, FLT_MAX, ImVec2(200, 100));
     ImGui::EndGroup();
   };
-  GUIController::Get().AddImguiWindowFunction("Engine Stats", imguiWindowFunc);
+  GUIController::Get().AddImguiWindowFunction("Main Debug Window", "Engine Stats", imguiWindowFunc);
 
   static float ts[40];
   for (int i = 0; i < 40; i++)
@@ -265,8 +263,8 @@ void GameManager::BeginGameLoop()
     DropDown::Show(current_item, items, 4, func);
   };
 
-  GUIController::Get().AddImguiWindowFunction("Dash Function parameters", actionParameters);
-  GUIController::Get().AddImguiWindowFunction("Scene Selection", sceneSelect);
+  GUIController::Get().AddImguiWindowFunction("Main Debug Window", "Dash Function parameters", actionParameters);
+  GUIController::Get().AddImguiWindowFunction("Main Debug Window", "Scene Selection", sceneSelect);
 
   int frameCount = 0;
   for (;;)

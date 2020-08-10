@@ -276,3 +276,15 @@ struct HasTargetCombo : public IComponent
   std::unordered_map<ActionState, InputState> links;
 
 };
+
+
+//! Component for pushing player away from other player when pressuring on the wall - plz move later
+struct WallPushComponent : public IComponent
+{
+  WallPushComponent(std::shared_ptr<Entity> entity);
+  ~WallPushComponent();
+
+  float pushAmount;
+  float amountPushed = 0.0f;
+  float velocity;
+};
