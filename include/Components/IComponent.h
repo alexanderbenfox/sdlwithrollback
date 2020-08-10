@@ -5,11 +5,12 @@
 #include "Utils.h"
 #include "ComponentConst.h"
 
+#include <bitset>
+
 class Entity;
 
 // IDEA: Split up components into their data and functions that change that data
 // Based on reducers in redux??
-
 
 template <typename T>
 struct ComponentInitParams
@@ -39,14 +40,16 @@ struct ComponentTraits
 {
   static int ID;
   static bool ID_Initialized;
+  static std::bitset<MAX_COMPONENTS> signature;
 
-  static const __uint128_t GetSignature() { return static_cast<__uint128_t>(1) << ID; } 
-
-  //static const uint64_t GetSignature() { return 1LL << ID; }
+  static const std::bitset<MAX_COMPONENTS>& GetSignature() { return signature; }
 };
 
 template <class T>
-int ComponentTraits<T>::ID = ConstComponentIDGenerator::NextID(ComponentTraits<T>::ID_Initialized, ComponentTraits<T>::ID);
+int ComponentTraits<T>::ID = 0;
 
 template <class T>
 bool ComponentTraits<T>::ID_Initialized = false;
+
+template <class T>
+std::bitset<MAX_COMPONENTS> ComponentTraits<T>::signature = ConstComponentIDGenerator::GenerateBitFlag(ComponentTraits<T>::ID_Initialized, ComponentTraits<T>::ID, ComponentTraits<T>::signature);

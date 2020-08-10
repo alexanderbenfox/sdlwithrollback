@@ -551,9 +551,6 @@
     <ClInclude Include="..\include\Components\Actors\GameActor.h">
       <Filter>Header Files\Components\Actors</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\Systems\WallPush\WallPushComponent.h">
-      <Filter>Header Files\Systems\WallPush</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\Systems\WallPush\WallPushSystem.h">
       <Filter>Header Files\Systems\WallPush</Filter>
     </ClInclude>

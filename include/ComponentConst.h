@@ -1,5 +1,8 @@
 #pragma once
 #include "Core/Math/Vector2.h"
+#include <bitset>
+
+#define MAX_COMPONENTS 128
 
 const float secPerFrame = 1.0f / 60.0f;
 
@@ -30,5 +33,12 @@ public:
     isInitialized = true;
     value = ID++;
     return value;
+  }
+
+  static std::bitset<MAX_COMPONENTS> GenerateBitFlag(bool& isInitialized, int& ID, std::bitset<MAX_COMPONENTS>& signature)
+  {
+    ID = NextID(isInitialized, ID);
+    signature.set(ID);
+    return signature;
   }
 };

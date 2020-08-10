@@ -165,7 +165,6 @@
     <ClInclude Include="..\include\Systems\Physics.h" />
     <ClInclude Include="..\include\Systems\TimerSystem.h" />
     <ClInclude Include="..\include\Systems\UISystem.h" />
-    <ClInclude Include="..\include\Systems\WallPush\WallPushComponent.h" />
     <ClInclude Include="..\include\Systems\WallPush\WallPushSystem.h" />
     <ClInclude Include="..\include\Timer.h" />
     <ClInclude Include="..\include\Utils.h" />

@@ -53,7 +53,7 @@ public:
   std::tuple<std::add_pointer_t<T>...> MakeComponentTuple();
 
   //! Bit flag for the components currently attached
-  __uint128_t ComponentBitFlag;
+  std::bitset<MAX_COMPONENTS> ComponentBitFlag;
 
 protected:
   //! Creates a pointer to give to system tuple in MakeComponentTuple
