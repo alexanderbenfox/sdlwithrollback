@@ -5,8 +5,6 @@
 
 #include "Components/StateComponents/AttackStateComponent.h"
 
-#include "StateMachine/ActionUtil.h"
-
 //______________________________________________________________________________
 void TimedActionSystem::DoTick(float dt)
 {
@@ -174,9 +172,9 @@ void CheckForMove::DoTick(float dt)
     {
       Vector2<float> movementVector;
       if (HasState(actor->LastButtons(), InputState::LEFT))
-        movementVector = Vector2<float>(-0.5f * ActionParams::baseWalkSpeed, 0.0f);
+        movementVector = Vector2<float>(-0.5f * GlobalVars::BaseWalkSpeed, 0.0f);
       else if (HasState(actor->LastButtons(), InputState::RIGHT))
-        movementVector = Vector2<float>(0.5f * ActionParams::baseWalkSpeed, 0.0f);
+        movementVector = Vector2<float>(0.5f * GlobalVars::BaseWalkSpeed, 0.0f);
 
 
       GameManager::Get().ScheduleTask([actor, state, movementVector]()
@@ -231,9 +229,9 @@ void CheckForJump::DoTick(float dt)
     {
       Vector2<float> movementVector;
       if (HasState(actor->LastButtons(), InputState::LEFT))
-        movementVector = Vector2<float>(-0.5f * ActionParams::baseWalkSpeed, -UniversalPhysicsSettings::Get().JumpVelocity);
+        movementVector = Vector2<float>(-0.5f * GlobalVars::BaseWalkSpeed, -UniversalPhysicsSettings::Get().JumpVelocity);
       else if (HasState(actor->LastButtons(), InputState::RIGHT))
-        movementVector = Vector2<float>(0.5f * ActionParams::baseWalkSpeed, -UniversalPhysicsSettings::Get().JumpVelocity);
+        movementVector = Vector2<float>(0.5f * GlobalVars::BaseWalkSpeed, -UniversalPhysicsSettings::Get().JumpVelocity);
       else
         movementVector = Vector2<float>(0.0f, -UniversalPhysicsSettings::Get().JumpVelocity);
 

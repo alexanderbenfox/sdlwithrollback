@@ -12,8 +12,6 @@
 #include "Components/RenderComponent.h"
 #include "Components/UIComponents.h"
 #include "Components/Actors/GameActor.h"
-
-#include "StateMachine/AnimatedAction.h"
 #include "Core/Math/Vector2.h"
 
 #include <cassert>
@@ -108,71 +106,13 @@ void RectCollider<T>::Draw()
 }
 
 //______________________________________________________________________________
-GameActor::GameActor(std::shared_ptr<Entity> owner) : _currentAction(nullptr), _newState(true), _lastInput(InputState::NONE), IComponent(owner)
+GameActor::GameActor(std::shared_ptr<Entity> owner) : _newState(true), _lastInput(InputState::NONE), IComponent(owner)
 {
-  BeginNewAction(new LoopedAction<StanceState::STANDING, ActionState::NONE>("Idle", owner.get()));
 }
 
 //______________________________________________________________________________
 GameActor::~GameActor()
 {
-  if(_currentAction)
-  {
-    delete _currentAction;
-    _currentAction = nullptr;
-  }
-}
-
-//______________________________________________________________________________
-void GameActor::OnActionComplete(IAction* action)
-{
-  _newState = true;
-  action->SetComplete();
-}
-
-//______________________________________________________________________________
-void GameActor::SetStateInfo(StanceState stance, ActionState action)
-{
-  _currAction = action;
-  _currStance = stance;
-}
-
-//______________________________________________________________________________
-void GameActor::BeginNewAction(IAction* action)
-{
-  if (_currentAction != nullptr)
-  {
-    if(_currentAction->CheckInputsOnFollowUp())
-      _newState = true;
-    delete _currentAction;
-  }
-  
-  _currentAction = action;
-
-  _currentAction->ChangeListener(this);
-  _currentAction->Enact(_owner.get());
-}
-
-//______________________________________________________________________________
-bool GameActor::EvaluateInputContext(const InputBuffer& input, const StateComponent* stateInfo)
-{
-  StateComponent currentState = *stateInfo;
-  if (_newState || input.Latest() != _lastInput || currentState != _lastState)
-  {
-    _newState = false;
-    _lastInput = input.Latest();
-    _lastState = currentState;
-
-    IAction* prevAction = _currentAction;
-    IAction* nextAction = _currentAction->HandleInput(input, currentState);
-
-    if (nextAction && (nextAction != prevAction))
-    {
-      BeginNewAction(nextAction);
-      return true;
-    }
-  }
-  return false;
 }
 
 std::ostream& operator<<(std::ostream& os, const GameActor& actor)

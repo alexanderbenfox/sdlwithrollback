@@ -1,10 +1,7 @@
 #pragma once
+#include "Globals.h"
+#include "Components/ComponentIDGenerator.h"
 #include <memory>
-
-#include <iostream>
-#include "Utils.h"
-#include "ComponentConst.h"
-
 #include <bitset>
 
 class Entity;
@@ -52,4 +49,4 @@ template <class T>
 bool ComponentTraits<T>::ID_Initialized = false;
 
 template <class T>
-std::bitset<MAX_COMPONENTS> ComponentTraits<T>::signature = ConstComponentIDGenerator::GenerateBitFlag(ComponentTraits<T>::ID_Initialized, ComponentTraits<T>::ID, ComponentTraits<T>::signature);
+std::bitset<MAX_COMPONENTS> ComponentTraits<T>::signature = ComponentIDGenerator::GenerateBitFlag(ComponentTraits<T>::ID_Initialized, ComponentTraits<T>::ID, ComponentTraits<T>::signature);

@@ -1,6 +1,8 @@
 #pragma once
 #include "Components/IComponent.h"
-#include "StateMachine/ActionTimer.h"
+
+#include "Core/Math/Vector2.h"
+#include "ActionTimer.h"
 
 class SFXComponent : public IComponent
 {

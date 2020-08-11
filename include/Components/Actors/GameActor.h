@@ -1,36 +1,22 @@
 #pragma once
-#include "StateMachine/IAction.h"
-#include "StateMachine/ActionTimer.h"
-
 #include "Components/StateComponent.h"
+#include "Components/InputHandlers/InputBuffer.h"
 
-#include <set>
-
-class GameActor : public IComponent, public IActionListener
+class GameActor : public IComponent
 {
 public:
   //!
   GameActor(std::shared_ptr<Entity> owner);
   //!
   ~GameActor();
-  //! 
-  virtual void OnActionComplete(IAction* action) override;
   //!
-  virtual std::shared_ptr<Entity> GetOwner() override { return _owner; }
-  //!
-  virtual void SetStateInfo(StanceState stance, ActionState action) override;
-  //!
-  void BeginNewAction(IAction* action);
-  //! returns true if entered a new action
-  bool EvaluateInputContext(const InputBuffer& input, const StateComponent* stateInfo);
+  std::shared_ptr<Entity> GetOwner() { return _owner; }
 
   StanceState const& GetStanceState() { return _currStance; }
   ActionState const& GetActionState() { return _currAction; }
 
   friend std::ostream& operator<<(std::ostream& os, const GameActor& actor);
   friend std::istream& operator>>(std::istream& is, GameActor& actor);
-
-  bool actionTimerComplete = false;
 
   void TransferInputData(const InputBuffer& buffer, const StateComponent* stateInfo)
   {
@@ -52,14 +38,13 @@ public:
 
   bool newInputs = true;
   bool forceNewInputOnNextFrame = false;
+  //! indicates current action is complete and entity should trigger its "TransitionTo" action if it has one
+  bool actionTimerComplete = false;
 
   InputState const& LastButtons() { return _lastInput; }
   SpecialInputState const& LastSpecial() { return _lastSpInput; }
 
 private:
-  //!
-  IAction* _currentAction;
-
   //!
   InputState _lastInput;
   SpecialInputState _lastSpInput;

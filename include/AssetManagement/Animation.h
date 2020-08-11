@@ -1,9 +1,10 @@
 #pragma once
+#include "Globals.h"
+
 #include "AssetManagement/StaticAssets/AnimationAssetData.h"
 #include "Components/Transform.h"
 #include "Components/StateComponent.h"
 #include "AssetManagement/BlitOperation.h"
-#include "ComponentConst.h"
 #include "ResourceManager.h"
 #include "AssetManagement/AnimationEvent.h"
 

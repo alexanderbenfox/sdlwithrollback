@@ -28,8 +28,6 @@
 
 #include "GameState/Scene.h"
 
-#include "StateMachine/ActionUtil.h"
-
 #include "Components/Actors/GameActor.h"
 
 #ifdef _DEBUG
@@ -229,19 +227,30 @@ void GameManager::BeginGameLoop()
   std::function<void()> actionParameters = []()
   {
     ImGui::BeginGroup();
-    ImGui::InputFloat("a value", &Interpolation::Plateau::a, 1.0f, 1.0f, 5);
-    ImGui::InputFloat("modifier value", &Interpolation::Plateau::modifier, 0.5f, 1.0f, 5);
-    ImGui::InputFloat("distribution width value", &Interpolation::Plateau::d, 0.0000001f, 0.00001f, 10);
-    ImGui::InputFloat("X axis offset", &Interpolation::Plateau::xAxisOffset, 0.001f, 0.01f, 5);
-    ImGui::InputInt("number of frames for dash", &ActionParams::nDashFrames);
-    ImGui::InputFloat("Walk speed", &ActionParams::baseWalkSpeed, 1.0f, 10.0f, 0);
-    
-    // plot function for visual aid
-    ImGui::PlotLines("Plateau",
+
+    ImGui::InputFloat("Walk speed", &GlobalVars::BaseWalkSpeed, 1.0f, 10.0f, 0);
+    ImGui::InputInt("number of frames for dash", &GlobalVars::nDashFrames);
+    ImGui::InputInt("Hit stop frames ON HIT", &GlobalVars::HitStopFramesOnHit);
+    ImGui::InputInt("Hit stop frames ON BLOCK", &GlobalVars::HitStopFramesOnBlock);
+
+    ImGui::Checkbox("Show hit effects", &GlobalVars::ShowHitEffects);
+
+    if (ImGui::CollapsingHeader("Dash Function"))
+    {
+      // plot function for visual aid
+      ImGui::PlotLines("Plateau",
       [](void* data, int idx)
       {
         return Interpolation::Plateau::F(static_cast<float*>(data)[idx], 19, 1.0f);
-      }, ts, 40, 0, nullptr, FLT_MAX, FLT_MAX, ImVec2(200, 100));
+      },
+      ts, 40, 0, nullptr, FLT_MAX, FLT_MAX, ImVec2(200, 100));
+
+      ImGui::InputFloat("a value", &Interpolation::Plateau::a, 1.0f, 1.0f, 5);
+      ImGui::InputFloat("modifier value", &Interpolation::Plateau::modifier, 0.5f, 1.0f, 5);
+      ImGui::InputFloat("distribution width value", &Interpolation::Plateau::d, 0.0000001f, 0.00001f, 10);
+      ImGui::InputFloat("X axis offset", &Interpolation::Plateau::xAxisOffset, 0.001f, 0.01f, 5);
+    }
+
     ImGui::EndGroup();
   };
 

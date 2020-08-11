@@ -1,6 +1,7 @@
 #pragma once
 #include "AssetManagement/Animation.h"
-#include "StateMachine/IAction.h"
+
+#include "Core/Interfaces/AnimatorListener.h"
 
 class Animator : public IComponent
 {
@@ -12,14 +13,15 @@ public:
   // Setter function
   Animation* Play(const std::string& name, bool isLooped, float speed = 1.0f, bool forcePlay = false);
 
-  void ChangeListener(IAnimatorListener* listener) { _listener = listener; }
-
   Animation& GetCurrentAnimation() { return _currentAnimation->second; }
-
-  //!
-  IAnimatorListener* GetListener() { return _listener; }
   //!
   AnimationCollection* AnimationLib() {return _animations; }
+
+  //!
+  void ChangeListener(IAnimatorListener* listener) { _listener = listener; }
+  //!
+  IAnimatorListener* GetListener() { return _listener; }
+
   // STATE VARIABLES
   //!
   bool playing;

@@ -106,14 +106,17 @@ struct EnactActionDamageSystem : public ISystem<EnactActionComponent, ReceivedDa
       }
 
       SFXComponent* sfx = std::get<SFXComponent*>(tuple.second);
-      if (action->isBlocking)
-        sfx->ShowBlockSparks();
-      else if(!action->fromGrapple)
-        sfx->ShowHitSparks();
+      if (GlobalVars::ShowHitEffects)
+      {
+        if (action->isBlocking)
+          sfx->ShowBlockSparks();
+        else if (!action->fromGrapple)
+          sfx->ShowHitSparks();
+      }
 
       if (!action->fromGrapple)
       {
-        GameManager::Get().ActivateHitStop(9);
+        GameManager::Get().ActivateHitStop(action->isBlocking ? GlobalVars::HitStopFramesOnBlock : GlobalVars::HitStopFramesOnHit);
       }
     }
   }

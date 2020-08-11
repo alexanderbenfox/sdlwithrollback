@@ -4,7 +4,7 @@
 #include "Components/StateComponents/HitStateComponent.h"
 #include "Components/ActionComponents.h"
 
-#include "StateMachine/ActionTimer.h"
+#include "ActionTimer.h"
 
 #include "GameManagement.h"
 

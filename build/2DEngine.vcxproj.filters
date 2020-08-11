@@ -70,12 +70,6 @@
     <Filter Include="Source Files\Core\Geometry2D">
       <UniqueIdentifier>{eb3b23a2-bacb-4331-a692-0bd4930a2622}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\StateMachine">
-      <UniqueIdentifier>{f5a6d41f-052a-4fad-a82e-2787dbb434a4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\StateMachine">
-      <UniqueIdentifier>{e017e068-1819-4fbd-9138-c47f3dece814}</UniqueIdentifier>
-    </Filter>
     <Filter Include="External">
       <UniqueIdentifier>{f9f01433-9c27-4e94-9df1-3bfe906748c8}</UniqueIdentifier>
     </Filter>
@@ -207,15 +201,6 @@
     <ClCompile Include="..\src\DebugGUI\DebugItem.cpp">
       <Filter>Source Files\DebugGUI</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\StateMachine\ActionUtil.cpp">
-      <Filter>Source Files\StateMachine</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\StateMachine\AnimatedAction.cpp">
-      <Filter>Source Files\StateMachine</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\StateMachine\TimedAction.cpp">
-      <Filter>Source Files\StateMachine</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\GameState\StartScene.cpp">
       <Filter>Source Files\GameState</Filter>
     </ClCompile>
@@ -266,6 +251,9 @@
     </ClCompile>
     <ClCompile Include="..\include\Systems\WallPush\WallPushSystem.cpp">
       <Filter>Header Files\Systems\WallPush</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\Globals.cpp">
+      <Filter>Header Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -350,9 +338,6 @@
     <ClInclude Include="..\include\AssetManagement\BlitOperation.h">
       <Filter>Header Files\AssetManagement</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\ComponentConst.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\imgui\imconfig.h">
       <Filter>External</Filter>
     </ClInclude>
@@ -428,24 +413,6 @@
     <ClInclude Include="..\include\DebugGUI\DebugItem.h">
       <Filter>Header Files\DebugGUI</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\StateMachine\IAction.h">
-      <Filter>Header Files\StateMachine</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\StateMachine\ActionTimer.h">
-      <Filter>Header Files\StateMachine</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\StateMachine\ActionUtil.h">
-      <Filter>Header Files\StateMachine</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\StateMachine\AnimatedAction.h">
-      <Filter>Header Files\StateMachine</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\StateMachine\TimedAction.h">
-      <Filter>Header Files\StateMachine</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\StateMachine\AttackAction.h">
-      <Filter>Header Files\StateMachine</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\Systems\CheckBattleEndSystem.h">
       <Filter>Header Files\Systems</Filter>
     </ClInclude>
@@ -457,9 +424,6 @@
     </ClInclude>
     <ClInclude Include="..\include\Components\UIComponents.h">
       <Filter>Header Files\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\StateMachine\StateEnums.h">
-      <Filter>Header Files\StateMachine</Filter>
     </ClInclude>
     <ClInclude Include="..\include\AssetManagement\StaticAssets\AnimationAssetData.h">
       <Filter>Header Files\AssetManagement\StaticAssets</Filter>
@@ -512,9 +476,6 @@
     <ClInclude Include="..\include\Components\SFXComponent.h">
       <Filter>Header Files\Components</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\StateMachine\RecvHit.h">
-      <Filter>Header Files\StateMachine</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\Systems\DestroyEntitiesSystem.h">
       <Filter>Header Files\Systems</Filter>
     </ClInclude>
@@ -553,6 +514,18 @@
     </ClInclude>
     <ClInclude Include="..\include\Systems\WallPush\WallPushSystem.h">
       <Filter>Header Files\Systems\WallPush</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Globals.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Components\ComponentIDGenerator.h">
+      <Filter>Header Files\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\ActionTimer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Core\Interfaces\AnimatorListener.h">
+      <Filter>Header Files\Core\Interfaces</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

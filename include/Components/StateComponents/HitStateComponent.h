@@ -1,6 +1,6 @@
 #pragma once
 #include "Components/IComponent.h"
-#include "StateMachine/ActionTimer.h"
+#include "ActionTimer.h"
 
 class HitStateComponent : public IComponent
 {

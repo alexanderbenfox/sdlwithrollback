@@ -1,6 +1,5 @@
 #pragma once
 #include "Components/IComponent.h"
-#include "StateMachine/StateEnums.h"
 
 #include "Components/Rigidbody.h"
 #include "Components/StateComponent.h"

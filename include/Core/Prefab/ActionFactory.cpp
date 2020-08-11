@@ -6,8 +6,6 @@
 #include "Components/StateComponents/HitStateComponent.h"
 #include "Components/Actors/GameActor.h"
 
-#include "StateMachine/ActionUtil.h"
-
 #include "GameManagement.h"
 
 //! Define action decided list
@@ -350,17 +348,17 @@ void ActionFactory::SetDashAction(Entity* entity, StateComponent* state, Animato
 
       std::string animationName = dashDirectionForward ? "ForwardDash" : "BackDash";
       // set up animation
-      float dashPlaySpeed = static_cast<float>(animator->AnimationLib()->GetAnimation(animationName)->GetFrameCount()) / static_cast<float>(ActionParams::nDashFrames);
+      float dashPlaySpeed = static_cast<float>(animator->AnimationLib()->GetAnimation(animationName)->GetFrameCount()) / static_cast<float>(GlobalVars::nDashFrames);
       entity->AddComponent<AnimatedActionComponent>({ state->onLeftSide, false, true, dashPlaySpeed, animationName });
 
       entity->AddComponent<DashingAction>();
-      entity->GetComponent<DashingAction>()->dashSpeed = ActionParams::baseWalkSpeed * 1.5f;
+      entity->GetComponent<DashingAction>()->dashSpeed = GlobalVars::BaseWalkSpeed * 1.5f;
       if ((state->onLeftSide && !dashDirectionForward) || (!state->onLeftSide && dashDirectionForward))
         entity->GetComponent<DashingAction>()->dashSpeed *= -1.0f;
 
       // set up the end timer
       entity->AddComponent<TimedActionComponent>();
-      entity->GetComponent<TimedActionComponent>()->totalFrames = ActionParams::nDashFrames;
+      entity->GetComponent<TimedActionComponent>()->totalFrames = GlobalVars::nDashFrames;
 
 
       // add states for potential inputs

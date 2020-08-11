@@ -2,7 +2,6 @@
 #include "IComponent.h"
 #include "Core/Geometry2D/RectHelper.h"
 #include "DebugGUI/DebugItem.h"
-#include "StateMachine/StateEnums.h"
 #include "AssetManagement/StaticAssets/AnimationAssetData.h"
 
 //! marks the entity as the loser of the round

@@ -1,7 +1,6 @@
 #pragma once
-#include <unordered_map>
-#include "ComponentConst.h"
 #include "AssetManagement/Animation.h"
+#include <unordered_map>
 
 const SpriteSheet idleAndWalking("spritesheets\\idle_and_walking.png", 6, 6, false);
 const SpriteSheet jumpFall("spritesheets\\idle_walking_jab_jump_crouch.png", 8, 10, false);
