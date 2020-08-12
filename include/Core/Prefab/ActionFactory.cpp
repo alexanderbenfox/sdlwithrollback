@@ -28,7 +28,7 @@ void ActionFactory::SetCrouchingState(Entity* entity, StateComponent* state)
     entity->AddComponent<AnimatedActionComponent>({ state->onLeftSide, true, true, 1.0f, "Crouch" });
     entity->AddComponent<EnactActionComponent>();
 
-    entity->RemoveComponent<TransitionToCrouching>();
+    entity->RemoveComponents<TransitionToCrouching, AbleToWalk>();
   });
 }
 

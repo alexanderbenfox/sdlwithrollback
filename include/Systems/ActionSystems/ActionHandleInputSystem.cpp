@@ -113,6 +113,9 @@ void HandleInputCrouch::DoTick(float dt)
       {
         entity->RemoveComponent<CrouchingAction>();
         entity->RemoveComponent<TransitionToCrouching>();
+
+        if(entity->GetComponent<AbleToAttackState>())
+          entity->AddComponent<AbleToWalk>();
       });
     }
   }
@@ -310,7 +313,7 @@ void CheckForBeginCrouching::DoTick(float dt)
         actor->GetOwner()->AddComponent<TransitionToCrouching>();
         actor->GetOwner()->AddComponent<CrouchingAction>();
 
-        actor->GetOwner()->RemoveComponent<AbleToCrouch>();
+        actor->GetOwner()->RemoveComponents<AbleToCrouch, AbleToWalk>();
       });
       //ActionFactory::SetEntityDecided(actor->Owner());
     }
