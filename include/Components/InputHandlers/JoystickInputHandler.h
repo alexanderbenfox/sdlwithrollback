@@ -23,8 +23,6 @@ private:
   //!
   SDL_Joystick* _gameController = nullptr;
   //!
-  const int _joyStickID = 0;
-  //!
   ConfigMap<uint8_t, InputState> _config;
   
 };

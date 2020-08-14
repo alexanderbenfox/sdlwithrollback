@@ -86,7 +86,7 @@ public:
 
 
 private:
-  const TrieNode<InputState, SpecialInputState>& _dictionary;
+  TrieNode<InputState, SpecialInputState> _dictionary;
   std::list<InputState> _latestCompletedSequence = {};
   //std::vector<std::pair<int, std::list<InputState>>> _prefixes;
   std::unordered_map<BufferItem, int, BufferItem> _prefixes;

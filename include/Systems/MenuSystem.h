@@ -7,7 +7,6 @@
 
 struct MenuState : public IComponent
 {
-  MenuState(std::shared_ptr<Entity> e) : IComponent(e) {}
   Vector2<int> currentFocus;
   bool selected = false;
   bool cancel = false;
@@ -15,7 +14,6 @@ struct MenuState : public IComponent
 
 struct MenuItem : public IComponent
 {
-  MenuItem(std::shared_ptr<Entity> e) : IComponent(e) {}
   Vector2<int> location;
   std::function<void()> callback;
 };
@@ -25,34 +23,34 @@ class MenuInputSystem : public ISystem<GameInputComponent, MenuState>
 public:
   static void DoTick(float dt)
   {
-    for (auto tuple : Tuples)
+    for (const EntityID& entity : Registered)
     {
-      GameInputComponent* input = std::get<GameInputComponent*>(tuple.second);
-      MenuState* menu = std::get<MenuState*>(tuple.second);
+      GameInputComponent& input = ComponentArray<GameInputComponent>::Get().GetComponent(entity);
+      MenuState& menu = ComponentArray<MenuState>::Get().GetComponent(entity);
 
-      const InputBuffer& lastInput = input->QueryInput();
+      const InputBuffer& lastInput = input.QueryInput();
       // get button from keydown event
       InputState pressed = lastInput.LatestPressed();
 
       if(HasState(pressed, InputState::UP))
       {
-        menu->currentFocus.y--;
+        menu.currentFocus.y--;
       }
       if(HasState(pressed, InputState::DOWN))
       {
-        menu->currentFocus.y++;
+        menu.currentFocus.y++;
       }
       if(HasState(pressed, InputState::LEFT))
       {
-        menu->currentFocus.x--;
+        menu.currentFocus.x--;
       }
       if(HasState(pressed, InputState::RIGHT))
       {
-        menu->currentFocus.x++;
+        menu.currentFocus.x++;
       }
 
-      menu->selected = HasState(pressed, InputState::BTN1);
-      menu->cancel = !menu->selected && HasState(pressed, InputState::BTN2);
+      menu.selected = HasState(pressed, InputState::BTN1);
+      menu.cancel = !menu.selected && HasState(pressed, InputState::BTN2);
     }
   }
 };
@@ -62,28 +60,28 @@ class UpdateMenuStateSystem : public IMultiSystem<SysComponents<MenuState>, SysC
 public:
   static void DoTick(float dt)
   {
-    for (auto tuple : MainSystem::Tuples)
+    for (const EntityID& e1 : MainSystem::Registered)
     {
-      MenuState* menu = std::get<MenuState*>(tuple.second);
+      MenuState& menu = ComponentArray<MenuState>::Get().GetComponent(e1);
 
-      for(auto subTuple : SubSystem::Tuples)
+      for(const EntityID& e2 : SubSystem::Registered)
       {
-        MenuItem* item = std::get<MenuItem*>(subTuple.second);
-        RenderProperties* props = std::get<RenderProperties*>(subTuple.second);
+        MenuItem& item = ComponentArray<MenuItem>::Get().GetComponent(e2);
+        RenderProperties& props = ComponentArray<RenderProperties>::Get().GetComponent(e2);
 
         // if the state is focused on this position, highlight the box
-        if(menu->currentFocus == item->location)
+        if(menu.currentFocus == item.location)
         {
-          props->SetDisplayColor(255, 255, 255, 255);
+          props.SetDisplayColor(255, 255, 255, 255);
 
-          if(menu->selected)
+          if(menu.selected)
           {
-            item->callback();
+            item.callback();
           }
         }
         else
         {
-          props->SetDisplayColor(128, 128, 128, 128);
+          props.SetDisplayColor(128, 128, 128, 128);
         }
       }
     }

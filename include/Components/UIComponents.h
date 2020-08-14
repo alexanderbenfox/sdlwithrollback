@@ -27,29 +27,26 @@ struct UIComponent
 class UITransform : public Transform, public UIComponent
 {
 public:
-  UITransform(std::shared_ptr<Entity> owner) : Transform(owner) {}
-
   // point to move relative to on the parent (if no parent, then the entire screen)
   UIAnchor anchor;
 
-  std::shared_ptr<UITransform> parent;
+  UITransform* parent = nullptr;
 
   Vector2<float> screenPosition;
 
 };
 
-class UIContainer : public IComponent
+struct UIContainer : public IComponent
 {
-public:
-  UIContainer(std::shared_ptr<Entity> owner) : IComponent(owner) {}
-  std::vector<std::shared_ptr<UIComponent>> uiComponents;
+  std::vector<UIComponent*> uiComponents;
 };
 
 class UIRectangleRenderComponent : public IComponent, public UIComponent
 {
 public:
-  UIRectangleRenderComponent(std::shared_ptr<Entity> owner);
-  virtual ~UIRectangleRenderComponent();
+  UIRectangleRenderComponent();
+  void OnAdd(const EntityID& entity) override;
+  void OnRemove(const EntityID& entity) override;
   DrawRect<float> shownSize;
   bool isFilled = false;
 

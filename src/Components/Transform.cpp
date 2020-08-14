@@ -1,17 +1,12 @@
 #include "Components/Transform.h"
 #include "GameManagement.h"
 
-Transform::Transform(std::shared_ptr<Entity> owner) :
+Transform::Transform() :
   position(Vector2<float>(0.0f, 0.0f)),
   scale(Vector2<float>(1.0f, 1.0f)),
   rotation(Vector2<float>(0.0f, 0.0f)),
-  rect(), IComponent(owner)
+  rect(), IComponent()
 {
-}
-
-Transform::~Transform()
-{
-  //RemoveAllChildren();
 }
 
 void Transform::SetWidthAndHeight(float width, float height)

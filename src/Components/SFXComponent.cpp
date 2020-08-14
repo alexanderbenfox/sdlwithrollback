@@ -5,7 +5,7 @@
 static AnimationCollection HitSFXAnimationCollection;
 SpriteSheet hitblockSparks("sfx\\hitblocksparks.png", 8, 7, true);
 
-SFXComponent::SFXComponent(std::shared_ptr<Entity> entity) : IComponent(entity)
+void SFXComponent::OnAdd(const EntityID& entity)
 {
   _sfxEntity = GameManager::Get().CreateEntity<RenderComponent<GLTexture>, Transform, Animator, TimerContainer>();
 
@@ -17,12 +17,12 @@ SFXComponent::SFXComponent(std::shared_ptr<Entity> entity) : IComponent(entity)
   _sfxEntity->GetComponent<Animator>()->SetAnimations(&HitSFXAnimationCollection);
 }
 
-SFXComponent::~SFXComponent()
+void SFXComponent::OnRemove(const EntityID& entity)
 {
   GameManager::Get().DestroyEntity(_sfxEntity);
 }
 
-void SFXComponent::ShowHitSparks()
+void SFXComponent::ShowHitSparks(bool directionRight)
 {
   if (_subroutine)
     _subroutine->Cancel();
@@ -33,8 +33,8 @@ void SFXComponent::ShowHitSparks()
 
   // add render properties so that the render system shows it
   _sfxEntity->AddComponent<RenderProperties>();
-  _sfxEntity->GetComponent<RenderProperties>()->horizontalFlip = !_owner->GetComponent<StateComponent>()->onLeftSide;
-  int flipModifier = !_owner->GetComponent<StateComponent>()->onLeftSide ? -1 : 1;
+  _sfxEntity->GetComponent<RenderProperties>()->horizontalFlip = !directionRight;
+  int flipModifier = !directionRight ? -1 : 1;
   _sfxEntity->GetComponent<RenderProperties>()->offset = Vector2<int>(flipModifier * 40, 0);
 
   // set action timer
@@ -44,7 +44,7 @@ void SFXComponent::ShowHitSparks()
   _sfxEntity->GetComponent<TimerContainer>()->timings.push_back(_subroutine);
 }
 
-void SFXComponent::ShowBlockSparks()
+void SFXComponent::ShowBlockSparks(bool directionRight)
 {
   if (_subroutine)
     _subroutine->Cancel();
@@ -55,8 +55,8 @@ void SFXComponent::ShowBlockSparks()
 
   // add render properties so that the render system shows it
   _sfxEntity->AddComponent<RenderProperties>();
-  _sfxEntity->GetComponent<RenderProperties>()->horizontalFlip = !_owner->GetComponent<StateComponent>()->onLeftSide;
-  int flipModifier = !_owner->GetComponent<StateComponent>()->onLeftSide ? -1 : 1;
+  _sfxEntity->GetComponent<RenderProperties>()->horizontalFlip = !directionRight;
+  int flipModifier = !directionRight ? -1 : 1;
   _sfxEntity->GetComponent<RenderProperties>()->offset = Vector2<int>(flipModifier * 110, 0);
 
   // set action timer

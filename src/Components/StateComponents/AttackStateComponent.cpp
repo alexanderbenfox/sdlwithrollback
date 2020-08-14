@@ -1,17 +1,17 @@
 #include "Components/StateComponents/AttackStateComponent.h"
 #include "Components/RenderComponent.h"
 
-AttackStateComponent::AttackStateComponent(std::shared_ptr<Entity> owner) :
-  lastFrame(-1), _attackAnim(nullptr), IComponent(owner)
+AttackStateComponent::AttackStateComponent() :
+  lastFrame(-1), _attackAnim(nullptr), IComponent()
 {
 }
 
-AttackStateComponent::~AttackStateComponent()
+void AttackStateComponent::OnRemove(const EntityID& entity)
 {
-  ClearEvents();
+  ClearEvents(entity);
   //reset color back to white in case stuck in frame advantage
-  if (auto properties = _owner->GetComponent<RenderProperties>())
-    properties->SetDisplayColor(255, 255, 255);
+  if (ComponentArray<RenderProperties>::Get().HasComponent(entity))
+    ComponentArray<RenderProperties>::Get().GetComponent(entity).SetDisplayColor(255, 255, 255);
 }
 
 void AttackStateComponent::Init(Animation* animation, std::shared_ptr<EventList> eventList)
@@ -20,10 +20,10 @@ void AttackStateComponent::Init(Animation* animation, std::shared_ptr<EventList>
   _eventList = eventList;
 }
 
-void AttackStateComponent::ClearEvents()
+void AttackStateComponent::ClearEvents(const EntityID& entity)
 {
   for(auto& event : inProgressEvents)
-    event->EndEvent(_owner->GetComponent<Transform>().get());
+    event->EndEvent(entity);
   inProgressEvents.clear();
 }
 

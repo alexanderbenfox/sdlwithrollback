@@ -9,18 +9,18 @@ public:
   static void DoTick(float dt)
   {
     bool readyToTransition = false;
-    for(auto& tuple : Tuples)
+    for(const EntityID& entity : Registered)
     {
       // just including game actor so this only affects controllable units
-      GameActor* actor = std::get<GameActor*>(tuple.second);
-      StateComponent* state = std::get<StateComponent*>(tuple.second);
+      GameActor& actor = ComponentArray<GameActor>::Get().GetComponent(entity);
+      StateComponent& state = ComponentArray<StateComponent>::Get().GetComponent(entity);
       
-      if(state->hp <= 0)
+      if(state.hp <= 0)
       {
-        state->MarkLoser();
+        GameManager::Get().GetEntityByID(entity)->AddComponent<LoserComponent>();
       }
 
-      if(state->actionState != ActionState::HITSTUN && state->hp <= 0)
+      if(state.actionState != ActionState::HITSTUN && state.hp <= 0)
       {
         readyToTransition = true;
       }

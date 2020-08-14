@@ -4,31 +4,33 @@
 #include <tuple>
 #include <map>
 
+#include <set>
+
 template <typename ... T>
 struct Requires {};
 
 template <typename T>
 struct Requires<T>
 {
-  static bool MatchesSignature(Entity* entity)
+  static bool MatchesSignature(EntityID entity)
   {
-    return (entity->ComponentBitFlag & ComponentTraits<T>::GetSignature()) == ComponentTraits<T>::GetSignature();
+    return (EntityManager::Get().GetSignature(entity) & ComponentTraits<T>::GetSignature()) == ComponentTraits<T>::GetSignature();
   }
 };
 
 template <typename T, typename ... Rest>
 struct Requires<T, Rest...>
 {
-  static bool MatchesSignature(Entity* entity)
+  static bool MatchesSignature(EntityID entity)
   {
     auto combinedSignature = ComponentTraits<T>::GetSignature() | (ComponentTraits<Rest>::GetSignature() | ...);
-    return (entity->ComponentBitFlag & combinedSignature) == combinedSignature;
+    return (EntityManager::Get().GetSignature(entity) & combinedSignature) == combinedSignature;
   }
 
-  static bool HasOneRequirement(Entity* entity)
+  static bool HasOneRequirement(EntityID entity)
   {
     auto combinedSignature = ComponentTraits<T>::GetSignature() | (ComponentTraits<Rest>::GetSignature() | ...);
-    return (entity->ComponentBitFlag & combinedSignature) != 0;
+    return (EntityManager::Get().GetSignature(entity) & combinedSignature) != 0;
   }
 };
 
@@ -39,39 +41,34 @@ public:
   //! 
   static void Check(Entity* entity)
   {
-    if(Req::MatchesSignature(entity))
+    if(Req::MatchesSignature(entity->GetID()))
     {
-      auto it = Tuples.find(entity->GetID());
-      if (it == Tuples.end())
-      {
-        auto things = std::make_tuple((entity->GetComponent<T>(), ...));
-        std::tuple<std::add_pointer_t<T>...> tuple = entity->MakeComponentTuple<T...>();
-        Tuples.insert(std::make_pair(entity->GetID(), tuple));
-      }
-      else
-      {
-        Tuples[entity->GetID()] = entity->MakeComponentTuple<T...>();
-      }
+      Registered.insert(entity->GetID());
     }
     else
     {
-      auto it = Tuples.find(entity->GetID());
-      if(it != Tuples.end())
-        Tuples.erase(it);
+      Registered.erase(entity->GetID());
     }
   }
 
   //!
-  static std::map<int, std::tuple<std::add_pointer_t<T>...>> Tuples;
+  //static std::map<int, std::tuple<T&...>> Tuples;
+
+    //! Set of registered entities
+  static std::set<EntityID> Registered;
 
 protected:
+
   //! Required components
   using Req = Requires<T...>;
 
 };
 
+//template <typename ... T>
+//std::map<int, std::tuple<T&...>> ISystem<T...>::Tuples;
+
 template <typename ... T>
-std::map<int, std::tuple<std::add_pointer_t<T>...>> ISystem<T...>::Tuples;
+std::set<EntityID> ISystem<T...>::Registered;
 
 
 //_________________________________________________________________________

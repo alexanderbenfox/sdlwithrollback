@@ -3,8 +3,8 @@
 #include "Components/Collider.h"
 #include "ResourceManager.h"
 
-Animator::Animator(std::shared_ptr<Entity> owner) :
-  _listener(nullptr), playing(false), looping(false), accumulatedTime(0.0f), frame(0), currentAnimationName(""), IComponent(owner)
+Animator::Animator() :
+  _listener(nullptr), playing(false), looping(false), accumulatedTime(0.0f), frame(0), currentAnimationName(""), IComponent()
 {}
 
 void Animator::SetAnimations(AnimationCollection* animations)

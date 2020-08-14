@@ -6,13 +6,13 @@ class AttackStateComponent : public IComponent
 {
 public:
   //! Constructor
-  AttackStateComponent(std::shared_ptr<Entity> owner);
+  AttackStateComponent();
   //! Clears events and resets debug color
-  virtual ~AttackStateComponent() override;
+  void OnRemove(const EntityID& entity) override;
   //! Sets animation and event list pointers
   void Init(Animation* animation, std::shared_ptr<EventList> eventList);
   //! Clear event list
-  void ClearEvents();
+  void ClearEvents(const EntityID& entity);
   //! If an event is starting on this frame, returns it. Otherwise error
   std::vector<AnimationEvent>& GetEventsStarting(int frame);
   //! Gets remaining frames in attack animation

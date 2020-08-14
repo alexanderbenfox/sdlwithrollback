@@ -203,7 +203,7 @@ InputBuffer const& AIInputHandler::CollectInputState()
 }
 
 //______________________________________________________________________________
-void AIInputHandler::SetAIProgram(std::shared_ptr<AIComponent> comp, IAIProgram* program)
+void AIInputHandler::SetAIProgram(AIComponent* comp, IAIProgram* program)
 {
   _ai = comp;
   if(_ai)
@@ -260,7 +260,7 @@ JoystickInputHandler::JoystickInputHandler() : IInputHandler()
   else
   {
     SDL_JoystickEventState(SDL_ENABLE);
-    _gameController = SDL_JoystickOpen(_joyStickID);
+    _gameController = SDL_JoystickOpen(0);
   }
 
   _config[0] = InputState::BTN1;
@@ -293,7 +293,7 @@ InputBuffer const& JoystickInputHandler::CollectInputState()
   {
   case SDL_JOYAXISMOTION:
     //action on axis of this controller
-    if(input.jaxis.which == _joyStickID)
+    if(input.jaxis.which == 0)
     {
       //movement on x axis
       if(input.jaxis.axis == 0)
@@ -321,13 +321,13 @@ InputBuffer const& JoystickInputHandler::CollectInputState()
     }
     break;
   case SDL_JOYBUTTONDOWN:
-    if(input.jbutton.which == _joyStickID)
+    if(input.jbutton.which == 0)
     {
       frameState |= _config[input.jbutton.button];
     }
     break;
   case SDL_JOYBUTTONUP:
-    if(input.jbutton.which == _joyStickID)
+    if(input.jbutton.which == 0)
     {
       frameState &= (~(InputState)_config[input.jbutton.button]);
     }

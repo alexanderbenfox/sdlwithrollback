@@ -6,9 +6,7 @@
 class ICollider : public IComponent
 {
 public:
-  ICollider(std::shared_ptr<Entity> entity) : IComponent(entity) {}
-
-  virtual void OnCollision(ICollider* other) = 0;
+  virtual void OnCollision(const EntityID& entity, ICollider* other) = 0;
 
 };
 
@@ -18,9 +16,7 @@ class RectCollider : public ICollider
 {
 public:
   //!
-  RectCollider(std::shared_ptr<Entity> entity) : ICollider(entity) {}
-  //!
-  virtual void OnCollision(ICollider* other) override {}
+  virtual void OnCollision(const EntityID& entity, ICollider* other) override {}
   //!
   void Init(Vector2<T> beg, Vector2<T> end);
   void MoveToTransform(const Transform& transform) { rect.CenterOnPoint(transform.position); }

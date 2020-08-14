@@ -7,48 +7,41 @@
 class ActionFactory
 {
 public:
-  static void SetAerialState(Entity* entity);
+  static void SetAerialState(const EntityID& entity);
 
-  static void SetCrouchingState(Entity* entity, StateComponent* state);
+  static void SetCrouchingState(const EntityID& entity, StateComponent* state);
 
-  static void SetKnockdownAirborne(Entity* entity, StateComponent* state);
+  static void SetKnockdownAirborne(const EntityID& entity, StateComponent* state);
 
-  static void SetKnockdownGroundOTG(Entity* entity, StateComponent* state);
+  static void SetKnockdownGroundOTG(const EntityID& entity, StateComponent* state);
 
-  static void SetKnockdownGroundInvincible(Entity* entity, StateComponent* state);
+  static void SetKnockdownGroundInvincible(const EntityID& entity, StateComponent* state);
 
-  static void SetBlockStunAction(Entity* entity, StateComponent* state, bool crouching);
+  static void SetBlockStunAction(const EntityID& entity, StateComponent* state, bool crouching);
 
-  static void SetHitStunAction(Entity* entity, StateComponent* state, bool crouching);
+  static void SetHitStunAction(const EntityID& entity, StateComponent* state, bool crouching);
 
-  static void SetGrappledAction(Entity* entity, StateComponent* state);
+  static void SetGrappledAction(const EntityID& entity, StateComponent* state);
 
-  static void SetAttackAction(Entity* entity, StateComponent* state, const std::string& attackName, ActionState actionType);
+  static void SetAttackAction(const EntityID& entity, StateComponent* state, const std::string& attackName, ActionState actionType);
 
-  static void SetDashAction(Entity* entity, StateComponent* state, Animator* animator, bool dashDirectionForward);
+  static void SetDashAction(const EntityID& entity, StateComponent* state, Animator* animator, bool dashDirectionForward);
 
-  static void GoToNeutralAction(Entity* entity, StateComponent* state);
+  static void GoToNeutralAction(const EntityID& entity, StateComponent* state);
 
-  static void ResetActionComponents(Entity* entity);
+  static void GoToWalkLeftAction(const EntityID& entity, GameActor* actor, StateComponent* state, const Vector2<float>& mvmt);
 
-  static void RemoveTransitionComponents(Entity* entity);
+  static void GoToWalkRightAction(const EntityID& entity, GameActor* actor, StateComponent* state, const Vector2<float>& mvmt);
 
-  static void DisableAbility(Entity* entity);
+  static void ResetActionComponents(const EntityID& entity);
 
-  static void EnableAbility(Entity* entity);
+  static void RemoveTransitionComponents(const EntityID& entity);
 
-  static void SetEntityDecided(Entity* entity) { _actionDecided.push_back(entity); }
-  //! for the list of entities set to new actions, remove their 'waiting for action input' flag
-  static void DisableActionListenerForEntities();
+  static void DisableAbility(const EntityID& entity);
 
+  static void EnableAbility(const EntityID& entity);
 
   //! Hacky utility for checking cancels on ryu character right now.... will remove once the character system is figured out
   static bool ActorDidSpecialInputRyu(GameActor* actor, StateComponent* state);
-  
-
-private:
-  // when transitioning to a new action, remove InputListenerComponent so another action state does not overwrite it
-  // the action has been decided for this frame
-  static std::vector<Entity*> _actionDecided;
 
 };

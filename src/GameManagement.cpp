@@ -345,19 +345,24 @@ void GameManager::ActivateHitStop(int frames)
 void GameManager::DebugDraws()
 {
   // draw items in debug layer over top of the drawn scene
-  ComponentManager<Hurtbox>::Get().Draw();
-  ComponentManager<Hitbox>::Get().Draw();
-  ComponentManager<ThrowFollower>::Get().Draw();
+  //ComponentManager<Hurtbox>::Get().Draw();
+  //ComponentManager<Hitbox>::Get().Draw();
+  //ComponentManager<ThrowFollower>::Get().Draw();
 }
 
 //______________________________________________________________________________
 void GameManager::DestroyEntity(std::shared_ptr<Entity> entity)
 {
-  auto it = std::find(_gameEntities.begin(), _gameEntities.end(), entity);
-  if(it != _gameEntities.end())
+  DestroyEntity(entity->GetID());
+}
+
+void GameManager::DestroyEntity(const EntityID& entity)
+{
+  auto it = _gameEntities.find(entity);
+  if (it != _gameEntities.end())
   {
-    (*it)->RemoveAllComponents();
-    _gameEntities.erase(it, it + 1);
+    it->second->RemoveAllComponents();
+    _gameEntities.erase(it);
   }
 }
 

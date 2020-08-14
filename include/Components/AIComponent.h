@@ -10,13 +10,11 @@
 class AIComponent : public IComponent
 {
 public:
-  AIComponent(std::shared_ptr<Entity> entity) : IComponent(entity) {}
-
   void UpdateMyState(const Transform* transform, const StateComponent* state);
 
   void UpdateFromOther(const Transform* transform, const StateComponent* state);
 
-  std::unique_ptr<IAIProgram> program;
+  std::shared_ptr<IAIProgram> program;
 
   InputState lastDecision = InputState::NONE;
 

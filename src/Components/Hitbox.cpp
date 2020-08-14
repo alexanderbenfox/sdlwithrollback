@@ -1,6 +1,7 @@
 #include "Components/Hitbox.h"
 #include "Components/Hurtbox.h"
 #include "Components/StateComponent.h"
+#include "GameManagement.h"
 
 void TransferDataBox::Init(const FrameData& frameData)
 {
@@ -24,10 +25,8 @@ void TransferDataBox::Init(const FrameData& frameData)
   tData.knockdown = frameData.knockdown;
 }
 
-void TransferDataBox::MoveDataBoxAroundTransform(const Transform* transform, const Rect<double>& box, const Vector2<float> offset, bool onLeft)
+void TransferDataBox::MoveDataBoxAroundTransform(const Rect<double>& unscaledTransformRect, const Transform* transform, const Rect<double>& box, const Vector2<float> offset, bool onLeft)
 {
-  const Rect<double>& unscaledTransformRect = transform->GetComponent<Hurtbox>()->unscaledRect;
-
   Vector2<float> transCenterRelativeToAnim(unscaledTransformRect.HalfWidth() + offset.x, unscaledTransformRect.HalfHeight() + offset.y);
   Vector2<double> relativeToTransformCenter = box.GetCenter() - (Vector2<double>)transCenterRelativeToAnim;
   if (!onLeft)
@@ -37,16 +36,16 @@ void TransferDataBox::MoveDataBoxAroundTransform(const Transform* transform, con
   rect.CenterOnPoint((Vector2<double>)transform->position + transform->scale * relativeToTransformCenter);
 }
 
-void Hitbox::OnCollision(ICollider* collider)
+void Hitbox::OnCollision(const EntityID& entity, ICollider* collider)
 {
   if (destroyOnHit)
   {
-    _owner->DestroySelf();
+    GameManager::Get().TriggerEndOfFrame([entity]() {GameManager::Get().DestroyEntity(entity); });
   }
 }
 
-Throwbox::~Throwbox()
+void Throwbox::OnRemove(const EntityID& entity)
 {
-  _owner->GetComponent<StateComponent>()->triedToThrowThisFrame = false;
-  _owner->GetComponent<StateComponent>()->throwSuccess = false;
+  GameManager::Get().GetEntityByID(entity)->GetComponent<StateComponent>()->triedToThrowThisFrame = false;
+  GameManager::Get().GetEntityByID(entity)->GetComponent<StateComponent>()->throwSuccess = false;
 }

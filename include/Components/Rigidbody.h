@@ -20,23 +20,17 @@ private:
 };
 
 //!
-struct DynamicCollider : public RectColliderD
-{
-  DynamicCollider(std::shared_ptr<Entity> entity) : RectColliderD(entity) {}
-};
+struct DynamicCollider : public RectColliderD {};
 
 //!
-struct StaticCollider : public RectColliderD
-{
-  StaticCollider(std::shared_ptr<Entity> entity) : RectColliderD(entity) {}
-};
+struct StaticCollider : public RectColliderD {};
 
 //!
 class Rigidbody : public IComponent
 {
 public:
   //!
-  Rigidbody(std::shared_ptr<Entity> entity) : _useGravity(false), elasticCollisions(false), IComponent(entity) {}
+  Rigidbody() : _useGravity(false), elasticCollisions(false), IComponent() {}
   //!
   void Init(bool useGravity)
   {

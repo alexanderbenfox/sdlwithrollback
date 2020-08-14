@@ -11,17 +11,16 @@ static bool SDLRectOverlap(const SDL_Rect& a, const SDL_Rect& b)
 }
 
 //!
-class Camera : public IComponent, public DebugItem
+class Camera : public IDebugComponent
 {
 public:
-  //!
-  Camera(std::shared_ptr<Entity> entity) : IComponent(entity), DebugItem("Camera") {}
+  Camera() : IDebugComponent("Camera") {}
   //!
   void Init(int w, int h);
   //!
   virtual void OnDebug() override
   {
-    std::string name = "Camera P" + std::to_string(_owner->GetID());
+    std::string name = "Camera P" + std::to_string(entityID);
     if (ImGui::CollapsingHeader(name.c_str()))
     {
       ImGui::InputFloat("Zoom level", &zoom, 0.1f, 1.0f, 2);
@@ -47,7 +46,4 @@ public:
 };
 
 //! Empty components for camera flags
-struct CameraFollowsPlayers : public IComponent
-{
-  CameraFollowsPlayers(std::shared_ptr<Entity> e) : IComponent(e) {}
-};
+struct CameraFollowsPlayers : public IComponent {};

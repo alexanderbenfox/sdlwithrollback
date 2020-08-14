@@ -192,9 +192,6 @@
     <ClCompile Include="..\src\AssetManagement\StaticAssets\StaticAssetUtils.cpp">
       <Filter>Source Files\AssetManagement\StaticAssets</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\Components\Hurtbox.cpp">
-      <Filter>Source Files\Components</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\Core\Geometry2D\RectHelper.cpp">
       <Filter>Source Files\Core\Geometry2D</Filter>
     </ClCompile>
@@ -255,6 +252,9 @@
     <ClCompile Include="..\include\Globals.cpp">
       <Filter>Header Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\Utils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\AssetManagement\Resource.h">
@@ -273,9 +273,6 @@
       <Filter>Header Files\Components</Filter>
     </ClInclude>
     <ClInclude Include="..\include\Components\Collider.h">
-      <Filter>Header Files\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\Components\ComponentManager.h">
       <Filter>Header Files\Components</Filter>
     </ClInclude>
     <ClInclude Include="..\include\Components\IComponent.h">
@@ -410,9 +407,6 @@
     <ClInclude Include="..\include\Components\Hurtbox.h">
       <Filter>Header Files\Components</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\DebugGUI\DebugItem.h">
-      <Filter>Header Files\DebugGUI</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\Systems\CheckBattleEndSystem.h">
       <Filter>Header Files\Systems</Filter>
     </ClInclude>
@@ -526,6 +520,15 @@
     </ClInclude>
     <ClInclude Include="..\include\Core\Interfaces\AnimatorListener.h">
       <Filter>Header Files\Core\Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\EntityManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Components\ComponentArray.h">
+      <Filter>Header Files\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\DebugGUI\DebugItem.h">
+      <Filter>Header Files\DebugGUI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

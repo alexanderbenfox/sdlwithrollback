@@ -7,10 +7,7 @@ struct CutsceneAction;
 class CutsceneActor : public IComponent
 {
 public:
-  //!
-  CutsceneActor(std::shared_ptr<Entity> owner) : IComponent(owner) {}
-  //!
-  ~CutsceneActor() {}
+  CutsceneActor() : IComponent() {}
 
   void SetActionList(CutsceneAction** actionArray, int size)
   {

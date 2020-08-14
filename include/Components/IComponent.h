@@ -18,17 +18,13 @@ struct ComponentInitParams
 class IComponent
 {
 public:
-  IComponent(std::shared_ptr<Entity> owner) : _owner(owner) {}
   //! 
   virtual ~IComponent() = default;
-  //! Gets the entity that owns the component
-  virtual Entity* Owner() { return _owner.get(); }
+  //!
+  virtual void OnAdd(const EntityID& entity) {}
+  virtual void OnRemove(const EntityID& entity) {}
   //! Draw the component for debug
   virtual void Draw() {}
-
-protected:
-  //! 
-  std::shared_ptr<Entity> _owner;
   
 };
 

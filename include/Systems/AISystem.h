@@ -6,23 +6,23 @@ class UpdateAISystem : public IMultiSystem<SysComponents<AIComponent, Transform,
 public:
   static void DoTick(float dt)
   {
-    for (auto tuple : MainSystem::Tuples)
+    for (const EntityID& e1 : MainSystem::Registered)
     {
-      AIComponent* ai = std::get<AIComponent*>(tuple.second);
-      Transform* transform = std::get<Transform*>(tuple.second);
-      StateComponent* state = std::get<StateComponent*>(tuple.second);
-      TeamComponent* team = std::get<TeamComponent*>(tuple.second);
+      AIComponent& ai = ComponentArray<AIComponent>::Get().GetComponent(e1);
+      Transform& transform = ComponentArray<Transform>::Get().GetComponent(e1);
+      StateComponent& state = ComponentArray<StateComponent>::Get().GetComponent(e1);
+      TeamComponent& team = ComponentArray<TeamComponent>::Get().GetComponent(e1);
 
-      ai->UpdateMyState(transform, state);
+      ai.UpdateMyState(&transform, &state);
       
-      for(auto subTuple : SubSystem::Tuples)
+      for(const EntityID& e2 : SubSystem::Registered)
       {
-        Transform* otherTransform = std::get<Transform*>(tuple.second);
-        StateComponent* otherState = std::get<StateComponent*>(tuple.second);
-        TeamComponent* otherTeam = std::get<TeamComponent*>(tuple.second);
+        Transform& otherTransform = ComponentArray<Transform>::Get().GetComponent(e2);
+        StateComponent& otherState = ComponentArray<StateComponent>::Get().GetComponent(e2);
+        TeamComponent& otherTeam = ComponentArray<TeamComponent>::Get().GetComponent(e2);
 
-        if(team->team != otherTeam->team)
-          ai->UpdateFromOther(otherTransform, otherState);
+        if(team.team != otherTeam.team)
+          ai.UpdateFromOther(&otherTransform, &otherState);
       }
     }
   }

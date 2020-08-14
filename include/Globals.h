@@ -1,7 +1,8 @@
 #pragma once
 
-//! Max number of components
-#define MAX_COMPONENTS 128
+const unsigned int MAX_ENTITIES = 500;
+const unsigned int MAX_COMPONENTS = 128;
+typedef unsigned int EntityID;
 
 //! Number of seconds per frame (for animation and timers)
 const float secPerFrame = 1.0f / 60.0f;

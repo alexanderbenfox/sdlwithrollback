@@ -7,8 +7,6 @@
 
 struct AnimatedActionComponent : public IComponent
 {
-  AnimatedActionComponent(std::shared_ptr<Entity> e) : IComponent(e) {}
-
   //! State of player when starting this action
   //!
   bool isFacingRight = false;
@@ -47,127 +45,75 @@ template <> struct ComponentInitParams<AnimatedActionComponent>
 };
 
 //! Empty components for indicating which system should be run for handling input
-struct EnactActionComponent : public IComponent
-{
-  EnactActionComponent(std::shared_ptr<Entity> e) : IComponent(e) {}
-};
+struct EnactActionComponent : public IComponent {};
 
 //! Marks the entity as available to check for another action
-struct InputListenerComponent : public IComponent
-{
-  InputListenerComponent(std::shared_ptr<Entity> e) : IComponent(e) {}
-};
+struct InputListenerComponent : public IComponent {};
 
 // Marks entity hittable
 struct HittableState : public IComponent
 {
-  HittableState(std::shared_ptr<Entity> e) : IComponent(e) {}
   bool canBlock = true;
   bool inKnockdown = false;
 };
 
-struct AbleToAttackState : public IComponent
-{
-  AbleToAttackState(std::shared_ptr<Entity> e) : IComponent(e) {}
-};
+struct AbleToAttackState : public IComponent {};
 
-struct AbleToSpecialAttackState : public IComponent
-{
-  AbleToSpecialAttackState(std::shared_ptr<Entity> e) : IComponent(e) {}
-};
+struct AbleToSpecialAttackState : public IComponent {};
 
-struct AbleToDash : public IComponent
-{
-  AbleToDash(std::shared_ptr<Entity> e) : IComponent(e) {}
-};
+struct AbleToDash : public IComponent {};
 
-struct AbleToJump : public IComponent
-{
-  AbleToJump(std::shared_ptr<Entity> e) : IComponent(e) {}
-};
+struct AbleToJump : public IComponent {};
 
-struct AbleToWalk : public IComponent
-{
-  AbleToWalk(std::shared_ptr<Entity> e) : IComponent(e) {}
-};
+struct AbleToWalkLeft : public IComponent {};
 
-struct AbleToCrouch : public IComponent
-{
-  AbleToCrouch(std::shared_ptr<Entity> e) : IComponent(e) {}
-};
+struct AbleToWalkRight : public IComponent {};
+
+struct AbleToCrouch : public IComponent {};
+
+struct AbleToReturnToNeutral : public IComponent {};
 
 //! Follow up action component - player hit the ground but other player can still OTG
-struct TransitionToKnockdownGroundOTG : public IComponent
-{
-  TransitionToKnockdownGroundOTG(std::shared_ptr<Entity> e) : IComponent(e) {}
-};
+struct TransitionToKnockdownGroundOTG : public IComponent {};
 
 //! Follow up action component - player cannot otg
-struct TransitionToKnockdownGround : public IComponent
-{
-  TransitionToKnockdownGround(std::shared_ptr<Entity> e) : IComponent(e) {}
-};
+struct TransitionToKnockdownGround : public IComponent {};
 
-struct TransitionToNeutral : public IComponent
-{
-  TransitionToNeutral(std::shared_ptr<Entity> e) : IComponent(e) {}
-};
+struct TransitionToNeutral : public IComponent {};
 
-struct TransitionToCrouching : public IComponent
-{
-  TransitionToCrouching(std::shared_ptr<Entity> e) : IComponent(e) {}
-};
+struct TransitionToCrouching : public IComponent {};
 
 //! Cancel actions
 
-struct CancelOnHitGround : public IComponent
-{
-  CancelOnHitGround(std::shared_ptr<Entity> e) : IComponent(e) {}
-};
+struct CancelOnHitGround : public IComponent {};
 
-struct CancelOnDash : public IComponent
-{
-  CancelOnDash(std::shared_ptr<Entity> e) : IComponent(e) {}
-};
+struct CancelOnDash : public IComponent {};
 
-struct CancelOnJump : public IComponent
-{
-  CancelOnJump(std::shared_ptr<Entity> e) : IComponent(e) {}
-};
+struct CancelOnJump : public IComponent {};
 
-struct CancelOnSpecial : public IComponent
-{
-  CancelOnSpecial(std::shared_ptr<Entity> e) : IComponent(e) {}
-};
+struct CancelOnSpecial : public IComponent {};
 
 // this component will work in conjunction with the HasTargetCombo component (and other action mapping components of that type)
-struct CancelOnNormal : public IComponent
-{
-  CancelOnNormal(std::shared_ptr<Entity> e) : IComponent(e) {}
-};
+struct CancelOnNormal : public IComponent {};
 
 //! Components that describe the enacting parameters for a given action type
 
 struct AttackActionComponent : public IComponent
 {
-  AttackActionComponent(std::shared_ptr<Entity> e) : IComponent(e) {}
   ActionState type = ActionState::NONE;
 };
 
 struct GrappleActionComponent : public IComponent
 {
-  GrappleActionComponent(std::shared_ptr<Entity> e) : IComponent(e) {}
-  ~GrappleActionComponent()
+  void OnRemove(const EntityID& entity) override
   {
-    if (auto rb = _owner->GetComponent<Rigidbody>())
-      rb->ignoreDynamicColliders = false;
+    if (ComponentArray<Rigidbody>::Get().HasComponent(entity))
+      ComponentArray<Rigidbody>::Get().GetComponent(entity).ignoreDynamicColliders = false;
   }
 };
 
 struct MovingActionComponent : public IComponent
 {
-  MovingActionComponent(std::shared_ptr<Entity> e) : IComponent(e) {}
-
   //
   bool horizontalMovementOnly = false;
   Vector2<float> velocity;
@@ -175,8 +121,6 @@ struct MovingActionComponent : public IComponent
 
 struct ReceivedDamageAction : public IComponent
 {
-  ReceivedDamageAction(std::shared_ptr<Entity> e) : IComponent(e) {}
-
   int damageAmount;
   bool isBlocking = false;
   bool fromGrapple = false;
@@ -185,11 +129,10 @@ struct ReceivedDamageAction : public IComponent
 
 struct ReceivedGrappleAction : public IComponent
 {
-  ReceivedGrappleAction(std::shared_ptr<Entity> e) : IComponent(e) {}
-  ~ReceivedGrappleAction()
+  void OnRemove(const EntityID& entity) override
   {
-    if (auto rb = _owner->GetComponent<Rigidbody>())
-      rb->ignoreDynamicColliders = false;
+    if (ComponentArray<Rigidbody>::Get().HasComponent(entity))
+      ComponentArray<Rigidbody>::Get().GetComponent(entity).ignoreDynamicColliders = false;
   }
   int damageAmount;
   bool isKillingBlow = false;
@@ -198,38 +141,39 @@ struct ReceivedGrappleAction : public IComponent
 
 struct DashingAction : public IComponent
 {
-  DashingAction(std::shared_ptr<Entity> e) : IComponent(e)
+  void OnAdd(const EntityID& entity) override
   {
-    _owner->GetComponent<GameActor>()->forceNewInputOnNextFrame = true;
+    ComponentArray<GameActor>::Get().GetComponent(entity).forceNewInputOnNextFrame = true;
   }
-  ~DashingAction()
+  void OnRemove(const EntityID& entity) override
   {
-    _owner->GetComponent<GameActor>()->forceNewInputOnNextFrame = true;
+    ComponentArray<GameActor>::Get().GetComponent(entity).forceNewInputOnNextFrame = true;
   }
+
   float dashSpeed = 0.0f;
 };
 
 struct JumpingAction : public IComponent
 {
-  JumpingAction(std::shared_ptr<Entity> e) : IComponent(e)
+  void OnAdd(const EntityID& entity) override
   {
-    _owner->GetComponent<GameActor>()->forceNewInputOnNextFrame = true;
+    ComponentArray<GameActor>::Get().GetComponent(entity).forceNewInputOnNextFrame = true;
   }
-  ~JumpingAction()
+  void OnRemove(const EntityID& entity) override
   {
-    _owner->GetComponent<GameActor>()->forceNewInputOnNextFrame = true;
+    ComponentArray<GameActor>::Get().GetComponent(entity).forceNewInputOnNextFrame = true;
   }
 };
 
 struct CrouchingAction : public IComponent
 {
-  CrouchingAction(std::shared_ptr<Entity> e) : IComponent(e)
+  void OnAdd(const EntityID& entity) override
   {
-    _owner->GetComponent<GameActor>()->forceNewInputOnNextFrame = true;
+    ComponentArray<GameActor>::Get().GetComponent(entity).forceNewInputOnNextFrame = true;
   }
-  ~CrouchingAction()
+  void OnRemove(const EntityID& entity) override
   {
-    _owner->GetComponent<GameActor>()->forceNewInputOnNextFrame = true;
+    ComponentArray<GameActor>::Get().GetComponent(entity).forceNewInputOnNextFrame = true;
   }
 };
 
@@ -237,8 +181,6 @@ struct CrouchingAction : public IComponent
 
 struct TimedActionComponent : public IComponent
 {
-  TimedActionComponent(std::shared_ptr<Entity> e) : IComponent(e) {}
-
   //!
   float playTime = 0.0f;
   int currFrame = 0;
@@ -247,19 +189,10 @@ struct TimedActionComponent : public IComponent
   bool cancelled = false;
 };
 
-struct WaitForAnimationComplete : public IComponent
-{
-  WaitForAnimationComplete(std::shared_ptr<Entity> e) : IComponent(e) {}
-};
+struct WaitForAnimationComplete : public IComponent {};
 
 //! Fully transitions to jumping state
-struct WaitingForJumpAirborne : public IComponent
-{
-  WaitingForJumpAirborne(std::shared_ptr<Entity> e) : IComponent(e) {}
-};
-
-
-
+struct WaitingForJumpAirborne : public IComponent {};
 
 // for input state
 #include "Components/InputHandlers/InputBuffer.h"
@@ -270,7 +203,6 @@ struct WaitingForJumpAirborne : public IComponent
 
 struct HasTargetCombo : public IComponent
 {
-  HasTargetCombo(std::shared_ptr<Entity> e) : IComponent(e) {}
   //! Defines which normals can be cancelled into each other
   std::unordered_map<ActionState, InputState> links;
 
@@ -280,8 +212,8 @@ struct HasTargetCombo : public IComponent
 //! Component for pushing player away from other player when pressuring on the wall - plz move later
 struct WallPushComponent : public IComponent
 {
-  WallPushComponent(std::shared_ptr<Entity> entity);
-  ~WallPushComponent();
+  WallPushComponent();
+  void OnRemove(const EntityID& entity) override;
 
   float pushAmount;
   float amountPushed = 0.0f;

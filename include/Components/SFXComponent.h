@@ -7,10 +7,11 @@
 class SFXComponent : public IComponent
 {
 public:
-  SFXComponent(std::shared_ptr<Entity> entity);
-  ~SFXComponent();
-  void ShowHitSparks();
-  void ShowBlockSparks();
+  void OnAdd(const EntityID& entity) override;
+  void OnRemove(const EntityID& entity) override;
+
+  void ShowHitSparks(bool directionRight);
+  void ShowBlockSparks(bool directionRight);
 
   Vector2<float> showLocation;
 

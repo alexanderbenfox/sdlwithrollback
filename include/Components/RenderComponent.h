@@ -22,12 +22,14 @@ template <typename TextureType>
 class RenderComponent : public IComponent
 {
 public:
-  RenderComponent(std::shared_ptr<Entity> owner) : sourceRect{ 0, 0, 0, 0 }, IComponent(owner)
+  RenderComponent() : sourceRect{ 0, 0, 0, 0 }, IComponent() {}
+
+  void OnAdd(const EntityID& entity) override
   {
     RenderManager::Get().template RegisterDrawable<BlitOperation<TextureType>>(RenderLayer::World);
   }
 
-  ~RenderComponent()
+  void OnRemove(const EntityID& entity) override
   {
     RenderManager::Get().template DeregisterDrawable<BlitOperation<TextureType>>(RenderLayer::World);
   }
@@ -35,7 +37,7 @@ public:
   //! Init with a resource
   void Init(Resource<TextureType>& resource)
   {
-    _resource = std::unique_ptr<ResourceWrapper<TextureType>>(new ResourceWrapper<TextureType>(resource));
+    _resource = std::shared_ptr<ResourceWrapper<TextureType>>(new ResourceWrapper<TextureType>(resource));
     sourceRect = DrawRect<float>(0, 0, resource.GetInfo().mWidth, resource.GetInfo().mHeight);
   }
 
@@ -44,7 +46,7 @@ public:
     if (_resource == nullptr || &_resource->GetResource() != &resource)
     {
       _resource.reset();
-      _resource = std::unique_ptr<ResourceWrapper<TextureType>>(new ResourceWrapper<TextureType>(resource));
+      _resource = std::shared_ptr<ResourceWrapper<TextureType>>(new ResourceWrapper<TextureType>(resource));
     }
   }
 
@@ -60,19 +62,19 @@ public:
     
 protected:
   //!
-  std::unique_ptr<ResourceWrapper<TextureType>> _resource;
+  std::shared_ptr<ResourceWrapper<TextureType>> _resource;
 
 };
 
 class TextRenderer : public IComponent
 {
 public:
-  TextRenderer(std::shared_ptr<Entity> owner);
-  ~TextRenderer();
+  TextRenderer();
+  void OnRemove(const EntityID& entity) override;
 
   void SetFont(LetterCase& resource);
-
-  void SetText(const std::string& text);
+  //! Sets up GL calls for text rendering and returns the size of the new on screen text field
+  Vector2<float> SetText(const std::string& text);
 
   std::vector<GLDrawOperation> GetRenderOps();
 
@@ -89,7 +91,7 @@ protected:
 class RenderProperties : public IComponent
 {
 public:
-  RenderProperties(std::shared_ptr<Entity> owner);
+  RenderProperties();
 
   //! inherent offset added to any display from this entity
   Vector2<int> baseRenderOffset;

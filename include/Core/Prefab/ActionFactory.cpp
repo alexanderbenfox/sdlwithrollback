@@ -8,469 +8,451 @@
 
 #include "GameManagement.h"
 
-//! Define action decided list
-std::vector<Entity*> ActionFactory::_actionDecided;
-
-
-void ActionFactory::SetAerialState(Entity* entity)
+void ActionFactory::SetAerialState(const EntityID& entity)
 {
-  GameManager::Get().ScheduleTask([entity]()
-    {
-      entity->RemoveComponents<AbleToJump, AbleToCrouch, AbleToDash, AbleToWalk>();
-      entity->AddComponent<JumpingAction>();
-    });
+  GameManager::Get().GetEntityByID(entity)->RemoveComponents<AbleToJump, AbleToCrouch, AbleToDash, AbleToWalkLeft, AbleToWalkRight>();
+  GameManager::Get().GetEntityByID(entity)->AddComponent<JumpingAction>();
 }
 
-void ActionFactory::SetCrouchingState(Entity* entity, StateComponent* state)
+void ActionFactory::SetCrouchingState(const EntityID& entity, StateComponent* state)
 {
-  GameManager::Get().ScheduleTask([entity, state]()
+  GameManager::Get().GetEntityByID(entity)->AddComponent<AnimatedActionComponent>({ state->onLeftSide, true, true, 1.0f, "Crouch" });
+  GameManager::Get().GetEntityByID(entity)->AddComponent<EnactActionComponent>();
+  GameManager::Get().GetEntityByID(entity)->AddComponent<AbleToReturnToNeutral>();
+  GameManager::Get().GetEntityByID(entity)->RemoveComponents<TransitionToCrouching, AbleToWalkLeft, AbleToWalkRight>();
+}
+
+void ActionFactory::SetKnockdownAirborne(const EntityID& entity, StateComponent* state)
+{
+  RemoveTransitionComponents(entity);
+  DisableAbility(entity);
+
+  state->actionState = ActionState::HITSTUN;
+
+  // Always reset action complete flag on new action
+  GameManager::Get().GetEntityByID(entity)->GetComponent<GameActor>()->actionTimerComplete = false;
+
+  // set up knockdown air action
+  GameManager::Get().GetEntityByID(entity)->AddComponent<AnimatedActionComponent>({ state->onLeftSide, false, true, 1.0f, "Knockdown_Air" });
+
+  // set up movement action for knockback
+  GameManager::Get().GetEntityByID(entity)->AddComponent<MovingActionComponent>();
+  GameManager::Get().GetEntityByID(entity)->GetComponent<MovingActionComponent>()->velocity = state->hitData.knockback;
+  GameManager::Get().GetEntityByID(entity)->GetComponent<MovingActionComponent>()->horizontalMovementOnly = false;
+
+  // set empty component for follow up action
+  GameManager::Get().GetEntityByID(entity)->AddComponent<TransitionToKnockdownGroundOTG>();;
+
+  // add hittable because you can still be hit while in the air
+  GameManager::Get().GetEntityByID(entity)->AddComponent<HittableState>();
+  GameManager::Get().GetEntityByID(entity)->GetComponent<HittableState>()->canBlock = false;
+  GameManager::Get().GetEntityByID(entity)->GetComponent<HittableState>()->inKnockdown = true;
+
+  GameManager::Get().GetEntityByID(entity)->AddComponent<ReceivedDamageAction>();
+  GameManager::Get().GetEntityByID(entity)->GetComponent<ReceivedDamageAction>()->damageAmount = state->hitData.damage;
+  GameManager::Get().GetEntityByID(entity)->GetComponent<ReceivedDamageAction>()->isBlocking = false;
+
+  GameManager::Get().GetEntityByID(entity)->AddComponent<EnactActionComponent>();
+
+  // in case we still have a grapple state attached
+  GameManager::Get().GetEntityByID(entity)->RemoveComponent<ReceivedGrappleAction>();
+}
+
+void ActionFactory::SetKnockdownGroundOTG(const EntityID& entity, StateComponent* state)
+{
+  RemoveTransitionComponents(entity);
+  DisableAbility(entity);
+
+  state->actionState = ActionState::HITSTUN;
+
+  // Always reset action complete flag on new action
+  GameManager::Get().GetEntityByID(entity)->GetComponent<GameActor>()->actionTimerComplete = false;
+
+  // set up knockdown air action
+  GameManager::Get().GetEntityByID(entity)->AddComponent<AnimatedActionComponent>({ state->onLeftSide, false, false, 1.0f, "Knockdown_HitGround" });
+
+  // set up movement action for knockback
+  GameManager::Get().GetEntityByID(entity)->AddComponent<MovingActionComponent>();
+  GameManager::Get().GetEntityByID(entity)->GetComponent<MovingActionComponent>()->velocity = Vector2<float>::Zero;
+  GameManager::Get().GetEntityByID(entity)->GetComponent<MovingActionComponent>()->horizontalMovementOnly = true;
+
+  // freeze in this state until animation is done
+  GameManager::Get().GetEntityByID(entity)->AddComponent<WaitForAnimationComplete>();
+
+  // set empty component for follow up action
+  GameManager::Get().GetEntityByID(entity)->AddComponent<TransitionToKnockdownGround>();
+
+  // add hittable because you will be able to OTG during this period
+  GameManager::Get().GetEntityByID(entity)->AddComponent<HittableState>();
+  GameManager::Get().GetEntityByID(entity)->GetComponent<HittableState>()->canBlock = false;
+  GameManager::Get().GetEntityByID(entity)->GetComponent<HittableState>()->inKnockdown = true;
+
+  GameManager::Get().GetEntityByID(entity)->AddComponent<EnactActionComponent>();
+
+  // remove stuff from last state
+  GameManager::Get().GetEntityByID(entity)->RemoveComponent<TransitionToKnockdownGroundOTG>();
+  GameManager::Get().GetEntityByID(entity)->RemoveComponent<ReceivedDamageAction>();
+  GameManager::Get().GetEntityByID(entity)->RemoveComponent<ReceivedGrappleAction>();
+}
+
+void ActionFactory::SetKnockdownGroundInvincible(const EntityID& entity, StateComponent* state)
+{
+  RemoveTransitionComponents(entity);
+  DisableAbility(entity);
+
+  state->actionState = ActionState::NONE;
+
+  // Always reset action complete flag on new action
+  GameManager::Get().GetEntityByID(entity)->GetComponent<GameActor>()->actionTimerComplete = false;
+
+  // set up knockdown air action
+  GameManager::Get().GetEntityByID(entity)->AddComponent<AnimatedActionComponent>({ state->onLeftSide, false, false, 1.0f, "Knockdown_OnGround" });
+
+  // set up movement action for knockback
+  GameManager::Get().GetEntityByID(entity)->AddComponent<MovingActionComponent>();
+  GameManager::Get().GetEntityByID(entity)->GetComponent<MovingActionComponent>()->velocity = Vector2<float>::Zero;
+
+  // freeze in this state until animation is done
+  GameManager::Get().GetEntityByID(entity)->AddComponent<WaitForAnimationComplete>();
+
+  // set empty component for follow up action
+  GameManager::Get().GetEntityByID(entity)->AddComponent<TransitionToNeutral>();
+
+  GameManager::Get().GetEntityByID(entity)->AddComponent<EnactActionComponent>();
+
+  // remove attack components cause am in hitstun
+  GameManager::Get().GetEntityByID(entity)->RemoveComponent<AbleToAttackState>();
+  GameManager::Get().GetEntityByID(entity)->RemoveComponent<AbleToSpecialAttackState>();
+
+  // not hittable during this period
+  GameManager::Get().GetEntityByID(entity)->RemoveComponent<HittableState>();
+
+  GameManager::Get().GetEntityByID(entity)->RemoveComponent<TransitionToKnockdownGround>();
+}
+
+void ActionFactory::SetBlockStunAction(const EntityID& entity, StateComponent* state, bool crouching)
+{
+  RemoveTransitionComponents(entity);
+  DisableAbility(entity);
+
+  state->actionState = ActionState::BLOCKSTUN;
+
+  // Always reset action complete flag on new action
+  GameManager::Get().GetEntityByID(entity)->GetComponent<GameActor>()->actionTimerComplete = false;
+
+  // set up knockdown air action
+  GameManager::Get().GetEntityByID(entity)->AddComponent<AnimatedActionComponent>({ state->onLeftSide, false, true, 1.0f, crouching ? "BlockLow" : "BlockMid" });
+
+  if (HasState(state->collision, CollisionSide::DOWN))
   {
-    entity->AddComponent<AnimatedActionComponent>({ state->onLeftSide, true, true, 1.0f, "Crouch" });
-    entity->AddComponent<EnactActionComponent>();
+    // set up movement action for stopping movement
+    GameManager::Get().GetEntityByID(entity)->AddComponent<MovingActionComponent>();
+    GameManager::Get().GetEntityByID(entity)->GetComponent<MovingActionComponent>()->velocity = Vector2<float>::Zero;
+    GameManager::Get().GetEntityByID(entity)->GetComponent<MovingActionComponent>()->horizontalMovementOnly = true;
+  }
 
-    entity->RemoveComponents<TransitionToCrouching, AbleToWalk>();
-  });
+  // freeze in this state 
+  GameManager::Get().GetEntityByID(entity)->AddComponent<TimedActionComponent>();
+  GameManager::Get().GetEntityByID(entity)->GetComponent<TimedActionComponent>()->totalFrames = state->hitData.framesInStunBlock;
+
+  // set empty component for follow up action
+  GameManager::Get().GetEntityByID(entity)->AddComponent<TransitionToNeutral>();
+
+  // add states for potential inputs
+  GameManager::Get().GetEntityByID(entity)->AddComponent<HittableState>();
+  GameManager::Get().GetEntityByID(entity)->GetComponent<HittableState>()->canBlock = true;
+  GameManager::Get().GetEntityByID(entity)->GetComponent<HittableState>()->inKnockdown = false;
+
+  GameManager::Get().GetEntityByID(entity)->AddComponent<ReceivedDamageAction>();
+  GameManager::Get().GetEntityByID(entity)->GetComponent<ReceivedDamageAction>()->damageAmount = 0;
+  GameManager::Get().GetEntityByID(entity)->GetComponent<ReceivedDamageAction>()->isBlocking = true;
+
+  GameManager::Get().GetEntityByID(entity)->AddComponent<EnactActionComponent>();
+
+  GameManager::Get().GetEntityByID(entity)->AddComponent<HitStateComponent>();
+  GameManager::Get().GetEntityByID(entity)->GetComponent<HitStateComponent>()->SetTimer(GameManager::Get().GetEntityByID(entity)->GetComponent<TimedActionComponent>());
 }
 
-void ActionFactory::SetKnockdownAirborne(Entity* entity, StateComponent* state)
+void ActionFactory::SetHitStunAction(const EntityID& entity, StateComponent* state, bool crouching)
 {
-  // since this will set to new state, remove input listener flag
-  _actionDecided.push_back(entity);
+  RemoveTransitionComponents(entity);
+  DisableAbility(entity);
 
-  GameManager::Get().ScheduleTask([entity, state]()
-    {
-      RemoveTransitionComponents(entity);
-      DisableAbility(entity);
+  state->actionState = ActionState::HITSTUN;
 
-      state->actionState = ActionState::HITSTUN;
+  // Always reset action complete flag on new action
+  GameManager::Get().GetEntityByID(entity)->GetComponent<GameActor>()->actionTimerComplete = false;
 
-      // Always reset action complete flag on new action
-      entity->GetComponent<GameActor>()->actionTimerComplete = false;
+  std::string hitstunAnim = "LightHitstun";
+  if (state->hitData.framesInStunHit > 20) hitstunAnim = "MedHitstun";
+  if (state->hitData.framesInStunHit > 30) hitstunAnim = "HeavyHitstun";
 
-      // set up knockdown air action
-      entity->AddComponent<AnimatedActionComponent>({ state->onLeftSide, false, true, 1.0f, "Knockdown_Air" });
+  // set up animation
+  GameManager::Get().GetEntityByID(entity)->AddComponent<AnimatedActionComponent>({ state->onLeftSide, false, true, 1.0f, (crouching && state->hitData.framesInStunHit < 35) ? "CrouchingHitstun" : hitstunAnim });
 
-      // set up movement action for knockback
-      entity->AddComponent<MovingActionComponent>();
-      entity->GetComponent<MovingActionComponent>()->velocity = state->hitData.knockback;
-      entity->GetComponent<MovingActionComponent>()->horizontalMovementOnly = false;
+  // set up movement action for knockback
+  GameManager::Get().GetEntityByID(entity)->AddComponent<MovingActionComponent>();
+  GameManager::Get().GetEntityByID(entity)->GetComponent<MovingActionComponent>()->velocity = state->hitData.knockback;
+  GameManager::Get().GetEntityByID(entity)->GetComponent<MovingActionComponent>()->horizontalMovementOnly = false;
 
-      // set empty component for follow up action
-      entity->AddComponent<TransitionToKnockdownGroundOTG>();;
+  // freeze in this state 
+  GameManager::Get().GetEntityByID(entity)->AddComponent<TimedActionComponent>();
+  GameManager::Get().GetEntityByID(entity)->GetComponent<TimedActionComponent>()->totalFrames = state->hitData.framesInStunHit;
 
-      // add hittable because you can still be hit while in the air
-      entity->AddComponent<HittableState>();
-      entity->GetComponent<HittableState>()->canBlock = false;
-      entity->GetComponent<HittableState>()->inKnockdown = true;
+  // set empty component for follow up action
+  GameManager::Get().GetEntityByID(entity)->AddComponent<TransitionToNeutral>();
 
-      entity->AddComponent<ReceivedDamageAction>();
-      entity->GetComponent<ReceivedDamageAction>()->damageAmount = state->hitData.damage;
-      entity->GetComponent<ReceivedDamageAction>()->isBlocking = false;
+  GameManager::Get().GetEntityByID(entity)->AddComponent<ReceivedDamageAction>();
+  GameManager::Get().GetEntityByID(entity)->GetComponent<ReceivedDamageAction>()->damageAmount = state->hitData.damage;
+  GameManager::Get().GetEntityByID(entity)->GetComponent<ReceivedDamageAction>()->isBlocking = false;
 
-      entity->AddComponent<EnactActionComponent>();
+  // add states for potential inputs
+  GameManager::Get().GetEntityByID(entity)->AddComponent<HittableState>();
+  GameManager::Get().GetEntityByID(entity)->GetComponent<HittableState>()->canBlock = false;
+  GameManager::Get().GetEntityByID(entity)->GetComponent<HittableState>()->inKnockdown = false;
 
-      // in case we still have a grapple state attached
-      entity->RemoveComponent<ReceivedGrappleAction>();
-    });
+  GameManager::Get().GetEntityByID(entity)->AddComponent<EnactActionComponent>();
+
+  GameManager::Get().GetEntityByID(entity)->AddComponent<HitStateComponent>();
+  GameManager::Get().GetEntityByID(entity)->GetComponent<HitStateComponent>()->SetTimer(GameManager::Get().GetEntityByID(entity)->GetComponent<TimedActionComponent>());
 }
 
-void ActionFactory::SetKnockdownGroundOTG(Entity* entity, StateComponent* state)
+void ActionFactory::SetGrappledAction(const EntityID& entity, StateComponent* state)
 {
-  // since this will set to new state, remove input listener flag
-  _actionDecided.push_back(entity);
+  RemoveTransitionComponents(entity);
+  DisableAbility(entity);
 
-  GameManager::Get().ScheduleTask([entity, state]()
-    {
-      RemoveTransitionComponents(entity);
-      DisableAbility(entity);
+  // Always reset action complete flag on new action
+  GameManager::Get().GetEntityByID(entity)->GetComponent<GameActor>()->actionTimerComplete = false;
 
-      state->actionState = ActionState::HITSTUN;
+  // set up animation
+  GameManager::Get().GetEntityByID(entity)->AddComponent<AnimatedActionComponent>({ state->onLeftSide, false, true, 1.0f, "HeavyHitstun" });
 
-      // Always reset action complete flag on new action
-      entity->GetComponent<GameActor>()->actionTimerComplete = false;
+  GameManager::Get().GetEntityByID(entity)->AddComponent<ReceivedGrappleAction>();
+  GameManager::Get().GetEntityByID(entity)->GetComponent<ReceivedGrappleAction>()->damageAndKnockbackDelay = state->hitData.activeFrames;
+  GameManager::Get().GetEntityByID(entity)->GetComponent<ReceivedGrappleAction>()->damageAmount = state->hitData.damage;
 
-      // set up knockdown air action
-      entity->AddComponent<AnimatedActionComponent>({ state->onLeftSide, false, false, 1.0f, "Knockdown_HitGround" });
+  // freeze in this state til throw is initiated
+  GameManager::Get().GetEntityByID(entity)->AddComponent<TimedActionComponent>();
+  GameManager::Get().GetEntityByID(entity)->GetComponent<TimedActionComponent>()->totalFrames = state->hitData.activeFrames;
 
-      // set up movement action for knockback
-      entity->AddComponent<MovingActionComponent>();
-      entity->GetComponent<MovingActionComponent>()->velocity = Vector2<float>::Zero;
-      entity->GetComponent<MovingActionComponent>()->horizontalMovementOnly = true;
-
-      // freeze in this state until animation is done
-      entity->AddComponent<WaitForAnimationComplete>();
-
-      // set empty component for follow up action
-      entity->AddComponent<TransitionToKnockdownGround>();
-
-      // add hittable because you will be able to OTG during this period
-      entity->AddComponent<HittableState>();
-      entity->GetComponent<HittableState>()->canBlock = false;
-      entity->GetComponent<HittableState>()->inKnockdown = true;
-
-      entity->AddComponent<EnactActionComponent>();
-
-      // remove stuff from last state
-      entity->RemoveComponent<TransitionToKnockdownGroundOTG>();
-      entity->RemoveComponent<ReceivedDamageAction>();
-      entity->RemoveComponent<ReceivedGrappleAction>();
-    });
+  GameManager::Get().GetEntityByID(entity)->AddComponent<EnactActionComponent>();
 }
 
-void ActionFactory::SetKnockdownGroundInvincible(Entity* entity, StateComponent* state)
+
+void ActionFactory::SetAttackAction(const EntityID& entity, StateComponent* state, const std::string& attackName, ActionState actionType)
 {
-  // since this will set to new state, remove input listener flag
-  _actionDecided.push_back(entity);
+  RemoveTransitionComponents(entity);
+  DisableAbility(entity);
 
-  GameManager::Get().ScheduleTask([entity, state]()
-    {
-      RemoveTransitionComponents(entity);
-      DisableAbility(entity);
+  // resetting state component... i dont really like this
+  state->hitting = false;
+  // mark action type here
+  state->actionState = actionType;
 
-      state->actionState = ActionState::NONE;
+  // Always reset action complete flag on new action
+  GameManager::Get().GetEntityByID(entity)->GetComponent<GameActor>()->actionTimerComplete = false;
 
-      // Always reset action complete flag on new action
-      entity->GetComponent<GameActor>()->actionTimerComplete = false;
+  // set up animation
+  GameManager::Get().GetEntityByID(entity)->AddComponent<AnimatedActionComponent>({ state->onLeftSide, false, true, 1.0f, attackName });
 
-      // set up knockdown air action
-      entity->AddComponent<AnimatedActionComponent>({ state->onLeftSide, false, false, 1.0f, "Knockdown_OnGround" });
+  // since this is an animation locked attack
+  GameManager::Get().GetEntityByID(entity)->AddComponent<WaitForAnimationComplete>();
 
-      // set up movement action for knockback
-      entity->AddComponent<MovingActionComponent>();
-      entity->GetComponent<MovingActionComponent>()->velocity = Vector2<float>::Zero;
+  GameManager::Get().GetEntityByID(entity)->AddComponent<AttackActionComponent>();
+  GameManager::Get().GetEntityByID(entity)->GetComponent<AttackActionComponent>()->type = actionType;
 
-      // freeze in this state until animation is done
-      entity->AddComponent<WaitForAnimationComplete>();
+  // NOTE: THIS IS BUGGED WITH MOVES THAT HAVE UPWARDS MOVEMENT ON THE FIRST FRAME
+  // THIS IS BECAUSE THE MOVEMENT FUNCTIONS FOR MOVES RUN THROUGH THE GENERIC TIMER SYSTEM
+  // NEED TO FIX THIS - ORDERING IS A PAIN
+  if (HasState(state->collision, CollisionSide::DOWN))
+  {
+    // set up movement action for stopping movement
+    GameManager::Get().GetEntityByID(entity)->AddComponent<MovingActionComponent>();
+    GameManager::Get().GetEntityByID(entity)->GetComponent<MovingActionComponent>()->velocity = Vector2<float>::Zero;
+    GameManager::Get().GetEntityByID(entity)->GetComponent<MovingActionComponent>()->horizontalMovementOnly = true;
+  }
 
-      // set empty component for follow up action
-      entity->AddComponent<TransitionToNeutral>();
+  // add states for potential inputs
+  GameManager::Get().GetEntityByID(entity)->AddComponent<HittableState>();
+  GameManager::Get().GetEntityByID(entity)->GetComponent<HittableState>()->canBlock = false;
+  GameManager::Get().GetEntityByID(entity)->GetComponent<HittableState>()->inKnockdown = false;
 
-      entity->AddComponent<EnactActionComponent>();
+  // set empty component for follow up action
+  GameManager::Get().GetEntityByID(entity)->AddComponent<TransitionToNeutral>();
 
-      // remove attack components cause am in hitstun
-      entity->RemoveComponent<AbleToAttackState>();
-      entity->RemoveComponent<AbleToSpecialAttackState>();
+  // add cancels here
+  GameManager::Get().GetEntityByID(entity)->AddComponents<CancelOnHitGround, CancelOnSpecial, CancelOnNormal>();
 
-      // not hittable during this period
-      entity->RemoveComponent<HittableState>();
-
-      entity->RemoveComponent<TransitionToKnockdownGround>();
-    });
+  GameManager::Get().GetEntityByID(entity)->AddComponent<EnactActionComponent>();
 }
 
-void ActionFactory::SetBlockStunAction(Entity* entity, StateComponent* state, bool crouching)
+void ActionFactory::SetDashAction(const EntityID& entity, StateComponent* state, Animator* animator, bool dashDirectionForward)
 {
-  // since this will set to new state, remove input listener flag
-  _actionDecided.push_back(entity);
+  RemoveTransitionComponents(entity);
+  DisableAbility(entity);
 
-  GameManager::Get().ScheduleTask([entity, state, crouching]()
-    {
-      RemoveTransitionComponents(entity);
-      DisableAbility(entity);
+  // Always reset action complete flag on new action
+  GameManager::Get().GetEntityByID(entity)->GetComponent<GameActor>()->actionTimerComplete = false;
 
-      state->actionState = ActionState::BLOCKSTUN;
+  std::string animationName = dashDirectionForward ? "ForwardDash" : "BackDash";
+  // set up animation
+  float dashPlaySpeed = static_cast<float>(animator->AnimationLib()->GetAnimation(animationName)->GetFrameCount()) / static_cast<float>(GlobalVars::nDashFrames);
+  GameManager::Get().GetEntityByID(entity)->AddComponent<AnimatedActionComponent>({ state->onLeftSide, false, true, dashPlaySpeed, animationName });
 
-      // Always reset action complete flag on new action
-      entity->GetComponent<GameActor>()->actionTimerComplete = false;
+  GameManager::Get().GetEntityByID(entity)->AddComponent<DashingAction>();
+  GameManager::Get().GetEntityByID(entity)->GetComponent<DashingAction>()->dashSpeed = GlobalVars::BaseWalkSpeed * 1.5f;
+  if ((state->onLeftSide && !dashDirectionForward) || (!state->onLeftSide && dashDirectionForward))
+    GameManager::Get().GetEntityByID(entity)->GetComponent<DashingAction>()->dashSpeed *= -1.0f;
 
-      // set up knockdown air action
-      entity->AddComponent<AnimatedActionComponent>({ state->onLeftSide, false, true, 1.0f, crouching ? "BlockLow" : "BlockMid" });
+  // set up the end timer
+  GameManager::Get().GetEntityByID(entity)->AddComponent<TimedActionComponent>();
+  GameManager::Get().GetEntityByID(entity)->GetComponent<TimedActionComponent>()->totalFrames = GlobalVars::nDashFrames;
 
-      if (HasState(state->collision, CollisionSide::DOWN))
-      {
-        // set up movement action for stopping movement
-        entity->AddComponent<MovingActionComponent>();
-        entity->GetComponent<MovingActionComponent>()->velocity = Vector2<float>::Zero;
-        entity->GetComponent<MovingActionComponent>()->horizontalMovementOnly = true;
-      }
 
-      // freeze in this state 
-      entity->AddComponent<TimedActionComponent>();
-      entity->GetComponent<TimedActionComponent>()->totalFrames = state->hitData.framesInStunBlock;
+  // add states for potential inputs
+  GameManager::Get().GetEntityByID(entity)->AddComponent<HittableState>();
+  GameManager::Get().GetEntityByID(entity)->GetComponent<HittableState>()->canBlock = false;
+  GameManager::Get().GetEntityByID(entity)->GetComponent<HittableState>()->inKnockdown = false;
 
-      // set empty component for follow up action
-      entity->AddComponent<TransitionToNeutral>();
+  // set empty component for follow up action
+  GameManager::Get().GetEntityByID(entity)->AddComponent<TransitionToNeutral>();
 
-      // add states for potential inputs
-      entity->AddComponent<HittableState>();
-      entity->GetComponent<HittableState>()->canBlock = true;
-      entity->GetComponent<HittableState>()->inKnockdown = false;
+  GameManager::Get().GetEntityByID(entity)->AddComponent<EnactActionComponent>();
 
-      entity->AddComponent<ReceivedDamageAction>();
-      entity->GetComponent<ReceivedDamageAction>()->damageAmount = 0;
-      entity->GetComponent<ReceivedDamageAction>()->isBlocking = true;
-
-      entity->AddComponent<EnactActionComponent>();
-    });
+  GameManager::Get().GetEntityByID(entity)->RemoveComponent<AbleToDash>();
 }
 
-void ActionFactory::SetHitStunAction(Entity* entity, StateComponent* state, bool crouching)
+void ActionFactory::GoToNeutralAction(const EntityID& entity, StateComponent* state)
 {
-  // since this will set to new state, remove input listener flag
-  _actionDecided.push_back(entity);
+  ResetActionComponents(entity);
+  // Always reset action complete flag on new action
+  GameManager::Get().GetEntityByID(entity)->GetComponent<GameActor>()->actionTimerComplete = false;
 
-  GameManager::Get().ScheduleTask([entity, state, crouching]()
-    {
-      RemoveTransitionComponents(entity);
-      DisableAbility(entity);
+  GameManager::Get().GetEntityByID(entity)->AddComponent<EnactActionComponent>();
+  GameManager::Get().GetEntityByID(entity)->AddComponent<AnimatedActionComponent>({ state->onLeftSide, true, false, 1.0f, "Idle" });
 
-      state->actionState = ActionState::HITSTUN;
+  // set up movement action for stopping movement
+  GameManager::Get().GetEntityByID(entity)->AddComponent<MovingActionComponent>();
+  GameManager::Get().GetEntityByID(entity)->GetComponent<MovingActionComponent>()->velocity = Vector2<float>::Zero;
+  GameManager::Get().GetEntityByID(entity)->GetComponent<MovingActionComponent>()->horizontalMovementOnly = true;
 
-      // Always reset action complete flag on new action
-      entity->GetComponent<GameActor>()->actionTimerComplete = false;
+  // add states for potential outside influence
+  GameManager::Get().GetEntityByID(entity)->AddComponent<HittableState>();
+  GameManager::Get().GetEntityByID(entity)->GetComponent<HittableState>()->canBlock = true;
+  GameManager::Get().GetEntityByID(entity)->GetComponent<HittableState>()->inKnockdown = false;
 
-      std::string hitstunAnim = "LightHitstun";
-      if (state->hitData.framesInStunHit > 20) hitstunAnim = "MedHitstun";
-      if (state->hitData.framesInStunHit > 30) hitstunAnim = "HeavyHitstun";
+  // in neutral, all of these options are available, so actions can be accessed via inputs
+  EnableAbility(entity);
 
-      // set up animation
-      entity->AddComponent<AnimatedActionComponent>({ state->onLeftSide, false, true, 1.0f, (crouching && state->hitData.framesInStunHit < 35) ? "CrouchingHitstun" : hitstunAnim });
+  GameManager::Get().GetEntityByID(entity)->RemoveComponents<DashingAction, AbleToReturnToNeutral>();
 
-      // set up movement action for knockback
-      entity->AddComponent<MovingActionComponent>();
-      entity->GetComponent<MovingActionComponent>()->velocity = state->hitData.knockback;
-      entity->GetComponent<MovingActionComponent>()->horizontalMovementOnly = false;
-
-      // freeze in this state 
-      entity->AddComponent<TimedActionComponent>();
-      entity->GetComponent<TimedActionComponent>()->totalFrames = state->hitData.framesInStunHit;
-
-      // set empty component for follow up action
-      entity->AddComponent<TransitionToNeutral>();
-
-      entity->AddComponent<ReceivedDamageAction>();
-      entity->GetComponent<ReceivedDamageAction>()->damageAmount = state->hitData.damage;
-      entity->GetComponent<ReceivedDamageAction>()->isBlocking = false;
-
-      // add states for potential inputs
-      entity->AddComponent<HittableState>();
-      entity->GetComponent<HittableState>()->canBlock = false;
-      entity->GetComponent<HittableState>()->inKnockdown = false;
-
-      entity->AddComponent<EnactActionComponent>();
-    });
+  state->actionState = ActionState::NONE;
 }
 
-void ActionFactory::SetGrappledAction(Entity* entity, StateComponent* state)
+void ActionFactory::GoToWalkLeftAction(const EntityID& entity, GameActor* actor, StateComponent* state, const Vector2<float>& mvmt)
 {
-  // since this will set to new state, remove input listener flag
-  _actionDecided.push_back(entity);
+  // Always reset action complete flag on new action
+  actor->actionTimerComplete = false;
 
-  GameManager::Get().ScheduleTask([entity, state]()
-    {
-      RemoveTransitionComponents(entity);
-      DisableAbility(entity);
+  GameManager::Get().GetEntityByID(entity)->AddComponents<EnactActionComponent, MovingActionComponent, HittableState, AbleToReturnToNeutral>();
 
-      // Always reset action complete flag on new action
-      entity->GetComponent<GameActor>()->actionTimerComplete = false;
+  // set animation based on direction
+  std::string animation = state->onLeftSide ? "WalkB" : "WalkF";
+  GameManager::Get().GetEntityByID(entity)->AddComponent<AnimatedActionComponent>({ state->onLeftSide, true, false, 1.0f, animation });
 
-      // set up animation
-      entity->AddComponent<AnimatedActionComponent>({ state->onLeftSide, false, true, 1.0f, "HeavyHitstun" });
+  GameManager::Get().GetEntityByID(entity)->GetComponent<MovingActionComponent>()->velocity = mvmt;
+  GameManager::Get().GetEntityByID(entity)->GetComponent<MovingActionComponent>()->horizontalMovementOnly = true;
 
-      entity->AddComponent<ReceivedGrappleAction>();
-      entity->GetComponent<ReceivedGrappleAction>()->damageAndKnockbackDelay = state->hitData.activeFrames;
-      entity->GetComponent<ReceivedGrappleAction>()->damageAmount = state->hitData.damage;
+  // add states for potential outside influence
+  GameManager::Get().GetEntityByID(entity)->AddComponent<>();
+  GameManager::Get().GetEntityByID(entity)->GetComponent<HittableState>()->canBlock = true;
+  GameManager::Get().GetEntityByID(entity)->GetComponent<HittableState>()->inKnockdown = false;
 
-      // freeze in this state til throw is initiated
-      entity->AddComponent<TimedActionComponent>();
-      entity->GetComponent<TimedActionComponent>()->totalFrames = state->hitData.activeFrames;
+  // enable all abilities in neutral
+  ActionFactory::EnableAbility(entity);
 
-      entity->AddComponent<EnactActionComponent>();
-    });
+  GameManager::Get().GetEntityByID(entity)->RemoveComponents<InputListenerComponent, AbleToWalkLeft>();
 }
 
-
-void ActionFactory::SetAttackAction(Entity* entity, StateComponent* state, const std::string& attackName, ActionState actionType)
+void ActionFactory::GoToWalkRightAction(const EntityID& entity, GameActor* actor, StateComponent* state, const Vector2<float>& mvmt)
 {
-  // since this will set to new state, remove input listener flag
-  _actionDecided.push_back(entity);
+  // Always reset action complete flag on new action
+  actor->actionTimerComplete = false;
 
-  GameManager::Get().ScheduleTask([entity, state, attackName, actionType]()
-    {
-      RemoveTransitionComponents(entity);
-      DisableAbility(entity);
+  GameManager::Get().GetEntityByID(entity)->AddComponents<EnactActionComponent, MovingActionComponent, HittableState, AbleToReturnToNeutral>();
 
-      // resetting state component... i dont really like this
-      state->hitting = false;
-      // mark action type here
-      state->actionState = actionType;
+  // set animation based on direction
+  std::string animation = state->onLeftSide ? "WalkF" : "WalkB";
+  GameManager::Get().GetEntityByID(entity)->AddComponent<AnimatedActionComponent>({ state->onLeftSide, true, false, 1.0f, animation });
 
-      // Always reset action complete flag on new action
-      entity->GetComponent<GameActor>()->actionTimerComplete = false;
+  GameManager::Get().GetEntityByID(entity)->GetComponent<MovingActionComponent>()->velocity = mvmt;
+  GameManager::Get().GetEntityByID(entity)->GetComponent<MovingActionComponent>()->horizontalMovementOnly = true;
 
-      // set up animation
-      entity->AddComponent<AnimatedActionComponent>({ state->onLeftSide, false, true, 1.0f, attackName });
+  // add states for potential outside influence
+  GameManager::Get().GetEntityByID(entity)->AddComponent<>();
+  GameManager::Get().GetEntityByID(entity)->GetComponent<HittableState>()->canBlock = true;
+  GameManager::Get().GetEntityByID(entity)->GetComponent<HittableState>()->inKnockdown = false;
 
-      // since this is an animation locked attack
-      entity->AddComponent<WaitForAnimationComplete>();
+  // enable all abilities in neutral
+  ActionFactory::EnableAbility(entity);
 
-      entity->AddComponent<AttackActionComponent>();
-      entity->GetComponent<AttackActionComponent>()->type = actionType;
-
-      // NOTE: THIS IS BUGGED WITH MOVES THAT HAVE UPWARDS MOVEMENT ON THE FIRST FRAME
-      // THIS IS BECAUSE THE MOVEMENT FUNCTIONS FOR MOVES RUN THROUGH THE GENERIC TIMER SYSTEM
-      // NEED TO FIX THIS - ORDERING IS A PAIN
-      if (HasState(state->collision, CollisionSide::DOWN))
-      {
-        // set up movement action for stopping movement
-        entity->AddComponent<MovingActionComponent>();
-        entity->GetComponent<MovingActionComponent>()->velocity = Vector2<float>::Zero;
-        entity->GetComponent<MovingActionComponent>()->horizontalMovementOnly = true;
-      }
-
-      // add states for potential inputs
-      entity->AddComponent<HittableState>();
-      entity->GetComponent<HittableState>()->canBlock = false;
-      entity->GetComponent<HittableState>()->inKnockdown = false;
-
-      // set empty component for follow up action
-      entity->AddComponent<TransitionToNeutral>();
-
-      // add cancels here
-      entity->AddComponents<CancelOnHitGround, CancelOnSpecial, CancelOnNormal>();
-
-      entity->AddComponent<EnactActionComponent>();
-    });
+  GameManager::Get().GetEntityByID(entity)->RemoveComponents<InputListenerComponent, AbleToWalkRight>();
 }
 
-void ActionFactory::SetDashAction(Entity* entity, StateComponent* state, Animator* animator, bool dashDirectionForward)
-{
-  // since this will set to new state, remove input listener flag
-  _actionDecided.push_back(entity);
-
-  GameManager::Get().ScheduleTask([entity, state, animator, dashDirectionForward]()
-    {
-      RemoveTransitionComponents(entity);
-      DisableAbility(entity);
-
-      // Always reset action complete flag on new action
-      entity->GetComponent<GameActor>()->actionTimerComplete = false;
-
-      std::string animationName = dashDirectionForward ? "ForwardDash" : "BackDash";
-      // set up animation
-      float dashPlaySpeed = static_cast<float>(animator->AnimationLib()->GetAnimation(animationName)->GetFrameCount()) / static_cast<float>(GlobalVars::nDashFrames);
-      entity->AddComponent<AnimatedActionComponent>({ state->onLeftSide, false, true, dashPlaySpeed, animationName });
-
-      entity->AddComponent<DashingAction>();
-      entity->GetComponent<DashingAction>()->dashSpeed = GlobalVars::BaseWalkSpeed * 1.5f;
-      if ((state->onLeftSide && !dashDirectionForward) || (!state->onLeftSide && dashDirectionForward))
-        entity->GetComponent<DashingAction>()->dashSpeed *= -1.0f;
-
-      // set up the end timer
-      entity->AddComponent<TimedActionComponent>();
-      entity->GetComponent<TimedActionComponent>()->totalFrames = GlobalVars::nDashFrames;
-
-
-      // add states for potential inputs
-      entity->AddComponent<HittableState>();
-      entity->GetComponent<HittableState>()->canBlock = false;
-      entity->GetComponent<HittableState>()->inKnockdown = false;
-
-      // set empty component for follow up action
-      entity->AddComponent<TransitionToNeutral>();
-
-      entity->AddComponent<EnactActionComponent>();
-
-      entity->RemoveComponent<AbleToDash>();
-    });
-}
-
-void ActionFactory::GoToNeutralAction(Entity* entity, StateComponent* state)
-{
-  // since this will set to new state, remove input listener flag
-  // not necessary for this since a follow up is possible?
-  //_actionDecided.push_back(entity);
-
-  GameManager::Get().ScheduleTask([entity, state]()
-    {
-      ResetActionComponents(entity);
-      // Always reset action complete flag on new action
-      entity->GetComponent<GameActor>()->actionTimerComplete = false;
-
-      entity->AddComponent<EnactActionComponent>();
-      entity->AddComponent<AnimatedActionComponent>({ state->onLeftSide, true, false, 1.0f, "Idle" });
-
-      // set up movement action for stopping movement
-      entity->AddComponent<MovingActionComponent>();
-      entity->GetComponent<MovingActionComponent>()->velocity = Vector2<float>::Zero;
-      entity->GetComponent<MovingActionComponent>()->horizontalMovementOnly = true;
-
-      // add states for potential outside influence
-      entity->AddComponent<HittableState>();
-      entity->GetComponent<HittableState>()->canBlock = true;
-      entity->GetComponent<HittableState>()->inKnockdown = false;
-
-      // in neutral, all of these options are available, so actions can be accessed via inputs
-      EnableAbility(entity);
-
-      entity->RemoveComponents<DashingAction>();
-
-      state->actionState = ActionState::NONE;
-    });
-}
-
-void ActionFactory::ResetActionComponents(Entity* entity)
+void ActionFactory::ResetActionComponents(const EntityID& entity)
 {
   // remove all state dependent components (hopefully this doesn't fuck performance)
   RemoveTransitionComponents(entity);
 
-  entity->RemoveComponents<CancelOnHitGround, CancelOnDash, CancelOnJump, CancelOnSpecial, CancelOnNormal>();
+  GameManager::Get().GetEntityByID(entity)->RemoveComponents<CancelOnHitGround, CancelOnDash, CancelOnJump, CancelOnSpecial, CancelOnNormal>();
 
   // these components should be merged....
-  entity->RemoveComponent<AttackActionComponent>();
-  entity->RemoveComponent<AttackStateComponent>();
+  GameManager::Get().GetEntityByID(entity)->RemoveComponent<AttackActionComponent>();
+  GameManager::Get().GetEntityByID(entity)->RemoveComponent<AttackStateComponent>();
 
-  entity->RemoveComponent<GrappleActionComponent>();
-  entity->RemoveComponent<MovingActionComponent>();
-  entity->RemoveComponent<ReceivedDamageAction>();
-  entity->RemoveComponent<ReceivedGrappleAction>();
-  entity->RemoveComponent<DashingAction>();
+  GameManager::Get().GetEntityByID(entity)->RemoveComponent<GrappleActionComponent>();
+  GameManager::Get().GetEntityByID(entity)->RemoveComponent<MovingActionComponent>();
+  GameManager::Get().GetEntityByID(entity)->RemoveComponent<ReceivedDamageAction>();
+  GameManager::Get().GetEntityByID(entity)->RemoveComponent<ReceivedGrappleAction>();
+  GameManager::Get().GetEntityByID(entity)->RemoveComponent<DashingAction>();
 
-  entity->AddComponent<InputListenerComponent>();
+  GameManager::Get().GetEntityByID(entity)->AddComponent<InputListenerComponent>();
   
 }
 
-void ActionFactory::RemoveTransitionComponents(Entity* entity)
+void ActionFactory::RemoveTransitionComponents(const EntityID& entity)
 {
-  entity->RemoveComponent<TransitionToKnockdownGround>();
-  entity->RemoveComponent<TransitionToKnockdownGroundOTG>();
-  entity->RemoveComponent<TransitionToNeutral>();
-  entity->RemoveComponent<TransitionToCrouching>();
+  GameManager::Get().GetEntityByID(entity)->RemoveComponent<TransitionToKnockdownGround>();
+  GameManager::Get().GetEntityByID(entity)->RemoveComponent<TransitionToKnockdownGroundOTG>();
+  GameManager::Get().GetEntityByID(entity)->RemoveComponent<TransitionToNeutral>();
+  GameManager::Get().GetEntityByID(entity)->RemoveComponent<TransitionToCrouching>();
 
-  entity->RemoveComponent<TimedActionComponent>();
-  entity->RemoveComponent<WaitForAnimationComplete>();
-  entity->RemoveComponent<WaitingForJumpAirborne>();
-  entity->RemoveComponent<MovingActionComponent>();
+  GameManager::Get().GetEntityByID(entity)->RemoveComponent<TimedActionComponent>();
+  GameManager::Get().GetEntityByID(entity)->RemoveComponent<WaitForAnimationComplete>();
+  GameManager::Get().GetEntityByID(entity)->RemoveComponent<WaitingForJumpAirborne>();
+  GameManager::Get().GetEntityByID(entity)->RemoveComponent<MovingActionComponent>();
 
-  entity->RemoveComponent<AttackStateComponent>();
-  entity->RemoveComponent<HitStateComponent>();
+  GameManager::Get().GetEntityByID(entity)->RemoveComponent<AttackStateComponent>();
+  GameManager::Get().GetEntityByID(entity)->RemoveComponent<HitStateComponent>();
 
   // remove all action state components
-  //entity->RemoveComponents<DashingAction, JumpingAction, CrouchingAction>();
+  //GameManager::Get().GetEntityByID(entity)->RemoveComponents<DashingAction, JumpingAction, CrouchingAction>();
 }
 
 
-void ActionFactory::DisableAbility(Entity* entity)
+void ActionFactory::DisableAbility(const EntityID& entity)
 {
-  entity->RemoveComponents<AbleToAttackState, AbleToSpecialAttackState, AbleToDash, AbleToJump, AbleToWalk, AbleToCrouch>();
+  GameManager::Get().GetEntityByID(entity)->RemoveComponents<AbleToAttackState, AbleToSpecialAttackState, AbleToDash, AbleToJump, AbleToWalkLeft, AbleToWalkRight, AbleToCrouch, AbleToReturnToNeutral>();
 }
 
-void ActionFactory::EnableAbility(Entity* entity)
+void ActionFactory::EnableAbility(const EntityID& entity)
 {
   // add things that give control to player
-  entity->AddComponents<AbleToAttackState, AbleToSpecialAttackState, AbleToDash, AbleToJump, AbleToWalk, AbleToCrouch>();
+  GameManager::Get().GetEntityByID(entity)->AddComponents<AbleToAttackState, AbleToSpecialAttackState, AbleToDash, AbleToJump, AbleToWalkLeft, AbleToWalkRight, AbleToCrouch>();
 
   // remove things that take control away from player
-  entity->RemoveComponent<WallPushComponent>();
-}
-
-void ActionFactory::DisableActionListenerForEntities()
-{
-  for (Entity* entity : _actionDecided)
-  {
-    entity->RemoveComponent<InputListenerComponent>();
-  }
-  _actionDecided.clear();
+  GameManager::Get().GetEntityByID(entity)->RemoveComponent<WallPushComponent>();
 }
 
 bool ActionFactory::ActorDidSpecialInputRyu(GameActor* actor, StateComponent* state)

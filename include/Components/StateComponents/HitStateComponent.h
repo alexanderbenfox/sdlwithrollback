@@ -1,22 +1,22 @@
 #pragma once
 #include "Components/IComponent.h"
+#include "Components/ActionComponents.h"
 #include "ActionTimer.h"
 
 class HitStateComponent : public IComponent
 {
 public:
+  HitStateComponent();
   //!
-  HitStateComponent(std::shared_ptr<Entity> owner);
+  void OnRemove(const EntityID& entity) override;
   //!
-  virtual ~HitStateComponent() override;
-  //!
-  void SetTimer(ActionTimer* timer);
+  void SetTimer(TimedActionComponent* timer);
   //!
   virtual int GetRemainingFrames();
 
 protected:
   //!
-  ActionTimer* _linkedTimer;
+  TimedActionComponent* _linkedTimer;
 };
 
 //! Attach to entity when it is in the "being thrown" state
@@ -24,6 +24,6 @@ class GrappledStateComponent : public HitStateComponent
 {
 public:
   //!
-  GrappledStateComponent(std::shared_ptr<Entity> owner) : HitStateComponent(owner) {}
+  GrappledStateComponent() : HitStateComponent() {}
 
 };

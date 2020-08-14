@@ -45,7 +45,6 @@
     <ClCompile Include="..\src\Components\Components.cpp" />
     <ClCompile Include="..\src\Components\Hitbox.cpp" />
     <ClCompile Include="..\src\Components\Input.cpp" />
-    <ClCompile Include="..\src\Components\Hurtbox.cpp" />
     <ClCompile Include="..\src\Components\RenderComponent.cpp" />
     <ClCompile Include="..\src\Components\SFXComponent.cpp" />
     <ClCompile Include="..\src\Components\StateComponents\AttackStateComponent.cpp" />
@@ -66,6 +65,7 @@
     <ClCompile Include="..\src\Rendering\RenderManager.cpp" />
     <ClCompile Include="..\src\Systems\Physics.cpp" />
     <ClCompile Include="..\src\Timer.cpp" />
+    <ClCompile Include="..\src\Utils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\imgui\imconfig.h" />
@@ -98,7 +98,7 @@
     <ClInclude Include="..\include\Components\Camera.h" />
     <ClInclude Include="..\include\Components\Collider.h" />
     <ClInclude Include="..\include\Components\ComponentIDGenerator.h" />
-    <ClInclude Include="..\include\Components\ComponentManager.h" />
+    <ClInclude Include="..\include\Components\ComponentArray.h" />
     <ClInclude Include="..\include\Components\InputHandlers\AIInputHandler.h" />
     <ClInclude Include="..\include\Components\InputHandlers\GamepadInputHandler.h" />
     <ClInclude Include="..\include\Components\InputHandlers\IInputHandler.h" />
@@ -131,6 +131,7 @@
     <ClInclude Include="..\include\DebugGUI\DebugItem.h" />
     <ClInclude Include="..\include\DebugGUI\GUIController.h" />
     <ClInclude Include="..\include\Entity.h" />
+    <ClInclude Include="..\include\EntityManager.h" />
     <ClInclude Include="..\include\GameManagement.h" />
     <ClInclude Include="..\include\GameState\GameState.h" />
     <ClInclude Include="..\include\GameState\GGPOGameState.h" />

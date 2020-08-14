@@ -11,25 +11,25 @@ struct EnactAnimationActionSystem : public ISystem<EnactActionComponent, Animate
 {
   static void DoTick(float dt)
   {
-    for (auto tuple : Tuples)
+    for (const EntityID& entity : Registered)
     {
-      AnimatedActionComponent* action = std::get<AnimatedActionComponent*>(tuple.second);
-      Animator* animator = std::get<Animator*>(tuple.second);
-      RenderProperties* properties = std::get<RenderProperties*>(tuple.second);
-      RenderComponent<RenderType>* renderer = std::get<RenderComponent<RenderType>*>(tuple.second);
-      Hurtbox* hurtbox = std::get<Hurtbox*>(tuple.second);
-      GameActor* actor = std::get<GameActor*>(tuple.second);
+      AnimatedActionComponent& action = ComponentArray<AnimatedActionComponent>::Get().GetComponent(entity);
+      Animator& animator = ComponentArray<Animator>::Get().GetComponent(entity);
+      RenderProperties& properties = ComponentArray<RenderProperties>::Get().GetComponent(entity);
+      RenderComponent<RenderType>& renderer = ComponentArray<RenderComponent<RenderType>>::Get().GetComponent(entity);
+      Hurtbox& hurtbox = ComponentArray<Hurtbox>::Get().GetComponent(entity);
+      GameActor& actor = ComponentArray<GameActor>::Get().GetComponent(entity);
 
-      if (animator->AnimationLib() && animator->AnimationLib()->GetAnimation(action->animation))
+      if (animator.AnimationLib() && animator.AnimationLib()->GetAnimation(action.animation))
       {
-        Animation* actionAnimation = animator->Play(action->animation, action->isLoopedAnimation, action->playSpeed, action->forceAnimRestart);
-        properties->horizontalFlip = !action->isFacingRight;
-        properties->offset = -animator->AnimationLib()->GetRenderOffset(action->animation, !action->isFacingRight, (int)std::floor(hurtbox->unscaledRect.Width()));
+        Animation* actionAnimation = animator.Play(action.animation, action.isLoopedAnimation, action.playSpeed, action.forceAnimRestart);
+        properties.horizontalFlip = !action.isFacingRight;
+        properties.offset = -animator.AnimationLib()->GetRenderOffset(action.animation, !action.isFacingRight, (int)std::floor(hurtbox.unscaledRect.Width()));
         if (actionAnimation)
         {
           // render from the sheet of the new animation
-          renderer->SetRenderResource(actionAnimation->GetSheetTexture<RenderType>());
-          renderer->sourceRect = actionAnimation->GetFrameSrcRect(0);
+          renderer.SetRenderResource(actionAnimation->GetSheetTexture<RenderType>());
+          renderer.sourceRect = actionAnimation->GetFrameSrcRect(0);
         }
       }
     }
@@ -42,16 +42,16 @@ struct EnactAttackActionSystem : public ISystem<EnactActionComponent, AnimatedAc
 {
   static void DoTick(float dt)
   {
-    for (auto tuple : Tuples)
+    for (const EntityID& entity : Registered)
     {
-      AnimatedActionComponent* actionData = std::get<AnimatedActionComponent*>(tuple.second);
-      AttackActionComponent* action = std::get<AttackActionComponent*>(tuple.second);
-      Animator* animator = std::get<Animator*>(tuple.second);
+      AnimatedActionComponent& actionData = ComponentArray<AnimatedActionComponent>::Get().GetComponent(entity);
+      AttackActionComponent& action = ComponentArray<AttackActionComponent>::Get().GetComponent(entity);
+      Animator& animator = ComponentArray<Animator>::Get().GetComponent(entity);
 
-      if (animator->AnimationLib()->GetAnimation(actionData->animation) && animator->AnimationLib()->GetEventList(actionData->animation))
+      if (animator.AnimationLib()->GetAnimation(actionData.animation) && animator.AnimationLib()->GetEventList(actionData.animation))
       {
-        action->Owner()->AddComponent<AttackStateComponent>();
-        action->Owner()->GetComponent<AttackStateComponent>()->Init(animator->AnimationLib()->GetAnimation(actionData->animation), animator->AnimationLib()->GetEventList(actionData->animation));
+        GameManager::Get().GetEntityByID(entity)->AddComponent<AttackStateComponent>();
+        GameManager::Get().GetEntityByID(entity)->GetComponent<AttackStateComponent>()->Init(animator.AnimationLib()->GetAnimation(actionData.animation), animator.AnimationLib()->GetEventList(actionData.animation));
       }
     }
   }
@@ -61,10 +61,10 @@ struct EnactGrappleActionSystem : public ISystem<EnactActionComponent, GrappleAc
 {
   static void DoTick(float dt)
   {
-    for (auto tuple : Tuples)
+    for (const EntityID& entity : Registered)
     {
-      Rigidbody* rb = std::get<Rigidbody*>(tuple.second);
-      rb->ignoreDynamicColliders = true;
+      Rigidbody& rb = ComponentArray<Rigidbody>::Get().GetComponent(entity);
+      rb.ignoreDynamicColliders = true;
     }
   }
 };
@@ -75,15 +75,15 @@ struct EnactActionMovementSystem : public ISystem<EnactActionComponent, MovingAc
 {
   static void DoTick(float dt)
   {
-    for (auto tuple : Tuples)
+    for (const EntityID& entity : Registered)
     {
-      MovingActionComponent* action = std::get<MovingActionComponent*>(tuple.second);
-      Rigidbody* rb = std::get<Rigidbody*>(tuple.second);
+      MovingActionComponent& action = ComponentArray<MovingActionComponent>::Get().GetComponent(entity);
+      Rigidbody& rb = ComponentArray<Rigidbody>::Get().GetComponent(entity);
 
-      if (action->horizontalMovementOnly)
-        rb->_vel.x = action->velocity.x;
+      if (action.horizontalMovementOnly)
+        rb._vel.x = action.velocity.x;
       else
-        rb->_vel = action->velocity;
+        rb._vel = action.velocity;
     }
   }
 };
@@ -95,28 +95,28 @@ struct EnactActionDamageSystem : public ISystem<EnactActionComponent, ReceivedDa
 {
   static void DoTick(float dt)
   {
-    for (auto tuple : Tuples)
+    for (const EntityID& entity : Registered)
     {
-      ReceivedDamageAction* action = std::get<ReceivedDamageAction*>(tuple.second);
-      StateComponent* state = std::get<StateComponent*>(tuple.second);
+      ReceivedDamageAction& action = ComponentArray<ReceivedDamageAction>::Get().GetComponent(entity);
+      StateComponent& state = ComponentArray<StateComponent>::Get().GetComponent(entity);
 
-      if (!state->invulnerable)
+      if (!state.invulnerable)
       {
-        state->hp -= action->damageAmount;
+        state.hp -= action.damageAmount;
       }
 
-      SFXComponent* sfx = std::get<SFXComponent*>(tuple.second);
+      SFXComponent& sfx = ComponentArray<SFXComponent>::Get().GetComponent(entity);
       if (GlobalVars::ShowHitEffects)
       {
-        if (action->isBlocking)
-          sfx->ShowBlockSparks();
-        else if (!action->fromGrapple)
-          sfx->ShowHitSparks();
+        if (action.isBlocking)
+          sfx.ShowBlockSparks(state.onLeftSide);
+        else if (!action.fromGrapple)
+          sfx.ShowHitSparks(state.onLeftSide);
       }
 
-      if (!action->fromGrapple)
+      if (!action.fromGrapple)
       {
-        GameManager::Get().ActivateHitStop(action->isBlocking ? GlobalVars::HitStopFramesOnBlock : GlobalVars::HitStopFramesOnHit);
+        GameManager::Get().ActivateHitStop(action.isBlocking ? GlobalVars::HitStopFramesOnBlock : GlobalVars::HitStopFramesOnHit);
       }
     }
   }
@@ -126,56 +126,36 @@ struct EnactGrappledSystem : public ISystem<EnactActionComponent, ReceivedGrappl
 {
   static void DoTick(float dt)
   {
-    for (auto tuple : Tuples)
+    for (const EntityID& entity : Registered)
     {
-      ReceivedGrappleAction* action = std::get<ReceivedGrappleAction*>(tuple.second);
-      StateComponent* state = std::get<StateComponent*>(tuple.second);
-      Rigidbody* rb = std::get<Rigidbody*>(tuple.second);
+      ReceivedGrappleAction& action = ComponentArray<ReceivedGrappleAction>::Get().GetComponent(entity);
+      StateComponent& state = ComponentArray<StateComponent>::Get().GetComponent(entity);
+      Rigidbody& rb = ComponentArray<Rigidbody>::Get().GetComponent(entity);
 
-      state->thrownThisFrame = false;
-      rb->ignoreDynamicColliders = true;
+      state.thrownThisFrame = false;
+      rb.ignoreDynamicColliders = true;
 
-      state->Owner()->AddComponent<TimedActionComponent>();
-      state->Owner()->GetComponent<TimedActionComponent>()->totalFrames = action->damageAndKnockbackDelay;
+      GameManager::Get().GetEntityByID(entity)->AddComponent<TimedActionComponent>();
+      GameManager::Get().GetEntityByID(entity)->GetComponent<TimedActionComponent>()->totalFrames = action.damageAndKnockbackDelay;
     }
   }
 };
 
-struct CleanUpActionSystem : public ISystem<EnactActionComponent, StateComponent>
+struct CleanUpActionSystem : public ISystem<EnactActionComponent>
 {
   static void PostUpdate()
   {
-    std::vector<Entity*> entities;
-    for (auto tuple : Tuples)
+    DeferScopeGuard guard;
+    for (const EntityID& entity : Registered)
     {
-      EnactActionComponent* action = std::get<EnactActionComponent*>(tuple.second);
-      StateComponent* state = std::get<StateComponent*>(tuple.second);
-
-      entities.push_back(action->Owner());
-    }
-
-    for (auto entity : entities)
-    {
-      entity->RemoveComponent<EnactActionComponent>();
-      // we want to be listening for a new action now
-      entity->AddComponent<InputListenerComponent>();
+      defer(entity,
+        GameManager::Get().GetEntityByID(entity)->RemoveComponent<EnactActionComponent>();
+        // we want to be listening for a new action now
+        GameManager::Get().GetEntityByID(entity)->AddComponent<InputListenerComponent>();
+      );
     }
   }
 };
-
-// all empty components need to be put in a system or they dont generate an id
-// so thats why this is here
-/*struct LoserSystem : public ISystem<LoserComponent>
-{
-  static void PostUpdate()
-  {
-    std::vector<Entity*> entities;
-    for (auto tuple : Tuples)
-    {
-      LoserComponent* action = std::get<LoserComponent*>(tuple.second);
-    }
-  }
-};*/
 
 struct EnactAggregate
 {

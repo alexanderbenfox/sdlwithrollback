@@ -7,8 +7,7 @@
 //!
 struct Transform : public IComponent
 {
-  Transform(std::shared_ptr<Entity> owner);
-  virtual ~Transform();
+  Transform();
 
   Vector2<float> position;
   Vector2<float> scale;
@@ -17,16 +16,6 @@ struct Transform : public IComponent
   Rect<float> rect;
 
   void SetWidthAndHeight(float width, float height);
-
-  //!
-  template <typename T>
-  void AddComponent();
-  //!
-  template <typename T>
-  void RemoveComponent();
-  //!
-  template <typename T = IComponent>
-  std::shared_ptr<T> GetComponent() const;
 
   friend std::ostream& operator<<(std::ostream& os, const Transform& transform);
   friend std::istream& operator>>(std::istream& is, Transform& transform);
@@ -47,22 +36,3 @@ template <> struct ComponentInitParams<Transform>
     component.SetWidthAndHeight(params.size.x, params.size.y);
   }
 };
-
-//!
-template <typename T>
-inline void Transform::AddComponent() { _owner->AddComponent<T>(); }
-
-//!
-template <typename T>
-inline void Transform::RemoveComponent()
-{
-  // make sure it cannot remove itself
-  if(typeid(std::add_const_t<std::add_pointer_t<T>>) != typeid(this))
-    _owner->RemoveComponent<T>();
-}
-
-template <typename T>
-inline std::shared_ptr<T> Transform::GetComponent() const
-{
-  return _owner->GetComponent<T>();
-}

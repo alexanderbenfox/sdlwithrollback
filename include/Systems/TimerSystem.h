@@ -7,9 +7,9 @@ class TimerSystem : public ISystem<TimerContainer>
 public:
   static void DoTick(float dt)
   {
-    for(auto& tuple : Tuples)
+    for(const EntityID& entity : Registered)
     {
-      std::vector<std::shared_ptr<ActionTimer>>& _timings = std::get<TimerContainer*>(tuple.second)->timings;
+      std::vector<std::shared_ptr<ActionTimer>>& _timings = ComponentArray<TimerContainer>::Get().GetComponent(entity).timings;
       std::vector<int> markedForDelete;
       for (int i = 0; i < _timings.size(); i++)
       {

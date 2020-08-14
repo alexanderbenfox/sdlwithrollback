@@ -5,10 +5,7 @@
 #include "AssetManagement/StaticAssets/AnimationAssetData.h"
 
 //! marks the entity as the loser of the round
-struct LoserComponent : public IComponent
-{
-  LoserComponent(std::shared_ptr<Entity> owner) : IComponent(owner) {}
-};
+struct LoserComponent : public IComponent {};
 
 //! marks which team the entity is on (team A == player 1 and team B == player 2)
 struct TeamComponent : public IComponent
@@ -17,18 +14,16 @@ struct TeamComponent : public IComponent
   {
     TeamA, TeamB
   };
-  TeamComponent(std::shared_ptr<Entity> owner) : IComponent(owner) {}
 
   Team team = Team::TeamA;
   bool playerEntity = false;
 };
 
 //! hitbox is the area that will hit the opponent
-class StateComponent : public IComponent, public DebugItem
+class StateComponent : public IDebugComponent
 {
 public:
-  StateComponent() : IComponent(nullptr), DebugItem() {}
-  StateComponent(std::shared_ptr<Entity> owner) : IComponent(owner), DebugItem("State Component") {}
+  StateComponent() : IDebugComponent("State Component") {}
 
   //! assignment operators for no-copy
   StateComponent(const StateComponent& other);
@@ -36,8 +31,7 @@ public:
   StateComponent& operator=(const StateComponent& other);
   StateComponent& operator=(StateComponent&& other) noexcept;
 
-  //! Adds loser component to entity
-  void MarkLoser();
+
   //! Allows different fields to be changed through the debug menu
   virtual void OnDebug() override;
   
@@ -82,19 +76,19 @@ public:
 
 };
 
-inline StateComponent::StateComponent(const StateComponent& other) : IComponent(nullptr), DebugItem()
+inline StateComponent::StateComponent(const StateComponent& other) : IDebugComponent()
 {
   operator=(other);
 }
 
-inline StateComponent::StateComponent(StateComponent&& other) : IComponent(nullptr), DebugItem()
+inline StateComponent::StateComponent(StateComponent&& other) : IDebugComponent()
 {
   operator=(other);
 }
 
 inline StateComponent& StateComponent::operator=(const StateComponent& other)
 {
-  DebugItem::operator=(other);
+  IDebugComponent::operator=(other);
   this->onLeftSide = other.onLeftSide;
   this->collision = other.collision;
   this->hitThisFrame = other.hitThisFrame;
@@ -111,7 +105,7 @@ inline StateComponent& StateComponent::operator=(const StateComponent& other)
 
 inline StateComponent& StateComponent::operator=(StateComponent&& other) noexcept
 {
-  DebugItem::operator=(other);
+  IDebugComponent::operator=(other);
   this->onLeftSide = other.onLeftSide;
   this->collision = other.collision;
   this->hitThisFrame = other.hitThisFrame;

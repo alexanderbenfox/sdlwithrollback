@@ -4,8 +4,7 @@
 
 struct TimerContainer : public IComponent
 {
-  TimerContainer(std::shared_ptr<Entity> owner) : IComponent(owner) {}
-  virtual ~TimerContainer()
+  void OnRemove(const EntityID& entity) override
   {
     for (auto timing : timings)
       timing->OnComplete();

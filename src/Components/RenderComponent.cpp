@@ -2,9 +2,9 @@
 #include "Components/UIComponents.h"
 #include "GameManagement.h"
 
-TextRenderer::TextRenderer(std::shared_ptr<Entity> owner) : _resource(nullptr), _currentText(""), IComponent(owner) {}
+TextRenderer::TextRenderer() : _resource(nullptr), _currentText(""), IComponent() {}
 
-TextRenderer::~TextRenderer()
+void TextRenderer::OnRemove(const EntityID& entity)
 {
   // make sure that the blit operations have been cleared
   for (size_t i = 0; i < _string.size(); ++i)
@@ -16,8 +16,9 @@ void TextRenderer::SetFont(LetterCase& resource)
   _resource = &resource;
 }
 
-void TextRenderer::SetText(const std::string& text)
+Vector2<float> TextRenderer::SetText(const std::string& text)
 {
+  Vector2<float> newSize;
   if (_resource && text != _currentText)
   {
     // remove the operations from draw manager
@@ -38,11 +39,9 @@ void TextRenderer::SetText(const std::string& text)
       width = std::max(letter.x + letter.texture->GetInfo().mWidth, width);
       height = std::max(letter.y + letter.texture->GetInfo().mHeight, height);
     }
-    if (auto transform = _owner->GetComponent<UITransform>())
-    {
-      transform->rect = Rect<float>(transform->position.x, transform->position.y, width, height);
-    }
+    newSize = Vector2<float>(width, height);
   }
+  return newSize;
 }
 
 std::vector<GLDrawOperation> TextRenderer::GetRenderOps()
@@ -50,12 +49,12 @@ std::vector<GLDrawOperation> TextRenderer::GetRenderOps()
   return _string;
 }
 
-RenderProperties::RenderProperties(std::shared_ptr<Entity> owner) :
+RenderProperties::RenderProperties() :
   baseRenderOffset(0, 0),
   offset(0, 0),
   horizontalFlip(false),
   _displayColor{ 255, 255, 255, SDL_ALPHA_OPAQUE },
-  IComponent(owner)
+  IComponent()
 {}
 
 void RenderProperties::SetDisplayColor(Uint8 r, Uint8 g, Uint8 b)

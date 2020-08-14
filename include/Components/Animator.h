@@ -6,7 +6,7 @@
 class Animator : public IComponent
 {
 public:
-  Animator(std::shared_ptr<Entity> owner);
+  Animator();
 
   void SetAnimations(AnimationCollection* animations);
 

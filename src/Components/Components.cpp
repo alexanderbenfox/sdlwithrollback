@@ -19,43 +19,38 @@
 #include "Components/ActionComponents.h"
 
 //______________________________________________________________________________
-WallPushComponent::WallPushComponent(std::shared_ptr<Entity> entity) : IComponent(entity) {}
+WallPushComponent::WallPushComponent() : IComponent() {}
 
 //______________________________________________________________________________
-WallPushComponent::~WallPushComponent()
+void WallPushComponent::OnRemove(const EntityID& entity)
 {
-  if (_owner->GetComponent<Rigidbody>())
-    _owner->GetComponent<Rigidbody>()->_vel.x = 0;
+  if (ComponentArray<Rigidbody>::Get().HasComponent(entity))
+    ComponentArray<Rigidbody>::Get().GetComponent(entity)._vel.x = 0;
 }
 
 //______________________________________________________________________________
-UIRectangleRenderComponent::UIRectangleRenderComponent(std::shared_ptr<Entity> owner) : shownSize{ 0, 0, 0, 0 }, IComponent(owner)
+UIRectangleRenderComponent::UIRectangleRenderComponent() : shownSize{ 0, 0, 0, 0 }, IComponent() {}
+
+void UIRectangleRenderComponent::OnAdd(const EntityID& entity)
 {
   GRenderer.RegisterDrawable<DrawPrimitive<RenderType>>(RenderLayer::UI);
-
-  if (auto transform = owner->GetComponent<UITransform>())
+  if (ComponentArray<UITransform>::Get().HasComponent(entity))
   {
-    shownSize.w = transform->rect.Width();
-    shownSize.h = transform->rect.Height();
+    shownSize.w = ComponentArray<UITransform>::Get().GetComponent(entity).rect.Width();
+    shownSize.h = ComponentArray<UITransform>::Get().GetComponent(entity).rect.Height();
   }
 }
 
 //______________________________________________________________________________
-UIRectangleRenderComponent::~UIRectangleRenderComponent()
+void UIRectangleRenderComponent::OnRemove(const EntityID& entity)
 {
   GRenderer.DeregisterDrawable<DrawPrimitive<RenderType>>(RenderLayer::UI);
 }
 
 //______________________________________________________________________________
-void StateComponent::MarkLoser()
-{
-  _owner->AddComponent<LoserComponent>();
-}
-
-//______________________________________________________________________________
 void StateComponent::OnDebug()
 {
-  std::string name = "State P" + std::to_string(_owner->GetID());
+  std::string name = "State P" + std::to_string(entityID);
   if (ImGui::CollapsingHeader(name.c_str()))
   {
     //ImGui::Text("Player %d State Component", _owner->GetID());
@@ -65,11 +60,6 @@ void StateComponent::OnDebug()
       ImGui::Text("NotHitting");
     ImGui::Text("HP = %d", hp);
     ImGui::Checkbox("Invulnerable", &invulnerable);
-
-    if(ImGui::Button("Mark Loser"))
-    {
-      MarkLoser();
-    }
   }
 }
 
@@ -106,12 +96,7 @@ void RectCollider<T>::Draw()
 }
 
 //______________________________________________________________________________
-GameActor::GameActor(std::shared_ptr<Entity> owner) : _newState(true), _lastInput(InputState::NONE), IComponent(owner)
-{
-}
-
-//______________________________________________________________________________
-GameActor::~GameActor()
+GameActor::GameActor() : _newState(true), _lastInput(InputState::NONE), IComponent()
 {
 }
 

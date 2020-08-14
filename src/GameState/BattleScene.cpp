@@ -88,9 +88,8 @@ void BattleScene::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2)
   InitCharacter(Vector2<int>(400, 0), _p2, false);
 
   //set player state to neutral
-  ActionFactory::GoToNeutralAction(_p1.get(), _p1->GetComponent<StateComponent>().get());
-  ActionFactory::GoToNeutralAction(_p2.get(), _p2->GetComponent<StateComponent>().get());
-  ActionFactory::DisableActionListenerForEntities();
+  ActionFactory::GoToNeutralAction(_p1->GetID(), _p1->GetComponent<StateComponent>());
+  ActionFactory::GoToNeutralAction(_p2->GetID(), _p2->GetComponent<StateComponent>());
   _p1->AddComponent<InputListenerComponent>();
   _p2->AddComponent<InputListenerComponent>();
 
@@ -101,7 +100,7 @@ void BattleScene::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2)
   // set up camera
   _uiCamera = GameManager::Get().CreateEntity<Camera, Transform>();
   _uiCamera->GetComponent<Camera>()->Init(m_nativeWidth, m_nativeHeight);
-  GRenderer.EstablishCamera(RenderLayer::UI, _uiCamera->GetComponent<Camera>().get());
+  
 
   // add camera follows players component so that it is flagged for that system
   _camera = GameManager::Get().CreateEntity<Camera, Transform, CameraFollowsPlayers>();
@@ -109,7 +108,8 @@ void BattleScene::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2)
   _camera->GetComponent<Camera>()->origin = cameraOrigin;
   _camera->GetComponent<Camera>()->clamp = stage.clamp;
 
-  GRenderer.EstablishCamera(RenderLayer::World, _camera->GetComponent<Camera>().get());
+  GRenderer.EstablishCamera(RenderLayer::UI, _uiCamera->GetComponent<Camera>());
+  GRenderer.EstablishCamera(RenderLayer::World, _camera->GetComponent<Camera>());
 
 }
 
@@ -142,16 +142,15 @@ void BattleScene::Update(float deltaTime)
 
   ////++++ end state machine section ++++////
 
+  
   // update timer systems after state has been chosen
   TimedActionSystem::DoTick(deltaTime);
-
 
   // update animation listener
   AnimationListenerSystem::DoTick(deltaTime);
   AnimationSystem::DoTick(deltaTime);
   // advance attack event schedules before checking hitboxes
   AttackAnimationSystem::DoTick(deltaTime);
-
 
   // resolve collisions
   PhysicsSystem::DoTick(deltaTime);
@@ -352,8 +351,8 @@ void BattleScene::InitCharacter(Vector2<float> position, std::shared_ptr<Entity>
   }
 
   //! Janky loading
-  player->GetComponent<SFXComponent>()->ShowHitSparks();
-  player->GetComponent<SFXComponent>()->ShowBlockSparks();
+  player->GetComponent<SFXComponent>()->ShowHitSparks(false);
+  player->GetComponent<SFXComponent>()->ShowBlockSparks(false);
 
 }
 
@@ -407,14 +406,14 @@ void PostMatchScene::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2
   // set up camera
   _uiCamera = GameManager::Get().CreateEntity<Camera, Transform>();
   _uiCamera->GetComponent<Camera>()->Init(m_nativeWidth, m_nativeHeight);
-  GRenderer.EstablishCamera(RenderLayer::UI, _uiCamera->GetComponent<Camera>().get());
+  GRenderer.EstablishCamera(RenderLayer::UI, _uiCamera->GetComponent<Camera>());
 
   // add camera follows players component so that it is flagged for that system
   _camera = GameManager::Get().CreateEntity<Camera, Transform, CameraFollowsPlayers>();
   _camera->GetComponent<Camera>()->Init(m_nativeWidth, m_nativeHeight);
   _camera->GetComponent<Camera>()->origin = cameraOrigin;
   _camera->GetComponent<Camera>()->clamp = stage.clamp;
-  GRenderer.EstablishCamera(RenderLayer::World, _camera->GetComponent<Camera>().get());
+  GRenderer.EstablishCamera(RenderLayer::World, _camera->GetComponent<Camera>());
 }
 
 void PostMatchScene::Update(float deltaTime)

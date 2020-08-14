@@ -2,11 +2,13 @@
 #include "Components/AIPrograms/Defend.h"
 #include "Entity.h"
 
+#include "GameManagement.h"
+
 //______________________________________________________________________________
 void GameInputComponent::AssignHandler(InputType type)
 {
   if((int)_assignedHandler >= (int)InputType::DefendAll)
-    _owner->RemoveComponent<AIComponent>();
+    GameManager::Get().GetEntityByID(entityID)->RemoveComponent<AIComponent>();
 
   _assignedHandler = type;
   switch (type)
@@ -21,13 +23,13 @@ void GameInputComponent::AssignHandler(InputType type)
     _handler = &_joystick;
     break;
   case InputType::DefendAll:
-    _owner->AddComponent<AIComponent>();
-    _ai.SetAIProgram(_owner->GetComponent<AIComponent>(), new DefendAI);
+    GameManager::Get().GetEntityByID(entityID)->AddComponent<AIComponent>();
+    _ai.SetAIProgram(GameManager::Get().GetEntityByID(entityID)->GetComponent<AIComponent>(), new DefendAI);
     _handler = &_ai;
     break;
   case InputType::DefendAfter:
-    _owner->AddComponent<AIComponent>();
-    _ai.SetAIProgram(_owner->GetComponent<AIComponent>(), new DefendAfter);
+    GameManager::Get().GetEntityByID(entityID)->AddComponent<AIComponent>();
+    _ai.SetAIProgram(GameManager::Get().GetEntityByID(entityID)->GetComponent<AIComponent>(), new DefendAfter);
     _handler = &_ai;
   default:
     break;
@@ -49,8 +51,7 @@ void GameInputComponent::Clear()
 //______________________________________________________________________________
 void GameInputComponent::OnDebug() 
 {
-  int entityId = _owner->GetID();
-  std::string pName = "P" + std::to_string(entityId);
+  std::string pName = "P" + std::to_string(entityID);
   if (ImGui::CollapsingHeader(pName.c_str()))
   {
     const char* items[] = { "Keyboard", "Joystick", "Gamepad", "DefendAll", "DefendAfter" };

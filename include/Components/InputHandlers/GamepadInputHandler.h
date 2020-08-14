@@ -26,8 +26,6 @@ private:
   //!
   SDL_Joystick* _joyStick;
   //!
-  const int _joyStickID = 0;
-  //!
   ConfigMap<SDL_GameControllerButton, InputState> _config;
   
 };

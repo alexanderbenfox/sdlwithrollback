@@ -21,7 +21,7 @@ struct HandleDashUpdateSystem : public ISystem<DashingAction, Rigidbody, TimedAc
   static void DoTick(float dt);
 };
 
-struct HandleInputJump : public ISystem<JumpingAction, Rigidbody, GameActor>
+struct HandleInputJump : public ISystem<JumpingAction, Rigidbody, StateComponent>
 {
   static void DoTick(float dt);
 };
@@ -36,7 +36,17 @@ struct HandleInputGrappling : public ISystem<InputListenerComponent, GrappleActi
   static void DoTick(float dt);
 };
 
-struct CheckForMove : public ISystem<InputListenerComponent, AbleToWalk, GameActor, Rigidbody, StateComponent>
+struct CheckForReturnToNeutral : public ISystem<InputListenerComponent, AbleToReturnToNeutral, GameActor, Rigidbody, StateComponent>
+{
+  static void DoTick(float dt);
+};
+
+struct CheckForMoveRight : public ISystem<InputListenerComponent, AbleToWalkRight, GameActor, Rigidbody, StateComponent>
+{
+  static void DoTick(float dt);
+};
+
+struct CheckForMoveLeft : public ISystem<InputListenerComponent, AbleToWalkLeft, GameActor, Rigidbody, StateComponent>
 {
   static void DoTick(float dt);
 };
@@ -46,7 +56,7 @@ struct CheckForJump : public ISystem<InputListenerComponent, AbleToJump, GameAct
   static void DoTick(float dt);
 };
 
-struct CheckForFalling : public ISystem<InputListenerComponent, AbleToJump, GameActor, Rigidbody, StateComponent>
+struct CheckForFalling : public ISystem<InputListenerComponent, AbleToJump, Rigidbody, StateComponent>
 {
   static void DoTick(float dt);
 };
@@ -82,7 +92,7 @@ struct CheckGrappleCancelOnHit : public IMultiSystem<SysComponents<GrappleAction
   static void DoTick(float dt);
 };
 
-struct ListenForAirborneSystem : public ISystem<WaitingForJumpAirborne, Rigidbody, GameActor>
+struct ListenForAirborneSystem : public ISystem<WaitingForJumpAirborne, Rigidbody>
 {
   static void DoTick(float dt);
 };
@@ -129,7 +139,8 @@ struct StateTransitionAggregate
 {
   static void Check(Entity* entity)
   {
-    CheckForMove::Check(entity);
+    CheckForMoveLeft::Check(entity);
+    CheckForMoveRight::Check(entity);
     CheckForJump::Check(entity);
     CheckForBeginCrouching::Check(entity);
     CheckDashSystem::Check(entity);
@@ -153,6 +164,7 @@ struct StateTransitionAggregate
     CheckCrouchingFollowUp::Check(entity);
 
     CheckGrappleCancelOnHit::Check(entity);
+    CheckForReturnToNeutral::Check(entity);
   }
 
   static void DoTick(float dt)
@@ -177,7 +189,9 @@ struct StateTransitionAggregate
     CheckSpecialAttackInputSystem::DoTick(dt);
     CheckAttackInputSystem::DoTick(dt);
     CheckDashSystem::DoTick(dt);
-    CheckForMove::DoTick(dt);
+    CheckForReturnToNeutral::DoTick(dt);
+    CheckForMoveLeft::DoTick(dt);
+    CheckForMoveRight::DoTick(dt);
 
     // another set of actions that cancel override following actions
     CheckKnockdownComplete::DoTick(dt);

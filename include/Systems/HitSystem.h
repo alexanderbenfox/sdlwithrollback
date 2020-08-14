@@ -21,71 +21,71 @@ public:
     // reset hitting state only on timed update
     /*for(auto tuple : MainSystem::Tuples)
     {
-      StateComponent* hurtboxController = std::get<StateComponent*>(tuple.second);
+      StateComponent* hurtboxController = ComponentArray<StateComponent>::Get().GetComponent(entity);
       hurtboxController->hitting = false;
     }*/
 
-    for (auto tuple : MainSystem::Tuples)
+    for (const EntityID& e1 : MainSystem::Registered)
     {
-      StateComponent* hurtboxController = std::get<StateComponent*>(tuple.second);
-      Hurtbox* hurtbox = std::get<Hurtbox*>(tuple.second);
-      TeamComponent* hurtboxTeam = std::get<TeamComponent*>(tuple.second);
-      SFXComponent* sfx = std::get<SFXComponent*>(tuple.second);
+      StateComponent& hurtboxController = ComponentArray<StateComponent>::Get().GetComponent(e1);
+      Hurtbox& hurtbox = ComponentArray<Hurtbox>::Get().GetComponent(e1);
+      TeamComponent& hurtboxTeam = ComponentArray<TeamComponent>::Get().GetComponent(e1);
+      SFXComponent& sfx = ComponentArray<SFXComponent>::Get().GetComponent(e1);
       
-      for(auto subTuple : SubSystem::Tuples)
+      for(const EntityID& e2 : SubSystem::Registered)
       {
-        Hitbox* hitbox = std::get<Hitbox*>(subTuple.second);
-        StateComponent* hitboxController = std::get<StateComponent*>(subTuple.second);
-        Hurtbox* hitterHurtbox = std::get<Hurtbox*>(subTuple.second);
-        TeamComponent* hitterTeam = std::get<TeamComponent*>(subTuple.second);
-        Rigidbody* hitterRb = std::get<Rigidbody*>(subTuple.second);
+        Hitbox& hitbox = ComponentArray<Hitbox>::Get().GetComponent(e2);
+        StateComponent& hitboxController = ComponentArray<StateComponent>::Get().GetComponent(e2);
+        Hurtbox& hitterHurtbox = ComponentArray<Hurtbox>::Get().GetComponent(e2);
+        TeamComponent& hitterTeam = ComponentArray<TeamComponent>::Get().GetComponent(e2);
+        Rigidbody& hitterRb = ComponentArray<Rigidbody>::Get().GetComponent(e2);
 
-        if (hurtboxTeam->team == hitterTeam->team)
+        if (hurtboxTeam.team == hitterTeam.team)
           continue;
 
-        hitboxController->hitting = false;
+        hitboxController.hitting = false;
 
         // if the hitbox has hit something (will change this to checking if it has hit the entity?)
-        if (hitbox->hitFlag)
+        if (hitbox.hitFlag)
           continue;
 
-        if (hitbox->rect.Intersects(hurtbox->rect))
+        if (hitbox.rect.Intersects(hurtbox.rect))
         {
           // do hitbox stuff first
-          hitbox->hitFlag = true;
-          hitboxController->hitting = true;
-          int strikeDir = hitbox->rect.GetCenter().x > hitterHurtbox->rect.GetCenter().x ? 1 : -1;
+          hitbox.hitFlag = true;
+          hitboxController.hitting = true;
+          int strikeDir = hitbox.rect.GetCenter().x > hitterHurtbox.rect.GetCenter().x ? 1 : -1;
 
           // change the state variable that will be evaluated on the processing of inputs. probably a better way to do this...
-          hurtboxController->hitThisFrame = true;
-          hurtboxController->hitData = hitbox->tData;
-          Vector2<float> knockback = hitbox->tData.knockback;
+          hurtboxController.hitThisFrame = true;
+          hurtboxController.hitData = hitbox.tData;
+          Vector2<float> knockback = hitbox.tData.knockback;
 
           // this needs to be made better
           if (strikeDir < 0)
           {
             knockback.x *= -1.0f;
-            hurtboxController->hitData.knockback.x = knockback.x;
+            hurtboxController.hitData.knockback.x = knockback.x;
           }
 
           // apply hitter knockback if in the corner here
-          if ((hurtboxController->onLeftSide && HasState(hurtboxController->collision, CollisionSide::LEFT)) ||
-            (!hurtboxController->onLeftSide && HasState(hurtboxController->collision, CollisionSide::RIGHT)))
+          if ((hurtboxController.onLeftSide && HasState(hurtboxController.collision, CollisionSide::LEFT)) ||
+            (!hurtboxController.onLeftSide && HasState(hurtboxController.collision, CollisionSide::RIGHT)))
           {
             const float maxCornerKnockback = 100.0f;
 
-            hitbox->Owner()->AddComponent<WallPushComponent>();
-            auto push = hitbox->Owner()->GetComponent<WallPushComponent>();
+            GameManager::Get().GetEntityByID(e2)->AddComponent<WallPushComponent>();
+            auto push = GameManager::Get().GetEntityByID(e2)->GetComponent<WallPushComponent>();
             float pushBackAmount = knockback.x / 4.0f;
             push->pushAmount = -std::min(pushBackAmount, maxCornerKnockback);
             push->velocity = -knockback.x / 2.0f;
             push->amountPushed = 0.0f;
           }
 
-          sfx->showLocation = (Vector2<float>)hitbox->rect.GetIntersection(hurtbox->rect).GetCenter();
+          sfx.showLocation = (Vector2<float>)hitbox.rect.GetIntersection(hurtbox.rect).GetCenter();
 
           //! this will trigger self-destruction if this entity is intended to be destroyed on hit
-          hitbox->OnCollision(hurtbox);
+          hitbox.OnCollision(e2, &hurtbox);
         }
       }
     }
@@ -97,39 +97,39 @@ class ThrowSystem : public IMultiSystem<SysComponents<Throwbox, TeamComponent, S
 public:
   static void DoTick(float dt)
   {
-    for (auto tuple : MainSystem::Tuples)
+    for (const EntityID& entity : MainSystem::Registered)
     {
-      Throwbox* throwbox = std::get<Throwbox*>(tuple.second);
+      Throwbox& throwbox = ComponentArray<Throwbox>::Get().GetComponent(entity);
 
-      if (throwbox->hitFlag)
+      if (throwbox.hitFlag)
         continue;
 
-      TeamComponent* grapplerTeam = std::get<TeamComponent*>(tuple.second);
-      StateComponent* grapplerController = std::get<StateComponent*>(tuple.second);
-      grapplerController->triedToThrowThisFrame = true;
+      TeamComponent& grapplerTeam = ComponentArray<TeamComponent>::Get().GetComponent(entity);
+      StateComponent& grapplerController = ComponentArray<StateComponent>::Get().GetComponent(entity);
+      grapplerController.triedToThrowThisFrame = true;
 
-      for (auto subTuple : SubSystem::Tuples)
+      for (const EntityID& e2 : SubSystem::Registered)
       {
-        Hurtbox* grappledHurtbox = std::get<Hurtbox*>(subTuple.second);
-        TeamComponent* grappledTeam = std::get<TeamComponent*>(subTuple.second);
-        StateComponent* grappledController = std::get<StateComponent*>(subTuple.second);
+        Hurtbox& grappledHurtbox = ComponentArray<Hurtbox>::Get().GetComponent(e2);
+        TeamComponent& grappledTeam = ComponentArray<TeamComponent>::Get().GetComponent(e2);
+        StateComponent& grappledController = ComponentArray<StateComponent>::Get().GetComponent(e2);
 
-        if (grappledController->stanceState == StanceState::KNOCKDOWN || grapplerTeam->team == grappledTeam->team)
+        if (grappledController.stanceState == StanceState::KNOCKDOWN || grapplerTeam.team == grappledTeam.team)
           continue;
 
-        if (throwbox->rect.Intersects(grappledHurtbox->rect))
+        if (throwbox.rect.Intersects(grappledHurtbox.rect))
         {
-          throwbox->hitFlag = true;
-          grapplerController->throwSuccess = true;
+          throwbox.hitFlag = true;
+          grapplerController.throwSuccess = true;
 
-          grappledController->thrownThisFrame = true;
-          grappledController->hitData = throwbox->tData;
+          grappledController.thrownThisFrame = true;
+          grappledController.hitData = throwbox.tData;
 
           // this needs to be made better
-          if (grappledController->onLeftSide)
-            grappledController->hitData.knockback.x = -throwbox->tData.knockback.x;
+          if (grappledController.onLeftSide)
+            grappledController.hitData.knockback.x = -throwbox.tData.knockback.x;
 
-          grappledController->Owner()->AddComponent<ReceivedGrappleAction>();
+          GameManager::Get().GetEntityByID(e2)->AddComponent<ReceivedGrappleAction>();
         }
       }
     }
@@ -141,10 +141,10 @@ class FrameAdvantageSystem : public ISystem<AttackStateComponent, RenderProperti
 public:
   static void DoTick(float dt)
   {
-    for (auto tuple : Tuples)
+    for (const EntityID& entity : Registered)
     {
-      AttackStateComponent* atkState = std::get<AttackStateComponent*>(tuple.second);
-      RenderProperties* properties = std::get<RenderProperties*>(tuple.second);
+      AttackStateComponent& atkState = ComponentArray<AttackStateComponent>::Get().GetComponent(entity);
+      RenderProperties& properties = ComponentArray<RenderProperties>::Get().GetComponent(entity);
 
       // because the animation system will end up incrementing and ending the attack
       // state component, a shitty work around is that the frame advantage system
@@ -158,25 +158,25 @@ public:
 
 
       // initially disadvantage if nothing is currently blocking or hit by it
-      int attackerFrameAdvantage = -atkState->GetRemainingFrames();
+      int attackerFrameAdvantage = -atkState.GetRemainingFrames();
 
-      for (auto hitEntity : ComponentManager<HitStateComponent>::Get().All())
+      ComponentArray<HitStateComponent>::Get().ForEach([&attackerFrameAdvantage](HitStateComponent& hitEntity)
       {
-        attackerFrameAdvantage += hitEntity->GetRemainingFrames();
-      }
+        attackerFrameAdvantage += hitEntity.GetRemainingFrames();
+      });
 
-      for (auto otherAttackingEntity : ComponentManager<AttackStateComponent>::Get().All())
+      ComponentArray<AttackStateComponent>::Get().ForEach([&attackerFrameAdvantage, &atkState](AttackStateComponent& otherAttackingEntity)
       {
-        if(otherAttackingEntity.get() != atkState)
-          attackerFrameAdvantage += otherAttackingEntity->GetRemainingFrames();
-      }
+        if (&otherAttackingEntity != &atkState)
+          attackerFrameAdvantage += otherAttackingEntity.GetRemainingFrames();
+      });
 
       if (attackerFrameAdvantage > 0)
-        properties->SetDisplayColor(0, 0, 255);
+        properties.SetDisplayColor(0, 0, 255);
       else if (attackerFrameAdvantage < 0)
-        properties->SetDisplayColor(255, 0, 0);
+        properties.SetDisplayColor(255, 0, 0);
       else
-        properties->SetDisplayColor(255, 255, 255);
+        properties.SetDisplayColor(255, 255, 255);
 
     }
   }

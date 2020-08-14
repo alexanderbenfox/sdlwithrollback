@@ -5,13 +5,8 @@
 class GameActor : public IComponent
 {
 public:
+  GameActor();
   //!
-  GameActor(std::shared_ptr<Entity> owner);
-  //!
-  ~GameActor();
-  //!
-  std::shared_ptr<Entity> GetOwner() { return _owner; }
-
   StanceState const& GetStanceState() { return _currStance; }
   ActionState const& GetActionState() { return _currAction; }
 
@@ -61,7 +56,4 @@ private:
 };
 
 //! Empty flag for identifying entity as an actor in the scene
-struct Actor : public IComponent
-{
-  Actor(std::shared_ptr<Entity> e) : IComponent(e) {}
-};
+struct Actor : public IComponent {};

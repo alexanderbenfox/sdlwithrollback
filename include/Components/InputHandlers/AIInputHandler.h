@@ -14,10 +14,10 @@ public:
   //!
   virtual InputBuffer const& CollectInputState() final;
   //! Sets the AI program (memory owned by the AIInputHandler)
-  void SetAIProgram(std::shared_ptr<AIComponent> comp, IAIProgram* program);
+  void SetAIProgram(AIComponent* comp, IAIProgram* program);
 
 private:
   //!
-  std::shared_ptr<AIComponent> _ai;
+  AIComponent* _ai;
 
 };

@@ -6,7 +6,7 @@
 class TransferDataBox : public RectColliderD
 {
 public:
-  TransferDataBox(std::shared_ptr<Entity> entity) : hitFlag(false), RectColliderD(entity) {}
+  TransferDataBox() : hitFlag(false), RectColliderD() {}
   //! Data to transfer on hit
   HitData tData;
   //! Flag for if the data has been transfered already or not
@@ -14,7 +14,7 @@ public:
   //! Initialize the transfer data using frame data
   virtual void Init(const FrameData& frameData);
 
-  virtual void MoveDataBoxAroundTransform(const Transform* transform, const Rect<double>& box, const Vector2<float> offset, bool onLeft);
+  virtual void MoveDataBoxAroundTransform(const Rect<double>& unscaledTransformRect, const Transform* transform, const Rect<double>& box, const Vector2<float> offset, bool onLeft);
 };
 
 //! hitbox is the area that will hit the opponent
@@ -22,13 +22,13 @@ class Hitbox : public TransferDataBox
 {
 public:
   //!
-  Hitbox(std::shared_ptr<Entity> entity) : TransferDataBox(entity) {}
+  Hitbox() : TransferDataBox() {}
 
   bool travelWithTransform = false;
 
   bool destroyOnHit = false;
 
-  virtual void OnCollision(ICollider* collider) override;
+  virtual void OnCollision(const EntityID& entity, ICollider* collider) override;
 
 };
 
@@ -52,9 +52,10 @@ class Throwbox : public TransferDataBox
 {
 public:
   //!
-  Throwbox(std::shared_ptr<Entity> entity) : TransferDataBox(entity) {}
+  Throwbox() : TransferDataBox() {}
+
   //! Resets thrown properties on state component
-  ~Throwbox();
+  void OnRemove(const EntityID& entity) override;
 
 };
 
@@ -63,8 +64,8 @@ class ThrowFollower : public TransferDataBox
 {
 public:
   //!
-  ThrowFollower(std::shared_ptr<Entity> entity) : TransferDataBox(entity) {}
-
+  ThrowFollower() : TransferDataBox() {}
+  //!
   bool startSideLeft = false;
 
 };

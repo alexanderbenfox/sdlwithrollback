@@ -213,12 +213,14 @@ class Entity;
 struct Transform;
 class StateComponent;
 
+#include "Globals.h"
+
 // placeholder right now for attacks that will create an entity
 struct EntityCreationData : public IJsonLoadable
 {
   std::unordered_map<std::string, std::unordered_map<std::string, Json::Value>> instructions;
 
-  void AddComponents(Transform* creator, const StateComponent* creatorState, std::shared_ptr<Entity> entity) const;
+  void AddComponents(EntityID creatorID, const Transform* creator, const StateComponent* creatorState, std::shared_ptr<Entity> entity) const;
 
   virtual void Load(const Json::Value& json) override
   {

@@ -10,32 +10,32 @@ class SpriteDrawCallSystem : public ISystem<Transform, RenderComponent<RenderTyp
 public:
   static void PostUpdate()
   {
-    for (auto tuple : Tuples)
+    for (const EntityID& entity : Registered)
     {
-      RenderComponent<RenderType>* renderer = std::get<RenderComponent<RenderType>*>(tuple.second);
-      Transform* transform = std::get<Transform*>(tuple.second);
-      RenderProperties* properties = std::get<RenderProperties*>(tuple.second);
+      RenderComponent<RenderType>& renderer = ComponentArray<RenderComponent<RenderType>>::Get().GetComponent(entity);
+      Transform& transform = ComponentArray<Transform>::Get().GetComponent(entity);
+      RenderProperties& properties = ComponentArray<RenderProperties>::Get().GetComponent(entity);
 
       // if the render resource hasn't been assigned yet, hold off
-      if (!renderer->GetRenderResource()) continue;
+      if (!renderer.GetRenderResource()) continue;
 
       // get a display op to set draw parameters
       auto displayOp = GRenderer.GetAvailableOp<BlitOperation<RenderType>>(RenderLayer::World);
 
-      displayOp->srcRect = renderer->sourceRect;
-      displayOp->textureResource = renderer->GetRenderResource();
+      displayOp->srcRect = renderer.sourceRect;
+      displayOp->textureResource = renderer.GetRenderResource();
 
-      Vector2<int> renderOffset = properties->Offset();
-      Vector2<float> targetPos(transform->position.x + renderOffset.x * transform->scale.x, transform->position.y + renderOffset.y * transform->scale.y);
+      Vector2<int> renderOffset = properties.Offset();
+      Vector2<float> targetPos(transform.position.x + renderOffset.x * transform.scale.x, transform.position.y + renderOffset.y * transform.scale.y);
 
       displayOp->targetRect = DrawRect<float>(targetPos.x, targetPos.y,
-        renderer->sourceRect.w * transform->scale.x,
-        renderer->sourceRect.h * transform->scale.y);
+        renderer.sourceRect.w * transform.scale.x,
+        renderer.sourceRect.h * transform.scale.y);
 
       // set properties
-      displayOp->flip = properties->horizontalFlip ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
+      displayOp->flip = properties.horizontalFlip ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
       // set display color directly
-      displayOp->displayColor = properties->GetDisplayColor();
+      displayOp->displayColor = properties.GetDisplayColor();
 
       displayOp->valid = true;
     }
@@ -48,15 +48,15 @@ class UITextDrawCallSystem : public ISystem<UITransform, TextRenderer, RenderPro
 public:
   static void PostUpdate()
   {
-    for (auto tuple : Tuples)
+    for (const EntityID& entity : Registered)
     {
-      TextRenderer* renderer = std::get<TextRenderer*>(tuple.second);
-      RenderProperties* properties = std::get<RenderProperties*>(tuple.second);
-      UITransform* transform = std::get<UITransform*>(tuple.second);
+      TextRenderer& renderer = ComponentArray<TextRenderer>::Get().GetComponent(entity);
+      RenderProperties& properties = ComponentArray<RenderProperties>::Get().GetComponent(entity);
+      UITransform& transform = ComponentArray<UITransform>::Get().GetComponent(entity);
 
-      Vector2<float> displayPosition = transform->screenPosition;
+      Vector2<float> displayPosition = transform.screenPosition;
 
-      for (GLDrawOperation& drawOp : renderer->GetRenderOps())
+      for (GLDrawOperation& drawOp : renderer.GetRenderOps())
       {
         // get a display op to set draw parameters
         auto displayOp = GRenderer.GetAvailableOp<BlitOperation<RenderType>>(RenderLayer::UI);
@@ -65,17 +65,17 @@ public:
         displayOp->textureResource = drawOp.texture;
 
         Vector2<int> drawOffset(drawOp.x, drawOp.y);
-        Vector2<int> renderOffset = properties->Offset() + drawOffset;
+        Vector2<int> renderOffset = properties.Offset() + drawOffset;
 
-        displayOp->targetRect = DrawRect<float>(displayPosition.x + renderOffset.x * transform->scale.x,
-          displayPosition.y + renderOffset.y * transform->scale.y,
-          displayOp->srcRect.w * transform->scale.x,
-          displayOp->srcRect.h * transform->scale.y);
+        displayOp->targetRect = DrawRect<float>(displayPosition.x + renderOffset.x * transform.scale.x,
+          displayPosition.y + renderOffset.y * transform.scale.y,
+          displayOp->srcRect.w * transform.scale.x,
+          displayOp->srcRect.h * transform.scale.y);
 
         // set properties
-        displayOp->flip = properties->horizontalFlip ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
+        displayOp->flip = properties.horizontalFlip ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
         // set display color directly
-        displayOp->displayColor = properties->GetDisplayColor();
+        displayOp->displayColor = properties.GetDisplayColor();
 
         displayOp->valid = true;
       }
@@ -88,21 +88,21 @@ class DrawUIPrimitivesSystem : public ISystem<UITransform, UIRectangleRenderComp
 public:
   static void PostUpdate()
   {
-    for (auto tuple : Tuples)
+    for (const EntityID& entity : Registered)
     {
-      UIRectangleRenderComponent* uiElement = std::get<UIRectangleRenderComponent*>(tuple.second);
-      RenderProperties* properties = std::get<RenderProperties*>(tuple.second);
-      UITransform* transform = std::get<UITransform*>(tuple.second);
+      UIRectangleRenderComponent& uiElement = ComponentArray<UIRectangleRenderComponent>::Get().GetComponent(entity);
+      RenderProperties& properties = ComponentArray<RenderProperties>::Get().GetComponent(entity);
+      UITransform& transform = ComponentArray<UITransform>::Get().GetComponent(entity);
 
-      auto processOps = [uiElement, transform, properties](DrawPrimitive<RenderType>* displayOp)
+      auto processOps = [&uiElement, &transform, &properties](DrawPrimitive<RenderType>* displayOp)
       {
-        displayOp->targetRect.x += transform->screenPosition.x;
-        displayOp->targetRect.y += transform->screenPosition.y;
+        displayOp->targetRect.x += transform.screenPosition.x;
+        displayOp->targetRect.y += transform.screenPosition.y;
 
         // set properties
-        displayOp->flip = properties->horizontalFlip ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
+        displayOp->flip = properties.horizontalFlip ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
         // set display color directly
-        displayOp->displayColor = properties->GetDisplayColor();
+        displayOp->displayColor = properties.GetDisplayColor();
 
         displayOp->valid = true;
       };
@@ -110,8 +110,8 @@ public:
       // get a display op to set draw parameters
       auto op = GRenderer.GetAvailableOp<DrawPrimitive<RenderType>>(RenderLayer::UI);
 
-      op->targetRect = uiElement->shownSize;
-      op->filled = uiElement->isFilled;
+      op->targetRect = uiElement.shownSize;
+      op->filled = uiElement.isFilled;
 
       processOps(op);
     }

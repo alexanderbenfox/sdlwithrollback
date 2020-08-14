@@ -61,7 +61,7 @@ InputState DefendAfter::Update(const Transform* t, const StateComponent* s)
       timerEntity->GetComponent<TimerContainer>()->timings.push_back(resetTimer);
     }
 
-    ActionState thisDefendingState = t->GetComponent<StateComponent>()->actionState;
+    ActionState thisDefendingState = s->actionState;
     if (thisDefendingState == ActionState::NONE && lastDefendingState == ActionState::BLOCKSTUN)
     {
       // if not defending during this time, cancel the anim

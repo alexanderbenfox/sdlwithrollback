@@ -34,14 +34,14 @@ public:
 
   static void DoTick(float dt)
   {
-    for (auto tuple : Tuples)
+    for (const EntityID& entity : Registered)
     {
-      UITransform* transform = std::get<UITransform*>(tuple.second);
-      float x = transform->position.x;
-      float y = transform->position.y;
-      CalcScreenPos(transform, 
-        transform->parent ? 
-        Rect<float>(transform->parent->screenPosition.x, transform->parent->screenPosition.y, transform->parent->rect.Width(), transform->parent->rect.Height()) : ScreenRect,
+      UITransform& transform = ComponentArray<UITransform>::Get().GetComponent(entity);
+      float x = transform.position.x;
+      float y = transform.position.y;
+      CalcScreenPos(&transform, 
+        transform.parent ? 
+        Rect<float>(transform.parent->screenPosition.x, transform.parent->screenPosition.y, transform.parent->rect.Width(), transform.parent->rect.Height()) : ScreenRect,
         x, y);
     }
   }
@@ -52,14 +52,14 @@ class UIContainerUpdateSystem : public ISystem<UIContainer, StateComponent>
 public:
   static void DoTick(float dt)
   {
-    for (auto tuple : Tuples)
+    for (const EntityID& entity : Registered)
     {
-      UIContainer* container = std::get<UIContainer*>(tuple.second);
-      StateComponent* info = std::get<StateComponent*>(tuple.second);
+      UIContainer& container = ComponentArray<UIContainer>::Get().GetComponent(entity);
+      StateComponent& info = ComponentArray<StateComponent>::Get().GetComponent(entity);
 
-      for (auto item : container->uiComponents)
+      for (auto item : container.uiComponents)
       {
-        item->TransferState(info);
+        item->TransferState(&info);
       }
     }
   }

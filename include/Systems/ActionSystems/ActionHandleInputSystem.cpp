@@ -8,621 +8,629 @@
 //______________________________________________________________________________
 void TimedActionSystem::DoTick(float dt)
 {
-  for (auto tuple : Tuples)
+  DeferScopeGuard guard;
+  for (const EntityID& entity : Registered)
   {
-    TimedActionComponent* timer = std::get<TimedActionComponent*>(tuple.second);
-    GameActor* actor = std::get<GameActor*>(tuple.second);
+    TimedActionComponent& timer = ComponentArray<TimedActionComponent>::Get().GetComponent(entity);
+    GameActor& actor = ComponentArray<GameActor>::Get().GetComponent(entity);
 
     // if playing, do advance time and update frame
-    timer->playTime += dt;
+    timer.playTime += dt;
 
-    int framesToAdv = (int)std::floor(timer->playTime / secPerFrame);
-    timer->currFrame += framesToAdv;
+    int framesToAdv = (int)std::floor(timer.playTime / secPerFrame);
+    timer.currFrame += framesToAdv;
 
     // reset the real-time timer
-    timer->playTime -= (framesToAdv * secPerFrame);
+    timer.playTime -= (framesToAdv * secPerFrame);
 
-    if (timer->currFrame >= (timer->totalFrames - 1))
+    if (timer.currFrame >= (timer.totalFrames - 1))
     {
-      actor->actionTimerComplete = true;
+      actor.actionTimerComplete = true;
       // force check for new state here
-      actor->forceNewInputOnNextFrame = true;
+      actor.forceNewInputOnNextFrame = true;
       // remove system flag at the end of the system call
-      GameManager::Get().ScheduleTask([actor]() { actor->GetOwner()->RemoveComponent<TimedActionComponent>(); });
+      
+      defer(entity, GameManager::Get().GetEntityByID(entity)->RemoveComponent<TimedActionComponent>());
+      //guard.deferred.emplace(guard.deferred.begin(), [&](){ GameManager::Get().GetEntityByID(entity)->RemoveComponent<TimedActionComponent>(); });
     }
   }
-  GameManager::Get().RunScheduledTasks();
 }
-
 
 //______________________________________________________________________________
 void HandleInputGrappledActionSystem::DoTick(float dt)
 {
-  for (auto tuple : Tuples)
+  DeferScopeGuard guard;
+  for (const EntityID& entity : Registered)
   {
-    ReceivedGrappleAction* timer = std::get<ReceivedGrappleAction*>(tuple.second);
-    GameActor* actor = std::get<GameActor*>(tuple.second);
-    StateComponent* state = std::get<StateComponent*>(tuple.second);
+    ReceivedGrappleAction& timer = ComponentArray<ReceivedGrappleAction>::Get().GetComponent(entity);
+    GameActor& actor = ComponentArray<GameActor>::Get().GetComponent(entity);
+    StateComponent& state = ComponentArray<StateComponent>::Get().GetComponent(entity);
 
     // on timer complete, move to knockdown airborne state
-    if (actor->actionTimerComplete)
+    if (actor.actionTimerComplete)
     {
-      ActionFactory::SetKnockdownAirborne(actor->GetOwner().get(), state);
-      GameManager::Get().ScheduleTask([actor]()
-        {
-          actor->GetOwner()->RemoveComponent<ReceivedGrappleAction>();
-          actor->GetOwner()->GetComponent<ReceivedDamageAction>()->fromGrapple = true;
-        });
+      defer((entity, &state),
+      {
+        ActionFactory::SetKnockdownAirborne(entity, &state);
+        GameManager::Get().GetEntityByID(entity)->RemoveComponent<ReceivedGrappleAction>();
+        GameManager::Get().GetEntityByID(entity)->GetComponent<ReceivedDamageAction>()->fromGrapple = true;
+      });
     }
   }
-
-  ActionFactory::DisableActionListenerForEntities();
-  GameManager::Get().RunScheduledTasks();
 }
 
 //______________________________________________________________________________
 void HandleDashUpdateSystem::DoTick(float dt)
 {
-  for (auto tuple : Tuples)
+  for (const EntityID& entity : Registered)
   {
-    DashingAction* action = std::get<DashingAction*>(tuple.second);
-    Rigidbody* rb = std::get<Rigidbody*>(tuple.second);
-    TimedActionComponent* timer = std::get<TimedActionComponent*>(tuple.second);
+    DashingAction& action = ComponentArray<DashingAction>::Get().GetComponent(entity);
+    Rigidbody& rb = ComponentArray<Rigidbody>::Get().GetComponent(entity);
+    TimedActionComponent& timer = ComponentArray<TimedActionComponent>::Get().GetComponent(entity);
 
-    float t = static_cast<float>(timer->currFrame);
-    float totalT = static_cast<float>(timer->totalFrames);
+    float t = static_cast<float>(timer.currFrame);
+    float totalT = static_cast<float>(timer.totalFrames);
 
-    float f_t = Interpolation::Plateau::F(t, totalT, action->dashSpeed);
-    rb->_vel = Vector2<float>(f_t, 0);
+    float f_t = Interpolation::Plateau::F(t, totalT, action.dashSpeed);
+    rb._vel = Vector2<float>(f_t, 0);
   }
 }
 
 //______________________________________________________________________________
 void HandleInputJump::DoTick(float dt)
 {
-  for (auto tuple : Tuples)
+  DeferScopeGuard guard;
+  for (const EntityID& entity : Registered)
   {
-    Rigidbody* rb = std::get<Rigidbody*>(tuple.second);
-    
-    if (HasState(rb->_lastCollisionSide, CollisionSide::DOWN))
-    {
-      GameActor* actor = std::get<GameActor*>(tuple.second);
-      auto entity = actor->GetOwner();
+    Rigidbody& rb = ComponentArray<Rigidbody>::Get().GetComponent(entity);
+    StateComponent& state = ComponentArray<StateComponent>::Get().GetComponent(entity);
 
-      ActionFactory::GoToNeutralAction(entity.get(), entity->GetComponent<StateComponent>().get());
-      GameManager::Get().ScheduleTask([entity]()
-      {
-        entity->RemoveComponent<JumpingAction>();
-      });
+    if (HasState(rb._lastCollisionSide, CollisionSide::DOWN))
+    {
+      defer((entity, &state),
+        ActionFactory::GoToNeutralAction(entity, &state);
+        GameManager::Get().GetEntityByID(entity)->RemoveComponent<JumpingAction>();
+      );
     }
   }
-  GameManager::Get().RunScheduledTasks();
 }
 
 //______________________________________________________________________________
 void HandleInputCrouch::DoTick(float dt)
 {
-  for (auto tuple : Tuples)
+  DeferScopeGuard guard;
+  for (const EntityID& entity : Registered)
   {
-    GameActor* actor = std::get<GameActor*>(tuple.second);
+    GameActor& actor = ComponentArray<GameActor>::Get().GetComponent(entity);
 
-    if (!HasState(actor->LastButtons(), InputState::DOWN))
+    if (!HasState(actor.LastButtons(), InputState::DOWN))
     {
-      auto entity = actor->GetOwner();
-      GameManager::Get().ScheduleTask([entity]()
-      {
-        entity->RemoveComponent<CrouchingAction>();
-        entity->RemoveComponent<TransitionToCrouching>();
+      defer(entity,
+        GameManager::Get().GetEntityByID(entity)->RemoveComponent<CrouchingAction>();
+        GameManager::Get().GetEntityByID(entity)->RemoveComponent<TransitionToCrouching>();
 
-        if(entity->GetComponent<AbleToAttackState>())
-          entity->AddComponent<AbleToWalk>();
-      });
+        if (GameManager::Get().GetEntityByID(entity)->GetComponent<AbleToAttackState>())
+        {
+          GameManager::Get().GetEntityByID(entity)->AddComponent<AbleToWalkLeft>();
+          GameManager::Get().GetEntityByID(entity)->AddComponent<AbleToWalkRight>();
+        });
     }
   }
-  GameManager::Get().RunScheduledTasks();
 }
 
 //______________________________________________________________________________
 void HandleInputGrappling::DoTick(float dt)
 {
-  for (auto tuple : Tuples)
+  DeferScopeGuard guard;
+  for (const EntityID& entity : Registered)
   {
-    StateComponent* state = std::get<StateComponent*>(tuple.second);
-    GameActor* actor = std::get<GameActor*>(tuple.second);
+    StateComponent& state = ComponentArray<StateComponent>::Get().GetComponent(entity);
+    GameActor& actor = ComponentArray<GameActor>::Get().GetComponent(entity);
 
-    if (state->triedToThrowThisFrame && !state->throwSuccess)
+    if (state.triedToThrowThisFrame && !state.throwSuccess)
     {
-      auto entity = actor->GetOwner();
-      GameManager::Get().ScheduleTask([entity, state]()
-      {
-        entity->AddComponent<EnactActionComponent>();
+      defer((entity, state), {
+        GameManager::Get().GetEntityByID(entity)->AddComponent<EnactActionComponent>();
         // set up animation
-        entity->AddComponent<AnimatedActionComponent>({ state->onLeftSide, false, true, 1.0f, "ThrowMiss" });
-        entity->AddComponent<WaitForAnimationComplete>();
+        GameManager::Get().GetEntityByID(entity)->AddComponent<AnimatedActionComponent>({ state.onLeftSide, false, true, 1.0f, "ThrowMiss" });
+        GameManager::Get().GetEntityByID(entity)->AddComponent<WaitForAnimationComplete>();
         
-        entity->RemoveComponent<AttackActionComponent>();
-        entity->RemoveComponent<AttackStateComponent>();
-        entity->RemoveComponent<GrappleActionComponent>();
+        GameManager::Get().GetEntityByID(entity)->RemoveComponent<AttackActionComponent>();
+        GameManager::Get().GetEntityByID(entity)->RemoveComponent<AttackStateComponent>();
+        GameManager::Get().GetEntityByID(entity)->RemoveComponent<GrappleActionComponent>();
 
-        // set empty component for follow up action
-        entity->AddComponent<TransitionToNeutral>();
-
+          // set empty component for follow up action
+        GameManager::Get().GetEntityByID(entity)->AddComponent<TransitionToNeutral>();
+        GameManager::Get().GetEntityByID(entity)->RemoveComponent<InputListenerComponent>();
       });
-      ActionFactory::SetEntityDecided(entity.get());
     }
-
-    // check to see if the grappling action was cancelled by getting hit
-
   }
-  ActionFactory::DisableActionListenerForEntities();
-  GameManager::Get().RunScheduledTasks();
 }
 
 //______________________________________________________________________________
-void CheckForMove::DoTick(float dt)
+void CheckForReturnToNeutral::DoTick(float dt)
 {
-  for (auto tuple : Tuples)
+  DeferScopeGuard guard;
+  for (const EntityID& entity : Registered)
   {
-    Rigidbody* rigidbody = std::get<Rigidbody*>(tuple.second);
-    GameActor* actor = std::get<GameActor*>(tuple.second);
-    StateComponent* state = std::get<StateComponent*>(tuple.second);
+    Rigidbody& rigidbody = ComponentArray<Rigidbody>::Get().GetComponent(entity);
+    GameActor& actor = ComponentArray<GameActor>::Get().GetComponent(entity);
+    StateComponent& state = ComponentArray<StateComponent>::Get().GetComponent(entity);
 
     // N/A if not grounded
-    if (!actor->newInputs || !HasState(rigidbody->_lastCollisionSide, CollisionSide::DOWN))
+    if (!actor.newInputs || !HasState(rigidbody._lastCollisionSide, CollisionSide::DOWN))
       continue;
 
-    if (HasState(actor->LastButtons(), InputState::LEFT) || HasState(actor->LastButtons(), InputState::RIGHT))
+    if (HasState(actor.LastButtons(), InputState::LEFT) || HasState(actor.LastButtons(), InputState::RIGHT))
     {
-      Vector2<float> movementVector;
-      if (HasState(actor->LastButtons(), InputState::LEFT))
-        movementVector = Vector2<float>(-0.5f * GlobalVars::BaseWalkSpeed, 0.0f);
-      else if (HasState(actor->LastButtons(), InputState::RIGHT))
-        movementVector = Vector2<float>(0.5f * GlobalVars::BaseWalkSpeed, 0.0f);
-
-
-      GameManager::Get().ScheduleTask([actor, state, movementVector]()
-      {
-        // Always reset action complete flag on new action
-        actor->actionTimerComplete = false;
-
-        actor->GetOwner()->AddComponent<EnactActionComponent>();
-
-        // set animation based on direction
-        std::string animation = state->onLeftSide ? (HasState(actor->LastButtons(), InputState::RIGHT) ? "WalkF" : "WalkB") : (HasState(actor->LastButtons(), InputState::LEFT) ? "WalkF" : "WalkB");
-        actor->GetOwner()->AddComponent<AnimatedActionComponent>({ state->onLeftSide, true, false, 1.0f, animation });
-
-        actor->GetOwner()->AddComponent<MovingActionComponent>();
-        actor->GetOwner()->GetComponent<MovingActionComponent>()->velocity = movementVector;
-        actor->GetOwner()->GetComponent<MovingActionComponent>()->horizontalMovementOnly = true;
-
-        // add states for potential outside influence
-        actor->GetOwner()->AddComponent<HittableState>();
-        actor->GetOwner()->GetComponent<HittableState>()->canBlock = true;
-        actor->GetOwner()->GetComponent<HittableState>()->inKnockdown = false;
-
-        // enable all abilities in neutral
-        ActionFactory::EnableAbility(actor->Owner());
-      });
-
-      ActionFactory::SetEntityDecided(actor->Owner());
     }
-    else if (!HasState(actor->LastButtons(), InputState::DOWN))
+    else if (!HasState(actor.LastButtons(), InputState::DOWN))
     {
-      ActionFactory::GoToNeutralAction(actor->GetOwner().get(), state);
+      defer((entity, &state), ActionFactory::GoToNeutralAction(entity, &state));
     }
   }
-  ActionFactory::DisableActionListenerForEntities();
-  GameManager::Get().RunScheduledTasks();
+}
+
+//______________________________________________________________________________
+void CheckForMoveLeft::DoTick(float dt)
+{
+  DeferScopeGuard guard;
+  for (const EntityID& entity : Registered)
+  {
+    Rigidbody& rigidbody = ComponentArray<Rigidbody>::Get().GetComponent(entity);
+    GameActor& actor = ComponentArray<GameActor>::Get().GetComponent(entity);
+    StateComponent& state = ComponentArray<StateComponent>::Get().GetComponent(entity);
+
+    // N/A if not grounded
+    if (!actor.newInputs || !HasState(rigidbody._lastCollisionSide, CollisionSide::DOWN))
+      continue;
+
+    if (HasState(actor.LastButtons(), InputState::LEFT))
+    {
+      Vector2<float> movementVector = Vector2<float>(-0.5f * GlobalVars::BaseWalkSpeed, 0.0f);
+      defer((entity, &actor, &state, movementVector), ActionFactory::GoToWalkLeftAction(entity, &actor, &state, movementVector));
+    }
+  }
+}
+
+//______________________________________________________________________________
+void CheckForMoveRight::DoTick(float dt)
+{
+  DeferScopeGuard guard;
+  for (const EntityID& entity : Registered)
+  {
+    Rigidbody& rigidbody = ComponentArray<Rigidbody>::Get().GetComponent(entity);
+    GameActor& actor = ComponentArray<GameActor>::Get().GetComponent(entity);
+    StateComponent& state = ComponentArray<StateComponent>::Get().GetComponent(entity);
+
+    // N/A if not grounded
+    if (!actor.newInputs || !HasState(rigidbody._lastCollisionSide, CollisionSide::DOWN))
+      continue;
+
+    if (HasState(actor.LastButtons(), InputState::RIGHT))
+    {
+      Vector2<float> movementVector = movementVector = Vector2<float>(0.5f * GlobalVars::BaseWalkSpeed, 0.0f);
+      defer((entity, &actor, &state, movementVector), ActionFactory::GoToWalkRightAction(entity, &actor, &state, movementVector));
+    }
+  }
 }
 
 //______________________________________________________________________________
 void CheckForJump::DoTick(float dt)
 {
-  for (auto tuple : Tuples)
+  DeferScopeGuard guard;
+  for (const EntityID& entity : Registered)
   {
-    Rigidbody* rigidbody = std::get<Rigidbody*>(tuple.second);
-    GameActor* actor = std::get<GameActor*>(tuple.second);
-    StateComponent* state = std::get<StateComponent*>(tuple.second);
+    Rigidbody& rigidbody = ComponentArray<Rigidbody>::Get().GetComponent(entity);
+    GameActor& actor = ComponentArray<GameActor>::Get().GetComponent(entity);
+    StateComponent& state = ComponentArray<StateComponent>::Get().GetComponent(entity);
 
     // N/A if not grounded
-    if (!HasState(rigidbody->_lastCollisionSide, CollisionSide::DOWN))
+    if (!HasState(rigidbody._lastCollisionSide, CollisionSide::DOWN))
       continue;
 
-    if (HasState(actor->LastButtons(), InputState::UP))
+    if (HasState(actor.LastButtons(), InputState::UP))
     {
       Vector2<float> movementVector;
-      if (HasState(actor->LastButtons(), InputState::LEFT))
+      if (HasState(actor.LastButtons(), InputState::LEFT))
         movementVector = Vector2<float>(-0.5f * GlobalVars::BaseWalkSpeed, -UniversalPhysicsSettings::Get().JumpVelocity);
-      else if (HasState(actor->LastButtons(), InputState::RIGHT))
+      else if (HasState(actor.LastButtons(), InputState::RIGHT))
         movementVector = Vector2<float>(0.5f * GlobalVars::BaseWalkSpeed, -UniversalPhysicsSettings::Get().JumpVelocity);
       else
         movementVector = Vector2<float>(0.0f, -UniversalPhysicsSettings::Get().JumpVelocity);
 
-      GameManager::Get().ScheduleTask([actor, state, movementVector]()
-      {
-        actor->GetOwner()->AddComponent<EnactActionComponent>();
+      defer((entity, state, movementVector), {
+        GameManager::Get().GetEntityByID(entity)->AddComponent<EnactActionComponent>();
 
-        actor->GetOwner()->AddComponent<MovingActionComponent>();
-        actor->GetOwner()->GetComponent<MovingActionComponent>()->velocity = movementVector;
-        actor->GetOwner()->GetComponent<MovingActionComponent>()->horizontalMovementOnly = false;
+        GameManager::Get().GetEntityByID(entity)->AddComponent<MovingActionComponent>();
+        GameManager::Get().GetEntityByID(entity)->GetComponent<MovingActionComponent>()->velocity = movementVector;
+        GameManager::Get().GetEntityByID(entity)->GetComponent<MovingActionComponent>()->horizontalMovementOnly = false;
 
-        actor->GetOwner()->AddComponent<AnimatedActionComponent>({ state->onLeftSide, false, false, 1.0f, "Jumping" });
+        GameManager::Get().GetEntityByID(entity)->AddComponent<AnimatedActionComponent>({ state.onLeftSide, false, false, 1.0f, "Jumping" });
 
         // transition when fully off the ground
-        actor->GetOwner()->AddComponent<WaitingForJumpAirborne>();
+        GameManager::Get().GetEntityByID(entity)->AddComponent<WaitingForJumpAirborne>();
 
         //
-        actor->GetOwner()->RemoveComponent<AbleToJump>();
+        GameManager::Get().GetEntityByID(entity)->RemoveComponent<AbleToJump>();
+
+        GameManager::Get().GetEntityByID(entity)->RemoveComponent<InputListenerComponent>();
       });
-      ActionFactory::SetEntityDecided(actor->Owner());
     }
   }
-  ActionFactory::DisableActionListenerForEntities();
-  GameManager::Get().RunScheduledTasks();
 }
 
 //______________________________________________________________________________
 void CheckForFalling::DoTick(float dt)
 {
-  for (auto tuple : Tuples)
+  DeferScopeGuard guard;
+  for (const EntityID& entity : Registered)
   {
-    Rigidbody* rigidbody = std::get<Rigidbody*>(tuple.second);
-    GameActor* actor = std::get<GameActor*>(tuple.second);
-    StateComponent* state = std::get<StateComponent*>(tuple.second);
+    Rigidbody& rigidbody = ComponentArray<Rigidbody>::Get().GetComponent(entity);
+    StateComponent& state = ComponentArray<StateComponent>::Get().GetComponent(entity);
 
-    if (!HasState(rigidbody->_lastCollisionSide, CollisionSide::DOWN))
+    if (!HasState(rigidbody._lastCollisionSide, CollisionSide::DOWN))
     {
-      ActionFactory::SetAerialState(actor->Owner());
-      GameManager::Get().ScheduleTask([actor, state]()
-      {
-        actor->GetOwner()->AddComponent<AnimatedActionComponent>({ state->onLeftSide, false, true, 1.0f, "Falling" });
-
+      defer((entity, state), {
+        ActionFactory::SetAerialState(entity);
+        GameManager::Get().GetEntityByID(entity)->AddComponent<AnimatedActionComponent>({ state.onLeftSide, false, true, 1.0f, "Falling" });
         // because we're falling, remove any movement component
-        actor->GetOwner()->RemoveComponent<MovingActionComponent>();
+        GameManager::Get().GetEntityByID(entity)->RemoveComponent<MovingActionComponent>();
       });
     }
   }
-  GameManager::Get().RunScheduledTasks();
 }
 
 //______________________________________________________________________________
 void CheckForBeginCrouching::DoTick(float dt)
 {
-  for (auto tuple : Tuples)
+  DeferScopeGuard guard;
+  for (const EntityID& entity : Registered)
   {
-    Rigidbody* rigidbody = std::get<Rigidbody*>(tuple.second);
-    GameActor* actor = std::get<GameActor*>(tuple.second);
-    StateComponent* state = std::get<StateComponent*>(tuple.second);
+    Rigidbody& rigidbody = ComponentArray<Rigidbody>::Get().GetComponent(entity);
+    GameActor& actor = ComponentArray<GameActor>::Get().GetComponent(entity);
+    StateComponent& state = ComponentArray<StateComponent>::Get().GetComponent(entity);
 
     // N/A if not grounded
-    if (!HasState(rigidbody->_lastCollisionSide, CollisionSide::DOWN))
+    if (!HasState(rigidbody._lastCollisionSide, CollisionSide::DOWN))
       continue;
 
-    if (HasState(actor->LastButtons(), InputState::DOWN))
+    if (HasState(actor.LastButtons(), InputState::DOWN))
     {
-      GameManager::Get().ScheduleTask([actor, state]()
-      {
-        actor->GetOwner()->AddComponent<EnactActionComponent>();
+      defer((entity, &state), {
+        GameManager::Get().GetEntityByID(entity)->AddComponent<EnactActionComponent>();
 
-        actor->GetOwner()->AddComponent<MovingActionComponent>();
-        actor->GetOwner()->GetComponent<MovingActionComponent>()->velocity = Vector2<float>::Zero;
-        actor->GetOwner()->GetComponent<MovingActionComponent>()->horizontalMovementOnly = true;
+        GameManager::Get().GetEntityByID(entity)->AddComponent<MovingActionComponent>();
+        GameManager::Get().GetEntityByID(entity)->GetComponent<MovingActionComponent>()->velocity = Vector2<float>::Zero;
+        GameManager::Get().GetEntityByID(entity)->GetComponent<MovingActionComponent>()->horizontalMovementOnly = true;
 
-        actor->GetOwner()->AddComponent<AnimatedActionComponent>({ state->onLeftSide, false, false, 1.0f, "Crouching" });
-        actor->GetOwner()->AddComponent<WaitForAnimationComplete>();
-        actor->GetOwner()->AddComponent<TransitionToCrouching>();
-        actor->GetOwner()->AddComponent<CrouchingAction>();
+        GameManager::Get().GetEntityByID(entity)->AddComponent<AnimatedActionComponent>({ state.onLeftSide, false, false, 1.0f, "Crouching" });
+        GameManager::Get().GetEntityByID(entity)->AddComponent<WaitForAnimationComplete>();
+        GameManager::Get().GetEntityByID(entity)->AddComponent<TransitionToCrouching>();
+        GameManager::Get().GetEntityByID(entity)->AddComponent<CrouchingAction>();
 
-        actor->GetOwner()->RemoveComponents<AbleToCrouch, AbleToWalk>();
+        GameManager::Get().GetEntityByID(entity)->RemoveComponent<AbleToCrouch>();
+        GameManager::Get().GetEntityByID(entity)->RemoveComponent<AbleToWalkLeft>();
+        GameManager::Get().GetEntityByID(entity)->RemoveComponent<AbleToWalkRight>();
       });
-      //ActionFactory::SetEntityDecided(actor->Owner());
     }
   }
-  //ActionFactory::DisableActionListenerForEntities();
-  GameManager::Get().RunScheduledTasks();
 }
 
 //______________________________________________________________________________
 void CheckHitThisFrameSystem::DoTick(float dt)
 {
-  for (auto tuple : Tuples)
+  DeferScopeGuard guard;
+  for (const EntityID& entity : Registered)
   {
-    StateComponent* state = std::get<StateComponent*>(tuple.second);
-    HittableState* hittable = std::get<HittableState*>(tuple.second);
-    GameActor* actor = std::get<GameActor*>(tuple.second);
+    StateComponent& state = ComponentArray<StateComponent>::Get().GetComponent(entity);
+    HittableState& hittable = ComponentArray<HittableState>::Get().GetComponent(entity);
+    GameActor& actor = ComponentArray<GameActor>::Get().GetComponent(entity);
 
-    if (state->thrownThisFrame)
+    if (state.thrownThisFrame)
     {
-      ActionFactory::SetGrappledAction(state->Owner(), state);
+      defer((entity, &state), ActionFactory::SetGrappledAction(entity, &state));
       continue;
     }
-    else if (state->hitThisFrame)
+    else if (state.hitThisFrame)
     {
       // consume the hit this frame flag
-      state->hitThisFrame = false;
+      state.hitThisFrame = false;
 
-      InputState const& buttons = actor->LastButtons();
-      if (hittable->canBlock)
+      InputState const& buttons = actor.LastButtons();
+      if (hittable.canBlock)
       {
-        bool blockedRight = HasState(buttons, InputState::LEFT) && state->onLeftSide;
-        bool blockedLeft = HasState(buttons, InputState::RIGHT) && !state->onLeftSide;
+        bool blockedRight = HasState(buttons, InputState::LEFT) && state.onLeftSide;
+        bool blockedLeft = HasState(buttons, InputState::RIGHT) && !state.onLeftSide;
         if (blockedRight || blockedLeft)
         {
-          ActionFactory::SetBlockStunAction(state->Owner(), state, HasState(buttons, InputState::DOWN));
+          defer((entity, &state, buttons), {
+            ActionFactory::SetBlockStunAction(entity, &state, HasState(buttons, InputState::DOWN));
+            GameManager::Get().GetEntityByID(entity)->RemoveComponent<InputListenerComponent>();
+          });
           continue;
         }
       }
 
       // if already in knockdown or this attack puts player in knockdown
-      if (hittable->inKnockdown || state->hitData.knockdown)
+      if (hittable.inKnockdown || state.hitData.knockdown)
       {
-        ActionFactory::SetKnockdownAirborne(state->Owner(), state);
+        defer((entity, &state), {
+          ActionFactory::SetKnockdownAirborne(entity, &state);
+          GameManager::Get().GetEntityByID(entity)->RemoveComponent<InputListenerComponent>();
+          });
         continue;
       }
 
       // default to hitstun state
-      ActionFactory::SetHitStunAction(state->Owner(), state, HasState(buttons, InputState::DOWN));
+      defer((entity, &state, buttons), {
+        ActionFactory::SetHitStunAction(entity, &state, HasState(buttons, InputState::DOWN));
+        GameManager::Get().GetEntityByID(entity)->RemoveComponent<InputListenerComponent>();
+      });
     }
   }
-  ActionFactory::DisableActionListenerForEntities();
-  GameManager::Get().RunScheduledTasks();
 }
 
 //______________________________________________________________________________
 void CheckSpecialAttackInputSystem::DoTick(float dt)
 {
-  for (auto tuple : Tuples)
+  DeferScopeGuard guard;
+  for (const EntityID& entity : Registered)
   {
-    StateComponent* state = std::get<StateComponent*>(tuple.second);
-    GameActor* actor = std::get<GameActor*>(tuple.second);
+    StateComponent& state = ComponentArray<StateComponent>::Get().GetComponent(entity);
+    GameActor& actor = ComponentArray<GameActor>::Get().GetComponent(entity);
 
     // only for ryu right now... probably need some kind of move mapping component
-    if (HasState(actor->LastButtons(), InputState::BTN1) || HasState(actor->LastButtons(), InputState::BTN2) || HasState(actor->LastButtons(), InputState::BTN3))
+    if (HasState(actor.LastButtons(), InputState::BTN1) || HasState(actor.LastButtons(), InputState::BTN2) || HasState(actor.LastButtons(), InputState::BTN3))
     {
-      bool fireball = (actor->LastSpecial() == SpecialInputState::QCF && state->onLeftSide) || (actor->LastSpecial() == SpecialInputState::QCB && !state->onLeftSide);
-      bool donkeyKick = fireball && (HasState(actor->LastButtons(), InputState::BTN3));
-      bool tatsu = (actor->LastSpecial() == SpecialInputState::QCF && !state->onLeftSide) || (actor->LastSpecial() == SpecialInputState::QCB && state->onLeftSide);
-      bool dp = (actor->LastSpecial() == SpecialInputState::DPF && state->onLeftSide) || (actor->LastSpecial() == SpecialInputState::DPB && !state->onLeftSide);
+      bool fireball = (actor.LastSpecial() == SpecialInputState::QCF && state.onLeftSide) || (actor.LastSpecial() == SpecialInputState::QCB && !state.onLeftSide);
+      bool donkeyKick = fireball && (HasState(actor.LastButtons(), InputState::BTN3));
+      bool tatsu = (actor.LastSpecial() == SpecialInputState::QCF && !state.onLeftSide) || (actor.LastSpecial() == SpecialInputState::QCB && state.onLeftSide);
+      bool dp = (actor.LastSpecial() == SpecialInputState::DPF && state.onLeftSide) || (actor.LastSpecial() == SpecialInputState::DPB && !state.onLeftSide);
       if (fireball || donkeyKick || tatsu || dp)
       {
         if (donkeyKick)
-          ActionFactory::SetAttackAction(state->Owner(), state, "SpecialMove3", ActionState::HEAVY);
-        else if (fireball)
-          ActionFactory::SetAttackAction(state->Owner(), state, "SpecialMove1", ActionState::HEAVY);
-        else if (tatsu)
-          ActionFactory::SetAttackAction(state->Owner(), state, "SpecialMove4", ActionState::HEAVY);
-        else if (dp)
-          ActionFactory::SetAttackAction(state->Owner(), state, "SpecialMove2", ActionState::HEAVY);
-
-        GameManager::Get().ScheduleTask([state]()
         {
+          defer((entity, &state), ActionFactory::SetAttackAction(entity, &state, "SpecialMove3", ActionState::HEAVY));
+        }
+        else if (fireball)
+        {
+          defer((entity, &state), ActionFactory::SetAttackAction(entity, &state, "SpecialMove1", ActionState::HEAVY));
+        }
+        else if (tatsu)
+        {
+          defer((entity, &state), ActionFactory::SetAttackAction(entity, &state, "SpecialMove4", ActionState::HEAVY));
+        }
+        else if (dp)
+        {
+          defer((entity, &state), ActionFactory::SetAttackAction(entity, &state, "SpecialMove2", ActionState::HEAVY));
+        }
+
+        defer(entity, {
           // add additional cancelables for special moves here
           // these might not work because they aren't implemented in any systems
           // so they don't generate signatures
-          // state->Owner()->AddComponents<CancelOnDash, CancelOnJump>();
+          // entity->AddComponents<CancelOnDash, CancelOnJump>();
 
           // no cancel on hit ground for stuff like tatsu
-          state->Owner()->RemoveComponents<CancelOnHitGround, CancelOnNormal, CancelOnSpecial>();
-          state->Owner()->RemoveComponent<CrouchingAction>();
+          GameManager::Get().GetEntityByID(entity)->RemoveComponent<CancelOnHitGround>();
+          GameManager::Get().GetEntityByID(entity)->RemoveComponent<CancelOnNormal>();
+          GameManager::Get().GetEntityByID(entity)->RemoveComponent<CancelOnSpecial>();
+          GameManager::Get().GetEntityByID(entity)->RemoveComponent<CrouchingAction>();
+
+          GameManager::Get().GetEntityByID(entity)->RemoveComponent<InputListenerComponent>();
         });
 
       }
     }
   }
-  ActionFactory::DisableActionListenerForEntities();
-  GameManager::Get().RunScheduledTasks();
 }
 
 //______________________________________________________________________________
 void CheckDashSystem::DoTick(float dt)
 {
-  for (auto tuple : Tuples)
+  DeferScopeGuard guard;
+  for (const EntityID& entity : Registered)
   {
-    StateComponent* state = std::get<StateComponent*>(tuple.second);
-    GameActor* actor = std::get<GameActor*>(tuple.second);
-    Animator* animator = std::get<Animator*>(tuple.second);
-    Rigidbody* rigidbody = std::get<Rigidbody*>(tuple.second);
+    StateComponent& state = ComponentArray<StateComponent>::Get().GetComponent(entity);
+    GameActor& actor = ComponentArray<GameActor>::Get().GetComponent(entity);
+    Animator& animator = ComponentArray<Animator>::Get().GetComponent(entity);
+    Rigidbody& rigidbody = ComponentArray<Rigidbody>::Get().GetComponent(entity);
 
-    if (!HasState(rigidbody->_lastCollisionSide, CollisionSide::DOWN))
+    if (!HasState(rigidbody._lastCollisionSide, CollisionSide::DOWN))
       continue;
 
-    const InputState& btns = actor->LastButtons();
-    const SpecialInputState& sp = actor->LastSpecial();
+    const InputState& btns = actor.LastButtons();
+    const SpecialInputState& sp = actor.LastSpecial();
 
     if (HasState(btns, InputState::LEFT))
     {
       if (HasState(btns, InputState::BTN4) || sp == SpecialInputState::LDash)
       {
-        ActionFactory::SetDashAction(actor->Owner(), state, animator, !state->onLeftSide);
+        defer((entity, &state, &animator), ActionFactory::SetDashAction(entity, &state, &animator, !state.onLeftSide));
       }
     }
     else if (HasState(btns, InputState::RIGHT))
     {
       if (HasState(btns, InputState::BTN4) || sp == SpecialInputState::RDash)
       {
-        ActionFactory::SetDashAction(actor->Owner(), state, animator, state->onLeftSide);
+        defer((entity, &state, &animator), ActionFactory::SetDashAction(entity, &state, &animator, state.onLeftSide));
       }
     }
   }
-  ActionFactory::DisableActionListenerForEntities();
-  GameManager::Get().RunScheduledTasks();
 }
 
 //______________________________________________________________________________
 void CheckAttackInputSystem::DoTick(float dt)
 {
-  for (auto tuple : Tuples)
+  DeferScopeGuard guard;
+  for (const EntityID& entity : Registered)
   {
-    StateComponent* state = std::get<StateComponent*>(tuple.second);
-    GameActor* actor = std::get<GameActor*>(tuple.second);
+    StateComponent& state = ComponentArray<StateComponent>::Get().GetComponent(entity);
+    GameActor& actor = ComponentArray<GameActor>::Get().GetComponent(entity);
 
-    if (HasState(state->collision, CollisionSide::DOWN))
+    if (HasState(state.collision, CollisionSide::DOWN))
     {
       // first check throws
-      if (HasState(actor->LastButtons(), InputState::BTN4))
+      if (HasState(actor.LastButtons(), InputState::BTN4))
       {
-        bool backthrow = (state->onLeftSide && HasState(actor->LastButtons(), InputState::LEFT)) || (!state->onLeftSide && HasState(actor->LastButtons(), InputState::RIGHT));
-        ActionFactory::SetAttackAction(state->Owner(), state, backthrow ? "BackThrow" : "ForwardThrow", ActionState::NONE);
-        state->Owner()->AddComponent<GrappleActionComponent>();
+        bool backthrow = (state.onLeftSide && HasState(actor.LastButtons(), InputState::LEFT)) || (!state.onLeftSide && HasState(actor.LastButtons(), InputState::RIGHT));
+        defer((entity, &state, backthrow), ActionFactory::SetAttackAction(entity, &state, backthrow ? "BackThrow" : "ForwardThrow", ActionState::NONE));
+        GameManager::Get().GetEntityByID(entity)->AddComponent<GrappleActionComponent>();
         continue;
       }
 
-      bool crouchPossible = HasState(actor->LastButtons(), InputState::DOWN);
+      bool crouchPossible = HasState(actor.LastButtons(), InputState::DOWN);
       // then check attacks
-      if (HasState(actor->LastButtons(), InputState::BTN1))
+      if (HasState(actor.LastButtons(), InputState::BTN1))
       {
-        ActionFactory::SetAttackAction(state->Owner(), state, crouchPossible ? "CrouchingLight" : "StandingLight", ActionState::LIGHT);
+        defer((entity, &state, crouchPossible), ActionFactory::SetAttackAction(entity, &state, crouchPossible ? "CrouchingLight" : "StandingLight", ActionState::LIGHT));
       }
-      else if (HasState(actor->LastButtons(), InputState::BTN2))
+      else if (HasState(actor.LastButtons(), InputState::BTN2))
       {
-        ActionFactory::SetAttackAction(state->Owner(), state, crouchPossible ? "CrouchingMedium" : "StandingMedium", ActionState::MEDIUM);
+        defer((entity, &state, crouchPossible), ActionFactory::SetAttackAction(entity, &state, crouchPossible ? "CrouchingMedium" : "StandingMedium", ActionState::MEDIUM));
       }
-      else if (HasState(actor->LastButtons(), InputState::BTN3))
+      else if (HasState(actor.LastButtons(), InputState::BTN3))
       {
-        ActionFactory::SetAttackAction(state->Owner(), state, crouchPossible ? "CrouchingHeavy" : "StandingHeavy", ActionState::HEAVY);
+        defer((entity, &state, crouchPossible), ActionFactory::SetAttackAction(entity, &state, crouchPossible ? "CrouchingHeavy" : "StandingHeavy", ActionState::HEAVY));
       }
     }
     else
     {
-      if (HasState(actor->LastButtons(), InputState::BTN1))
+      if (HasState(actor.LastButtons(), InputState::BTN1))
       {
-        ActionFactory::SetAttackAction(state->Owner(), state, "JumpingLight", ActionState::LIGHT);
+        defer((entity, &state), ActionFactory::SetAttackAction(entity, &state, "JumpingLight", ActionState::LIGHT));
       }
-      else if (HasState(actor->LastButtons(), InputState::BTN2))
+      else if (HasState(actor.LastButtons(), InputState::BTN2))
       {
-        ActionFactory::SetAttackAction(state->Owner(), state, "JumpingMedium", ActionState::MEDIUM);
+        defer((entity, &state), ActionFactory::SetAttackAction(entity, &state, "JumpingMedium", ActionState::MEDIUM));
       }
-      else if (HasState(actor->LastButtons(), InputState::BTN3))
+      else if (HasState(actor.LastButtons(), InputState::BTN3))
       {
-        ActionFactory::SetAttackAction(state->Owner(), state, "JumpingHeavy", ActionState::HEAVY);
+        defer((entity, &state), ActionFactory::SetAttackAction(entity, &state, "JumpingHeavy", ActionState::HEAVY));
       }
     }
   }
-  ActionFactory::DisableActionListenerForEntities();
-  GameManager::Get().RunScheduledTasks();
 }
 
 //______________________________________________________________________________
 void CheckGrappleCancelOnHit::DoTick(float dt)
 {
-  for (auto t1 : MainSystem::Tuples)
+  DeferScopeGuard guard;
+  for (const EntityID& e1 : MainSystem::Registered)
   {
-    StateComponent* grapplerState = std::get<StateComponent*>(t1.second);
-    if (grapplerState->hitThisFrame)
+    StateComponent& grapplerState = ComponentArray<StateComponent>::Get().GetComponent(e1);
+    if (grapplerState.hitThisFrame)
     {
-      for (auto t2 : SubSystem::Tuples)
+      for (const EntityID& e2 : SubSystem::Registered)
       {
-        Transform* transform = std::get<Transform*>(t2.second);
-        StateComponent* state = std::get<StateComponent*>(t2.second);
+        Transform& transform = ComponentArray<Transform>::Get().GetComponent(e2);
+        StateComponent& state = ComponentArray<StateComponent>::Get().GetComponent(e2);
 
-        state->thrownThisFrame = false;
-        GameManager::Get().ScheduleTask([transform]() { transform->RemoveComponent<ReceivedGrappleAction>(); });
+        state.thrownThisFrame = false;
+        defer(e2, GameManager::Get().GetEntityByID(e2)->RemoveComponent<ReceivedGrappleAction>());
       }
     }
   }
-  GameManager::Get().RunScheduledTasks();
 }
 
 //______________________________________________________________________________
 void ListenForAirborneSystem::DoTick(float dt)
 {
-  for (auto tuple : Tuples)
+  DeferScopeGuard guard;
+  for (const EntityID& entity : Registered)
   {
-    Rigidbody* rigidbody = std::get<Rigidbody*>(tuple.second);
-    GameActor* actor = std::get<GameActor*>(tuple.second);
-    if (!HasState(rigidbody->_lastCollisionSide, CollisionSide::DOWN))
+    Rigidbody& rigidbody = ComponentArray<Rigidbody>::Get().GetComponent(entity);
+    if (!HasState(rigidbody._lastCollisionSide, CollisionSide::DOWN))
     {
-      ActionFactory::SetAerialState(actor->Owner());
+      defer(entity, ActionFactory::SetAerialState(entity));
     }
   }
-  GameManager::Get().RunScheduledTasks();
 }
 
 //______________________________________________________________________________
 void TransitionToNeutralSystem::DoTick(float dt)
 {
-  for (auto tuple : Tuples)
+  DeferScopeGuard guard;
+  for (const EntityID& entity : Registered)
   {
-    StateComponent* state = std::get<StateComponent*>(tuple.second);
-    GameActor* actor = std::get<GameActor*>(tuple.second);
-    Rigidbody* rigidbody = std::get<Rigidbody*>(tuple.second);
+    StateComponent& state = ComponentArray<StateComponent>::Get().GetComponent(entity);
+    GameActor& actor = ComponentArray<GameActor>::Get().GetComponent(entity);
+    Rigidbody& rigidbody = ComponentArray<Rigidbody>::Get().GetComponent(entity);
 
-    if (actor->actionTimerComplete)
+    if (actor.actionTimerComplete)
     {
-      ActionFactory::GoToNeutralAction(state->Owner(), state);
-      if (HasState(actor->LastButtons(), InputState::DOWN) && HasState(rigidbody->_lastCollisionSide, CollisionSide::DOWN))
+      defer((entity, &state), ActionFactory::GoToNeutralAction(entity, &state));
+      if (HasState(actor.LastButtons(), InputState::DOWN) && HasState(rigidbody._lastCollisionSide, CollisionSide::DOWN))
       {
-        ActionFactory::SetCrouchingState(state->Owner(), state);
+        defer((entity, &state), ActionFactory::SetCrouchingState(entity, &state));
       }
-      else if (!HasState(rigidbody->_lastCollisionSide, CollisionSide::DOWN))
+      else if (!HasState(rigidbody._lastCollisionSide, CollisionSide::DOWN))
       {
-        //ActionFactory::SetAerialState(state->Owner());
+        //ActionFactory::SetAerialState(entity);
       }
     }
   }
-  GameManager::Get().RunScheduledTasks();
 }
 
 //______________________________________________________________________________
 void CheckKnockdownComplete::DoTick(float dt)
 {
-  for (auto tuple : Tuples)
+  DeferScopeGuard guard;
+  for (const EntityID& entity : Registered)
   {
-    StateComponent* state = std::get<StateComponent*>(tuple.second);
-    GameActor* actor = std::get<GameActor*>(tuple.second);
+    StateComponent& state = ComponentArray<StateComponent>::Get().GetComponent(entity);
+    GameActor& actor = ComponentArray<GameActor>::Get().GetComponent(entity);
 
-    if (actor->actionTimerComplete)
+    if (actor.actionTimerComplete)
     {
-      ActionFactory::SetKnockdownGroundInvincible(state->Owner(), state);
+      defer((entity, &state), ActionFactory::SetKnockdownGroundInvincible(entity, &state));
     }
   }
-  ActionFactory::DisableActionListenerForEntities();
-  GameManager::Get().RunScheduledTasks();
 }
 
 //______________________________________________________________________________
 void CheckKnockdownOTG::DoTick(float dt)
 {
-  for (auto tuple : Tuples)
+  DeferScopeGuard guard;
+  for (const EntityID& entity : Registered)
   {
-    StateComponent* state = std::get<StateComponent*>(tuple.second);
-    Rigidbody* rigidbody = std::get<Rigidbody*>(tuple.second);
+    StateComponent& state = ComponentArray<StateComponent>::Get().GetComponent(entity);
+    Rigidbody& rigidbody = ComponentArray<Rigidbody>::Get().GetComponent(entity);
 
-    if (HasState(rigidbody->_lastCollisionSide, CollisionSide::DOWN))
+    if (HasState(rigidbody._lastCollisionSide, CollisionSide::DOWN))
     {
-      ActionFactory::SetKnockdownGroundOTG(state->Owner(), state);
+      defer((entity, &state), ActionFactory::SetKnockdownGroundOTG(entity, &state));
     }
   }
-  ActionFactory::DisableActionListenerForEntities();
-  GameManager::Get().RunScheduledTasks();
 }
 
 //______________________________________________________________________________
 void CheckCrouchingFollowUp::DoTick(float dt)
 {
-  for (auto tuple : Tuples)
+  DeferScopeGuard guard;
+  for (const EntityID& entity : Registered)
   {
-    StateComponent* state = std::get<StateComponent*>(tuple.second);
-    GameActor* actor = std::get<GameActor*>(tuple.second);
+    StateComponent& state = ComponentArray<StateComponent>::Get().GetComponent(entity);
+    GameActor& actor = ComponentArray<GameActor>::Get().GetComponent(entity);
 
-    if (actor->actionTimerComplete)
+    if (actor.actionTimerComplete)
     {
-      ActionFactory::SetCrouchingState(actor->Owner(), state);
+      defer((entity, &state), ActionFactory::SetCrouchingState(entity, &state));
     }
   }
-  GameManager::Get().RunScheduledTasks();
 }
 
 //______________________________________________________________________________
 void HitGroundCancelActionSystem::DoTick(float dt)
 {
-  for (auto tuple : Tuples)
+  for (const EntityID& entity : Registered)
   {
-    Rigidbody* rb = std::get<Rigidbody*>(tuple.second);
-    GameActor* actor = std::get<GameActor*>(tuple.second);
-    if (HasState(rb->_lastCollisionSide, CollisionSide::DOWN))
+    Rigidbody& rb = ComponentArray<Rigidbody>::Get().GetComponent(entity);
+    GameActor& actor = ComponentArray<GameActor>::Get().GetComponent(entity);
+    if (HasState(rb._lastCollisionSide, CollisionSide::DOWN))
     {
-      actor->actionTimerComplete = true;
+      actor.actionTimerComplete = true;
     }
   }
 }
@@ -630,49 +638,47 @@ void HitGroundCancelActionSystem::DoTick(float dt)
 //______________________________________________________________________________
 void SpecialMoveCancelActionSystem::DoTick(float dt)
 {
-  for (auto tuple : Tuples)
+  DeferScopeGuard guard;
+  for (const EntityID& entity : Registered)
   {
-    GameActor* actor = std::get<GameActor*>(tuple.second);
-    StateComponent* state = std::get<StateComponent*>(tuple.second);
+    GameActor& actor = ComponentArray<GameActor>::Get().GetComponent(entity);
+    StateComponent& state = ComponentArray<StateComponent>::Get().GetComponent(entity);
 
     // can only be cancelled on hit for now (replace with HittingComponent maybe?)
-    if(state->hitting && ActionFactory::ActorDidSpecialInputRyu(actor, state))
+    if(state.hitting && ActionFactory::ActorDidSpecialInputRyu(&actor, &state))
     {
-      GameManager::Get().ScheduleTask([actor]()
-      {
-        actor->GetOwner()->AddComponent<AbleToSpecialAttackState>();
-        actor->GetOwner()->RemoveComponent<CancelOnSpecial>();
-      });
+      defer(entity, {
+        GameManager::Get().GetEntityByID(entity)->AddComponent<AbleToSpecialAttackState>();
+        GameManager::Get().GetEntityByID(entity)->RemoveComponent<CancelOnSpecial>();
+        });
     }
   }
-  GameManager::Get().RunScheduledTasks();
 }
 
 //______________________________________________________________________________
 void TargetComboCancelActionSystem::DoTick(float dt)
 {
-  for (auto tuple : Tuples)
+  DeferScopeGuard guard;
+  for (const EntityID& entity : Registered)
   {
-    GameActor* actor = std::get<GameActor*>(tuple.second);
-    StateComponent* state = std::get<StateComponent*>(tuple.second);
-    HasTargetCombo* comboableMap = std::get<HasTargetCombo*>(tuple.second);
+    GameActor& actor = ComponentArray<GameActor>::Get().GetComponent(entity);
+    StateComponent& state = ComponentArray<StateComponent>::Get().GetComponent(entity);
+    HasTargetCombo& comboableMap = ComponentArray<HasTargetCombo>::Get().GetComponent(entity);
 
     // can only be cancelled on hit for now (replace with HittingComponent maybe?)
-    if (state->hitting)
+    if (state.hitting)
     {
       // if has a combo for this state and player is pressing that corresponding input
-      if (comboableMap->links.find(state->actionState) != comboableMap->links.end())
+      if (comboableMap.links.find(state.actionState) != comboableMap.links.end())
       {
-        if (comboableMap->links[state->actionState] == actor->LastButtons())
+        if (comboableMap.links[state.actionState] == actor.LastButtons())
         {
-          GameManager::Get().ScheduleTask([actor]()
-          {
-            actor->GetOwner()->AddComponent<AbleToAttackState>();
-            actor->GetOwner()->RemoveComponent<CancelOnNormal>();
+          defer(entity, {
+            GameManager::Get().GetEntityByID(entity)->AddComponent<AbleToAttackState>();
+            GameManager::Get().GetEntityByID(entity)->RemoveComponent<CancelOnNormal>();
           });
         }
       }
     }
   }
-  GameManager::Get().RunScheduledTasks();
 }

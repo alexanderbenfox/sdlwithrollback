@@ -10,7 +10,9 @@
 #include "Components/Hurtbox.h"
 #include "Components/StateComponent.h"
 
-void EntityCreationData::AddComponents(Transform* creator, const StateComponent* creatorState, std::shared_ptr<Entity> entity) const
+#include "GameManagement.h"
+
+void EntityCreationData::AddComponents(EntityID creatorID, const Transform* creator, const StateComponent* creatorState, std::shared_ptr<Entity> entity) const
 {
   Vector2<float> scale(1.0f, 1.0f);
   std::vector<RectColliderD*> moveableColliders;
@@ -97,14 +99,14 @@ void EntityCreationData::AddComponents(Transform* creator, const StateComponent*
       ComponentInitParams<DynamicCollider> params;
       params.size = Vector2<float>(instruction.second["sizex"].asFloat(), instruction.second["sizey"].asFloat());
       entity->AddComponent<DynamicCollider>(params);
-      moveableColliders.push_back(entity->GetComponent<DynamicCollider>().get());
+      moveableColliders.push_back(entity->GetComponent<DynamicCollider>());
     }
     else if (instruction.first == "Hurtbox")
     {
       ComponentInitParams<Hurtbox> params;
       params.size = Vector2<double>(instruction.second["x"].asDouble(), instruction.second["y"].asDouble());
       entity->AddComponent<Hurtbox>(params);
-      moveableColliders.push_back(entity->GetComponent<Hurtbox>().get());
+      moveableColliders.push_back(entity->GetComponent<Hurtbox>());
     }
     else if (instruction.first == "Hitbox")
     {
@@ -118,7 +120,7 @@ void EntityCreationData::AddComponents(Transform* creator, const StateComponent*
       params.destroyOnHit = instruction.second["destroyOnHit"].asBool();
 
       entity->AddComponent<Hitbox>(params);
-      moveableColliders.push_back(entity->GetComponent<Hitbox>().get());
+      moveableColliders.push_back(entity->GetComponent<Hitbox>());
     }
     else if (instruction.first == "StateComponent")
     {
@@ -128,7 +130,7 @@ void EntityCreationData::AddComponents(Transform* creator, const StateComponent*
 
   // anything created by an entity will be automatically assigned to its team
   entity->AddComponent<TeamComponent>();
-  entity->GetComponent<TeamComponent>()->team = creator->GetComponent<TeamComponent>()->team;
+  entity->GetComponent<TeamComponent>()->team = GameManager::Get().GetEntityByID(creatorID)->GetComponent<TeamComponent>()->team;
 
   // set the scale
   entity->SetScale(scale);

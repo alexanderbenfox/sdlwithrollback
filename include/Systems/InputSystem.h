@@ -11,38 +11,38 @@ class PlayerSideSystem : public ISystem<Transform, StateComponent, TeamComponent
 public:
   static void DoTick(float dt)
   {
-    for (auto& tuple : Tuples)
+    for (const EntityID& entity : Registered)
     {
-      Transform* transform = std::get<Transform*>(tuple.second);
-      StateComponent* state = std::get<StateComponent*>(tuple.second);
-      TeamComponent* teamComp = std::get<TeamComponent*>(tuple.second);
-      GameActor* actor = std::get<GameActor*>(tuple.second);
+      Transform& transform = ComponentArray<Transform>::Get().GetComponent(entity);
+      StateComponent& state = ComponentArray<StateComponent>::Get().GetComponent(entity);
+      TeamComponent& teamComp = ComponentArray<TeamComponent>::Get().GetComponent(entity);
+      GameActor& actor = ComponentArray<GameActor>::Get().GetComponent(entity);
 
-      for (auto& other : Tuples)
+      for (const EntityID& other : Registered)
       {
-        if (other != tuple)
+        if (other != entity)
         {
-          Transform* otherTranform = std::get<Transform*>(other.second);
-          TeamComponent* otherEntityTeam = std::get<TeamComponent*>(other.second);
-          StateComponent* otherState = std::get<StateComponent*>(other.second);
+          Transform& otherTranform = ComponentArray<Transform>::Get().GetComponent(other);
+          TeamComponent& otherEntityTeam = ComponentArray<TeamComponent>::Get().GetComponent(other);
+          StateComponent& otherState = ComponentArray<StateComponent>::Get().GetComponent(other);
 
-          if (otherState->onNewState)
+          if (otherState.onNewState)
           {
-            if (otherState->actionState == ActionState::HITSTUN)
-              state->comboCounter++;
+            if (otherState.actionState == ActionState::HITSTUN)
+              state.comboCounter++;
             else
-              state->comboCounter = 0;
+              state.comboCounter = 0;
 
-            otherState->onNewState = false;
+            otherState.onNewState = false;
           }
 
 
-          bool lastSide = state->onLeftSide;
-          if (teamComp->team != otherEntityTeam->team && otherEntityTeam->playerEntity)
+          bool lastSide = state.onLeftSide;
+          if (teamComp.team != otherEntityTeam.team && otherEntityTeam.playerEntity)
           {
-            state->onLeftSide = transform->position.x < otherTranform->position.x;
-            if (state->onLeftSide != lastSide)
-              actor->newInputs = true;
+            state.onLeftSide = transform.position.x < otherTranform.position.x;
+            if (state.onLeftSide != lastSide)
+              actor.newInputs = true;
           }
         }
       }
@@ -55,17 +55,17 @@ class InputSystem : public ISystem<GameInputComponent, StateComponent, GameActor
 public:
   static void DoTick(float dt)
   {
-    for(auto& tuple : Tuples)
+    for(const EntityID& entity : Registered)
     {
-      GameInputComponent* inputHandler = std::get<GameInputComponent*>(tuple.second);
-      GameActor* actor = std::get<GameActor*>(tuple.second);
-      Rigidbody* rigidbody = std::get<Rigidbody*>(tuple.second);
-      StateComponent* state = std::get<StateComponent*>(tuple.second);
+      GameInputComponent& inputHandler = ComponentArray<GameInputComponent>::Get().GetComponent(entity);
+      GameActor& actor = ComponentArray<GameActor>::Get().GetComponent(entity);
+      Rigidbody& rigidbody = ComponentArray<Rigidbody>::Get().GetComponent(entity);
+      StateComponent& state = ComponentArray<StateComponent>::Get().GetComponent(entity);
 
       //const InputBuffer& unitInputState = inputHandler->QueryInput();
 
-      state->collision = rigidbody->_lastCollisionSide;
-      actor->TransferInputData(inputHandler->QueryInput(), state);
+      state.collision = rigidbody._lastCollisionSide;
+      actor.TransferInputData(inputHandler.QueryInput(), &state);
       
 
       /*state->onNewState = false;

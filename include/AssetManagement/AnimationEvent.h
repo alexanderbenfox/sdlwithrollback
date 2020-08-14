@@ -8,12 +8,12 @@
 class AnimationEvent
 {
 public:
-  AnimationEvent(int startFrame, int duration, std::function<void(Transform*, StateComponent*)> onTriggerCallback, std::vector<std::function<void(Transform*, StateComponent*)>> update, std::function<void(Transform*)> onEndCallback) :
+  AnimationEvent(int startFrame, int duration, std::function<void(EntityID, Transform*, StateComponent*)> onTriggerCallback, std::vector<std::function<void(EntityID, Transform*, StateComponent*)>> update, std::function<void(EntityID)> onEndCallback) :
     _frame(startFrame), _duration(duration), _onTrigger(onTriggerCallback), _updates(update), _onEnd(onEndCallback) {}
 
-  void TriggerEvent(Transform* trans, StateComponent* state) { _onTrigger(trans, state); }
-  void UpdateEvent(int frame, Transform* trans, StateComponent* state) { _updates[frame - _frame - 1](trans, state); }
-  void EndEvent(Transform* trans) { _onEnd(trans); }
+  void TriggerEvent(EntityID id, Transform* trans, StateComponent* state) { _onTrigger(id, trans, state); }
+  void UpdateEvent(int frame, EntityID id, Transform* trans, StateComponent* state) { _updates[frame - _frame - 1](id, trans, state); }
+  void EndEvent(EntityID id) { _onEnd(id); }
   int GetEndFrame() { return _frame + _duration; }
 
 private:
@@ -21,9 +21,9 @@ private:
   int _frame = 0;
   int _duration = 0;
   //!
-  std::function<void(Transform*, StateComponent*)> _onTrigger;
-  std::vector<std::function<void(Transform*, StateComponent*)>> _updates;
-  std::function<void(Transform*)> _onEnd;
+  std::function<void(EntityID, Transform*, StateComponent*)> _onTrigger;
+  std::vector<std::function<void(EntityID, Transform*, StateComponent*)>> _updates;
+  std::function<void(EntityID)> _onEnd;
 };
 
 //! Data structure that links a frame of animation to an event that starts on that frame

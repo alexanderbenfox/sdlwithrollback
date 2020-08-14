@@ -4,22 +4,32 @@
 #include <memory>
 #include <functional>
 
+#include "Components/ComponentArray.h"
+#include "EntityManager.h"
+
 #include "Core/Math/Vector2.h"
-#include "Components/ComponentManager.h"
 #include "Utils.h"
 
-//! Global entity id counter
-static int EntityID = 0;
-
 //______________________________________________________________________________
-//! Entity is the root of the component tree containing all of the positional information for the game object
+//! Entity is a wrapper for the connection between the entity manager and the component manager(s)
 class Entity : public std::enable_shared_from_this<Entity>
 {
 public:
-  //! Increment creation id counter
-  Entity() : ComponentBitFlag(0x0), _creationId(EntityID++) {}
-  //! Default deleter
-  ~Entity() = default;
+  //! Add entity to the manager
+  Entity()
+  {
+    _id = EntityManager::Get().RegisterEntity();
+  }
+  //! Destroy entity
+  ~Entity()
+  {
+    // set signature to remove from all systems
+    EntityManager::Get().SetSignature(_id, 0x0);
+    CheckAgainstSystems(this);
+
+    // destroy self
+    EntityManager::Get().DestroyEntity(_id);
+  }
 
   //! Removes all added components by calling list of deleter functions
   void RemoveAllComponents();
@@ -27,12 +37,13 @@ public:
   void DestroySelf();
   //! Sets scale among all scalable components attached to this... THERE MUST BE A BETTER WAY
   void SetScale(Vector2<float> scale);
+
   //! Gets a unique id for the entity
-  int GetID() const { return _creationId; }
+  int GetID() const { return _id; }
 
   //! Retrieves the components of type specified or nullptr if there is no component of that type present
   template <typename T = IComponent> 
-  std::shared_ptr<T> GetComponent();
+  T* GetComponent();
   //! Adds the component of the type specified to this entity
   template <typename T = IComponent>
   void AddComponent();
@@ -48,17 +59,18 @@ public:
   //! Multi-parameter component remove
   template <typename T = IComponent, typename ... Rest>
   void RemoveComponents();
+
+
   //! Helper for the systems
   template <typename ... T>
-  std::tuple<std::add_pointer_t<T>...> MakeComponentTuple();
+  std::tuple<T&...> MakeComponentTuple();
 
-  //! Bit flag for the components currently attached
-  std::bitset<MAX_COMPONENTS> ComponentBitFlag;
+  ComponentBitFlag GetSignature() { return EntityManager::Get().GetSignature(_id); }
 
 protected:
-  //! Creates a pointer to give to system tuple in MakeComponentTuple
+  //! Creates a pointer to give to system tuple in MakeComponentTuple - extremely unsafe
   template <typename T>
-  void SetPointerElement(T*& element) { element = GetComponent<T>().get(); }
+  void GetComponentElement(T& element) { element = *GetComponent<T>(); }
   
   //! Don't remove deletion function here. This is used for removing components internally if we do not know the type
   template <typename T>
@@ -77,32 +89,35 @@ protected:
 
   //! Protected Members
 
-  //! Pointers to all components attached to the object. The component objects exist in their respective manager singleton objects
-  std::unordered_map<std::type_index, std::shared_ptr<IComponent>> _components;
   //! Functors for deleting components en masse (without knowing type at runtime) uses RemoveComponentInternal
   std::unordered_map<std::type_index, std::function<void()>> _deleteComponent;
   //! This entity ID (and order of creation)
-  int _creationId;
+  EntityID _id;
 
 };
 
 //______________________________________________________________________________
 template <typename T>
-inline std::shared_ptr<T> Entity::GetComponent()
+inline T* Entity::GetComponent()
 {
-  if (_components.find(std::type_index(typeid(T))) != _components.end())
-    return std::static_pointer_cast<T>(_components[std::type_index(typeid(T))]);
-  else return std::shared_ptr<T>(nullptr);
+  if(ComponentArray<T>::Get().HasComponent(_id))
+    return &ComponentArray<T>::Get().GetComponent(_id);
+  return nullptr;
 }
 
 //______________________________________________________________________________
 template <typename T>
 inline void Entity::AddComponent()
 {
-  if (_components.find(std::type_index(typeid(T))) == _components.end())
+  if (!ComponentArray<T>::Get().HasComponent(_id))
   {
-    ComponentBitFlag |= ComponentTraits<T>::GetSignature();
-    _components.insert(std::make_pair(std::type_index(typeid(T)), ComponentManager<T>::Get().Create(std::shared_ptr<Entity>(shared_from_this()))));
+    ComponentArray<T>::Get().Insert(_id, T());
+
+    auto signature = GetSignature();
+    signature |= ComponentTraits<T>::GetSignature();
+    EntityManager::Get().SetSignature(_id, signature);
+
+    // add to special deleter list
     _deleteComponent.insert(std::make_pair(std::type_index(typeid(T)), [this]() { RemoveComponentInternal<T>(); }));
 
     // see if this needs to be added to the system
@@ -114,10 +129,25 @@ inline void Entity::AddComponent()
 template <typename T>
 inline void Entity::AddComponent(const ComponentInitParams<T>& initParams)
 {
-  AddComponent<T>();
-  if (_components.find(std::type_index(typeid(T))) != _components.end())
+  if (!ComponentArray<T>::Get().HasComponent(_id))
   {
-    ComponentInitParams<T>::Init(*std::dynamic_pointer_cast<T, IComponent>(_components[std::type_index(typeid(T))]), initParams);
+    ComponentArray<T>::Get().Insert(_id, T());
+    ComponentInitParams<T>::Init(ComponentArray<T>::Get().GetComponent(_id), initParams);
+
+    auto signature = GetSignature();
+    signature |= ComponentTraits<T>::GetSignature();
+    EntityManager::Get().SetSignature(_id, signature);
+
+    // add to special deleter list
+    _deleteComponent.insert(std::make_pair(std::type_index(typeid(T)), [this]() { RemoveComponentInternal<T>(); }));
+
+    // see if this needs to be added to the system
+    CheckAgainstSystems(this);
+  }
+  else
+  {
+    // if already exists in component array, reinit
+    ComponentInitParams<T>::Init(*GetComponent<T>(), initParams);
   }
 }
 
@@ -137,14 +167,17 @@ inline void Entity::AddComponents()
 template <typename T>
 inline void Entity::RemoveComponent()
 {
-  if (_components.find(std::type_index(typeid(T))) != _components.end())
+  if (ComponentArray<T>::Get().HasComponent(_id))
   {
-    ComponentBitFlag &= ~ComponentTraits<T>::GetSignature();
-    ComponentManager<T>::Get().Erase(GetComponent<T>());
-    _components.erase(std::type_index(typeid(T)));
+    ComponentArray<T>::Get().Remove(_id);
+
+    auto signature = GetSignature();
+    signature &= ~ComponentTraits<T>::GetSignature();
+    EntityManager::Get().SetSignature(_id, signature);
+
+    // remove from special deleter list
     _deleteComponent.erase(std::type_index(typeid(T)));
 
-    // see if this needs to be added to the system
     CheckAgainstSystems(this);
   }
 }
@@ -164,10 +197,10 @@ inline void Entity::RemoveComponents()
 
 //______________________________________________________________________________
 template <typename ... T>
-inline std::tuple<std::add_pointer_t<T>...> Entity::MakeComponentTuple()
+inline std::tuple<T&...> Entity::MakeComponentTuple()
 {
-  std::tuple<std::add_pointer_t<T>...> tuple;
-  (SetPointerElement<T>(std::get<T*>(tuple)), ...);
+  std::tuple<T&...> tuple;
+  (GetComponentElement<T>(ComponentArray<T&>(tuple)), ...);
   return tuple;
 }
 
@@ -175,11 +208,13 @@ inline std::tuple<std::add_pointer_t<T>...> Entity::MakeComponentTuple()
 template <typename T>
 inline void Entity::RemoveComponentInternal()
 {
-  if (_components.find(std::type_index(typeid(T))) != _components.end())
+  if (ComponentArray<T>::Get().HasComponent(_id))
   {
-    ComponentBitFlag &= ~ComponentTraits<T>::GetSignature();
-    ComponentManager<T>::Get().Erase(GetComponent<T>());
-    _components.erase(std::type_index(typeid(T)));
+    ComponentArray<T>::Get().Remove(_id);
+
+    auto signature = GetSignature();
+    signature &= ~ComponentTraits<T>::GetSignature();
+    EntityManager::Get().SetSignature(_id, signature);
   }
 }
 
@@ -187,10 +222,15 @@ inline void Entity::RemoveComponentInternal()
 template <typename T>
 inline void Entity::AddComponentNoSystemCheck()
 {
-  if (_components.find(std::type_index(typeid(T))) == _components.end())
+  if (!ComponentArray<T>::Get().HasComponent(_id))
   {
-    ComponentBitFlag |= ComponentTraits<T>::GetSignature();
-    _components.insert(std::make_pair(std::type_index(typeid(T)), ComponentManager<T>::Get().Create(std::shared_ptr<Entity>(shared_from_this()))));
+    ComponentArray<T>::Get().Insert(_id, T());
+
+    auto signature = GetSignature();
+    signature |= ComponentTraits<T>::GetSignature();
+    EntityManager::Get().SetSignature(_id, signature);
+
+    // add to special deleter list
     _deleteComponent.insert(std::make_pair(std::type_index(typeid(T)), [this]() { RemoveComponentInternal<T>(); }));
   }
 }
@@ -199,11 +239,15 @@ inline void Entity::AddComponentNoSystemCheck()
 template <typename T>
 inline void Entity::RemoveComponentNoSystemCheck()
 {
-  if (_components.find(std::type_index(typeid(T))) != _components.end())
+  if (ComponentArray<T>::Get().HasComponent(_id))
   {
-    ComponentBitFlag &= ~ComponentTraits<T>::GetSignature();
-    ComponentManager<T>::Get().Erase(GetComponent<T>());
-    _components.erase(std::type_index(typeid(T)));
+    ComponentArray<T>::Get().Remove(_id);
+
+    auto signature = GetSignature();
+    signature &= ~ComponentTraits<T>::GetSignature();
+    EntityManager::Get().SetSignature(_id, signature);
+
+    // remove from special deleter list
     _deleteComponent.erase(std::type_index(typeid(T)));
   }
 }

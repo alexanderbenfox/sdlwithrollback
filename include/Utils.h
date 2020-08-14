@@ -287,3 +287,59 @@ inline void hash_combine(std::size_t& seed, const T& v)
   std::hash<T> hasher;
   seed ^= hasher(v) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
 }
+
+#include <functional>
+//! Defer code
+class ScopeGuard {
+public:
+  ScopeGuard() : fn_(nullptr) {}
+
+  template<class Callable>
+  ScopeGuard(Callable&& fn) : fn_(std::forward<Callable>(fn))
+  {
+    set = true;
+  }
+
+  ScopeGuard(ScopeGuard&& other) noexcept : fn_(std::move(other.fn_))
+  {
+    other.fn_ = nullptr;
+  }
+
+  ~ScopeGuard() {
+    // must not throw
+    if (fn_) fn_();
+  }
+
+  ScopeGuard(const ScopeGuard&) = delete;
+  void operator=(const ScopeGuard&) = delete;
+
+private:
+  std::function<void()> fn_;
+  bool set = false;
+};
+
+#define CONCAT_(a, b) a ## b
+#define CONCAT(a, b) CONCAT_(a,b)
+#define CDEFER(fn) ScopeGuard CONCAT(__defer__, __LINE__) = [&] ( ) { fn ; }
+
+struct DeferredFn
+{
+  static std::list<ScopeGuard> List;
+};
+
+struct DeferScopeGuard
+{
+  DeferScopeGuard() = default;
+  ~DeferScopeGuard() { DeferredFn::List.clear(); }
+};
+
+#define DEPAREN(X) ESC(ISH X)
+#define ISH(...) ISH __VA_ARGS__
+#define ESC(...) ESC_(__VA_ARGS__)
+#define ESC_(...) VAN ## __VA_ARGS__
+#define VANISH
+
+#define defer(capture, code) DeferredFn::List.emplace_back(CONCAT([DEPAREN(capture)](), { code ; }));
+
+//#include "common.h"
+//#define defer(code) KJ_DEFER(code)

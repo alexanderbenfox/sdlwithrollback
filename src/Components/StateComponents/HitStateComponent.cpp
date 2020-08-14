@@ -3,26 +3,26 @@
 #include "Components/RenderComponent.h"
 #include "Entity.h"
 
-HitStateComponent::HitStateComponent(std::shared_ptr<Entity> owner) :
-_linkedTimer(nullptr), IComponent(owner)
+HitStateComponent::HitStateComponent() :
+_linkedTimer(nullptr), IComponent()
 {
 }
 
-HitStateComponent::~HitStateComponent()
+void HitStateComponent::OnRemove(const EntityID& entity)
 {
-  if (auto properties = _owner->GetComponent<RenderProperties>())
+  if (ComponentArray<RenderProperties>::Get().HasComponent(entity))
   {
     //reset color back to white in case stuck in frame advantage
-    properties->SetDisplayColor(255, 255, 255);
+    ComponentArray<RenderProperties>::Get().GetComponent(entity).SetDisplayColor(255, 255, 255);
   }
 }
 
-void HitStateComponent::SetTimer(ActionTimer* timer)
+void HitStateComponent::SetTimer(TimedActionComponent* timer)
 {
   _linkedTimer = timer;
 }
 
 int HitStateComponent::GetRemainingFrames()
 {
-  return _linkedTimer->Duration() - _linkedTimer->currFrame;
+  return _linkedTimer->totalFrames - _linkedTimer->currFrame;
 }

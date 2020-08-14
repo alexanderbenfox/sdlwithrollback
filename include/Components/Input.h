@@ -16,10 +16,10 @@ enum class InputType : int
 
 //______________________________________________________________________________
 //!
-class GameInputComponent : public IComponent, public DebugItem
+class GameInputComponent : public IDebugComponent
 {
 public:
-  GameInputComponent(std::shared_ptr<Entity> owner) : IComponent(owner), DebugItem("Input Handler") {}
+  GameInputComponent() : IDebugComponent("Input Handler") {}
   //! Assign this component to use a certain handler type
   void AssignHandler(InputType type);
   //! Handler interprets latest raw input and returns it

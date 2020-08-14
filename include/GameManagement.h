@@ -41,6 +41,9 @@ public:
   void DebugDraws();
 
   void DestroyEntity(std::shared_ptr<Entity> entity);
+  void DestroyEntity(const EntityID& entity);
+
+  std::shared_ptr<Entity> GetEntity(const EntityID& entity) { return _gameEntities[entity]; }
 
   
 
@@ -57,21 +60,6 @@ public:
   {
     _endOfFrameQueue.push_back(function);
   }
-
-  //! Schedules some functor to be ran on request
-  void ScheduleTask(std::function<void()> function)
-  {
-    _scheduledTasks.push_back(function);
-  }
-
-  void RunScheduledTasks()
-  {
-    for (auto& func : _scheduledTasks)
-      func();
-    _scheduledTasks.clear();
-  }
-  
-
 
 private:
   void ChangeScene(SceneType scene);
@@ -97,7 +85,7 @@ private:
   //
   bool _sceneChangeRequested = false;
   //
-  std::vector<std::function<void()>> _onSceneChangeFunctionQueue, _endOfFrameQueue, _scheduledTasks;
+  std::vector<std::function<void()>> _onSceneChangeFunctionQueue, _endOfFrameQueue;
   
 
   //______________________________________________________________________________
@@ -109,7 +97,7 @@ private:
   template <typename T = IComponent, typename ... Rest>
   static auto ComponentExistsOnEntity(Entity* entity);// -> std::enable_if_t<!std::is_void<T>::value>;
   //! All entities in the scene
-  std::vector<std::shared_ptr<Entity>> _gameEntities;
+  std::unordered_map<EntityID, std::shared_ptr<Entity>> _gameEntities;
   std::shared_ptr<Entity> _p1, _p2;
   //______________________________________________________________________________
   //!
@@ -149,11 +137,9 @@ inline auto GameManager::ComponentExistsOnEntity(Entity* entity)
 template <class ... Args>
 inline std::shared_ptr<Entity> GameManager::CreateEntity()
 {
-  _gameEntities.push_back(std::make_shared<Entity>());
-  auto newEntity = _gameEntities.back();
-  AddComponentToEntity<Args...>(newEntity.get());
-    // this is just a test... will be moved later
-  CheckAgainstSystems(newEntity.get());
+  auto entityPtr = std::make_shared<Entity>();
+  _gameEntities[entityPtr->GetID()] = entityPtr;
 
-  return newEntity;
+  AddComponentToEntity<Args...>(_gameEntities[entityPtr->GetID()].get());
+  return entityPtr;
 }

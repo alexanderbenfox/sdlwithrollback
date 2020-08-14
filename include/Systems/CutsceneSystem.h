@@ -8,24 +8,24 @@ public:
   static void DoTick(float dt)
   {
     bool scenePlaying = false;
-    for(auto tuple : Tuples)
+    for(const EntityID& entity : Registered)
     {
-      CutsceneActor* actor = std::get<CutsceneActor*>(tuple.second);
-      Animator* animator = std::get<Animator*>(tuple.second);
-      RenderComponent<RenderType>* renderer = std::get<RenderComponent<RenderType>*>(tuple.second);
-      RenderProperties* properties = std::get<RenderProperties*>(tuple.second);
+      CutsceneActor& actor = ComponentArray<CutsceneActor>::Get().GetComponent(entity);
+      Animator& animator = ComponentArray<Animator>::Get().GetComponent(entity);
+      RenderComponent<RenderType>& renderer = ComponentArray<RenderComponent<RenderType>>::Get().GetComponent(entity);
+      RenderProperties& properties = ComponentArray<RenderProperties>::Get().GetComponent(entity);
 
       CutsceneAction* action = nullptr;
       //check if actor has started yet
-      if(!actor->started)
+      if(!actor.started)
       {
-        action = actor->ActionListPop();
+        action = actor.ActionListPop();
         if(action)
-          action->Begin(animator, renderer, properties);
+          action->Begin(&animator, &renderer, &properties);
       }
       else
       {
-        action = actor->currentAction;
+        action = actor.currentAction;
       }
       if(action)
       {
@@ -34,16 +34,16 @@ public:
 
         if(action->isWaiting)
         {
-          for(auto other : Tuples)
+          for(const EntityID& other : Registered)
           {
-            if(other != tuple)
+            if(other != entity)
             {
-              if(action->CheckEndConditions(std::get<CutsceneActor*>(other.second)))
+              if(action->CheckEndConditions(&ComponentArray<CutsceneActor>::Get().GetComponent(other)))
               {
                 action->OnComplete();
-                action = actor->ActionListPop();
+                action = actor.ActionListPop();
                 if(action)
-                  action->Begin(animator, renderer, properties);
+                  action->Begin(&animator, &renderer, &properties);
               }
             }
           }
@@ -53,9 +53,9 @@ public:
           if(action->CheckEndConditions())
           {
             action->OnComplete();
-            action = actor->ActionListPop();
+            action = actor.ActionListPop();
             if(action)
-              action->Begin(animator, renderer, properties);
+              action->Begin(&animator, &renderer, &properties);
           }
         }
       }
@@ -75,12 +75,12 @@ class CutsceneMovementSystem : public ISystem<Rigidbody>
 public:
   static void DoTick(float dt)
   {
-    for(auto tuple : Tuples)
+    for(const EntityID& entity : Registered)
     {
-      Rigidbody* rb = std::get<Rigidbody*>(tuple.second);
-      if(rb->_lastCollisionSide == CollisionSide::DOWN)
+      Rigidbody& rb = ComponentArray<Rigidbody>::Get().GetComponent(entity);
+      if(rb._lastCollisionSide == CollisionSide::DOWN)
       {
-        rb->_vel = Vector2<float>::Zero;
+        rb._vel = Vector2<float>::Zero;
       }
     }
   }
