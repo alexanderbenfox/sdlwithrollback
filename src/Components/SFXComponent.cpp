@@ -1,5 +1,5 @@
 #include "Components/SFXComponent.h"
-#include "GameManagement.h"
+#include "Managers/GameManagement.h"
 #include "Components/TimerContainer.h"
 
 static AnimationCollection HitSFXAnimationCollection;

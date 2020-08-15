@@ -2,7 +2,7 @@
 #include "Components/Hitbox.h"
 #include "Components/Hurtbox.h"
 #include "Components/Rigidbody.h"
-#include "GameManagement.h"
+#include "Managers/GameManagement.h"
 
 #include "Systems/DestroyEntitiesSystem.h"
 

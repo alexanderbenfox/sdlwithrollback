@@ -1,8 +1,7 @@
 #include "AssetManagement/Resource.h"
 
-#include "Entity.h"
-#include "GameManagement.h"
-#include "ResourceManager.h"
+#include "Core/ECS/Entity.h"
+#include "Core/Math/Vector2.h"
 
 #include "Components/StateComponent.h"
 #include "Components/Animator.h"
@@ -12,11 +11,15 @@
 #include "Components/RenderComponent.h"
 #include "Components/UIComponents.h"
 #include "Components/Actors/GameActor.h"
-#include "Core/Math/Vector2.h"
+
+#include "Managers/GameManagement.h"
+#include "Managers/ResourceManager.h"
 
 #include <cassert>
 
 #include "Components/ActionComponents.h"
+
+#include "DebugGUI/GUIController.h"
 
 //______________________________________________________________________________
 WallPushComponent::WallPushComponent() : IComponent() {}
@@ -70,6 +73,20 @@ void Camera::Init(int w, int h)
   rect.y = 0;
   rect.w = w;
   rect.h = h;
+}
+
+//______________________________________________________________________________
+void Camera::OnDebug()
+{
+  std::string name = "Camera P" + std::to_string(entityID);
+  if (ImGui::CollapsingHeader(name.c_str()))
+  {
+    ImGui::InputFloat("Zoom level", &zoom, 0.1f, 1.0f, 2);
+
+    ImGui::InputFloat("pos x", &worldMatrixPosition.x, 0.1f, 1.0f, 2);
+    ImGui::InputFloat("pos y", &worldMatrixPosition.y, 0.1f, 1.0f, 2);
+    ImGui::InputFloat("pos z", &worldMatrixPosition.z, 0.1f, 1.0f, 2);
+  }
 }
 
 //______________________________________________________________________________

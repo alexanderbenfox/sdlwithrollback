@@ -1,6 +1,6 @@
 #include "Components/RenderComponent.h"
 #include "Components/UIComponents.h"
-#include "GameManagement.h"
+#include "Managers/GameManagement.h"
 
 TextRenderer::TextRenderer() : _resource(nullptr), _currentText(""), IComponent() {}
 

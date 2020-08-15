@@ -1,5 +1,5 @@
 #include "AssetManagement/Resource.h"
-#include "GameManagement.h"
+#include "Managers/GameManagement.h"
 
 #include <SDL2/SDL.h>
 

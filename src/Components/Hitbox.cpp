@@ -1,7 +1,7 @@
 #include "Components/Hitbox.h"
 #include "Components/Hurtbox.h"
 #include "Components/StateComponent.h"
-#include "GameManagement.h"
+#include "Managers/GameManagement.h"
 
 void TransferDataBox::Init(const FrameData& frameData)
 {

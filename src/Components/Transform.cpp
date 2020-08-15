@@ -1,5 +1,5 @@
 #include "Components/Transform.h"
-#include "GameManagement.h"
+#include "Managers/GameManagement.h"
 
 Transform::Transform() :
   position(Vector2<float>(0.0f, 0.0f)),

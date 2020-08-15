@@ -1,6 +1,6 @@
 #include "GameState/Scene.h"
-#include "GameManagement.h"
-#include "ResourceManager.h"
+#include "Managers/GameManagement.h"
+#include "Managers/ResourceManager.h"
 
 #include "Systems/UISystem.h"
 #include "Systems/MoveSystem.h"

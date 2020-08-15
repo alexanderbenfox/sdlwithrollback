@@ -1,8 +1,9 @@
 #include "Components/Input.h"
 #include "Components/AIPrograms/Defend.h"
-#include "Entity.h"
+#include "Core/ECS/Entity.h"
 
-#include "GameManagement.h"
+#include "Managers/GameManagement.h"
+#include "DebugGUI/GUIController.h"
 
 //______________________________________________________________________________
 void GameInputComponent::AssignHandler(InputType type)

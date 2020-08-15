@@ -5,67 +5,33 @@
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
-    <Filter Include="Header Files">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
-    </Filter>
     <Filter Include="Resource Files">
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Header Files\AssetManagement">
-      <UniqueIdentifier>{6c1e7bd0-2481-4b03-afea-28f49cb62190}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\AssetManagement">
       <UniqueIdentifier>{8d3adcdd-b59b-4548-a539-74c7daf17186}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Components">
-      <UniqueIdentifier>{d88a5bd5-0064-4703-9b53-8dc3e795fe22}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Components">
       <UniqueIdentifier>{412609cc-e69d-4609-9a12-8fc422c0fa72}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\GameState">
-      <UniqueIdentifier>{f063e62c-d3be-4c16-a13d-55541016b33e}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\GameState">
       <UniqueIdentifier>{13870320-bc90-48d8-94ab-09362b8bc983}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Systems">
-      <UniqueIdentifier>{654c9caa-a963-41b9-a030-24db202c2b71}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Systems">
       <UniqueIdentifier>{c67b749f-5c17-4550-b806-903bec54e0b8}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\DebugGUI">
-      <UniqueIdentifier>{2f6d95fc-3ca4-4327-845f-87bb098ba8c3}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\DebugGUI">
       <UniqueIdentifier>{771c4c91-eeae-4b8a-8d4a-e80a39bc515e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\AssetManagement\StaticAssets">
-      <UniqueIdentifier>{2b286bc1-2c40-4340-8f8c-6a95bd8deb93}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\AssetManagement\StaticAssets">
       <UniqueIdentifier>{d8d3905d-19a5-4f9e-8449-04f967f27ae2}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Rendering">
-      <UniqueIdentifier>{692489a8-09a8-4b84-8e1a-0706b56206f8}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\Rendering">
       <UniqueIdentifier>{0c431a99-f5e1-486f-9e94-142a25e1fd02}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Core">
-      <UniqueIdentifier>{a3adb1b3-59b2-4537-8bdc-127737b76065}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Core\Math">
-      <UniqueIdentifier>{4189bc4e-5443-4fe8-b571-b4144188f36d}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\Core">
       <UniqueIdentifier>{64a3bb1e-f831-4a61-8f65-65c90877aca5}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Core\Geometry2D">
-      <UniqueIdentifier>{24c899b4-1d91-4397-b15d-4d9d00cd7173}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Core\Geometry2D">
       <UniqueIdentifier>{eb3b23a2-bacb-4331-a692-0bd4930a2622}</UniqueIdentifier>
@@ -79,52 +45,46 @@
     <Filter Include="Source Files\Core\Math">
       <UniqueIdentifier>{a1c93834-b4c6-416c-83b7-61637d7d180b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Components\AIPrograms">
-      <UniqueIdentifier>{51a6f393-f5de-4717-b888-eac30eb2ded9}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Components\InputHandlers">
-      <UniqueIdentifier>{dbeaf36c-2207-4851-9c18-8778bc6841b4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Components\StateComponents">
-      <UniqueIdentifier>{8729944e-2c7d-426c-91a0-f5b4e0d00635}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Components\CompDataHandlers">
-      <UniqueIdentifier>{90e3ef4d-539b-4a17-8a59-8860e9e2d42d}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\Components\StateComponents">
       <UniqueIdentifier>{4b99f7fb-ad79-4edf-bdad-bf56374a8834}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Core\Prefab">
-      <UniqueIdentifier>{c8dc1d70-074d-48fe-a2e4-288a149e8e65}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Core\Prefab">
       <UniqueIdentifier>{0987e242-43be-4a09-8e65-674b187c961f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Core\Interfaces">
-      <UniqueIdentifier>{86f76332-ff72-4c25-89e2-e64c07cc2d44}</UniqueIdentifier>
+    <Filter Include="Source Files\Systems\ActionSystems">
+      <UniqueIdentifier>{cea5cb3f-aaac-4dae-9d58-74b3812525cb}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Systems\ActionSystems">
-      <UniqueIdentifier>{7116f5d6-5102-47cf-8b13-f41380f0184e}</UniqueIdentifier>
+    <Filter Include="Source Files\Systems\WallPush">
+      <UniqueIdentifier>{6beaa41f-8bdd-4320-8bed-b3efda7bfdce}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Components\Actors">
-      <UniqueIdentifier>{ae32b962-8ec8-4112-a15a-0a4c48cba7e3}</UniqueIdentifier>
+    <Filter Include="Source Files\Managers">
+      <UniqueIdentifier>{60a5e208-2801-4bae-85a6-be19ed4af4bb}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Systems\WallPush">
-      <UniqueIdentifier>{a6e54fa6-cc08-4691-be9e-7963b56d5633}</UniqueIdentifier>
+    <Filter Include="Source Files\Core\ECS">
+      <UniqueIdentifier>{ad4e8d6c-5e71-4760-bd54-8061fa70f66f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Core\Interfaces">
+      <UniqueIdentifier>{f65bf3dd-038b-437a-9926-126879f50fe9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Components\InputHandlers">
+      <UniqueIdentifier>{55fb53ae-a088-42e8-bb5b-fe2b526448ae}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Components\AIPrograms">
+      <UniqueIdentifier>{4b2beaed-1bac-442a-ad9b-51b9f84c3639}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Components\Actors">
+      <UniqueIdentifier>{f41ea83c-e95c-474e-aede-79d6297e28c1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Components\DebugComponent">
+      <UniqueIdentifier>{1fd958d8-e9bb-44ff-8172-42198b33f376}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\2DEngine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\GameManagement.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\AssetManagement\Resource.cpp">
       <Filter>Source Files\AssetManagement</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\Entity.cpp">
-      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\src\Components\Components.cpp">
       <Filter>Source Files\Components</Filter>
@@ -140,9 +100,6 @@
     </ClCompile>
     <ClCompile Include="..\src\Systems\Physics.cpp">
       <Filter>Source Files\Systems</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\Timer.cpp">
-      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\src\AssetManagement\Text.cpp">
       <Filter>Source Files\AssetManagement</Filter>
@@ -195,9 +152,6 @@
     <ClCompile Include="..\src\Core\Geometry2D\RectHelper.cpp">
       <Filter>Source Files\Core\Geometry2D</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\DebugGUI\DebugItem.cpp">
-      <Filter>Source Files\DebugGUI</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\GameState\StartScene.cpp">
       <Filter>Source Files\GameState</Filter>
     </ClCompile>
@@ -219,12 +173,6 @@
     <ClCompile Include="..\src\Rendering\OpenGLRenderer.cpp">
       <Filter>Source Files\Rendering</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\Components\CompDataHandlers\AIPrograms.cpp">
-      <Filter>Source Files\Components\CompDataHandlers</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\Components\CompDataHandlers\InputHandlers.cpp">
-      <Filter>Source Files\Components\CompDataHandlers</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\Components\StateComponents\AttackStateComponent.cpp">
       <Filter>Source Files\Components\StateComponents</Filter>
     </ClCompile>
@@ -240,101 +188,44 @@
     <ClCompile Include="..\src\Core\Prefab\MenuButtonArray.cpp">
       <Filter>Source Files\Core\Prefab</Filter>
     </ClCompile>
-    <ClCompile Include="..\include\Systems\ActionSystems\ActionHandleInputSystem.cpp">
-      <Filter>Header Files\Systems\ActionSystems</Filter>
-    </ClCompile>
-    <ClCompile Include="..\include\Core\Prefab\ActionFactory.cpp">
-      <Filter>Header Files\Core\Prefab</Filter>
-    </ClCompile>
-    <ClCompile Include="..\include\Systems\WallPush\WallPushSystem.cpp">
-      <Filter>Header Files\Systems\WallPush</Filter>
-    </ClCompile>
-    <ClCompile Include="..\include\Globals.cpp">
-      <Filter>Header Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\Utils.cpp">
+    <ClCompile Include="..\src\Globals.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Systems\ActionSystems\ActionHandleInputSystem.cpp">
+      <Filter>Source Files\Systems\ActionSystems</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Systems\WallPush\WallPushSystem.cpp">
+      <Filter>Source Files\Systems\WallPush</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Managers\GameManagement.cpp">
+      <Filter>Source Files\Managers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Core\Utils.cpp">
+      <Filter>Source Files\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Core\Timer.cpp">
+      <Filter>Source Files\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Core\Prefab\ActionFactory.cpp">
+      <Filter>Source Files\Core\Prefab</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Core\ECS\Entity.cpp">
+      <Filter>Source Files\Core\ECS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Components\InputHandlers\InputHandlers.cpp">
+      <Filter>Source Files\Components\InputHandlers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Components\AIPrograms\AIPrograms.cpp">
+      <Filter>Source Files\Components\AIPrograms</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Components\DebugComponent\DebugComponent.cpp">
+      <Filter>Source Files\Components\DebugComponent</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Core\ECS\EntityManager.cpp">
+      <Filter>Source Files\Core\ECS</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\include\AssetManagement\Resource.h">
-      <Filter>Header Files\AssetManagement</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\GameManagement.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\Timer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\Entity.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\Components\Camera.h">
-      <Filter>Header Files\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\Components\Collider.h">
-      <Filter>Header Files\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\Components\IComponent.h">
-      <Filter>Header Files\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\ResourceManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\Utils.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\GameState\GameState.h">
-      <Filter>Header Files\GameState</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\GameState\GGPOGameState.h">
-      <Filter>Header Files\GameState</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\Components\Animator.h">
-      <Filter>Header Files\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\Components\Input.h">
-      <Filter>Header Files\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\Components\Rigidbody.h">
-      <Filter>Header Files\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\Components\Transform.h">
-      <Filter>Header Files\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\Systems\ISystem.h">
-      <Filter>Header Files\Systems</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\Systems\MoveSystem.h">
-      <Filter>Header Files\Systems</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\Systems\Physics.h">
-      <Filter>Header Files\Systems</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\Systems\InputSystem.h">
-      <Filter>Header Files\Systems</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\Systems\AnimationSystem.h">
-      <Filter>Header Files\Systems</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\Systems\HitSystem.h">
-      <Filter>Header Files\Systems</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\Components\Hitbox.h">
-      <Filter>Header Files\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\Systems\TimerSystem.h">
-      <Filter>Header Files\Systems</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\AssetManagement\Text.h">
-      <Filter>Header Files\AssetManagement</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\AssetManagement\Animation.h">
-      <Filter>Header Files\AssetManagement</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\AssetManagement\BlitOperation.h">
-      <Filter>Header Files\AssetManagement</Filter>
-    </ClInclude>
     <ClInclude Include="..\imgui\imconfig.h">
       <Filter>External</Filter>
     </ClInclude>
@@ -365,170 +256,257 @@
     <ClInclude Include="..\imgui\impl\imgui_impl_sdl.h">
       <Filter>External\impl</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\DebugGUI\GUIController.h">
-      <Filter>Header Files\DebugGUI</Filter>
+    <ClInclude Include="..\src\ActionTimer.h">
+      <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\AssetManagement\StaticAssets\CharacterConfig.h">
-      <Filter>Header Files\AssetManagement\StaticAssets</Filter>
+    <ClInclude Include="..\src\Globals.h">
+      <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\GameState\Scene.h">
-      <Filter>Header Files\GameState</Filter>
+    <ClInclude Include="..\src\Systems\AISystem.h">
+      <Filter>Source Files\Systems</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\AssetManagement\StaticAssets\StaticAssetUtils.h">
-      <Filter>Header Files\AssetManagement\StaticAssets</Filter>
+    <ClInclude Include="..\src\Systems\AnimationSystem.h">
+      <Filter>Source Files\Systems</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\Components\StateComponent.h">
-      <Filter>Header Files\Components</Filter>
+    <ClInclude Include="..\src\Systems\CheckBattleEndSystem.h">
+      <Filter>Source Files\Systems</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\Rendering\GLTexture.h">
-      <Filter>Header Files\Rendering</Filter>
+    <ClInclude Include="..\src\Systems\CutsceneSystem.h">
+      <Filter>Source Files\Systems</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\Systems\DrawCallSystems.h">
-      <Filter>Header Files\Systems</Filter>
+    <ClInclude Include="..\src\Systems\DestroyEntitiesSystem.h">
+      <Filter>Source Files\Systems</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\Rendering\Shader.h">
-      <Filter>Header Files\Rendering</Filter>
+    <ClInclude Include="..\src\Systems\DrawCallSystems.h">
+      <Filter>Source Files\Systems</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\Core\Math\Vector2.h">
-      <Filter>Header Files\Core\Math</Filter>
+    <ClInclude Include="..\src\Systems\HitSystem.h">
+      <Filter>Source Files\Systems</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\Core\Math\Vector3.h">
-      <Filter>Header Files\Core\Math</Filter>
+    <ClInclude Include="..\src\Systems\InputSystem.h">
+      <Filter>Source Files\Systems</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\Core\Geometry2D\RectHelper.h">
-      <Filter>Header Files\Core\Geometry2D</Filter>
+    <ClInclude Include="..\src\Systems\MenuSystem.h">
+      <Filter>Source Files\Systems</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\Core\Geometry2D\Rect.h">
-      <Filter>Header Files\Core\Geometry2D</Filter>
+    <ClInclude Include="..\src\Systems\MoveSystem.h">
+      <Filter>Source Files\Systems</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\Core\Math\Matrix4.h">
-      <Filter>Header Files\Core\Math</Filter>
+    <ClInclude Include="..\src\Systems\Physics.h">
+      <Filter>Source Files\Systems</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\Components\Hurtbox.h">
-      <Filter>Header Files\Components</Filter>
+    <ClInclude Include="..\src\Systems\TimerSystem.h">
+      <Filter>Source Files\Systems</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\Systems\CheckBattleEndSystem.h">
-      <Filter>Header Files\Systems</Filter>
+    <ClInclude Include="..\src\Systems\UISystem.h">
+      <Filter>Source Files\Systems</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\Systems\CutsceneSystem.h">
-      <Filter>Header Files\Systems</Filter>
+    <ClInclude Include="..\src\Systems\ActionSystems\ActionHandleInputSystem.h">
+      <Filter>Source Files\Systems\ActionSystems</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\Systems\UISystem.h">
-      <Filter>Header Files\Systems</Filter>
+    <ClInclude Include="..\src\Systems\ActionSystems\ActionListenerSystem.h">
+      <Filter>Source Files\Systems\ActionSystems</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\Components\UIComponents.h">
-      <Filter>Header Files\Components</Filter>
+    <ClInclude Include="..\src\Systems\ActionSystems\EnactActionSystem.h">
+      <Filter>Source Files\Systems\ActionSystems</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\AssetManagement\StaticAssets\AnimationAssetData.h">
-      <Filter>Header Files\AssetManagement\StaticAssets</Filter>
+    <ClInclude Include="..\src\Systems\WallPush\WallPushSystem.h">
+      <Filter>Source Files\Systems\WallPush</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\AssetManagement\AnimationEvent.h">
-      <Filter>Header Files\AssetManagement</Filter>
+    <ClInclude Include="..\src\Rendering\Shader.h">
+      <Filter>Source Files\Rendering</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\Core\Math\Matrix.h">
-      <Filter>Header Files\Core\Math</Filter>
+    <ClInclude Include="..\src\Rendering\GLTexture.h">
+      <Filter>Source Files\Rendering</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\Rendering\OpenGLRenderer.h">
-      <Filter>Header Files\Rendering</Filter>
+    <ClInclude Include="..\src\Rendering\OpenGLRenderer.h">
+      <Filter>Source Files\Rendering</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\Systems\AISystem.h">
-      <Filter>Header Files\Systems</Filter>
+    <ClInclude Include="..\src\Rendering\RenderManager.h">
+      <Filter>Source Files\Rendering</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\Components\AIComponent.h">
-      <Filter>Header Files\Components</Filter>
+    <ClInclude Include="..\src\Managers\GameManagement.h">
+      <Filter>Source Files\Managers</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\Components\AIPrograms\Defend.h">
-      <Filter>Header Files\Components\AIPrograms</Filter>
+    <ClInclude Include="..\src\Managers\ResourceManager.h">
+      <Filter>Source Files\Managers</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\Components\AIPrograms\IAIProgram.h">
-      <Filter>Header Files\Components\AIPrograms</Filter>
+    <ClInclude Include="..\src\GameState\Scene.h">
+      <Filter>Source Files\GameState</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\Components\InputHandlers\AIInputHandler.h">
-      <Filter>Header Files\Components\InputHandlers</Filter>
+    <ClInclude Include="..\src\GameState\GameState.h">
+      <Filter>Source Files\GameState</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\Components\InputHandlers\GamepadInputHandler.h">
-      <Filter>Header Files\Components\InputHandlers</Filter>
+    <ClInclude Include="..\src\GameState\GGPOGameState.h">
+      <Filter>Source Files\GameState</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\Components\InputHandlers\IInputHandler.h">
-      <Filter>Header Files\Components\InputHandlers</Filter>
+    <ClInclude Include="..\src\DebugGUI\GUIController.h">
+      <Filter>Source Files\DebugGUI</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\Components\InputHandlers\InputBuffer.h">
-      <Filter>Header Files\Components\InputHandlers</Filter>
+    <ClInclude Include="..\src\Core\Timer.h">
+      <Filter>Source Files\Core</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\Components\InputHandlers\JoystickInputHandler.h">
-      <Filter>Header Files\Components\InputHandlers</Filter>
+    <ClInclude Include="..\src\Core\Utils.h">
+      <Filter>Source Files\Core</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\Components\InputHandlers\KeyboardHandler.h">
-      <Filter>Header Files\Components\InputHandlers</Filter>
+    <ClInclude Include="..\src\Core\Prefab\ActionFactory.h">
+      <Filter>Source Files\Core\Prefab</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\Components\StateComponents\AttackStateComponent.h">
-      <Filter>Header Files\Components\StateComponents</Filter>
+    <ClInclude Include="..\src\Core\Prefab\MenuButtonArray.h">
+      <Filter>Source Files\Core\Prefab</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\Components\StateComponents\HitStateComponent.h">
-      <Filter>Header Files\Components\StateComponents</Filter>
+    <ClInclude Include="..\src\Core\Interfaces\AnimatorListener.h">
+      <Filter>Source Files\Core\Interfaces</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\Components\SFXComponent.h">
-      <Filter>Header Files\Components</Filter>
+    <ClInclude Include="..\src\Core\Interfaces\Serializable.h">
+      <Filter>Source Files\Core\Interfaces</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\Systems\DestroyEntitiesSystem.h">
-      <Filter>Header Files\Systems</Filter>
+    <ClInclude Include="..\src\Core\ECS\ComponentIDGenerator.h">
+      <Filter>Source Files\Core\ECS</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\Systems\MenuSystem.h">
-      <Filter>Header Files\Systems</Filter>
+    <ClInclude Include="..\src\Core\ECS\Entity.h">
+      <Filter>Source Files\Core\ECS</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\Core\Prefab\MenuButtonArray.h">
-      <Filter>Header Files\Core\Prefab</Filter>
+    <ClInclude Include="..\src\Core\ECS\EntityManager.h">
+      <Filter>Source Files\Core\ECS</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\Components\TimerContainer.h">
-      <Filter>Header Files\Components</Filter>
+    <ClInclude Include="..\src\Core\ECS\ComponentArray.h">
+      <Filter>Source Files\Core\ECS</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\Core\Interfaces\Serializable.h">
-      <Filter>Header Files\Core\Interfaces</Filter>
+    <ClInclude Include="..\src\Core\Math\Vector2.h">
+      <Filter>Source Files\Core\Math</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\Components\ActionComponents.h">
-      <Filter>Header Files\Components</Filter>
+    <ClInclude Include="..\src\Core\Math\Vector3.h">
+      <Filter>Source Files\Core\Math</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\Systems\ActionSystems\ActionListenerSystem.h">
-      <Filter>Header Files\Systems\ActionSystems</Filter>
+    <ClInclude Include="..\src\Core\Math\Matrix.h">
+      <Filter>Source Files\Core\Math</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\Systems\ActionSystems\ActionHandleInputSystem.h">
-      <Filter>Header Files\Systems\ActionSystems</Filter>
+    <ClInclude Include="..\src\Core\Math\Matrix4.h">
+      <Filter>Source Files\Core\Math</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\Core\Prefab\ActionFactory.h">
-      <Filter>Header Files\Core\Prefab</Filter>
+    <ClInclude Include="..\src\Core\Geometry2D\RectHelper.h">
+      <Filter>Source Files\Core\Geometry2D</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\Systems\ActionSystems\EnactActionSystem.h">
-      <Filter>Header Files\Systems\ActionSystems</Filter>
+    <ClInclude Include="..\src\Core\Geometry2D\Rect.h">
+      <Filter>Source Files\Core\Geometry2D</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\Components\Actors\CutsceneActor.h">
-      <Filter>Header Files\Components\Actors</Filter>
+    <ClInclude Include="..\src\Components\RenderComponent.h">
+      <Filter>Source Files\Components</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\Components\Actors\GameActor.h">
-      <Filter>Header Files\Components\Actors</Filter>
+    <ClInclude Include="..\src\Components\Rigidbody.h">
+      <Filter>Source Files\Components</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\Systems\WallPush\WallPushSystem.h">
-      <Filter>Header Files\Systems\WallPush</Filter>
+    <ClInclude Include="..\src\Components\SFXComponent.h">
+      <Filter>Source Files\Components</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\Globals.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="..\src\Components\StateComponent.h">
+      <Filter>Source Files\Components</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\Components\ComponentIDGenerator.h">
-      <Filter>Header Files\Components</Filter>
+    <ClInclude Include="..\src\Components\TimerContainer.h">
+      <Filter>Source Files\Components</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\ActionTimer.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="..\src\Components\Transform.h">
+      <Filter>Source Files\Components</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\Core\Interfaces\AnimatorListener.h">
-      <Filter>Header Files\Core\Interfaces</Filter>
+    <ClInclude Include="..\src\Components\UIComponents.h">
+      <Filter>Source Files\Components</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\EntityManager.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="..\src\Components\ActionComponents.h">
+      <Filter>Source Files\Components</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\Components\ComponentArray.h">
-      <Filter>Header Files\Components</Filter>
+    <ClInclude Include="..\src\Components\AIComponent.h">
+      <Filter>Source Files\Components</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\DebugGUI\DebugItem.h">
-      <Filter>Header Files\DebugGUI</Filter>
+    <ClInclude Include="..\src\Components\Animator.h">
+      <Filter>Source Files\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Components\Camera.h">
+      <Filter>Source Files\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Components\Collider.h">
+      <Filter>Source Files\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Components\Hitbox.h">
+      <Filter>Source Files\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Components\Hurtbox.h">
+      <Filter>Source Files\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Components\Input.h">
+      <Filter>Source Files\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Components\StateComponents\AttackStateComponent.h">
+      <Filter>Source Files\Components\StateComponents</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Components\StateComponents\HitStateComponent.h">
+      <Filter>Source Files\Components\StateComponents</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Components\InputHandlers\JoystickInputHandler.h">
+      <Filter>Source Files\Components\InputHandlers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Components\InputHandlers\KeyboardHandler.h">
+      <Filter>Source Files\Components\InputHandlers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Components\InputHandlers\AIInputHandler.h">
+      <Filter>Source Files\Components\InputHandlers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Components\InputHandlers\GamepadInputHandler.h">
+      <Filter>Source Files\Components\InputHandlers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Components\InputHandlers\IInputHandler.h">
+      <Filter>Source Files\Components\InputHandlers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Components\InputHandlers\InputBuffer.h">
+      <Filter>Source Files\Components\InputHandlers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Components\AIPrograms\Defend.h">
+      <Filter>Source Files\Components\AIPrograms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Components\AIPrograms\IAIProgram.h">
+      <Filter>Source Files\Components\AIPrograms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Components\Actors\CutsceneActor.h">
+      <Filter>Source Files\Components\Actors</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Components\Actors\GameActor.h">
+      <Filter>Source Files\Components\Actors</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\AssetManagement\AnimationEvent.h">
+      <Filter>Source Files\AssetManagement</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\AssetManagement\BlitOperation.h">
+      <Filter>Source Files\AssetManagement</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\AssetManagement\LetterCase.h">
+      <Filter>Source Files\AssetManagement</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\AssetManagement\Resource.h">
+      <Filter>Source Files\AssetManagement</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\AssetManagement\Text.h">
+      <Filter>Source Files\AssetManagement</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\AssetManagement\Animation.h">
+      <Filter>Source Files\AssetManagement</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\AssetManagement\StaticAssets\StaticAssetUtils.h">
+      <Filter>Source Files\AssetManagement\StaticAssets</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\AssetManagement\StaticAssets\AnimationAssetData.h">
+      <Filter>Source Files\AssetManagement\StaticAssets</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\AssetManagement\StaticAssets\CharacterConfig.h">
+      <Filter>Source Files\AssetManagement\StaticAssets</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Components\DebugComponent\DebugComponent.h">
+      <Filter>Source Files\Components\DebugComponent</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Core\ECS\IComponent.h">
+      <Filter>Source Files\Core\ECS</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Core\ECS\ISystem.h">
+      <Filter>Source Files\Core\ECS</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -536,15 +514,6 @@
     <None Include="..\imgui\impl\imgui_impl_osx.mm">
       <Filter>External\impl</Filter>
     </None>
-    <ClInclude Include="..\include\AssetManagement\LetterCase.h">
-      <Filter>Header Files\AssetManagement</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\Rendering\RenderManager.h">
-      <Filter>Header Files\Rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\Components\RenderComponent.h">
-      <Filter>Header Files\Components</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

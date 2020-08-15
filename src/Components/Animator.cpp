@@ -1,7 +1,8 @@
-#include "Entity.h"
+#include "Core/ECS/Entity.h"
+#include "Managers/ResourceManager.h"
 #include "Components/Animator.h"
 #include "Components/Collider.h"
-#include "ResourceManager.h"
+
 
 Animator::Animator() :
   _listener(nullptr), playing(false), looping(false), accumulatedTime(0.0f), frame(0), currentAnimationName(""), IComponent()

@@ -1,5 +1,5 @@
 #include "GameState/Scene.h"
-#include "GameManagement.h"
+#include "Managers/GameManagement.h"
 
 #include "Components/Camera.h"
 #include "Components/Animator.h"

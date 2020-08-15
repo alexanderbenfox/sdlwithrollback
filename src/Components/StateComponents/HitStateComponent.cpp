@@ -1,7 +1,7 @@
 #include "Components/StateComponents/HitStateComponent.h"
 #include "Components/StateComponent.h"
 #include "Components/RenderComponent.h"
-#include "Entity.h"
+#include "Core/ECS/Entity.h"
 
 HitStateComponent::HitStateComponent() :
 _linkedTimer(nullptr), IComponent()

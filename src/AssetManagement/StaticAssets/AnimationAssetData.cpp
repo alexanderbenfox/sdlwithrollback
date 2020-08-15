@@ -1,6 +1,6 @@
 #include "AssetManagement/StaticAssets/AnimationAssetData.h"
 #include "AssetManagement/StaticAssets/CharacterConfig.h"
-#include "Entity.h"
+#include "Core/ECS/Entity.h"
 
 #include "Components/Transform.h"
 #include "Components/Animator.h"
@@ -10,7 +10,7 @@
 #include "Components/Hurtbox.h"
 #include "Components/StateComponent.h"
 
-#include "GameManagement.h"
+#include "Managers/GameManagement.h"
 
 void EntityCreationData::AddComponents(EntityID creatorID, const Transform* creator, const StateComponent* creatorState, std::shared_ptr<Entity> entity) const
 {

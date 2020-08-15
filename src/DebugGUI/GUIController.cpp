@@ -2,7 +2,7 @@
 #include "../imgui/imgui.h"
 
 #include <stdio.h>
-#include "GameManagement.h"
+#include "Managers/GameManagement.h"
 #include "Rendering/RenderManager.h"
 
 GUIController::~GUIController()
