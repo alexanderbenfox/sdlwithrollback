@@ -50,7 +50,12 @@ private:
 
   bool _drawComponentDebug = true;
 
-  typedef std::unordered_map<std::string, std::vector<std::function<void()>>> WindowGrouping;
+  struct WindowFn
+  {
+    std::unordered_map<int, std::function<void()>> fns;
+    int fnCount = 0;
+  };
+  typedef std::unordered_map<std::string, WindowFn> WindowGrouping;
 
   std::unordered_map<std::string, WindowGrouping> _imguiWindows;
 };

@@ -135,9 +135,9 @@ void GUIController::MainLoop(SDL_Event& event)
       for(auto& category : window.second)
       {
         ImGui::Text(category.first.c_str());
-        for (auto& func : category.second)
+        for (auto it : category.second.fns)
         {
-          func();
+          it.second();
         }
       }
       ImGui::End();
@@ -164,12 +164,16 @@ int GUIController::AddImguiWindowFunction(const std::string& window, const std::
   auto categoryIt = _imguiWindows[window].find(category);
   if (categoryIt == _imguiWindows[window].end())
   {
-    _imguiWindows[window].emplace(category, std::vector<std::function<void()>>());
+    _imguiWindows[window].emplace(category, WindowFn());
   }
-  _imguiWindows[window][category].push_back(function);
+
+  // this number will eventually get very high... need to swap ids
+  int debugID = _imguiWindows[window][category].fnCount;
+  _imguiWindows[window][category].fns[debugID] = function;
+  _imguiWindows[window][category].fnCount++;
 
   // return the index of the new item
-  return _imguiWindows[window][category].size() - 1;
+  return debugID;
 }
 
 void GUIController::RemoveImguiWindowFunction(const std::string& window, const std::string& category, int index)
@@ -180,15 +184,15 @@ void GUIController::RemoveImguiWindowFunction(const std::string& window, const s
     auto it = _imguiWindows[window].find(category);
     if (it != _imguiWindows[window].end())
     {
-      // if its out of range just delete the last one. this is a shitty solution to a shitty problem
-      if(index > it->second.size() - 1)
-        index = it->second.size() - 1;
-
-      it->second.erase(it->second.begin() + index);
+      it->second.fns.erase(index);
+      if (it->second.fns.empty())
+      {
+        //reset fn counter as a silly work around for now
+        it->second.fnCount = 0;
+      }
     }
   }
 }
-
 
 void GUIController::RenderFrame()
 {

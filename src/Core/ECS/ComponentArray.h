@@ -20,7 +20,7 @@ public:
     return array;
   }
   //! Insert new component data into index
-  void Insert(EntityID id, T component);
+  void Insert(EntityID id, T&& component);
   //! Removes component data and disassociates it from entity
   void Remove(EntityID entity);
   //! Checks if entity ID is associated with data in array
@@ -50,7 +50,7 @@ private:
 };
 
 template <typename T>
-inline void ComponentArray<T>::Insert(EntityID id, T component)
+inline void ComponentArray<T>::Insert(EntityID id, T&& component)
 {
   if (!HasComponent(id))
   {
@@ -58,7 +58,7 @@ inline void ComponentArray<T>::Insert(EntityID id, T component)
 
     _entityToIndexMap[id] = newIndex;
     _indexToEntityMap[newIndex] = id;
-    _components[newIndex] = component;
+    _components[newIndex] = std::move(component);
     _components[newIndex].OnAdd(id);
     _size++;
   }

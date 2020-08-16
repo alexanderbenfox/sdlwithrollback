@@ -104,7 +104,8 @@ inline StateComponent& StateComponent::operator=(const StateComponent& other)
 
 inline StateComponent& StateComponent::operator=(StateComponent&& other) noexcept
 {
-  IDebugComponent::operator=(other);
+  // to force rvalue assignment, use std::move
+  IDebugComponent::operator=(std::move(other));
   this->onLeftSide = other.onLeftSide;
   this->collision = other.collision;
   this->hitThisFrame = other.hitThisFrame;

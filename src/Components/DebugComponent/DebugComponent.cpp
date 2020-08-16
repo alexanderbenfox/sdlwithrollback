@@ -23,19 +23,27 @@ IDebugComponent& IDebugComponent::operator=(const IDebugComponent& other)
 
 IDebugComponent& IDebugComponent::operator=(IDebugComponent&& other) noexcept
 {
-  this->debugID = -1;
+  if (this->debugID < 0)
+  {
+    this->debugID = other.debugID;
+    other.debugID = -1;
+  }
   return *this;
 }
 
 void IDebugComponent::OnAdd(const EntityID& entity)
 {
   entityID = entity;
-  std::function<void()> func = [this]() { OnDebug(); };
-  debugID = GUIController::Get().AddImguiWindowFunction("Debug Components", debugGroup, func);
+  if (debugID < 0)
+  {
+    std::function<void()> func = [this]() { OnDebug(); };
+    debugID = GUIController::Get().AddImguiWindowFunction("Debug Components", debugGroup, func);
+  }
 }
 
 void IDebugComponent::OnRemove(const EntityID& entity)
 {
   if (debugID >= 0)
     GUIController::Get().RemoveImguiWindowFunction("Debug Components", debugGroup, debugID);
+  debugID = -1;
 }
