@@ -1,5 +1,6 @@
 #pragma once
 #include "Components/InputHandlers/InputBuffer.h"
+#include "Core/Utility/ConfigMap.h"
 
 //______________________________________________________________________________
 //! Interface for input handlers

@@ -1,5 +1,6 @@
 #pragma once
 #include "Components/InputHandlers/IInputHandler.h"
+#include "Core/Utility/ConfigMap.h"
 #include <SDL2/SDL_gamecontroller.h>
 
 //______________________________________________________________________________

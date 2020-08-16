@@ -2,7 +2,7 @@
 #include "Core/ECS/IComponent.h"
 
 #include "Core/Math/Vector2.h"
-#include "ActionTimer.h"
+#include "Systems/TimerSystem/ActionTimer.h"
 
 class SFXComponent : public IComponent
 {

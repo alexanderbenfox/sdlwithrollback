@@ -8,7 +8,7 @@
 #include "Core/ECS/EntityManager.h"
 
 #include "Core/Math/Vector2.h"
-#include "Core/Utils.h"
+#include "Core/Utility/TypeTraits.h"
 
 //______________________________________________________________________________
 //! Entity is a wrapper for the connection between the entity manager and the component manager(s)

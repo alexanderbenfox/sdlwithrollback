@@ -1,10 +1,11 @@
 #include "Components/AIPrograms/Defend.h"
-#include "Components/TimerContainer.h"
+
+#include "Systems/TimerSystem/TimerContainer.h"
+#include "Systems/TimerSystem/ActionTimer.h"
+
 #include "Components/Transform.h"
 #include "Components/StateComponents/HitStateComponent.h"
 #include "Components/ActionComponents.h"
-
-#include "ActionTimer.h"
 
 #include "Managers/GameManagement.h"
 

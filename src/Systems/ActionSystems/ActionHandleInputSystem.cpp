@@ -5,10 +5,12 @@
 
 #include "Components/StateComponents/AttackStateComponent.h"
 
+#include "Core/Utility/DeferGuard.h"
+
 //______________________________________________________________________________
 void TimedActionSystem::DoTick(float dt)
 {
-  DeferScopeGuard guard;
+  DeferGuard guard;
   for (const EntityID& entity : Registered)
   {
     TimedActionComponent& timer = ComponentArray<TimedActionComponent>::Get().GetComponent(entity);
@@ -30,7 +32,7 @@ void TimedActionSystem::DoTick(float dt)
       actor.forceNewInputOnNextFrame = true;
       // remove system flag at the end of the system call
       
-      defer(entity, GameManager::Get().GetEntityByID(entity)->RemoveComponent<TimedActionComponent>());
+      RunOnDeferGuardDestroy(entity, GameManager::Get().GetEntityByID(entity)->RemoveComponent<TimedActionComponent>());
       //guard.deferred.emplace(guard.deferred.begin(), [&](){ GameManager::Get().GetEntityByID(entity)->RemoveComponent<TimedActionComponent>(); });
     }
   }
@@ -39,7 +41,7 @@ void TimedActionSystem::DoTick(float dt)
 //______________________________________________________________________________
 void HandleInputGrappledActionSystem::DoTick(float dt)
 {
-  DeferScopeGuard guard;
+  DeferGuard guard;
   for (const EntityID& entity : Registered)
   {
     ReceivedGrappleAction& timer = ComponentArray<ReceivedGrappleAction>::Get().GetComponent(entity);
@@ -49,7 +51,7 @@ void HandleInputGrappledActionSystem::DoTick(float dt)
     // on timer complete, move to knockdown airborne state
     if (actor.actionTimerComplete)
     {
-      defer((entity, &state),
+      RunOnDeferGuardDestroy((entity, &state),
       {
         ActionFactory::SetKnockdownAirborne(entity, &state);
         GameManager::Get().GetEntityByID(entity)->RemoveComponent<ReceivedGrappleAction>();
@@ -79,7 +81,7 @@ void HandleDashUpdateSystem::DoTick(float dt)
 //______________________________________________________________________________
 void HandleInputJump::DoTick(float dt)
 {
-  DeferScopeGuard guard;
+  DeferGuard guard;
   for (const EntityID& entity : Registered)
   {
     Rigidbody& rb = ComponentArray<Rigidbody>::Get().GetComponent(entity);
@@ -87,7 +89,7 @@ void HandleInputJump::DoTick(float dt)
 
     if (HasState(rb._lastCollisionSide, CollisionSide::DOWN))
     {
-      defer((entity, &state),
+      RunOnDeferGuardDestroy((entity, &state),
         ActionFactory::GoToNeutralAction(entity, &state);
         GameManager::Get().GetEntityByID(entity)->RemoveComponent<JumpingAction>();
       );
@@ -98,14 +100,14 @@ void HandleInputJump::DoTick(float dt)
 //______________________________________________________________________________
 void HandleInputCrouch::DoTick(float dt)
 {
-  DeferScopeGuard guard;
+  DeferGuard guard;
   for (const EntityID& entity : Registered)
   {
     GameActor& actor = ComponentArray<GameActor>::Get().GetComponent(entity);
 
     if (!HasState(actor.LastButtons(), InputState::DOWN))
     {
-      defer(entity,
+      RunOnDeferGuardDestroy(entity,
         GameManager::Get().GetEntityByID(entity)->RemoveComponent<CrouchingAction>();
         GameManager::Get().GetEntityByID(entity)->RemoveComponent<TransitionToCrouching>();
 
@@ -121,7 +123,7 @@ void HandleInputCrouch::DoTick(float dt)
 //______________________________________________________________________________
 void HandleInputGrappling::DoTick(float dt)
 {
-  DeferScopeGuard guard;
+  DeferGuard guard;
   for (const EntityID& entity : Registered)
   {
     StateComponent& state = ComponentArray<StateComponent>::Get().GetComponent(entity);
@@ -129,7 +131,7 @@ void HandleInputGrappling::DoTick(float dt)
 
     if (state.triedToThrowThisFrame && !state.throwSuccess)
     {
-      defer((entity, state), {
+      RunOnDeferGuardDestroy((entity, state), {
         GameManager::Get().GetEntityByID(entity)->AddComponent<EnactActionComponent>();
         // set up animation
         GameManager::Get().GetEntityByID(entity)->AddComponent<AnimatedActionComponent>({ state.onLeftSide, false, true, 1.0f, "ThrowMiss" });
@@ -150,7 +152,7 @@ void HandleInputGrappling::DoTick(float dt)
 //______________________________________________________________________________
 void CheckForReturnToNeutral::DoTick(float dt)
 {
-  DeferScopeGuard guard;
+  DeferGuard guard;
   for (const EntityID& entity : Registered)
   {
     Rigidbody& rigidbody = ComponentArray<Rigidbody>::Get().GetComponent(entity);
@@ -166,7 +168,7 @@ void CheckForReturnToNeutral::DoTick(float dt)
     }
     else if (!HasState(actor.LastButtons(), InputState::DOWN))
     {
-      defer((entity, &state), ActionFactory::GoToNeutralAction(entity, &state));
+      RunOnDeferGuardDestroy((entity, &state), ActionFactory::GoToNeutralAction(entity, &state));
     }
   }
 }
@@ -174,7 +176,7 @@ void CheckForReturnToNeutral::DoTick(float dt)
 //______________________________________________________________________________
 void CheckForMoveLeft::DoTick(float dt)
 {
-  DeferScopeGuard guard;
+  DeferGuard guard;
   for (const EntityID& entity : Registered)
   {
     Rigidbody& rigidbody = ComponentArray<Rigidbody>::Get().GetComponent(entity);
@@ -188,7 +190,7 @@ void CheckForMoveLeft::DoTick(float dt)
     if (HasState(actor.LastButtons(), InputState::LEFT))
     {
       Vector2<float> movementVector = Vector2<float>(-0.5f * GlobalVars::BaseWalkSpeed, 0.0f);
-      defer((entity, &actor, &state, movementVector), ActionFactory::GoToWalkLeftAction(entity, &actor, &state, movementVector));
+      RunOnDeferGuardDestroy((entity, &actor, &state, movementVector), ActionFactory::GoToWalkLeftAction(entity, &actor, &state, movementVector));
     }
   }
 }
@@ -196,7 +198,7 @@ void CheckForMoveLeft::DoTick(float dt)
 //______________________________________________________________________________
 void CheckForMoveRight::DoTick(float dt)
 {
-  DeferScopeGuard guard;
+  DeferGuard guard;
   for (const EntityID& entity : Registered)
   {
     Rigidbody& rigidbody = ComponentArray<Rigidbody>::Get().GetComponent(entity);
@@ -210,7 +212,7 @@ void CheckForMoveRight::DoTick(float dt)
     if (HasState(actor.LastButtons(), InputState::RIGHT))
     {
       Vector2<float> movementVector = movementVector = Vector2<float>(0.5f * GlobalVars::BaseWalkSpeed, 0.0f);
-      defer((entity, &actor, &state, movementVector), ActionFactory::GoToWalkRightAction(entity, &actor, &state, movementVector));
+      RunOnDeferGuardDestroy((entity, &actor, &state, movementVector), ActionFactory::GoToWalkRightAction(entity, &actor, &state, movementVector));
     }
   }
 }
@@ -218,7 +220,7 @@ void CheckForMoveRight::DoTick(float dt)
 //______________________________________________________________________________
 void CheckForJump::DoTick(float dt)
 {
-  DeferScopeGuard guard;
+  DeferGuard guard;
   for (const EntityID& entity : Registered)
   {
     Rigidbody& rigidbody = ComponentArray<Rigidbody>::Get().GetComponent(entity);
@@ -239,7 +241,7 @@ void CheckForJump::DoTick(float dt)
       else
         movementVector = Vector2<float>(0.0f, -UniversalPhysicsSettings::Get().JumpVelocity);
 
-      defer((entity, state, movementVector), {
+      RunOnDeferGuardDestroy((entity, state, movementVector), {
         GameManager::Get().GetEntityByID(entity)->AddComponent<EnactActionComponent>();
 
         GameManager::Get().GetEntityByID(entity)->AddComponent<MovingActionComponent>();
@@ -263,7 +265,7 @@ void CheckForJump::DoTick(float dt)
 //______________________________________________________________________________
 void CheckForFalling::DoTick(float dt)
 {
-  DeferScopeGuard guard;
+  DeferGuard guard;
   for (const EntityID& entity : Registered)
   {
     Rigidbody& rigidbody = ComponentArray<Rigidbody>::Get().GetComponent(entity);
@@ -271,7 +273,7 @@ void CheckForFalling::DoTick(float dt)
 
     if (!HasState(rigidbody._lastCollisionSide, CollisionSide::DOWN))
     {
-      defer((entity, state), {
+      RunOnDeferGuardDestroy((entity, state), {
         ActionFactory::SetAerialState(entity);
         GameManager::Get().GetEntityByID(entity)->AddComponent<AnimatedActionComponent>({ state.onLeftSide, false, true, 1.0f, "Falling" });
         // because we're falling, remove any movement component
@@ -284,7 +286,7 @@ void CheckForFalling::DoTick(float dt)
 //______________________________________________________________________________
 void CheckForBeginCrouching::DoTick(float dt)
 {
-  DeferScopeGuard guard;
+  DeferGuard guard;
   for (const EntityID& entity : Registered)
   {
     Rigidbody& rigidbody = ComponentArray<Rigidbody>::Get().GetComponent(entity);
@@ -297,7 +299,7 @@ void CheckForBeginCrouching::DoTick(float dt)
 
     if (HasState(actor.LastButtons(), InputState::DOWN))
     {
-      defer((entity, &state), {
+      RunOnDeferGuardDestroy((entity, &state), {
         GameManager::Get().GetEntityByID(entity)->AddComponent<EnactActionComponent>();
 
         GameManager::Get().GetEntityByID(entity)->AddComponent<MovingActionComponent>();
@@ -320,7 +322,7 @@ void CheckForBeginCrouching::DoTick(float dt)
 //______________________________________________________________________________
 void CheckHitThisFrameSystem::DoTick(float dt)
 {
-  DeferScopeGuard guard;
+  DeferGuard guard;
   for (const EntityID& entity : Registered)
   {
     StateComponent& state = ComponentArray<StateComponent>::Get().GetComponent(entity);
@@ -329,7 +331,7 @@ void CheckHitThisFrameSystem::DoTick(float dt)
 
     if (state.thrownThisFrame)
     {
-      defer((entity, &state), ActionFactory::SetGrappledAction(entity, &state));
+      RunOnDeferGuardDestroy((entity, &state), ActionFactory::SetGrappledAction(entity, &state));
       continue;
     }
     else if (state.hitThisFrame)
@@ -344,7 +346,7 @@ void CheckHitThisFrameSystem::DoTick(float dt)
         bool blockedLeft = HasState(buttons, InputState::RIGHT) && !state.onLeftSide;
         if (blockedRight || blockedLeft)
         {
-          defer((entity, &state, buttons), {
+          RunOnDeferGuardDestroy((entity, &state, buttons), {
             ActionFactory::SetBlockStunAction(entity, &state, HasState(buttons, InputState::DOWN));
             GameManager::Get().GetEntityByID(entity)->RemoveComponent<InputListenerComponent>();
           });
@@ -355,7 +357,7 @@ void CheckHitThisFrameSystem::DoTick(float dt)
       // if already in knockdown or this attack puts player in knockdown
       if (hittable.inKnockdown || state.hitData.knockdown)
       {
-        defer((entity, &state), {
+        RunOnDeferGuardDestroy((entity, &state), {
           ActionFactory::SetKnockdownAirborne(entity, &state);
           GameManager::Get().GetEntityByID(entity)->RemoveComponent<InputListenerComponent>();
           });
@@ -363,7 +365,7 @@ void CheckHitThisFrameSystem::DoTick(float dt)
       }
 
       // default to hitstun state
-      defer((entity, &state, buttons), {
+      RunOnDeferGuardDestroy((entity, &state, buttons), {
         ActionFactory::SetHitStunAction(entity, &state, HasState(buttons, InputState::DOWN));
         GameManager::Get().GetEntityByID(entity)->RemoveComponent<InputListenerComponent>();
       });
@@ -374,7 +376,7 @@ void CheckHitThisFrameSystem::DoTick(float dt)
 //______________________________________________________________________________
 void CheckSpecialAttackInputSystem::DoTick(float dt)
 {
-  DeferScopeGuard guard;
+  DeferGuard guard;
   for (const EntityID& entity : Registered)
   {
     StateComponent& state = ComponentArray<StateComponent>::Get().GetComponent(entity);
@@ -391,22 +393,22 @@ void CheckSpecialAttackInputSystem::DoTick(float dt)
       {
         if (donkeyKick)
         {
-          defer((entity, &state), ActionFactory::SetAttackAction(entity, &state, "SpecialMove3", ActionState::HEAVY));
+          RunOnDeferGuardDestroy((entity, &state), ActionFactory::SetAttackAction(entity, &state, "SpecialMove3", ActionState::HEAVY));
         }
         else if (fireball)
         {
-          defer((entity, &state), ActionFactory::SetAttackAction(entity, &state, "SpecialMove1", ActionState::HEAVY));
+          RunOnDeferGuardDestroy((entity, &state), ActionFactory::SetAttackAction(entity, &state, "SpecialMove1", ActionState::HEAVY));
         }
         else if (tatsu)
         {
-          defer((entity, &state), ActionFactory::SetAttackAction(entity, &state, "SpecialMove4", ActionState::HEAVY));
+          RunOnDeferGuardDestroy((entity, &state), ActionFactory::SetAttackAction(entity, &state, "SpecialMove4", ActionState::HEAVY));
         }
         else if (dp)
         {
-          defer((entity, &state), ActionFactory::SetAttackAction(entity, &state, "SpecialMove2", ActionState::HEAVY));
+          RunOnDeferGuardDestroy((entity, &state), ActionFactory::SetAttackAction(entity, &state, "SpecialMove2", ActionState::HEAVY));
         }
 
-        defer(entity, {
+        RunOnDeferGuardDestroy(entity, {
           // add additional cancelables for special moves here
           // these might not work because they aren't implemented in any systems
           // so they don't generate signatures
@@ -429,7 +431,7 @@ void CheckSpecialAttackInputSystem::DoTick(float dt)
 //______________________________________________________________________________
 void CheckDashSystem::DoTick(float dt)
 {
-  DeferScopeGuard guard;
+  DeferGuard guard;
   for (const EntityID& entity : Registered)
   {
     StateComponent& state = ComponentArray<StateComponent>::Get().GetComponent(entity);
@@ -447,14 +449,14 @@ void CheckDashSystem::DoTick(float dt)
     {
       if (HasState(btns, InputState::BTN4) || sp == SpecialInputState::LDash)
       {
-        defer((entity, &state, &animator), ActionFactory::SetDashAction(entity, &state, &animator, !state.onLeftSide));
+        RunOnDeferGuardDestroy((entity, &state, &animator), ActionFactory::SetDashAction(entity, &state, &animator, !state.onLeftSide));
       }
     }
     else if (HasState(btns, InputState::RIGHT))
     {
       if (HasState(btns, InputState::BTN4) || sp == SpecialInputState::RDash)
       {
-        defer((entity, &state, &animator), ActionFactory::SetDashAction(entity, &state, &animator, state.onLeftSide));
+        RunOnDeferGuardDestroy((entity, &state, &animator), ActionFactory::SetDashAction(entity, &state, &animator, state.onLeftSide));
       }
     }
   }
@@ -463,7 +465,7 @@ void CheckDashSystem::DoTick(float dt)
 //______________________________________________________________________________
 void CheckAttackInputSystem::DoTick(float dt)
 {
-  DeferScopeGuard guard;
+  DeferGuard guard;
   for (const EntityID& entity : Registered)
   {
     StateComponent& state = ComponentArray<StateComponent>::Get().GetComponent(entity);
@@ -475,7 +477,7 @@ void CheckAttackInputSystem::DoTick(float dt)
       if (HasState(actor.LastButtons(), InputState::BTN4))
       {
         bool backthrow = (state.onLeftSide && HasState(actor.LastButtons(), InputState::LEFT)) || (!state.onLeftSide && HasState(actor.LastButtons(), InputState::RIGHT));
-        defer((entity, &state, backthrow), ActionFactory::SetAttackAction(entity, &state, backthrow ? "BackThrow" : "ForwardThrow", ActionState::NONE));
+        RunOnDeferGuardDestroy((entity, &state, backthrow), ActionFactory::SetAttackAction(entity, &state, backthrow ? "BackThrow" : "ForwardThrow", ActionState::NONE));
         GameManager::Get().GetEntityByID(entity)->AddComponent<GrappleActionComponent>();
         continue;
       }
@@ -484,30 +486,30 @@ void CheckAttackInputSystem::DoTick(float dt)
       // then check attacks
       if (HasState(actor.LastButtons(), InputState::BTN1))
       {
-        defer((entity, &state, crouchPossible), ActionFactory::SetAttackAction(entity, &state, crouchPossible ? "CrouchingLight" : "StandingLight", ActionState::LIGHT));
+        RunOnDeferGuardDestroy((entity, &state, crouchPossible), ActionFactory::SetAttackAction(entity, &state, crouchPossible ? "CrouchingLight" : "StandingLight", ActionState::LIGHT));
       }
       else if (HasState(actor.LastButtons(), InputState::BTN2))
       {
-        defer((entity, &state, crouchPossible), ActionFactory::SetAttackAction(entity, &state, crouchPossible ? "CrouchingMedium" : "StandingMedium", ActionState::MEDIUM));
+        RunOnDeferGuardDestroy((entity, &state, crouchPossible), ActionFactory::SetAttackAction(entity, &state, crouchPossible ? "CrouchingMedium" : "StandingMedium", ActionState::MEDIUM));
       }
       else if (HasState(actor.LastButtons(), InputState::BTN3))
       {
-        defer((entity, &state, crouchPossible), ActionFactory::SetAttackAction(entity, &state, crouchPossible ? "CrouchingHeavy" : "StandingHeavy", ActionState::HEAVY));
+        RunOnDeferGuardDestroy((entity, &state, crouchPossible), ActionFactory::SetAttackAction(entity, &state, crouchPossible ? "CrouchingHeavy" : "StandingHeavy", ActionState::HEAVY));
       }
     }
     else
     {
       if (HasState(actor.LastButtons(), InputState::BTN1))
       {
-        defer((entity, &state), ActionFactory::SetAttackAction(entity, &state, "JumpingLight", ActionState::LIGHT));
+        RunOnDeferGuardDestroy((entity, &state), ActionFactory::SetAttackAction(entity, &state, "JumpingLight", ActionState::LIGHT));
       }
       else if (HasState(actor.LastButtons(), InputState::BTN2))
       {
-        defer((entity, &state), ActionFactory::SetAttackAction(entity, &state, "JumpingMedium", ActionState::MEDIUM));
+        RunOnDeferGuardDestroy((entity, &state), ActionFactory::SetAttackAction(entity, &state, "JumpingMedium", ActionState::MEDIUM));
       }
       else if (HasState(actor.LastButtons(), InputState::BTN3))
       {
-        defer((entity, &state), ActionFactory::SetAttackAction(entity, &state, "JumpingHeavy", ActionState::HEAVY));
+        RunOnDeferGuardDestroy((entity, &state), ActionFactory::SetAttackAction(entity, &state, "JumpingHeavy", ActionState::HEAVY));
       }
     }
   }
@@ -516,7 +518,7 @@ void CheckAttackInputSystem::DoTick(float dt)
 //______________________________________________________________________________
 void CheckGrappleCancelOnHit::DoTick(float dt)
 {
-  DeferScopeGuard guard;
+  DeferGuard guard;
   for (const EntityID& e1 : MainSystem::Registered)
   {
     StateComponent& grapplerState = ComponentArray<StateComponent>::Get().GetComponent(e1);
@@ -528,7 +530,7 @@ void CheckGrappleCancelOnHit::DoTick(float dt)
         StateComponent& state = ComponentArray<StateComponent>::Get().GetComponent(e2);
 
         state.thrownThisFrame = false;
-        defer(e2, GameManager::Get().GetEntityByID(e2)->RemoveComponent<ReceivedGrappleAction>());
+        RunOnDeferGuardDestroy(e2, GameManager::Get().GetEntityByID(e2)->RemoveComponent<ReceivedGrappleAction>());
       }
     }
   }
@@ -537,13 +539,13 @@ void CheckGrappleCancelOnHit::DoTick(float dt)
 //______________________________________________________________________________
 void ListenForAirborneSystem::DoTick(float dt)
 {
-  DeferScopeGuard guard;
+  DeferGuard guard;
   for (const EntityID& entity : Registered)
   {
     Rigidbody& rigidbody = ComponentArray<Rigidbody>::Get().GetComponent(entity);
     if (!HasState(rigidbody._lastCollisionSide, CollisionSide::DOWN))
     {
-      defer(entity, ActionFactory::SetAerialState(entity));
+      RunOnDeferGuardDestroy(entity, ActionFactory::SetAerialState(entity));
     }
   }
 }
@@ -551,7 +553,7 @@ void ListenForAirborneSystem::DoTick(float dt)
 //______________________________________________________________________________
 void TransitionToNeutralSystem::DoTick(float dt)
 {
-  DeferScopeGuard guard;
+  DeferGuard guard;
   for (const EntityID& entity : Registered)
   {
     StateComponent& state = ComponentArray<StateComponent>::Get().GetComponent(entity);
@@ -560,10 +562,10 @@ void TransitionToNeutralSystem::DoTick(float dt)
 
     if (actor.actionTimerComplete)
     {
-      defer((entity, &state), ActionFactory::GoToNeutralAction(entity, &state));
+      RunOnDeferGuardDestroy((entity, &state), ActionFactory::GoToNeutralAction(entity, &state));
       if (HasState(actor.LastButtons(), InputState::DOWN) && HasState(rigidbody._lastCollisionSide, CollisionSide::DOWN))
       {
-        defer((entity, &state), ActionFactory::SetCrouchingState(entity, &state));
+        RunOnDeferGuardDestroy((entity, &state), ActionFactory::SetCrouchingState(entity, &state));
       }
       else if (!HasState(rigidbody._lastCollisionSide, CollisionSide::DOWN))
       {
@@ -576,7 +578,7 @@ void TransitionToNeutralSystem::DoTick(float dt)
 //______________________________________________________________________________
 void CheckKnockdownComplete::DoTick(float dt)
 {
-  DeferScopeGuard guard;
+  DeferGuard guard;
   for (const EntityID& entity : Registered)
   {
     StateComponent& state = ComponentArray<StateComponent>::Get().GetComponent(entity);
@@ -584,7 +586,7 @@ void CheckKnockdownComplete::DoTick(float dt)
 
     if (actor.actionTimerComplete)
     {
-      defer((entity, &state), ActionFactory::SetKnockdownGroundInvincible(entity, &state));
+      RunOnDeferGuardDestroy((entity, &state), ActionFactory::SetKnockdownGroundInvincible(entity, &state));
     }
   }
 }
@@ -592,7 +594,7 @@ void CheckKnockdownComplete::DoTick(float dt)
 //______________________________________________________________________________
 void CheckKnockdownOTG::DoTick(float dt)
 {
-  DeferScopeGuard guard;
+  DeferGuard guard;
   for (const EntityID& entity : Registered)
   {
     StateComponent& state = ComponentArray<StateComponent>::Get().GetComponent(entity);
@@ -600,7 +602,7 @@ void CheckKnockdownOTG::DoTick(float dt)
 
     if (HasState(rigidbody._lastCollisionSide, CollisionSide::DOWN))
     {
-      defer((entity, &state), ActionFactory::SetKnockdownGroundOTG(entity, &state));
+      RunOnDeferGuardDestroy((entity, &state), ActionFactory::SetKnockdownGroundOTG(entity, &state));
     }
   }
 }
@@ -608,7 +610,7 @@ void CheckKnockdownOTG::DoTick(float dt)
 //______________________________________________________________________________
 void CheckCrouchingFollowUp::DoTick(float dt)
 {
-  DeferScopeGuard guard;
+  DeferGuard guard;
   for (const EntityID& entity : Registered)
   {
     StateComponent& state = ComponentArray<StateComponent>::Get().GetComponent(entity);
@@ -616,7 +618,7 @@ void CheckCrouchingFollowUp::DoTick(float dt)
 
     if (actor.actionTimerComplete)
     {
-      defer((entity, &state), ActionFactory::SetCrouchingState(entity, &state));
+      RunOnDeferGuardDestroy((entity, &state), ActionFactory::SetCrouchingState(entity, &state));
     }
   }
 }
@@ -638,7 +640,7 @@ void HitGroundCancelActionSystem::DoTick(float dt)
 //______________________________________________________________________________
 void SpecialMoveCancelActionSystem::DoTick(float dt)
 {
-  DeferScopeGuard guard;
+  DeferGuard guard;
   for (const EntityID& entity : Registered)
   {
     GameActor& actor = ComponentArray<GameActor>::Get().GetComponent(entity);
@@ -647,7 +649,7 @@ void SpecialMoveCancelActionSystem::DoTick(float dt)
     // can only be cancelled on hit for now (replace with HittingComponent maybe?)
     if(state.hitting && ActionFactory::ActorDidSpecialInputRyu(&actor, &state))
     {
-      defer(entity, {
+      RunOnDeferGuardDestroy(entity, {
         GameManager::Get().GetEntityByID(entity)->AddComponent<AbleToSpecialAttackState>();
         GameManager::Get().GetEntityByID(entity)->RemoveComponent<CancelOnSpecial>();
         });
@@ -658,7 +660,7 @@ void SpecialMoveCancelActionSystem::DoTick(float dt)
 //______________________________________________________________________________
 void TargetComboCancelActionSystem::DoTick(float dt)
 {
-  DeferScopeGuard guard;
+  DeferGuard guard;
   for (const EntityID& entity : Registered)
   {
     GameActor& actor = ComponentArray<GameActor>::Get().GetComponent(entity);
@@ -673,7 +675,7 @@ void TargetComboCancelActionSystem::DoTick(float dt)
       {
         if (comboableMap.links[state.actionState] == actor.LastButtons())
         {
-          defer(entity, {
+          RunOnDeferGuardDestroy(entity, {
             GameManager::Get().GetEntityByID(entity)->AddComponent<AbleToAttackState>();
             GameManager::Get().GetEntityByID(entity)->RemoveComponent<CancelOnNormal>();
           });

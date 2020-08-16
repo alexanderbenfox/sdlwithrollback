@@ -1,7 +1,8 @@
 #include "AssetManagement/StaticAssets/StaticAssetUtils.h"
 #include "Managers/GameManagement.h"
 #include "DebugGUI/GUIController.h"
-#include "Core/Utils.h"
+
+#include "Core/Utility/String.h"
 
 #include <fstream>
 #include <json/json.h>

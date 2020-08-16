@@ -4,6 +4,6 @@
 
 struct ISerializable
 {
-  virtual void Serialize(std::ostream& os) = 0;
+  virtual void Serialize(std::ostream& os) const = 0;
   virtual void Deserialize(std::istream& is) = 0;
 };

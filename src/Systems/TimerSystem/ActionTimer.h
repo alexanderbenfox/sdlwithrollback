@@ -1,9 +1,9 @@
 #pragma once
+#include "Core/Interfaces/Serializable.h"
 #include <functional>
-#include <iostream>
 
 //______________________________________________________________________________
-class ActionTimer
+class ActionTimer : public ISerializable
 {
 public:
   ActionTimer(int duration) :
@@ -15,23 +15,9 @@ public:
   //! num frames the total action goes for
   int const Duration() { return _totalFrames; }
 
-  friend std::ostream& operator<<(std::ostream& os, const ActionTimer& tm)
-  {
-    os << tm.playTime;
-    os << tm.currFrame;
-    os << tm._totalFrames;
-    return os;
-  }
-
-  friend std::istream& operator>>(std::istream& is, ActionTimer& tm)
-  {
-    is >> tm.playTime;
-    is >> tm.currFrame;
-    is >> tm._totalFrames;
-    return is;
-  }
-
-
+  //! Serializing functions (might not ever use)
+  virtual void Serialize(std::ostream& os) const override;
+  virtual void Deserialize(std::istream& is) override;
 
   //! gets whether or not this action has been cancelled preemptively
   virtual bool const Cancelled() = 0;
@@ -39,14 +25,16 @@ public:
   virtual void OnComplete() = 0;
   //! cancels the action timer
   virtual void Cancel() = 0;
-  //!
+  //! callback for on each frame update
   virtual void Update() = 0;
 
-  //!
+  //! how long has this been playing in real seconds
   float playTime;
+  //! what frame of timer is this one
   int currFrame;
 
 protected:
+  //! total length of action timer in frames
   int _totalFrames;
 
 };
@@ -63,19 +51,12 @@ public:
     _cancelled(false),
     ActionTimer(duration) {}
 
+  //! Return cancelled status
   virtual bool const Cancelled() override { return _cancelled; }
-
-  //!
-  virtual void OnComplete() override
-  {
-    if (!_cancelled)
-    {
-      _callback();
-    }
-  }
-  //!
+  //! If it hasn't been cancelled yet, run the callback
+  virtual void OnComplete() override;
+  //! Set this to cancelled so it doesn't run callback
   virtual void Cancel() override { _cancelled = true; }
-
   //! nothing happens on update
   virtual void Update() override {}
 
@@ -95,10 +76,7 @@ public:
     SimpleActionTimer(onComplete, duration) {}
 
   //! updates based on the length of animation play
-  virtual void Update() override
-  {
-    _updater(currFrame, _totalFrames);
-  }
+  virtual void Update() override;
 
 protected:
   TFunction _updater;

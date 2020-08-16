@@ -1,7 +1,7 @@
 #pragma once
 #include "Core/ECS/IComponent.h"
 #include "Components/ActionComponents.h"
-#include "ActionTimer.h"
+#include "Systems/TimerSystem/ActionTimer.h"
 
 class HitStateComponent : public IComponent
 {

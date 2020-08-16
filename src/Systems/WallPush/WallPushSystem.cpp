@@ -1,9 +1,11 @@
 #include "Systems/WallPush/WallPushSystem.h"
 #include "Managers/GameManagement.h"
 
+#include "Core/Utility/DeferGuard.h"
+
 void WallPushSystem::DoTick(float dt)
 {
-  DeferScopeGuard guard;
+  DeferGuard guard;
   for (const EntityID& entity : Registered)
   {
     Rigidbody& rigidbody = ComponentArray<Rigidbody>::Get().GetComponent(entity);
@@ -15,7 +17,7 @@ void WallPushSystem::DoTick(float dt)
     if (std::fabs(push.amountPushed) >= std::fabs(push.pushAmount))
     {
       rigidbody._vel.x = 0;
-      defer(entity, GameManager::Get().GetEntityByID(entity)->RemoveComponent<WallPushComponent>());
+      RunOnDeferGuardDestroy(entity, GameManager::Get().GetEntityByID(entity)->RemoveComponent<WallPushComponent>());
     }
   }
 }

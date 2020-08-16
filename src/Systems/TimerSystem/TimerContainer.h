@@ -1,6 +1,6 @@
 #pragma once
 #include "Core/ECS/IComponent.h"
-#include "ActionTimer.h"
+#include "Systems/TimerSystem/ActionTimer.h"
 
 struct TimerContainer : public IComponent
 {

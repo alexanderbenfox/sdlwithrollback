@@ -2,6 +2,8 @@
 #include "Core/ECS/ISystem.h"
 #include "Managers/GameManagement.h"
 
+#include "Core/Utility/DeferGuard.h"
+
 struct DestroyOnSceneEnd : public IComponent {};
 
 class DestroyEntitiesSystem : public ISystem<DestroyOnSceneEnd>
@@ -9,10 +11,10 @@ class DestroyEntitiesSystem : public ISystem<DestroyOnSceneEnd>
 public:
   static void DoTick(float dt)
   {
-    DeferScopeGuard guard;
+    DeferGuard guard;
     for(const EntityID& entity : Registered)
     {
-      defer(entity, GameManager::Get().DestroyEntity(entity););
+      RunOnDeferGuardDestroy(entity, GameManager::Get().DestroyEntity(entity););
     }
   }
 };

@@ -1,5 +1,6 @@
 #pragma once
 #include "Core/ECS/ISystem.h"
+#include "Core/Utility/DeferGuard.h"
 
 #include "Components/ActionComponents.h"
 #include "Components/Animator.h"
@@ -145,10 +146,10 @@ struct CleanUpActionSystem : public ISystem<EnactActionComponent>
 {
   static void PostUpdate()
   {
-    DeferScopeGuard guard;
+    DeferGuard guard;
     for (const EntityID& entity : Registered)
     {
-      defer(entity,
+      RunOnDeferGuardDestroy(entity,
         GameManager::Get().GetEntityByID(entity)->RemoveComponent<EnactActionComponent>();
         // we want to be listening for a new action now
         GameManager::Get().GetEntityByID(entity)->AddComponent<InputListenerComponent>();

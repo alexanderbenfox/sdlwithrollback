@@ -1,7 +1,7 @@
 #pragma once
 #include "Resource.h"
 #include "LetterCase.h"
-#include "Core/Utils.h"
+#include "Core/Utility/TypeTraits.h"
 
 class TextResource : public Resource<SDL_Texture>
 {

@@ -50,11 +50,14 @@
     <ClCompile Include="..\src\Core\ECS\Entity.cpp" />
     <ClCompile Include="..\src\Core\ECS\EntityManager.cpp" />
     <ClCompile Include="..\src\Core\Geometry2D\RectHelper.cpp" />
+    <ClCompile Include="..\src\Core\InputState.cpp" />
     <ClCompile Include="..\src\Core\Math\Matrix4.cpp" />
     <ClCompile Include="..\src\Core\Prefab\ActionFactory.cpp" />
     <ClCompile Include="..\src\Core\Prefab\MenuButtonArray.cpp" />
     <ClCompile Include="..\src\Core\Timer.cpp" />
-    <ClCompile Include="..\src\Core\Utils.cpp" />
+    <ClCompile Include="..\src\Core\Utility\DeferGuard.cpp" />
+    <ClCompile Include="..\src\Core\Utility\InputSequenceBuffer.cpp" />
+    <ClCompile Include="..\src\Core\Utility\String.cpp" />
     <ClCompile Include="..\src\DebugGUI\GUIController.cpp" />
     <ClCompile Include="..\src\GameState\GGPOGameState.cpp" />
     <ClCompile Include="..\src\GameState\BattleScene.cpp" />
@@ -66,6 +69,7 @@
     <ClCompile Include="..\src\Rendering\RenderManager.cpp" />
     <ClCompile Include="..\src\Systems\ActionSystems\ActionHandleInputSystem.cpp" />
     <ClCompile Include="..\src\Systems\Physics.cpp" />
+    <ClCompile Include="..\src\Systems\TimerSystem\ActionTimer.cpp" />
     <ClCompile Include="..\src\Systems\WallPush\WallPushSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -79,7 +83,6 @@
     <ClInclude Include="..\imgui\imstb_rectpack.h" />
     <ClInclude Include="..\imgui\imstb_textedit.h" />
     <ClInclude Include="..\imgui\imstb_truetype.h" />
-    <ClInclude Include="..\src\ActionTimer.h" />
     <ClInclude Include="..\src\AssetManagement\Animation.h" />
     <ClInclude Include="..\src\AssetManagement\AnimationEvent.h" />
     <ClInclude Include="..\src\AssetManagement\BlitOperation.h" />
@@ -114,7 +117,6 @@
     <ClInclude Include="..\src\Components\StateComponent.h" />
     <ClInclude Include="..\src\Components\StateComponents\AttackStateComponent.h" />
     <ClInclude Include="..\src\Components\StateComponents\HitStateComponent.h" />
-    <ClInclude Include="..\src\Components\TimerContainer.h" />
     <ClInclude Include="..\src\Components\Transform.h" />
     <ClInclude Include="..\src\Components\UIComponents.h" />
     <ClInclude Include="..\src\Core\ECS\ComponentArray.h" />
@@ -125,6 +127,7 @@
     <ClInclude Include="..\src\Core\ECS\ISystem.h" />
     <ClInclude Include="..\src\Core\Geometry2D\Rect.h" />
     <ClInclude Include="..\src\Core\Geometry2D\RectHelper.h" />
+    <ClInclude Include="..\src\Core\InputState.h" />
     <ClInclude Include="..\src\Core\Interfaces\AnimatorListener.h" />
     <ClInclude Include="..\src\Core\Interfaces\Serializable.h" />
     <ClInclude Include="..\src\Core\Math\Matrix.h" />
@@ -134,7 +137,13 @@
     <ClInclude Include="..\src\Core\Prefab\ActionFactory.h" />
     <ClInclude Include="..\src\Core\Prefab\MenuButtonArray.h" />
     <ClInclude Include="..\src\Core\Timer.h" />
-    <ClInclude Include="..\src\Core\Utils.h" />
+    <ClInclude Include="..\src\Core\Utility\ConfigMap.h" />
+    <ClInclude Include="..\src\Core\Utility\DeferGuard.h" />
+    <ClInclude Include="..\src\Core\Utility\InputSequenceBuffer.h" />
+    <ClInclude Include="..\src\Core\Utility\ScopeGuard.h" />
+    <ClInclude Include="..\src\Core\Utility\String.h" />
+    <ClInclude Include="..\src\Core\Utility\TrieNode.h" />
+    <ClInclude Include="..\src\Core\Utility\TypeTraits.h" />
     <ClInclude Include="..\src\DebugGUI\GUIController.h" />
     <ClInclude Include="..\src\GameState\GameState.h" />
     <ClInclude Include="..\src\GameState\GGPOGameState.h" />
@@ -160,7 +169,9 @@
     <ClInclude Include="..\src\Systems\MenuSystem.h" />
     <ClInclude Include="..\src\Systems\MoveSystem.h" />
     <ClInclude Include="..\src\Systems\Physics.h" />
-    <ClInclude Include="..\src\Systems\TimerSystem.h" />
+    <ClInclude Include="..\src\Systems\TimerSystem\ActionTimer.h" />
+    <ClInclude Include="..\src\Systems\TimerSystem\TimerContainer.h" />
+    <ClInclude Include="..\src\Systems\TimerSystem\TimerSystem.h" />
     <ClInclude Include="..\src\Systems\UISystem.h" />
     <ClInclude Include="..\src\Systems\WallPush\WallPushSystem.h" />
   </ItemGroup>

@@ -78,6 +78,12 @@
     <Filter Include="Source Files\Components\DebugComponent">
       <UniqueIdentifier>{1fd958d8-e9bb-44ff-8172-42198b33f376}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Systems\TimerSystem">
+      <UniqueIdentifier>{9137c75e-9359-4614-b0e8-201d4e466907}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Core\Utility">
+      <UniqueIdentifier>{eb7394ef-9ed9-4dac-abed-0d3a502875af}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\2DEngine.cpp">
@@ -200,9 +206,6 @@
     <ClCompile Include="..\src\Managers\GameManagement.cpp">
       <Filter>Source Files\Managers</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\Core\Utils.cpp">
-      <Filter>Source Files\Core</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\Core\Timer.cpp">
       <Filter>Source Files\Core</Filter>
     </ClCompile>
@@ -223,6 +226,21 @@
     </ClCompile>
     <ClCompile Include="..\src\Core\ECS\EntityManager.cpp">
       <Filter>Source Files\Core\ECS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Systems\TimerSystem\ActionTimer.cpp">
+      <Filter>Source Files\Systems\TimerSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Core\Utility\String.cpp">
+      <Filter>Source Files\Core\Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Core\Utility\DeferGuard.cpp">
+      <Filter>Source Files\Core\Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Core\InputState.cpp">
+      <Filter>Source Files\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Core\Utility\InputSequenceBuffer.cpp">
+      <Filter>Source Files\Core\Utility</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -255,9 +273,6 @@
     </ClInclude>
     <ClInclude Include="..\imgui\impl\imgui_impl_sdl.h">
       <Filter>External\impl</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\ActionTimer.h">
-      <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="..\src\Globals.h">
       <Filter>Source Files</Filter>
@@ -293,9 +308,6 @@
       <Filter>Source Files\Systems</Filter>
     </ClInclude>
     <ClInclude Include="..\src\Systems\Physics.h">
-      <Filter>Source Files\Systems</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\Systems\TimerSystem.h">
       <Filter>Source Files\Systems</Filter>
     </ClInclude>
     <ClInclude Include="..\src\Systems\UISystem.h">
@@ -344,9 +356,6 @@
       <Filter>Source Files\DebugGUI</Filter>
     </ClInclude>
     <ClInclude Include="..\src\Core\Timer.h">
-      <Filter>Source Files\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\Core\Utils.h">
       <Filter>Source Files\Core</Filter>
     </ClInclude>
     <ClInclude Include="..\src\Core\Prefab\ActionFactory.h">
@@ -401,9 +410,6 @@
       <Filter>Source Files\Components</Filter>
     </ClInclude>
     <ClInclude Include="..\src\Components\StateComponent.h">
-      <Filter>Source Files\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\Components\TimerContainer.h">
       <Filter>Source Files\Components</Filter>
     </ClInclude>
     <ClInclude Include="..\src\Components\Transform.h">
@@ -507,6 +513,39 @@
     </ClInclude>
     <ClInclude Include="..\src\Core\ECS\ISystem.h">
       <Filter>Source Files\Core\ECS</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Systems\TimerSystem\TimerSystem.h">
+      <Filter>Source Files\Systems\TimerSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Systems\TimerSystem\ActionTimer.h">
+      <Filter>Source Files\Systems\TimerSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Systems\TimerSystem\TimerContainer.h">
+      <Filter>Source Files\Systems\TimerSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Core\Utility\TypeTraits.h">
+      <Filter>Source Files\Core\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Core\Utility\String.h">
+      <Filter>Source Files\Core\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Core\Utility\ConfigMap.h">
+      <Filter>Source Files\Core\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Core\Utility\TrieNode.h">
+      <Filter>Source Files\Core\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Core\Utility\ScopeGuard.h">
+      <Filter>Source Files\Core\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Core\Utility\DeferGuard.h">
+      <Filter>Source Files\Core\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Core\InputState.h">
+      <Filter>Source Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Core\Utility\InputSequenceBuffer.h">
+      <Filter>Source Files\Core\Utility</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -21,7 +21,7 @@
 #include "Systems/MoveSystem.h"
 #include "Systems/InputSystem.h"
 #include "Systems/HitSystem.h"
-#include "Systems/TimerSystem.h"
+#include "Systems/TimerSystem/TimerSystem.h"
 #include "Systems/CheckBattleEndSystem.h"
 #include "Systems/CutsceneSystem.h"
 #include "Systems/UISystem.h"
