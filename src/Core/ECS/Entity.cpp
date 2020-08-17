@@ -24,6 +24,43 @@ Entity::~Entity()
   EntityManager::Get().DestroyEntity(_id);
 }
 
+Entity* Entity::Copy()
+{
+  Entity* nEntity = new Entity;
+
+  // loop through signature finding all attached components
+  const ComponentBitFlag& signature = GetSignature();
+  for (size_t compIndex = 0; compIndex < ECSGlobalStatus::NRegisteredComponents; compIndex++)
+  {
+    std::type_index compTypeIndex = ComponentIDGenerator::GetTypeIndex(compIndex);
+    if (signature.test(compIndex))
+    {
+      // if deleter is already present, component already attached to entity
+      if (nEntity->_deleteComponent.find(compTypeIndex) == nEntity->_deleteComponent.end())
+      {
+        // add self via generator which needs to add deleter
+        auto deleterFn = ComponentIDGenerator::AddSelf(nEntity->GetID(), compIndex);
+        nEntity->_deleteComponent.insert(std::make_pair(compTypeIndex, deleterFn));
+      }
+      ComponentIDGenerator::CopyComponentData(GetID(), nEntity->GetID(), compIndex);
+    }
+    else
+    {
+      // only delete if its already present
+      if (nEntity->_deleteComponent.find(compTypeIndex) != nEntity->_deleteComponent.end())
+      {
+        ComponentIDGenerator::RemoveSelf(nEntity->GetID(), compIndex);
+        // be sure to remove deleter when removing components through the generator
+        nEntity->_deleteComponent.erase(compTypeIndex);
+      }
+    }
+  }
+
+  // propogate entity creation and addition of new components to systems
+  CheckAgainstSystems(nEntity);
+  return nEntity;
+}
+
 void Entity::RemoveAllComponents()
 {
   for(auto func : _deleteComponent)

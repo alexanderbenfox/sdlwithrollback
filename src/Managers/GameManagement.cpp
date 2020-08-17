@@ -275,6 +275,10 @@ void GameManager::BeginGameLoop()
   GUIController::Get().AddImguiWindowFunction("Main Debug Window", "Dash Function parameters", actionParameters);
   GUIController::Get().AddImguiWindowFunction("Main Debug Window", "Scene Selection", sceneSelect);
 
+  GUIController::Get().AddImguiWindowFunction("ECS Status", "Registered Components", []() {
+    ImGui::Text("Components = %d", ECSGlobalStatus::NRegisteredComponents);
+  });
+
   int frameCount = 0;
   for (;;)
   {

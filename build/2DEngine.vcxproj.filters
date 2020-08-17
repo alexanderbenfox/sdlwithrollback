@@ -242,6 +242,9 @@
     <ClCompile Include="..\src\Core\Utility\InputSequenceBuffer.cpp">
       <Filter>Source Files\Core\Utility</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\Core\ECS\ComponentIDGenerator.cpp">
+      <Filter>Source Files\Core\ECS</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\imgui\imconfig.h">
@@ -546,6 +549,9 @@
     </ClInclude>
     <ClInclude Include="..\src\Core\Utility\InputSequenceBuffer.h">
       <Filter>Source Files\Core\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Core\ECS\ComponentTraits.h">
+      <Filter>Source Files\Core\ECS</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -11,6 +11,13 @@ const float secPerFrame = 1.0f / 60.0f;
 const int m_nativeWidth = 720;
 const int m_nativeHeight = 480;
 
+struct ECSGlobalStatus
+{
+  //! Number of registered components
+  static int NRegisteredComponents;
+
+};
+
 //______________________________________________________________________________
 //! Editable global vars
 class GlobalVars

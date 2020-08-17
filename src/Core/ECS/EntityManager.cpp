@@ -1,4 +1,5 @@
 #include "Core/ECS/EntityManager.h"
+#include "Core/ECS/ComponentIDGenerator.h"
 
 EntityID EntityManager::RegisterEntity()
 {

@@ -2,6 +2,9 @@
 #include "Globals.h"
 
 //______________________________________________________________________________
+int ECSGlobalStatus::NRegisteredComponents = 0;
+
+//______________________________________________________________________________
 int GlobalVars::HitStopFramesOnHit = 10;
 int GlobalVars::HitStopFramesOnBlock = 10;
 int GlobalVars::nDashFrames = 23;

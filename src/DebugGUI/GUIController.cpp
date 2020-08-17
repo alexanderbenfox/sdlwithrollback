@@ -154,7 +154,7 @@ void GUIController::CleanUp()
 }
 
 
-int GUIController::AddImguiWindowFunction(const std::string& window, const std::string& category, std::function<void()>& function)
+int GUIController::AddImguiWindowFunction(const std::string& window, const std::string& category, std::function<void()> function)
 {
   auto windowsIt = _imguiWindows.find(window);
   if (windowsIt == _imguiWindows.end())

@@ -1,7 +1,8 @@
 #pragma once
-#include <cstdint>
 #include "Core/ECS/Entity.h"
-#include <tuple>
+#include "Core/ECS/ComponentTraits.h"
+
+#include <cstdint>
 #include <map>
 
 #include <set>

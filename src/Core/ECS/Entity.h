@@ -6,6 +6,7 @@
 
 #include "Core/ECS/ComponentArray.h"
 #include "Core/ECS/EntityManager.h"
+#include "Core/ECS/ComponentTraits.h"
 
 #include "Core/Math/Vector2.h"
 #include "Core/Utility/TypeTraits.h"
@@ -19,6 +20,8 @@ public:
   Entity();
   //! Set signature to null, reset systems, deregister from entity manager
   ~Entity();
+  //! Makes a copy of entity and copies each serializable component
+  Entity* Copy();
 
   //! Removes all added components by calling list of deleter functions
   void RemoveAllComponents();

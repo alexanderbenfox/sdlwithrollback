@@ -1,6 +1,10 @@
 #pragma once
 #include <ostream>
 #include <istream>
+#include <vector>
+
+//! Serialized buffer
+typedef std::vector<unsigned char> SBuffer;
 
 struct ISerializable
 {

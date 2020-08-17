@@ -35,7 +35,7 @@ public:
 
 
 
-  int AddImguiWindowFunction(const std::string& window, const std::string& category, std::function<void()>& function);
+  int AddImguiWindowFunction(const std::string& window, const std::string& category, std::function<void()> function);
   void RemoveImguiWindowFunction(const std::string& window, const std::string& category, int index);
 
 private:
