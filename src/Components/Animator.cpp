@@ -58,24 +58,3 @@ void Animator::Deserialize(std::istream& is)
   if (_animations->IsValid(animation))
     _currentAnimation = animation;
 }
-
-
-std::ostream& operator<<(std::ostream& os, const Animator& animator)
-{
-  os << animator.playing;
-  os << animator.accumulatedTime;
-  os << animator.frame;
-  os << animator.currentAnimationName;
-  return os;
-}
-
-std::istream& operator>>(std::istream& is, Animator& animator)
-{
-  is >> animator.playing;
-  is >> animator.accumulatedTime;
-  is >> animator.frame;
-  is >> animator.currentAnimationName;
-  //animator._currentAnimation = _animations.GetAnimation(animator.currentAnimationName);
-
-  return is;
-}
