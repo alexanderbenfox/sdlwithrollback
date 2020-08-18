@@ -7,13 +7,14 @@
 #include "Core/ECS/ComponentArray.h"
 #include "Core/ECS/EntityManager.h"
 #include "Core/ECS/ComponentTraits.h"
+#include "Core/Interfaces/Serializable.h"
 
 #include "Core/Math/Vector2.h"
 #include "Core/Utility/TypeTraits.h"
 
 //______________________________________________________________________________
 //! Entity is a wrapper for the connection between the entity manager and the component manager(s)
-class Entity : public std::enable_shared_from_this<Entity>
+class Entity : public std::enable_shared_from_this<Entity>, public ISerializable
 {
 public:
   //! Register new entity to the entity manager
@@ -22,6 +23,14 @@ public:
   ~Entity();
   //! Makes a copy of entity and copies each serializable component
   Entity* Copy();
+
+  void Serialize(std::ostream& os) const override;
+  void Deserialize(std::istream& is) override;
+
+  //! Create data stream of current component signature and serializable component data and write to buffer
+  SBuffer CreateEntitySnapshot() const;
+  //! Load in component config and data from a data buffer
+  void LoadEntitySnapshot(const SBuffer& snapshot);
 
   //! Removes all added components by calling list of deleter functions
   void RemoveAllComponents();
@@ -32,7 +41,7 @@ public:
   //! Gets a unique id for the entity
   int GetID() const { return _id; }
   //! Get component signature for systems
-  ComponentBitFlag GetSignature() { return EntityManager::Get().GetSignature(_id); }
+  ComponentBitFlag GetSignature() const { return EntityManager::Get().GetSignature(_id); }
 
   //! Retrieves the components of type specified or nullptr if there is no component of that type present
   template <typename T = IComponent> 
@@ -95,7 +104,7 @@ inline void Entity::AddComponent()
     ComponentArray<T>::Get().Insert(_id, T());
 
     auto signature = GetSignature();
-    signature |= ComponentTraits<T>::GetSignature();
+    signature |= ComponentTraits<T>::Get().GetSignature();
     EntityManager::Get().SetSignature(_id, signature);
 
     // add to special deleter list
@@ -116,7 +125,7 @@ inline void Entity::AddComponent(const ComponentInitParams<T>& initParams)
     ComponentInitParams<T>::Init(ComponentArray<T>::Get().GetComponent(_id), initParams);
 
     auto signature = GetSignature();
-    signature |= ComponentTraits<T>::GetSignature();
+    signature |= ComponentTraits<T>::Get().GetSignature();
     EntityManager::Get().SetSignature(_id, signature);
 
     // add to special deleter list
@@ -153,7 +162,7 @@ inline void Entity::RemoveComponent()
     ComponentArray<T>::Get().Remove(_id);
 
     auto signature = GetSignature();
-    signature &= ~ComponentTraits<T>::GetSignature();
+    signature &= ~ComponentTraits<T>::Get().GetSignature();
     EntityManager::Get().SetSignature(_id, signature);
 
     // remove from special deleter list
@@ -185,7 +194,7 @@ inline void Entity::RemoveComponentInternal()
     ComponentArray<T>::Get().Remove(_id);
 
     auto signature = GetSignature();
-    signature &= ~ComponentTraits<T>::GetSignature();
+    signature &= ~ComponentTraits<T>::Get().GetSignature();
     EntityManager::Get().SetSignature(_id, signature);
   }
 }
@@ -199,7 +208,7 @@ inline void Entity::AddComponentNoSystemCheck()
     ComponentArray<T>::Get().Insert(_id, T());
 
     auto signature = GetSignature();
-    signature |= ComponentTraits<T>::GetSignature();
+    signature |= ComponentTraits<T>::Get().GetSignature();
     EntityManager::Get().SetSignature(_id, signature);
 
     // add to special deleter list
@@ -216,7 +225,7 @@ inline void Entity::RemoveComponentNoSystemCheck()
     ComponentArray<T>::Get().Remove(_id);
 
     auto signature = GetSignature();
-    signature &= ~ComponentTraits<T>::GetSignature();
+    signature &= ~ComponentTraits<T>::Get().GetSignature();
     EntityManager::Get().SetSignature(_id, signature);
 
     // remove from special deleter list

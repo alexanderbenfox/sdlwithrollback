@@ -4,7 +4,7 @@
 #include <vector>
 
 //! Serialized buffer
-typedef std::vector<unsigned char> SBuffer;
+typedef std::vector<char> SBuffer;
 
 struct ISerializable
 {

@@ -1,5 +1,6 @@
 #pragma once
 #include "Core/ECS/IComponent.h"
+#include "Core/ECS/Entity.h"
 
 #include "Core/Math/Vector2.h"
 #include "Systems/TimerSystem/ActionTimer.h"

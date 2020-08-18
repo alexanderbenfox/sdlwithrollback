@@ -5,7 +5,7 @@
 
 //______________________________________________________________________________
 //!
-struct Transform : public IComponent
+struct Transform : public IComponent, public ISerializable
 {
   Transform();
 
@@ -17,8 +17,8 @@ struct Transform : public IComponent
 
   void SetWidthAndHeight(float width, float height);
 
-  friend std::ostream& operator<<(std::ostream& os, const Transform& transform);
-  friend std::istream& operator>>(std::istream& is, Transform& transform);
+  void Serialize(std::ostream& os) const override;
+  void Deserialize(std::istream& is);
 
 };
 

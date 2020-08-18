@@ -15,7 +15,7 @@ struct Requires<T>
 {
   static bool MatchesSignature(EntityID entity)
   {
-    return (EntityManager::Get().GetSignature(entity) & ComponentTraits<T>::GetSignature()) == ComponentTraits<T>::GetSignature();
+    return (EntityManager::Get().GetSignature(entity) & ComponentTraits<T>::Get().GetSignature()) == ComponentTraits<T>::Get().GetSignature();
   }
 };
 
@@ -24,13 +24,13 @@ struct Requires<T, Rest...>
 {
   static bool MatchesSignature(EntityID entity)
   {
-    auto combinedSignature = ComponentTraits<T>::GetSignature() | (ComponentTraits<Rest>::GetSignature() | ...);
+    auto combinedSignature = ComponentTraits<T>::Get().GetSignature() | (ComponentTraits<Rest>::Get().GetSignature() | ...);
     return (EntityManager::Get().GetSignature(entity) & combinedSignature) == combinedSignature;
   }
 
   static bool HasOneRequirement(EntityID entity)
   {
-    auto combinedSignature = ComponentTraits<T>::GetSignature() | (ComponentTraits<Rest>::GetSignature() | ...);
+    auto combinedSignature = ComponentTraits<T>::Get().GetSignature() | (ComponentTraits<Rest>::Get().GetSignature() | ...);
     return (EntityManager::Get().GetSignature(entity) & combinedSignature) != 0;
   }
 };

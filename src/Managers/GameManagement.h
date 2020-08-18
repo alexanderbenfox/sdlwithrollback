@@ -45,8 +45,6 @@ public:
 
   std::shared_ptr<Entity> GetEntity(const EntityID& entity) { return _gameEntities[entity]; }
 
-  
-
   //! request scene change at end of update loop
   void RequestSceneChange(SceneType newSceneType);
   //! Schedules a function to be ran when scene is changed
@@ -86,6 +84,12 @@ private:
   bool _sceneChangeRequested = false;
   //
   std::vector<std::function<void()>> _onSceneChangeFunctionQueue, _endOfFrameQueue;
+
+
+
+  ////!!!!! EXPERIMENTAL CODE FOR SNAPSHOT
+  std::vector<SBuffer> _p1Snapshots;
+  std::vector<SBuffer> _p2Snapshots;
   
 
   //______________________________________________________________________________

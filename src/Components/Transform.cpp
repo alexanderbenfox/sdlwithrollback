@@ -32,18 +32,16 @@ void Transform::RemoveAllChildren()
   children.clear();
 }*/
 
-std::ostream& operator<<(std::ostream& os, const Transform& transform)
+void Transform::Serialize(std::ostream& os) const
 {
-  os << transform.position;
-  os << transform.scale;
-  os << transform.rotation;
-  return os;
+  os << position;
+  os << rotation;
+  os << scale;
 }
 
-std::istream& operator>>(std::istream& is, Transform& transform)
+void Transform::Deserialize(std::istream& is)
 {
-  is >> transform.position;
-  is >> transform.rotation;
-  is >> transform.scale;
-  return is;
+  is >> position;
+  is >> rotation;
+  is >> scale;
 }

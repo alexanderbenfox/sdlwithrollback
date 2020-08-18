@@ -6,8 +6,11 @@
 #include "Components/Collider.h"
 #include "Components/Hurtbox.h"
 #include "Components/Rigidbody.h"
+#include "Components/Hitbox.h"
 
 #include "Managers/GameManagement.h"
+
+#include <sstream>
 
 Entity::Entity()
 {
@@ -32,24 +35,24 @@ Entity* Entity::Copy()
   const ComponentBitFlag& signature = GetSignature();
   for (size_t compIndex = 0; compIndex < ECSGlobalStatus::NRegisteredComponents; compIndex++)
   {
-    std::type_index compTypeIndex = ComponentIDGenerator::GetTypeIndex(compIndex);
+    std::type_index compTypeIndex = ComponentMapper::Get().GetTypeIndex(compIndex);
     if (signature.test(compIndex))
     {
       // if deleter is already present, component already attached to entity
       if (nEntity->_deleteComponent.find(compTypeIndex) == nEntity->_deleteComponent.end())
       {
         // add self via generator which needs to add deleter
-        auto deleterFn = ComponentIDGenerator::AddSelf(nEntity->GetID(), compIndex);
+        auto deleterFn = ComponentMapper::Get().AddSelf(nEntity->GetID(), compIndex);
         nEntity->_deleteComponent.insert(std::make_pair(compTypeIndex, deleterFn));
       }
-      ComponentIDGenerator::CopyComponentData(GetID(), nEntity->GetID(), compIndex);
+      //ComponentMapper::Get().CopyComponentData(GetID(), nEntity->GetID(), compIndex);
     }
     else
     {
       // only delete if its already present
       if (nEntity->_deleteComponent.find(compTypeIndex) != nEntity->_deleteComponent.end())
       {
-        ComponentIDGenerator::RemoveSelf(nEntity->GetID(), compIndex);
+        ComponentMapper::Get().RemoveSelf(nEntity->GetID(), compIndex);
         // be sure to remove deleter when removing components through the generator
         nEntity->_deleteComponent.erase(compTypeIndex);
       }
@@ -59,6 +62,77 @@ Entity* Entity::Copy()
   // propogate entity creation and addition of new components to systems
   CheckAgainstSystems(nEntity);
   return nEntity;
+}
+
+
+void Entity::Serialize(std::ostream& os) const
+{
+  const ComponentBitFlag& signature = GetSignature();
+  // serialize bitset first to know which components are attached to this one
+  os << signature;
+  // loop through signature finding all attached components
+  for (size_t compIndex = 0; compIndex < ECSGlobalStatus::NRegisteredComponents; compIndex++)
+  {
+    if (signature.test(compIndex))
+    {
+      // write component data to stream based on signature
+      ComponentMapper::Get().SerializeComponent(_id, os, compIndex);
+    }
+  }
+}
+
+void Entity::Deserialize(std::istream& is)
+{
+  ComponentBitFlag signature;
+  // stream first thing should be signature
+  is >> signature;
+
+  for (size_t compIndex = 0; compIndex < ECSGlobalStatus::NRegisteredComponents; compIndex++)
+  {
+    std::type_index compTypeIndex = ComponentMapper::Get().GetTypeIndex(compIndex);
+    if (signature.test(compIndex))
+    {
+      // if deleter is already present, component already attached to entity
+      if (_deleteComponent.find(compTypeIndex) == _deleteComponent.end())
+      {
+        // add self via generator which needs to add deleter
+        auto deleterFn = ComponentMapper::Get().AddSelf(GetID(), compIndex);
+        _deleteComponent.insert(std::make_pair(compTypeIndex, deleterFn));
+      }
+      // this should write data directly to component, so no need to do anything
+      ComponentMapper::Get().DeserializeComponent(GetID(), is, compIndex);
+    }
+    else
+    {
+      // only delete if its already present
+      if (_deleteComponent.find(compTypeIndex) != _deleteComponent.end())
+      {
+        ComponentMapper::Get().RemoveSelf(GetID(), compIndex);
+        // be sure to remove deleter when removing components through the generator
+        _deleteComponent.erase(compTypeIndex);
+      }
+    }
+  }
+  // set the new entity signature with all components registered
+  EntityManager::Get().SetSignature(GetID(), signature);
+  // recheck against systems to register with systems
+  CheckAgainstSystems(this);
+}
+
+SBuffer Entity::CreateEntitySnapshot() const
+{
+  std::stringstream stream;
+  Serialize(stream);
+
+  return SBuffer(std::istreambuf_iterator<char>(stream), {});
+}
+
+void Entity::LoadEntitySnapshot(const SBuffer& snapshot)
+{
+  std::stringstream stream;
+  stream.write((const char*)snapshot.data(), snapshot.size());
+
+  Deserialize(stream);
 }
 
 void Entity::RemoveAllComponents()
@@ -92,6 +166,10 @@ void Entity::SetScale(Vector2<float> scale)
     collider->rect.Scale(transform.scale, scale);
   }
   if (auto collider = GetComponent<StaticCollider>())
+  {
+    collider->rect.Scale(transform.scale, scale);
+  }
+  if (auto collider = GetComponent<Hitbox>())
   {
     collider->rect.Scale(transform.scale, scale);
   }

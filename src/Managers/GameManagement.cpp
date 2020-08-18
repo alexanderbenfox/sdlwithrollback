@@ -279,6 +279,44 @@ void GameManager::BeginGameLoop()
     ImGui::Text("Components = %d", ECSGlobalStatus::NRegisteredComponents);
   });
 
+
+  GUIController::Get().AddImguiWindowFunction("ECS Status", "Entity Snapshots", [this]() {
+
+    if(ImGui::Button("Make P1 Snapshot"))
+    {
+      _p1Snapshots.push_back(_p1->CreateEntitySnapshot());
+    }
+    if (ImGui::CollapsingHeader("P1 Snapshot List"))
+    {
+      for (int i = 0; i < _p1Snapshots.size(); i++)
+      {
+        std::string btnLabel = "SNAPSHOT " + std::to_string(i + 1);
+        if (ImGui::Button(btnLabel.c_str()))
+        {
+          _p1->LoadEntitySnapshot(_p1Snapshots[i]);
+        }
+      }
+    }
+
+
+    if (ImGui::Button("Make P2 Snapshot"))
+    {
+      _p2Snapshots.push_back(_p2->CreateEntitySnapshot());
+    }
+
+    if (ImGui::CollapsingHeader("P2 Snapshot List"))
+    {
+      for (int i = 0; i < _p2Snapshots.size(); i++)
+      {
+        std::string btnLabel = "SNAPSHOT " + std::to_string(i + 1);
+        if (ImGui::Button(btnLabel.c_str()))
+        {
+          _p2->LoadEntitySnapshot(_p2Snapshots[i]);
+        }
+      }
+    }
+  });
+
   int frameCount = 0;
   for (;;)
   {
@@ -349,6 +387,9 @@ void GameManager::ActivateHitStop(int frames)
 void GameManager::DebugDraws()
 {
   // draw items in debug layer over top of the drawn scene
+  ComponentArray<Hurtbox>::Get().ForEach([](Hurtbox& hb) { hb.Draw(); });
+  ComponentArray<Hitbox>::Get().ForEach([](Hitbox& hb) { hb.Draw(); });
+  ComponentArray<ThrowFollower>::Get().ForEach([](ThrowFollower& tb) { tb.Draw(); });
   //ComponentManager<Hurtbox>::Get().Draw();
   //ComponentManager<Hitbox>::Get().Draw();
   //ComponentManager<ThrowFollower>::Get().Draw();

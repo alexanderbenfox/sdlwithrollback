@@ -1,6 +1,5 @@
 #pragma once
 #include "Globals.h"
-#include "Core/ECS/ComponentIDGenerator.h"
 
 #include <memory>
 #include <bitset>

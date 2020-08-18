@@ -242,7 +242,7 @@
     <ClCompile Include="..\src\Core\Utility\InputSequenceBuffer.cpp">
       <Filter>Source Files\Core\Utility</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\Core\ECS\ComponentIDGenerator.cpp">
+    <ClCompile Include="..\src\Core\ECS\ComponentMapper.cpp">
       <Filter>Source Files\Core\ECS</Filter>
     </ClCompile>
   </ItemGroup>
@@ -372,9 +372,6 @@
     </ClInclude>
     <ClInclude Include="..\src\Core\Interfaces\Serializable.h">
       <Filter>Source Files\Core\Interfaces</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\Core\ECS\ComponentIDGenerator.h">
-      <Filter>Source Files\Core\ECS</Filter>
     </ClInclude>
     <ClInclude Include="..\src\Core\ECS\Entity.h">
       <Filter>Source Files\Core\ECS</Filter>
@@ -551,6 +548,9 @@
       <Filter>Source Files\Core\Utility</Filter>
     </ClInclude>
     <ClInclude Include="..\src\Core\ECS\ComponentTraits.h">
+      <Filter>Source Files\Core\ECS</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Core\ECS\ComponentMapper.h">
       <Filter>Source Files\Core\ECS</Filter>
     </ClInclude>
   </ItemGroup>

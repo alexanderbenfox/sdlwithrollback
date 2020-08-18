@@ -90,8 +90,9 @@ inline Vector2<T> Vector2<T>::Zero = Vector2<T>(static_cast<T>(0), static_cast<T
 template <typename U>
 std::ostream& operator<<(std::ostream& os, const Vector2<U>& vector)
 {
-  os << vector.x;
-  os << vector.y;
+  // use read instead of << when writing literals so they can be saved in stringstream buffer
+  os.write((const char*)&vector.x, sizeof(U));
+  os.write((const char*)&vector.y, sizeof(U));
   return os;
 }
 
@@ -99,7 +100,8 @@ std::ostream& operator<<(std::ostream& os, const Vector2<U>& vector)
 template <typename U>
 std::istream& operator>>(std::istream& is, Vector2<U>& vector)
 {
-  is >> vector.x;
-  is >> vector.y;
+  // use read instead of >> when reading literals from stringstream buffer
+  is.read((char*)&vector.x, sizeof(U));
+  is.read((char*)&vector.y, sizeof(U));
   return is;
 }

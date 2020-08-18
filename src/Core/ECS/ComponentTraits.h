@@ -1,54 +1,37 @@
 #pragma once
 #include "Core/ECS/IComponent.h"
+#include "Core/ECS/ComponentMapper.h"
 
-template <typename T>
+//! Mainly used to map component manipulation function to an ID value at runtime
+template <typename T = IComponent>
 class ComponentTraits
 {
 public:
-  static const std::bitset<MAX_COMPONENTS>& GetSignature() { return signature; }
-
-  //static ComponentEntityFnSet SerializationFns;
-
+  //! Static getter
+  static ComponentTraits& Get()
+  {
+    static ComponentTraits t;
+    return t;
+  }
+  //! Gets the signature for this component type
+  const std::bitset<MAX_COMPONENTS>& GetSignature() { return _signature; }
 
 private:
-  static int ID;
-  static bool ID_Initialized;
-  static std::bitset<MAX_COMPONENTS> signature;
+  //! Initializes component ID and signature using ComponentMapper
+  ComponentTraits();
 
   //! returns a deleter function when being called from entity wrapper
-  static const std::function<void()> AddSelf(EntityID entity)
-  {
-    ComponentArray<T>::Get().Insert(entity, T());
+  const std::function<void()> AddSelf(EntityID entity);
+  const void RemoveSelf(EntityID entity);
+  const void CopyDataFromEntity(EntityID entity, SBuffer& buffer);
+  const void CopyDataToEntity(EntityID entity, const SBuffer& buffer);
+  const void Serialize(EntityID entity, std::ostream& os);
+  const void Deserialize(EntityID entity, std::istream& is);
 
-    auto signature = EntityManager::Get().GetSignature(entity);
-    signature |= GetSignature();
-    EntityManager::Get().SetSignature(entity, signature);
+  int _ID = 0;
+  std::bitset<MAX_COMPONENTS> _signature;
 
-    return [entity]() { ComponentTraits<T>::RemoveSelf(entity); };
-  }
-
-  static const void RemoveSelf(EntityID entity)
-  {
-    ComponentArray<T>::Get().Remove(entity);
-
-    auto signature = EntityManager::Get().GetSignature(entity);
-    signature &= ~GetSignature();
-    EntityManager::Get().SetSignature(entity, signature);
-  }
-
-  static const void CopyDataFromEntity(EntityID entity, SBuffer& buffer)
-  {
-    if constexpr (std::is_base_of_v<ISerializable, T>)
-      buffer = CopyDataToBuffer(ComponentArray<T>::Get().GetComponent(entity));
-  }
-
-  static const void CopyDataToEntity(EntityID entity, const SBuffer& buffer)
-  {
-    if constexpr (std::is_base_of_v<ISerializable, T>)
-      CopyDataIntoComponent(ComponentArray<T>::Get().GetComponent(entity), buffer);
-  }
-
-  static const SBuffer& CopyDataToBuffer(const T& item)
+  /*static const SBuffer& CopyDataToBuffer(const T& item)
   {
     std::iostream stream(std::iostream::binary);
     item.Serialize(stream);
@@ -62,33 +45,71 @@ private:
     stream.write(buffer.data(), buffer.size());
 
     item.Deserialize(stream);
-  }
+  }*/
+
 };
 
-/*template <class T>
-ComponentEntityFnSet ComponentTraits<T>::SerializationFns =
+template <typename T>
+inline ComponentTraits<T>::ComponentTraits()
 {
-  std::function<std::function<void()>(EntityID)>([](EntityID e) { return AddSelf(e); }),
-  std::function<void(EntityID)>([](EntityID e) { RemoveSelf(e); }),
-  std::function<SBuffer(EntityID)>([](EntityID e) { SBuffer buffer; CopyDataFromEntity(e, buffer); return buffer; }),
-  std::function<void(EntityID, const SBuffer&)>([](EntityID e, const SBuffer& b) { CopyDataToEntity(e, b); }),
-  std::type_index(typeid(T))
-};*/
+  _signature = ComponentMapper::Get().GenerateBitFlag(_ID, _signature, {
+    std::function<std::function<void()>(EntityID)>([this](EntityID e) { return AddSelf(e); }),
+    std::function<void(EntityID)>([this](EntityID e) { RemoveSelf(e); }),
+    std::function<void(EntityID, std::ostream&)>([this](EntityID e, std::ostream& os) { Serialize(e, os); }),
+    std::function<void(EntityID, std::istream&)>([this](EntityID e, std::istream& is) { Deserialize(e, is); }),
+    //std::function<SBuffer(EntityID)>([](EntityID e) { SBuffer buffer; CopyDataFromEntity(e, buffer); return buffer; }),
+    //std::function<void(EntityID, const SBuffer&)>([](EntityID e, const SBuffer& b) { CopyDataToEntity(e, b); }),
+    std::type_index(typeid(T))
+  });
+}
 
-template <class T>
-int ComponentTraits<T>::ID = 0;
+template <typename T>
+const std::function<void()> ComponentTraits<T>::AddSelf(EntityID entity)
+{
+  ComponentArray<T>::Get().Insert(entity, T());
 
-template <class T>
-bool ComponentTraits<T>::ID_Initialized = false;
+  auto signature = EntityManager::Get().GetSignature(entity);
+  signature |= GetSignature();
+  EntityManager::Get().SetSignature(entity, signature);
 
-template <class T>
-std::bitset<MAX_COMPONENTS> ComponentTraits<T>::signature =
-ComponentIDGenerator::GenerateBitFlag(ComponentTraits<T>::ID_Initialized, ComponentTraits<T>::ID, ComponentTraits<T>::signature,
-  {
-  std::function<std::function<void()>(EntityID)>([](EntityID e) { return AddSelf(e); }),
-  std::function<void(EntityID)>([](EntityID e) { RemoveSelf(e); }),
-  std::function<SBuffer(EntityID)>([](EntityID e) { SBuffer buffer; CopyDataFromEntity(e, buffer); return buffer; }),
-  std::function<void(EntityID, const SBuffer&)>([](EntityID e, const SBuffer& b) { CopyDataToEntity(e, b); }),
-  std::type_index(typeid(T))
-  }
-);
+  return [entity]() { ComponentTraits<T>::Get().RemoveSelf(entity); };
+}
+
+template <typename T>
+const void ComponentTraits<T>::RemoveSelf(EntityID entity)
+{
+  ComponentArray<T>::Get().Remove(entity);
+
+  auto signature = EntityManager::Get().GetSignature(entity);
+  signature &= ~GetSignature();
+  EntityManager::Get().SetSignature(entity, signature);
+}
+
+template <typename T>
+const void ComponentTraits<T>::CopyDataFromEntity(EntityID entity, SBuffer& buffer)
+{
+  if constexpr (std::is_base_of_v<ISerializable, T>)
+    buffer = CopyDataToBuffer(ComponentArray<T>::Get().GetComponent(entity));
+}
+
+template <typename T>
+const void ComponentTraits<T>::CopyDataToEntity(EntityID entity, const SBuffer& buffer)
+{
+  if constexpr (std::is_base_of_v<ISerializable, T>)
+    CopyDataIntoComponent(ComponentArray<T>::Get().GetComponent(entity), buffer);
+}
+
+
+template <typename T>
+const void ComponentTraits<T>::Serialize(EntityID entity, std::ostream& os)
+{
+  if constexpr (std::is_base_of_v<ISerializable, T>)
+    ComponentArray<T>::Get().GetComponent(entity).Serialize(os);
+}
+
+template <typename T>
+const void ComponentTraits<T>::Deserialize(EntityID entity, std::istream& is)
+{
+  if constexpr (std::is_base_of_v<ISerializable, T>)
+    ComponentArray<T>::Get().GetComponent(entity).Deserialize(is);
+}
