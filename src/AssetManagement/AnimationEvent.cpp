@@ -168,7 +168,7 @@ EventList AnimationEventHelper::BuildEventList(const Vector2<int> offset, const 
         auto move = movement;
         if (!state->onLeftSide)
           move.x *= -1.0f;
-        rb->_vel += move;
+        rb->velocity += move;
       }
     };
 

@@ -2,59 +2,44 @@
 #include "Collider.h"
 #include "Core/Geometry2D/RectHelper.h"
 
-class UniversalPhysicsSettings
-{
-public:
-  static UniversalPhysicsSettings& Get()
-  {
-    static UniversalPhysicsSettings instance;
-    return instance;
-  }
-
-  float Gravity = 2700.0f;
-  float JumpVelocity = 1200.0f;
-
-private:
-  UniversalPhysicsSettings() = default;
-
-};
-
 //!
 struct DynamicCollider : public RectColliderD {};
 
 //!
 struct StaticCollider : public RectColliderD {};
 
+//! Empty gravity component
+struct Gravity : public IComponent, public ISerializable
+{
+  Vector2<float> force;
+
+  void Serialize(std::ostream& os) const override { os << force; }
+  void Deserialize(std::istream& is) override { is >> force; }
+};
+
 //!
-class Rigidbody : public IComponent
+struct Rigidbody : public IComponent, public ISerializable
 {
 public:
   //!
-  Rigidbody() : _useGravity(false), elasticCollisions(false), IComponent() {}
-  //!
-  void Init(bool useGravity)
-  {
-    _useGravity = useGravity;
-    if(_useGravity)
-      _addedAccel = UniversalPhysicsSettings::Get().Gravity;
-  }
+  Rigidbody() : lastCollisionSide(CollisionSide::NONE), elasticCollisions(false), ignoreDynamicColliders(false), IComponent() {}
+  //! Last side(s) on physics collider that collided with another collider
+  CollisionSide lastCollisionSide;
+  //! Current velocity on rigidbody
+  Vector2<float> velocity;
+  //! Current acceleration on rigidbody
+  Vector2<float> acceleration;
 
-  CollisionSide _lastCollisionSide;
-  //!
-  Vector2<float> _vel;
-  //!
-  Vector2<float> _acc;
-  //!
-  float _addedAccel = 0.0f;
-  //!
-  bool _useGravity;
-  //!
+  //! Should collisions on this bounce or be rigid
   bool elasticCollisions;
-  //!
-  bool ignoreDynamicColliders = false;
+  //! Should collision checks include other dynamic colliders
+  bool ignoreDynamicColliders;
 
-  friend std::ostream& operator<<(std::ostream& os, const Rigidbody& rb);
-  friend std::istream& operator>>(std::istream& is, Rigidbody& rb);
+  //! Helper fns
+  bool IsGrounded() const { return HasState(lastCollisionSide, CollisionSide::DOWN); }
+
+  void Serialize(std::ostream& os) const override;
+  void Deserialize(std::istream& is) override;
 
 };
 
@@ -70,10 +55,17 @@ template <> struct ComponentInitParams<DynamicCollider>
 template <> struct ComponentInitParams<Rigidbody>
 {
   Vector2<float> velocity;
-  bool useGravity;
   static void Init(Rigidbody& component, const ComponentInitParams<Rigidbody>& params)
   {
-    component._vel = params.velocity;
-    component.Init(params.useGravity);
+    component.velocity = params.velocity;
+  }
+};
+
+template <> struct ComponentInitParams<Gravity>
+{
+  Vector2<float> force;
+  static void Init(Gravity& component, const ComponentInitParams<Gravity>& params)
+  {
+    component.force = params.force;
   }
 };

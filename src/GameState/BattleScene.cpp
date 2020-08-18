@@ -65,8 +65,8 @@ BattleScene::~BattleScene()
   GameManager::Get().DestroyEntity(_camera);
 
   // we are moving into the after match cutscene, so only remove game state related components
-  _p1->RemoveComponents<GameActor, Hurtbox, StateComponent, UIContainer, WallPushComponent, Rigidbody, TimerContainer>();
-  _p2->RemoveComponents<GameActor, Hurtbox, StateComponent, UIContainer, WallPushComponent, Rigidbody, TimerContainer>();
+  _p1->RemoveComponents<GameActor, Hurtbox, StateComponent, UIContainer, WallPushComponent, Rigidbody, Gravity, TimerContainer>();
+  _p2->RemoveComponents<GameActor, Hurtbox, StateComponent, UIContainer, WallPushComponent, Rigidbody, Gravity, TimerContainer>();
 
   //_p1->RemoveComponents<Animator, RenderComponent<RenderType>, RenderProperties, Rigidbody, GameActor, DynamicCollider, Hurtbox, StateComponent, UIContainer, TimerContainer, Transform>();
   //_p1->RemoveComponents<Animator, RenderComponent<RenderType>, RenderProperties, Rigidbody, GameActor, DynamicCollider, Hurtbox, StateComponent, UIContainer, TimerContainer, Transform>();
@@ -153,6 +153,7 @@ void BattleScene::Update(float deltaTime)
   AttackAnimationSystem::DoTick(deltaTime);
 
   // resolve collisions
+  ApplyGravitySystem::DoTick(deltaTime);
   PhysicsSystem::DoTick(deltaTime);
   // update the location of the colliders
   MoveSystem::DoTick(deltaTime);
@@ -185,29 +186,24 @@ BattleScene::StageBorders BattleScene::CreateStageBorders(const Rect<float>& sta
   const float borderWidth = 200;
   const float borderHeight = 80;
 
-  stage.borders[0] = GameManager::Get().CreateEntity<Transform, RenderComponent<RenderType>, StaticCollider>();
+  stage.borders[0] = GameManager::Get().CreateEntity<Transform, StaticCollider>();
   stage.borders[0]->GetComponent<Transform>()->position.x = (stageRect.beg.x + stageRect.end.x) / 2.0f;
   stage.borders[0]->GetComponent<Transform>()->position.y = stageRect.end.y;
-  stage.borders[0]->GetComponent<RenderComponent<RenderType>>()->Init(ResourceManager::Get().GetAsset<RenderType>("spritesheets\\ryu.png"));
   stage.borders[0]->GetComponent<StaticCollider>()->Init(Vector2<double>(stageRect.beg.x, stageRect.end.y - borderHeight / 2.0f), Vector2<double>(stageRect.end.x, stageRect.end.y + borderHeight / 2.0f));
   stage.borders[0]->GetComponent<StaticCollider>()->MoveToTransform(*stage.borders[0]->GetComponent<Transform>());
 
-  stage.borders[1] = GameManager::Get().CreateEntity<Transform, RenderComponent<RenderType>, StaticCollider>();
+  stage.borders[1] = GameManager::Get().CreateEntity<Transform, StaticCollider, WallMoveComponent>();
   stage.borders[1]->GetComponent<Transform>()->position.x = stageRect.beg.x - 100;
   stage.borders[1]->GetComponent<Transform>()->position.y = (stageRect.beg.y + stageRect.end.y) / 2.0f;
-  stage.borders[1]->GetComponent<RenderComponent<RenderType>>()->Init(ResourceManager::Get().GetAsset<RenderType>("spritesheets\\ryu.png"));
   stage.borders[1]->GetComponent<StaticCollider>()->Init(Vector2<double>(-borderWidth, 0), Vector2<double>(0, stageRect.Height()));
   stage.borders[1]->GetComponent<StaticCollider>()->MoveToTransform(*stage.borders[1]->GetComponent<Transform>());
-  stage.borders[1]->AddComponent<WallMoveComponent>();
   stage.borders[1]->GetComponent<WallMoveComponent>()->leftWall = true;
 
-  stage.borders[2] = GameManager::Get().CreateEntity<Transform, RenderComponent<RenderType>, StaticCollider>();
+  stage.borders[2] = GameManager::Get().CreateEntity<Transform, StaticCollider, WallMoveComponent>();
   stage.borders[2]->GetComponent<Transform>()->position.x = stageRect.end.x + 100.0f;
   stage.borders[2]->GetComponent<Transform>()->position.y = (stageRect.beg.y + stageRect.end.y) / 2.0f;
-  stage.borders[2]->GetComponent<RenderComponent<RenderType>>()->Init(ResourceManager::Get().GetAsset<RenderType>("spritesheets\\ryu.png"));
   stage.borders[2]->GetComponent<StaticCollider>()->Init(Vector2<double>(0, 0), Vector2<double>(borderWidth, stageRect.Height()));
   stage.borders[2]->GetComponent<StaticCollider>()->MoveToTransform(*stage.borders[2]->GetComponent<Transform>());
-  stage.borders[2]->AddComponent<WallMoveComponent>();
   stage.borders[2]->GetComponent<WallMoveComponent>()->leftWall = false;
   
   return stage;
@@ -223,7 +219,7 @@ void BattleScene::InitCharacter(Vector2<float> position, std::shared_ptr<Entity>
   // quick hack to make the debug stuff for attacks work... need to remove eventually
   player->RemoveComponents<Transform, Animator>();
 
-  player->AddComponents<Transform, GameInputComponent, Animator, RenderComponent<RenderType>, RenderProperties, Rigidbody, GameActor, DynamicCollider, Hurtbox, StateComponent, TeamComponent, SFXComponent>();
+  player->AddComponents<Transform, GameInputComponent, Animator, RenderComponent<RenderType>, RenderProperties, Rigidbody, Gravity, GameActor, DynamicCollider, Hurtbox, StateComponent, TeamComponent, SFXComponent>();
   player->AddComponents<UIContainer, TimerContainer>();
 
   auto uiContainer = player->GetComponent<UIContainer>();
@@ -316,7 +312,7 @@ void BattleScene::InitCharacter(Vector2<float> position, std::shared_ptr<Entity>
   else
     createHPEntities(UIAnchor::TR, Vector2<float>(-200 - healthBarOffset.x * 2, 0));
 
-  player->GetComponent<Rigidbody>()->Init(true);
+  player->GetComponent<Gravity>()->force = GlobalVars::Gravity;
   player->GetComponent<Animator>()->SetAnimations(&RyuConfig::Animations());
 
   player->GetComponent<Transform>()->SetWidthAndHeight(entitySize.x, entitySize.y);
@@ -422,6 +418,7 @@ void PostMatchScene::Update(float deltaTime)
 
   CutsceneSystem::DoTick(deltaTime);
   // resolve collisions
+  ApplyGravitySystem::DoTick(deltaTime);
   PhysicsSystem::DoTick(deltaTime);
   // prevent continued movement after hitting the ground
   CutsceneMovementSystem::DoTick(deltaTime);

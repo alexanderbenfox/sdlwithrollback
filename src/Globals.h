@@ -1,4 +1,5 @@
 #pragma once
+#include "Core/Math/Vector2.h"
 
 const unsigned int MAX_ENTITIES = 500;
 const unsigned int MAX_COMPONENTS = 128;
@@ -19,7 +20,7 @@ struct ECSGlobalStatus
 };
 
 //______________________________________________________________________________
-//! Editable global vars
+//! Editable global vars for gameplay mostly
 class GlobalVars
 {
 public:
@@ -31,6 +32,12 @@ public:
   static int nDashFrames;
   //! number of pixels (multiplied by delta time) moved during a walk or jump forward or back
   static float BaseWalkSpeed;
+  //! force of gravity
+  static Vector2<float> Gravity;
+  //! force of gravity when being juggled by a combo
+  static Vector2<float> JuggleGravity;
+  //! inst velocity applied upwards when jump occurs
+  static float JumpVelocity;
   //! Show hit and block sparks
   static bool ShowHitEffects;
   

@@ -35,24 +35,24 @@ Entity* Entity::Copy()
   const ComponentBitFlag& signature = GetSignature();
   for (size_t compIndex = 0; compIndex < ECSGlobalStatus::NRegisteredComponents; compIndex++)
   {
-    std::type_index compTypeIndex = ComponentMapper::Get().GetTypeIndex(compIndex);
+    std::type_index compTypeIndex = ECSCoordinator::Get().GetTypeIndex(compIndex);
     if (signature.test(compIndex))
     {
       // if deleter is already present, component already attached to entity
       if (nEntity->_deleteComponent.find(compTypeIndex) == nEntity->_deleteComponent.end())
       {
         // add self via generator which needs to add deleter
-        auto deleterFn = ComponentMapper::Get().AddSelf(nEntity->GetID(), compIndex);
+        auto deleterFn = ECSCoordinator::Get().AddSelf(nEntity->GetID(), compIndex);
         nEntity->_deleteComponent.insert(std::make_pair(compTypeIndex, deleterFn));
       }
-      //ComponentMapper::Get().CopyComponentData(GetID(), nEntity->GetID(), compIndex);
+      //ECSCoordinator::Get().CopyComponentData(GetID(), nEntity->GetID(), compIndex);
     }
     else
     {
       // only delete if its already present
       if (nEntity->_deleteComponent.find(compTypeIndex) != nEntity->_deleteComponent.end())
       {
-        ComponentMapper::Get().RemoveSelf(nEntity->GetID(), compIndex);
+        ECSCoordinator::Get().RemoveSelf(nEntity->GetID(), compIndex);
         // be sure to remove deleter when removing components through the generator
         nEntity->_deleteComponent.erase(compTypeIndex);
       }
@@ -76,7 +76,7 @@ void Entity::Serialize(std::ostream& os) const
     if (signature.test(compIndex))
     {
       // write component data to stream based on signature
-      ComponentMapper::Get().SerializeComponent(_id, os, compIndex);
+      ECSCoordinator::Get().SerializeComponent(_id, os, compIndex);
     }
   }
 }
@@ -89,25 +89,25 @@ void Entity::Deserialize(std::istream& is)
 
   for (size_t compIndex = 0; compIndex < ECSGlobalStatus::NRegisteredComponents; compIndex++)
   {
-    std::type_index compTypeIndex = ComponentMapper::Get().GetTypeIndex(compIndex);
+    std::type_index compTypeIndex = ECSCoordinator::Get().GetTypeIndex(compIndex);
     if (signature.test(compIndex))
     {
       // if deleter is already present, component already attached to entity
       if (_deleteComponent.find(compTypeIndex) == _deleteComponent.end())
       {
         // add self via generator which needs to add deleter
-        auto deleterFn = ComponentMapper::Get().AddSelf(GetID(), compIndex);
+        auto deleterFn = ECSCoordinator::Get().AddSelf(GetID(), compIndex);
         _deleteComponent.insert(std::make_pair(compTypeIndex, deleterFn));
       }
       // this should write data directly to component, so no need to do anything
-      ComponentMapper::Get().DeserializeComponent(GetID(), is, compIndex);
+      ECSCoordinator::Get().DeserializeComponent(GetID(), is, compIndex);
     }
     else
     {
       // only delete if its already present
       if (_deleteComponent.find(compTypeIndex) != _deleteComponent.end())
       {
-        ComponentMapper::Get().RemoveSelf(GetID(), compIndex);
+        ECSCoordinator::Get().RemoveSelf(GetID(), compIndex);
         // be sure to remove deleter when removing components through the generator
         _deleteComponent.erase(compTypeIndex);
       }

@@ -82,9 +82,9 @@ struct EnactActionMovementSystem : public ISystem<EnactActionComponent, MovingAc
       Rigidbody& rb = ComponentArray<Rigidbody>::Get().GetComponent(entity);
 
       if (action.horizontalMovementOnly)
-        rb._vel.x = action.velocity.x;
+        rb.velocity.x = action.velocity.x;
       else
-        rb._vel = action.velocity;
+        rb.velocity = action.velocity;
     }
   }
 };

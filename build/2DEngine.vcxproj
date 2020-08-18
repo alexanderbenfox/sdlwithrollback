@@ -47,7 +47,7 @@
     <ClCompile Include="..\src\Components\StateComponents\AttackStateComponent.cpp" />
     <ClCompile Include="..\src\Components\StateComponents\HitStateComponent.cpp" />
     <ClCompile Include="..\src\Components\Transform.cpp" />
-    <ClCompile Include="..\src\Core\ECS\ComponentMapper.cpp" />
+    <ClCompile Include="..\src\Core\ECS\ECSCoordinator.cpp" />
     <ClCompile Include="..\src\Core\ECS\Entity.cpp" />
     <ClCompile Include="..\src\Core\ECS\EntityManager.cpp" />
     <ClCompile Include="..\src\Core\Geometry2D\RectHelper.cpp" />
@@ -121,7 +121,7 @@
     <ClInclude Include="..\src\Components\Transform.h" />
     <ClInclude Include="..\src\Components\UIComponents.h" />
     <ClInclude Include="..\src\Core\ECS\ComponentArray.h" />
-    <ClInclude Include="..\src\Core\ECS\ComponentMapper.h" />
+    <ClInclude Include="..\src\Core\ECS\ECSCoordinator.h" />
     <ClInclude Include="..\src\Core\ECS\ComponentTraits.h" />
     <ClInclude Include="..\src\Core\ECS\Entity.h" />
     <ClInclude Include="..\src\Core\ECS\EntityManager.h" />

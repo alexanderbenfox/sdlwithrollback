@@ -1,5 +1,5 @@
 #include "Core/ECS/EntityManager.h"
-#include "Core/ECS/ComponentMapper.h"
+#include "Core/ECS/ECSCoordinator.h"
 
 EntityID EntityManager::RegisterEntity()
 {

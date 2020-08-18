@@ -1,6 +1,6 @@
 #pragma once
 #include "Core/ECS/IComponent.h"
-#include "Core/ECS/ComponentMapper.h"
+#include "Core/ECS/ECSCoordinator.h"
 
 //! Mainly used to map component manipulation function to an ID value at runtime
 template <typename T = IComponent>
@@ -17,7 +17,7 @@ public:
   const std::bitset<MAX_COMPONENTS>& GetSignature() { return _signature; }
 
 private:
-  //! Initializes component ID and signature using ComponentMapper
+  //! Initializes component ID and signature using ECSCoordinator
   ComponentTraits();
 
   //! returns a deleter function when being called from entity wrapper
@@ -52,7 +52,8 @@ private:
 template <typename T>
 inline ComponentTraits<T>::ComponentTraits()
 {
-  _signature = ComponentMapper::Get().GenerateBitFlag(_ID, _signature, {
+  _signature = ECSCoordinator::Get().RegisterComponent(_ID,
+  {
     std::function<std::function<void()>(EntityID)>([this](EntityID e) { return AddSelf(e); }),
     std::function<void(EntityID)>([this](EntityID e) { RemoveSelf(e); }),
     std::function<void(EntityID, std::ostream&)>([this](EntityID e, std::ostream& os) { Serialize(e, os); }),

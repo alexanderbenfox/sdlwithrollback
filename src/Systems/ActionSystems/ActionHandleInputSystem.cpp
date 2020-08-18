@@ -74,7 +74,7 @@ void HandleDashUpdateSystem::DoTick(float dt)
     float totalT = static_cast<float>(timer.totalFrames);
 
     float f_t = Interpolation::Plateau::F(t, totalT, action.dashSpeed);
-    rb._vel = Vector2<float>(f_t, 0);
+    rb.velocity = Vector2<float>(f_t, 0);
   }
 }
 
@@ -84,10 +84,10 @@ void HandleInputJump::DoTick(float dt)
   DeferGuard guard;
   for (const EntityID& entity : Registered)
   {
-    Rigidbody& rb = ComponentArray<Rigidbody>::Get().GetComponent(entity);
+    Rigidbody& rigidbody = ComponentArray<Rigidbody>::Get().GetComponent(entity);
     StateComponent& state = ComponentArray<StateComponent>::Get().GetComponent(entity);
 
-    if (HasState(rb._lastCollisionSide, CollisionSide::DOWN))
+    if (rigidbody.IsGrounded())
     {
       RunOnDeferGuardDestroy((entity, &state),
         ActionFactory::GoToNeutralAction(entity, &state);
@@ -160,12 +160,10 @@ void CheckForReturnToNeutral::DoTick(float dt)
     StateComponent& state = ComponentArray<StateComponent>::Get().GetComponent(entity);
 
     // N/A if not grounded
-    if (!actor.newInputs || !HasState(rigidbody._lastCollisionSide, CollisionSide::DOWN))
+    if (!actor.newInputs || !rigidbody.IsGrounded())
       continue;
 
-    if (HasState(actor.LastButtons(), InputState::LEFT) || HasState(actor.LastButtons(), InputState::RIGHT))
-    {
-    }
+    if (HasState(actor.LastButtons(), InputState::LEFT) || HasState(actor.LastButtons(), InputState::RIGHT)) {}
     else if (!HasState(actor.LastButtons(), InputState::DOWN))
     {
       RunOnDeferGuardDestroy((entity, &state), ActionFactory::GoToNeutralAction(entity, &state));
@@ -184,7 +182,7 @@ void CheckForMoveLeft::DoTick(float dt)
     StateComponent& state = ComponentArray<StateComponent>::Get().GetComponent(entity);
 
     // N/A if not grounded
-    if (!actor.newInputs || !HasState(rigidbody._lastCollisionSide, CollisionSide::DOWN))
+    if (!actor.newInputs || !rigidbody.IsGrounded())
       continue;
 
     if (HasState(actor.LastButtons(), InputState::LEFT))
@@ -206,7 +204,7 @@ void CheckForMoveRight::DoTick(float dt)
     StateComponent& state = ComponentArray<StateComponent>::Get().GetComponent(entity);
 
     // N/A if not grounded
-    if (!actor.newInputs || !HasState(rigidbody._lastCollisionSide, CollisionSide::DOWN))
+    if (!actor.newInputs || !rigidbody.IsGrounded())
       continue;
 
     if (HasState(actor.LastButtons(), InputState::RIGHT))
@@ -228,18 +226,18 @@ void CheckForJump::DoTick(float dt)
     StateComponent& state = ComponentArray<StateComponent>::Get().GetComponent(entity);
 
     // N/A if not grounded
-    if (!HasState(rigidbody._lastCollisionSide, CollisionSide::DOWN))
+    if (!rigidbody.IsGrounded())
       continue;
 
     if (HasState(actor.LastButtons(), InputState::UP))
     {
       Vector2<float> movementVector;
       if (HasState(actor.LastButtons(), InputState::LEFT))
-        movementVector = Vector2<float>(-0.5f * GlobalVars::BaseWalkSpeed, -UniversalPhysicsSettings::Get().JumpVelocity);
+        movementVector = Vector2<float>(-0.5f * GlobalVars::BaseWalkSpeed, -GlobalVars::JumpVelocity);
       else if (HasState(actor.LastButtons(), InputState::RIGHT))
-        movementVector = Vector2<float>(0.5f * GlobalVars::BaseWalkSpeed, -UniversalPhysicsSettings::Get().JumpVelocity);
+        movementVector = Vector2<float>(0.5f * GlobalVars::BaseWalkSpeed, -GlobalVars::JumpVelocity);
       else
-        movementVector = Vector2<float>(0.0f, -UniversalPhysicsSettings::Get().JumpVelocity);
+        movementVector = Vector2<float>(0.0f, -GlobalVars::JumpVelocity);
 
       RunOnDeferGuardDestroy((entity, state, movementVector), {
         GameManager::Get().GetEntityByID(entity)->AddComponent<EnactActionComponent>();
@@ -271,7 +269,7 @@ void CheckForFalling::DoTick(float dt)
     Rigidbody& rigidbody = ComponentArray<Rigidbody>::Get().GetComponent(entity);
     StateComponent& state = ComponentArray<StateComponent>::Get().GetComponent(entity);
 
-    if (!HasState(rigidbody._lastCollisionSide, CollisionSide::DOWN))
+    if (!rigidbody.IsGrounded())
     {
       RunOnDeferGuardDestroy((entity, state), {
         ActionFactory::SetAerialState(entity);
@@ -294,7 +292,7 @@ void CheckForBeginCrouching::DoTick(float dt)
     StateComponent& state = ComponentArray<StateComponent>::Get().GetComponent(entity);
 
     // N/A if not grounded
-    if (!HasState(rigidbody._lastCollisionSide, CollisionSide::DOWN))
+    if (!rigidbody.IsGrounded())
       continue;
 
     if (HasState(actor.LastButtons(), InputState::DOWN))
@@ -328,6 +326,7 @@ void CheckHitThisFrameSystem::DoTick(float dt)
     StateComponent& state = ComponentArray<StateComponent>::Get().GetComponent(entity);
     HittableState& hittable = ComponentArray<HittableState>::Get().GetComponent(entity);
     GameActor& actor = ComponentArray<GameActor>::Get().GetComponent(entity);
+    Rigidbody& rigidbody = ComponentArray<Rigidbody>::Get().GetComponent(entity);
 
     if (state.thrownThisFrame)
     {
@@ -340,7 +339,7 @@ void CheckHitThisFrameSystem::DoTick(float dt)
       state.hitThisFrame = false;
 
       InputState const& buttons = actor.LastButtons();
-      if (hittable.canBlock)
+      if (hittable.canBlock && rigidbody.IsGrounded())
       {
         bool blockedRight = HasState(buttons, InputState::LEFT) && state.onLeftSide;
         bool blockedLeft = HasState(buttons, InputState::RIGHT) && !state.onLeftSide;
@@ -439,7 +438,7 @@ void CheckDashSystem::DoTick(float dt)
     Animator& animator = ComponentArray<Animator>::Get().GetComponent(entity);
     Rigidbody& rigidbody = ComponentArray<Rigidbody>::Get().GetComponent(entity);
 
-    if (!HasState(rigidbody._lastCollisionSide, CollisionSide::DOWN))
+    if (!rigidbody.IsGrounded())
       continue;
 
     const InputState& btns = actor.LastButtons();
@@ -543,7 +542,7 @@ void ListenForAirborneSystem::DoTick(float dt)
   for (const EntityID& entity : Registered)
   {
     Rigidbody& rigidbody = ComponentArray<Rigidbody>::Get().GetComponent(entity);
-    if (!HasState(rigidbody._lastCollisionSide, CollisionSide::DOWN))
+    if (!rigidbody.IsGrounded())
     {
       RunOnDeferGuardDestroy(entity, ActionFactory::SetAerialState(entity));
     }
@@ -563,11 +562,11 @@ void TransitionToNeutralSystem::DoTick(float dt)
     if (actor.actionTimerComplete)
     {
       RunOnDeferGuardDestroy((entity, &state), ActionFactory::GoToNeutralAction(entity, &state));
-      if (HasState(actor.LastButtons(), InputState::DOWN) && HasState(rigidbody._lastCollisionSide, CollisionSide::DOWN))
+      if (rigidbody.IsGrounded() && HasState(actor.LastButtons(), InputState::DOWN))
       {
         RunOnDeferGuardDestroy((entity, &state), ActionFactory::SetCrouchingState(entity, &state));
       }
-      else if (!HasState(rigidbody._lastCollisionSide, CollisionSide::DOWN))
+      else if (!rigidbody.IsGrounded())
       {
         //ActionFactory::SetAerialState(entity);
       }
@@ -600,7 +599,7 @@ void CheckKnockdownOTG::DoTick(float dt)
     StateComponent& state = ComponentArray<StateComponent>::Get().GetComponent(entity);
     Rigidbody& rigidbody = ComponentArray<Rigidbody>::Get().GetComponent(entity);
 
-    if (HasState(rigidbody._lastCollisionSide, CollisionSide::DOWN))
+    if (rigidbody.IsGrounded())
     {
       RunOnDeferGuardDestroy((entity, &state), ActionFactory::SetKnockdownGroundOTG(entity, &state));
     }
@@ -628,9 +627,9 @@ void HitGroundCancelActionSystem::DoTick(float dt)
 {
   for (const EntityID& entity : Registered)
   {
-    Rigidbody& rb = ComponentArray<Rigidbody>::Get().GetComponent(entity);
+    Rigidbody& rigidbody = ComponentArray<Rigidbody>::Get().GetComponent(entity);
     GameActor& actor = ComponentArray<GameActor>::Get().GetComponent(entity);
-    if (HasState(rb._lastCollisionSide, CollisionSide::DOWN))
+    if (rigidbody.IsGrounded())
     {
       actor.actionTimerComplete = true;
     }

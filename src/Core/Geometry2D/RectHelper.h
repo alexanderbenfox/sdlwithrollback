@@ -24,6 +24,10 @@ CollisionSide operator~(CollisionSide a);
 static bool HasState(const CollisionSide& state, CollisionSide other) { return (state & other) == other; }
 //! Returns true if states share at least 1 common
 static bool HasUnion(const CollisionSide& state, CollisionSide other) { return (state & other) != CollisionSide::NONE; }
+//______________________________________________________________________________
+std::ostream& operator<<(std::ostream& os, const CollisionSide& rb);
+//______________________________________________________________________________
+std::istream& operator>>(std::istream& is, CollisionSide& rb);
 
 
 //______________________________________________________________________________

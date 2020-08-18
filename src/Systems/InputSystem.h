@@ -64,7 +64,7 @@ public:
 
       //const InputBuffer& unitInputState = inputHandler->QueryInput();
 
-      state.collision = rigidbody._lastCollisionSide;
+      state.collision = rigidbody.lastCollisionSide;
       actor.TransferInputData(inputHandler.QueryInput(), &state);
       
 

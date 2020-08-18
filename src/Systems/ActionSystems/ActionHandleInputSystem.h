@@ -66,7 +66,7 @@ struct CheckForBeginCrouching : public ISystem<InputListenerComponent, AbleToCro
   static void DoTick(float dt);
 };
 
-struct CheckHitThisFrameSystem : public ISystem<InputListenerComponent, HittableState, GameActor, StateComponent>
+struct CheckHitThisFrameSystem : public ISystem<InputListenerComponent, HittableState, GameActor, StateComponent, Rigidbody>
 {
   static void DoTick(float dt);
 };

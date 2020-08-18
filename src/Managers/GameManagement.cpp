@@ -229,6 +229,9 @@ void GameManager::BeginGameLoop()
     ImGui::BeginGroup();
 
     ImGui::InputFloat("Walk speed", &GlobalVars::BaseWalkSpeed, 1.0f, 10.0f, 0);
+    ImGui::InputFloat("Jump velocity", &GlobalVars::JumpVelocity, 1.0f, 10.0f, 0);
+    ImGui::InputFloat2("Gravity force", &GlobalVars::Gravity.x, 1);
+    ImGui::InputFloat2("Juggle Gravity force", &GlobalVars::JuggleGravity.x, 1);
     ImGui::InputInt("number of frames for dash", &GlobalVars::nDashFrames);
     ImGui::InputInt("Hit stop frames ON HIT", &GlobalVars::HitStopFramesOnHit);
     ImGui::InputInt("Hit stop frames ON BLOCK", &GlobalVars::HitStopFramesOnBlock);
@@ -343,6 +346,7 @@ void GameManager::BeginGameLoop()
 void GameManager::CheckAgainstSystems(Entity* entity)
 {
   InputSystem::Check(entity);
+  ApplyGravitySystem::Check(entity);
   PhysicsSystem::Check(entity);
   AnimationSystem::Check(entity);
   MoveWallSystem::Check(entity);

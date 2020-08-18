@@ -242,7 +242,7 @@
     <ClCompile Include="..\src\Core\Utility\InputSequenceBuffer.cpp">
       <Filter>Source Files\Core\Utility</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\Core\ECS\ComponentMapper.cpp">
+    <ClCompile Include="..\src\Core\ECS\ECSCoordinator.cpp">
       <Filter>Source Files\Core\ECS</Filter>
     </ClCompile>
   </ItemGroup>
@@ -550,7 +550,7 @@
     <ClInclude Include="..\src\Core\ECS\ComponentTraits.h">
       <Filter>Source Files\Core\ECS</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\Core\ECS\ComponentMapper.h">
+    <ClInclude Include="..\src\Core\ECS\ECSCoordinator.h">
       <Filter>Source Files\Core\ECS</Filter>
     </ClInclude>
   </ItemGroup>

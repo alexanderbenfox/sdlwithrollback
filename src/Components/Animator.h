@@ -3,7 +3,7 @@
 
 #include "Core/Interfaces/AnimatorListener.h"
 
-class Animator : public IComponent
+class Animator : public IComponent, public ISerializable
 {
 public:
   Animator();
@@ -36,9 +36,9 @@ public:
   //! multiplier for speed of animation to play at
   float playSpeed = 1.0f;
   
-
-  friend std::ostream& operator<<(std::ostream& os, const Animator& animator);
-  friend std::istream& operator>>(std::istream& is, Animator& animator);
+  //! Override ISerializable functions
+  void Serialize(std::ostream& os) const override;
+  void Deserialize(std::istream& is) override;
 
 protected:
   //! Things that need to know when an animation is done

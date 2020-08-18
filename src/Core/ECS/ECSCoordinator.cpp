@@ -1,37 +1,41 @@
-#include "Core/ECS/ComponentMapper.h"
+#include "Core/ECS/ECSCoordinator.h"
 #include "Core/ECS/Entity.h";
 
 //______________________________________________________________________________
-std::bitset<MAX_COMPONENTS> ComponentMapper::GenerateBitFlag(int& id, std::bitset<MAX_COMPONENTS>& signature, ComponentEntityFnSet fnSet)
+std::bitset<MAX_COMPONENTS> ECSCoordinator::RegisterComponent(int& id, ComponentEntityFnSet fnSet)
 {
+  // Generate component look up ID
   id = NextID();
+  // Set runtime add, remove, serialize functions for this component
   _serializationHelpers[id] = fnSet;
 
+  // return generated signature
+  std::bitset<MAX_COMPONENTS> signature;
   signature.set(id);
   return signature;
 }
 
 //______________________________________________________________________________
-std::function<void()> ComponentMapper::AddSelf(EntityID entity, int componentID)
+std::function<void()> ECSCoordinator::AddSelf(EntityID entity, int componentID)
 {
   return _serializationHelpers[componentID].AddSelf(entity);
 }
 
 //______________________________________________________________________________
-void ComponentMapper::RemoveSelf(EntityID entity, int componentID)
+void ECSCoordinator::RemoveSelf(EntityID entity, int componentID)
 {
   _serializationHelpers[componentID].RemoveSelf(entity);
 }
 
 //______________________________________________________________________________
-/*void ComponentMapper::CopyComponentData(EntityID original, EntityID newEntity, int componentID)
+/*void ECSCoordinator::CopyComponentData(EntityID original, EntityID newEntity, int componentID)
 {
   SBuffer buffer = _serializationHelpers[componentID].CopyDataToBuffer(original);
   _serializationHelpers[componentID].CopyFromBuffer(newEntity, buffer);
 }*/
 
 //______________________________________________________________________________
-int ComponentMapper::NextID()
+int ECSCoordinator::NextID()
 {
   static int ID = 0;
 

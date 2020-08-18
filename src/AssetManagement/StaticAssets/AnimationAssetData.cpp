@@ -91,7 +91,12 @@ void EntityCreationData::AddComponents(EntityID creatorID, const Transform* crea
       params.velocity = Vector2<float>(instruction.second["initVelocityX"].asFloat(), instruction.second["initVelocityY"].asFloat());
       if (!creatorState->onLeftSide)
         params.velocity.x = -params.velocity.x;
-      params.useGravity = instruction.second["useGravity"].asBool();
+
+      bool useGravity = instruction.second["useGravity"].asBool();
+      if (useGravity)
+      {
+        entity->AddComponent<Gravity>(ComponentInitParams<Gravity>{ GlobalVars::Gravity });
+      }
       entity->AddComponent<Rigidbody>(params);
     }
     else if (instruction.first == "DynamicCollider")

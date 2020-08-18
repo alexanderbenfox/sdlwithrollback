@@ -7,20 +7,17 @@ void PhysicsSystem::DoTick(float dt)
     // try moving
     // Apply last frame of acceleration to the velocity
 
-    auto& rigidbody = ComponentArray<Rigidbody>::Get().GetComponent(entity);
-    auto& collider = ComponentArray<DynamicCollider>::Get().GetComponent(entity);
-    auto& transform = ComponentArray<Transform>::Get().GetComponent(entity);
+    Rigidbody& rigidbody = ComponentArray<Rigidbody>::Get().GetComponent(entity);
+    DynamicCollider& collider = ComponentArray<DynamicCollider>::Get().GetComponent(entity);
+    Transform& transform = ComponentArray<Transform>::Get().GetComponent(entity);
 
-    Vector2<float>& vel = rigidbody._vel;
-    Vector2<float>& acc = rigidbody._acc;
-    float& addedAcc = rigidbody._addedAccel;
-
-    vel += (acc + Vector2<float>(0, addedAcc)) * dt;
+    //! apply acceleration at beginning of frame
+    rigidbody.velocity += rigidbody.acceleration * dt;
 
     // Create the movement vector based on speed and acceleration of the object
     double ddt = ToDouble(dt);
 
-    Vector2<double> movementVector = Vector2<double>(vel.x * ddt, vel.y * ddt);
+    Vector2<double> movementVector = (Vector2<double>)rigidbody.velocity * ddt;
 
     // Check collisions with other physics objects here and correct the movement vector based on those collisions
 
@@ -35,15 +32,15 @@ void PhysicsSystem::DoTick(float dt)
 
     Vector2<float> caVelocity = PositionAdjustmentToVelocity(futureCorrection.amount, ddt);
     // Convert adjustment vector to a velocity and change object's velocity based on the adjustment
-    vel += caVelocity;
+    rigidbody.velocity += caVelocity;
     //
     Vector2<float> instVelocity = PositionAdjustmentToVelocity(currentCorrection.amount, ddt);
     // Add the movement vector to the entityd
-    transform.position += (vel + instVelocity) * dt;
+    transform.position += (rigidbody.velocity + instVelocity) * dt;
 
     // end of frame, update the collision sides for this frame if not in hit stop
     if(dt > 0)
-      rigidbody._lastCollisionSide = futureCorrection.collisionSides;
+      rigidbody.lastCollisionSide = futureCorrection.collisionSides;
   }
 }
 

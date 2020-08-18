@@ -28,7 +28,7 @@ WallPushComponent::WallPushComponent() : IComponent() {}
 void WallPushComponent::OnRemove(const EntityID& entity)
 {
   if (ComponentArray<Rigidbody>::Get().HasComponent(entity))
-    ComponentArray<Rigidbody>::Get().GetComponent(entity)._vel.x = 0;
+    ComponentArray<Rigidbody>::Get().GetComponent(entity).velocity.x = 0;
 }
 
 //______________________________________________________________________________
@@ -138,38 +138,22 @@ std::istream& operator>>(std::istream& is, GameActor& actor)
   return is;
 }
 
-std::ostream& operator<<(std::ostream& os, const Rigidbody& phys)
+void Rigidbody::Serialize(std::ostream& os) const
 {
-  //os << phys._vel;
-  //os << phys._acc;
-  return os;
+  os << lastCollisionSide;
+  os << velocity;
+  os << acceleration;
+  Serializer<bool>::Serialize(os, elasticCollisions);
+  Serializer<bool>::Serialize(os, ignoreDynamicColliders);
 }
 
-std::istream& operator>>(std::istream& is, Rigidbody& phys)
+void Rigidbody::Deserialize(std::istream& is)
 {
-  //is >> phys._vel;
-  //is >> phys._acc;
-  return is;
-}
-
-std::ostream& operator<<(std::ostream& os, const Animator& animator)
-{
-  os << animator.playing;
-  os << animator.accumulatedTime;
-  os << animator.frame;
-  os << animator.currentAnimationName;
-  return os;
-}
-
-std::istream& operator>>(std::istream& is, Animator& animator)
-{
-  is >> animator.playing;
-  is >> animator.accumulatedTime;
-  is >> animator.frame;
-  is >> animator.currentAnimationName;
-  //animator._currentAnimation = _animations.GetAnimation(animator.currentAnimationName);
-
-  return is;
+  is >> lastCollisionSide;
+  is >> velocity;
+  is >> acceleration;
+  Serializer<bool>::Deserialize(is, elasticCollisions);
+  Serializer<bool>::Deserialize(is, ignoreDynamicColliders);
 }
 
 template class RectCollider<double>;

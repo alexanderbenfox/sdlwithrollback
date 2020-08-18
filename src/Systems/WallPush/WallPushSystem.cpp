@@ -12,11 +12,11 @@ void WallPushSystem::DoTick(float dt)
     WallPushComponent& push = ComponentArray<WallPushComponent>::Get().GetComponent(entity);
     Transform& transform = ComponentArray<Transform>::Get().GetComponent(entity);
 
-    rigidbody._vel.x = push.velocity;
+    rigidbody.velocity.x = push.velocity;
     push.amountPushed += push.velocity * dt;
     if (std::fabs(push.amountPushed) >= std::fabs(push.pushAmount))
     {
-      rigidbody._vel.x = 0;
+      rigidbody.velocity.x = 0;
       RunOnDeferGuardDestroy(entity, GameManager::Get().GetEntityByID(entity)->RemoveComponent<WallPushComponent>());
     }
   }

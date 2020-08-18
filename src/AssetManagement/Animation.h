@@ -75,6 +75,7 @@ inline Resource<Texture>& Animation::GetSheetTexture() const
 }
 
 //______________________________________________________________________________
+// this probably should just be a component
 class AnimationCollection
 {
 public:

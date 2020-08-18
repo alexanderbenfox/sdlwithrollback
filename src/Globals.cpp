@@ -9,6 +9,9 @@ int GlobalVars::HitStopFramesOnHit = 10;
 int GlobalVars::HitStopFramesOnBlock = 10;
 int GlobalVars::nDashFrames = 23;
 float GlobalVars::BaseWalkSpeed = 520.0f;
+Vector2<float> GlobalVars::Gravity = Vector2<float>(0, 2700.0f);
+Vector2<float> GlobalVars::JuggleGravity = Vector2<float>(0, 2300.0f);
+float GlobalVars::JumpVelocity = 1200.0f;
 
 bool GlobalVars::ShowHitEffects = true;
 

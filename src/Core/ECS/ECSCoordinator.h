@@ -23,18 +23,18 @@ struct ComponentEntityFnSet
 
 //______________________________________________________________________________
 //! Maps components to add/remove and serialization functions at runtime (ID map is based on order of initialization of components)
-class ComponentMapper
+class ECSCoordinator
 {
 public:
   //! Static getter
-  static ComponentMapper& Get()
+  static ECSCoordinator& Get()
   {
-    static ComponentMapper manager;
+    static ECSCoordinator manager;
     return manager;
   }
 
-  //! Generate bit flag for component (used on ComponentTraits initialization)
-  std::bitset<MAX_COMPONENTS> GenerateBitFlag(int& id, std::bitset<MAX_COMPONENTS>& signature, ComponentEntityFnSet fnSet);
+  //! Generate bit flag for component (used on ComponentTraits initialization), set function map
+  std::bitset<MAX_COMPONENTS> RegisterComponent(int& id, ComponentEntityFnSet fnSet);
   //! Adds component mapped to ID to the entity and returns a removal function for it
   std::function<void()> AddSelf(EntityID entity, int componentID);
   //! Removes component mapped to ID from the entity

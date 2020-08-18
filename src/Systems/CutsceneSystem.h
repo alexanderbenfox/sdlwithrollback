@@ -78,9 +78,9 @@ public:
     for(const EntityID& entity : Registered)
     {
       Rigidbody& rb = ComponentArray<Rigidbody>::Get().GetComponent(entity);
-      if(rb._lastCollisionSide == CollisionSide::DOWN)
+      if(rb.lastCollisionSide == CollisionSide::DOWN)
       {
-        rb._vel = Vector2<float>::Zero;
+        rb.velocity = Vector2<float>::Zero;
       }
     }
   }

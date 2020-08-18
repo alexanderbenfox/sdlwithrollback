@@ -8,6 +8,20 @@
 #include "Components/Transform.h"
 #include "Components/Actors/GameActor.h"
 
+struct ApplyGravitySystem : public ISystem<Rigidbody, Gravity>
+{
+  static void DoTick(float dt)
+  {
+    for (const EntityID& entity : Registered)
+    {
+      Rigidbody& rigidbody = ComponentArray<Rigidbody>::Get().GetComponent(entity);
+      Gravity& gravity = ComponentArray<Gravity>::Get().GetComponent(entity);
+
+      rigidbody.velocity += (gravity.force * dt);
+    }
+  }
+};
+
 class PhysicsSystem : public ISystem<DynamicCollider, Rigidbody, Transform>
 {
 public:

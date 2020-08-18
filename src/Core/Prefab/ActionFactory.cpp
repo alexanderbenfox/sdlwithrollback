@@ -54,6 +54,9 @@ void ActionFactory::SetKnockdownAirborne(const EntityID& entity, StateComponent*
 
   GameManager::Get().GetEntityByID(entity)->AddComponent<EnactActionComponent>();
 
+  // we are in a juggle state here
+  GameManager::Get().GetEntityByID(entity)->GetComponent<Gravity>()->force = GlobalVars::JuggleGravity;
+
   // in case we still have a grapple state attached
   GameManager::Get().GetEntityByID(entity)->RemoveComponent<ReceivedGrappleAction>();
 }
@@ -128,6 +131,9 @@ void ActionFactory::SetKnockdownGroundInvincible(const EntityID& entity, StateCo
   GameManager::Get().GetEntityByID(entity)->RemoveComponent<HittableState>();
 
   GameManager::Get().GetEntityByID(entity)->RemoveComponent<TransitionToKnockdownGround>();
+
+  // reset juggle state here
+  GameManager::Get().GetEntityByID(entity)->GetComponent<Gravity>()->force = GlobalVars::Gravity;
 }
 
 void ActionFactory::SetBlockStunAction(const EntityID& entity, StateComponent* state, bool crouching)
