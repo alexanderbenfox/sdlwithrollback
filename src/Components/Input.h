@@ -9,7 +9,7 @@
 
 enum class InputType : int
 {
-  Keyboard = 0, Joystick = 1, Gamepad = 2, DefendAll = 3, DefendAfter = 4
+  Keyboard = 0, Joystick = 1, Gamepad = 2, DefendAll = 3, DefendAfter = 4, RepeatCM = 5
 };
 
 //______________________________________________________________________________

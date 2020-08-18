@@ -113,3 +113,13 @@ InputState DefendAfter::Update(const Transform* t, const StateComponent* s)
     return InputState::NONE;
   }
 }
+
+InputState RepeatInputAI::Update(const Transform* t, const StateComponent* s)
+{
+  return input;
+}
+
+InputState RepeatInputAI::Update(const InputState& input, const Transform* t, const StateComponent* s)
+{
+  return input;
+}

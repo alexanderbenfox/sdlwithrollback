@@ -25,3 +25,12 @@ struct DefendAfter : DefendAI
   ActionState lastDefendingState = ActionState::NONE;
 
 };
+
+struct RepeatInputAI : IAIProgram
+{
+  RepeatInputAI(InputState toRepeat) : input(toRepeat) {}
+  virtual InputState Update(const Transform* t, const StateComponent* s) override;
+  virtual InputState Update(const InputState& input, const Transform* t, const StateComponent* s) override;
+
+  InputState input;
+};

@@ -16,12 +16,12 @@ struct HandleInputGrappledActionSystem : public ISystem<InputListenerComponent, 
   static void DoTick(float dt);
 };
 
-struct HandleDashUpdateSystem : public ISystem<DashingAction, Rigidbody, TimedActionComponent>
+struct HandleDashUpdateSystem : public ISystem<InputListenerComponent, DashingAction, Rigidbody, TimedActionComponent>
 {
   static void DoTick(float dt);
 };
 
-struct HandleInputJump : public ISystem<JumpingAction, Rigidbody, StateComponent>
+struct HandleInputJump : public ISystem<InputListenerComponent, JumpingAction, Rigidbody, StateComponent>
 {
   static void DoTick(float dt);
 };

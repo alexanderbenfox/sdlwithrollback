@@ -32,6 +32,11 @@ void GameInputComponent::AssignHandler(InputType type)
     GameManager::Get().GetEntityByID(entityID)->AddComponent<AIComponent>();
     _ai.SetAIProgram(GameManager::Get().GetEntityByID(entityID)->GetComponent<AIComponent>(), new DefendAfter);
     _handler = &_ai;
+    break;
+  case InputType::RepeatCM:
+    GameManager::Get().GetEntityByID(entityID)->AddComponent<AIComponent>();
+    _ai.SetAIProgram(GameManager::Get().GetEntityByID(entityID)->GetComponent<AIComponent>(), new RepeatInputAI(InputState::DOWN | InputState::BTN2));
+    _handler = &_ai;
   default:
     break;
   }
@@ -55,7 +60,7 @@ void GameInputComponent::OnDebug()
   std::string pName = "P" + std::to_string(entityID);
   if (ImGui::CollapsingHeader(pName.c_str()))
   {
-    const char* items[] = { "Keyboard", "Joystick", "Gamepad", "DefendAll", "DefendAfter" };
+    const char* items[] = { "Keyboard", "Joystick", "Gamepad", "DefendAll", "DefendAfter", "RepeatCM" };
     static const char* currentItem = nullptr;
     currentItem = items[(int)_assignedHandler];
     auto func = [this](const std::string& i)
@@ -70,8 +75,10 @@ void GameInputComponent::OnDebug()
         AssignHandler(InputType::DefendAll);
       else if (i == "DefendAfter")
         AssignHandler(InputType::DefendAfter);
+      else if (i == "RepeatCM")
+        AssignHandler(InputType::RepeatCM);
     };
-    DropDown::Show(currentItem, items, 5, func);
+    DropDown::Show(currentItem, items, 6, func);
   }
 }
 

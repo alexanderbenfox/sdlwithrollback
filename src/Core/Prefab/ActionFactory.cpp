@@ -177,6 +177,9 @@ void ActionFactory::SetBlockStunAction(const EntityID& entity, StateComponent* s
 
   GameManager::Get().GetEntityByID(entity)->AddComponent<HitStateComponent>();
   GameManager::Get().GetEntityByID(entity)->GetComponent<HitStateComponent>()->SetTimer(GameManager::Get().GetEntityByID(entity)->GetComponent<TimedActionComponent>());
+
+  //! Can't decide another action from here right?
+  GameManager::Get().GetEntityByID(entity)->RemoveComponent<InputListenerComponent>();
 }
 
 void ActionFactory::SetHitStunAction(const EntityID& entity, StateComponent* state, bool crouching)
@@ -221,6 +224,9 @@ void ActionFactory::SetHitStunAction(const EntityID& entity, StateComponent* sta
 
   GameManager::Get().GetEntityByID(entity)->AddComponent<HitStateComponent>();
   GameManager::Get().GetEntityByID(entity)->GetComponent<HitStateComponent>()->SetTimer(GameManager::Get().GetEntityByID(entity)->GetComponent<TimedActionComponent>());
+
+  //! Can't decide another action from here right?
+  GameManager::Get().GetEntityByID(entity)->RemoveComponent<InputListenerComponent>();
 }
 
 void ActionFactory::SetGrappledAction(const EntityID& entity, StateComponent* state)
