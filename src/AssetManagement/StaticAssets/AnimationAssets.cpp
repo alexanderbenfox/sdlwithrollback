@@ -1,10 +1,6 @@
-#include "AssetManagement/StaticAssets/CharacterConfig.h"
-#include "AssetManagement/StaticAssets/StaticAssetUtils.h"
+#include "AssetManagement/StaticAssets/AnimationAssets.h"
 
-float RyuConfig::moveSpeed;
-float RyuConfig::jumpHeight;
-
-std::unordered_map<std::string, AnimationInfo> RyuConfig::normalAnimations = 
+std::unordered_map<std::string, AnimationInfo> RyuAnimationData::normalAnimations =
 {
   { "Idle", AnimationInfo(idleAndWalking.src, idleAndWalking, 0, 10, AnchorPoint::TL)},
   { "WalkF", AnimationInfo(idleAndWalking.src, idleAndWalking, 10, 12, AnchorPoint::TL)},
@@ -33,7 +29,7 @@ std::unordered_map<std::string, AnimationInfo> RyuConfig::normalAnimations =
   { "KO", AnimationInfo(winLoseSpriteSheet.src, winLoseSpriteSheet, 6, 17, AnchorPoint::BL)}
 };
 
-std::unordered_map<std::string, AttackAnimationData> RyuConfig::attackAnimations = 
+std::unordered_map<std::string, AttackAnimationData> RyuAnimationData::attackAnimations =
 {
   { "CrouchingLight",
   AttackAnimationData(
@@ -98,36 +94,3 @@ std::unordered_map<std::string, AttackAnimationData> RyuConfig::attackAnimations
     AnimationInfo(throws.src, throws, 23, 14, AnchorPoint::BL),
     FrameData(2, 7, 8, 20, 0, 10, Vector2<float>(-400.0f, -400.0f), GlobalVars::HitStopFramesOnHit)) },
 };
-
-AnimationCollection& RyuConfig::FireballAnimations()
-{
-  if (!_fireballsLoaded)
-  {
-    AnimationInfo fireballNormal(fireballSheet.src, fireballSheet, 0, 4, AnchorPoint::BL);
-    StaticAssetUtils::LoadNormal("Normal", fireballNormal, _fireballAnimations);
-    _fireballsLoaded = true;
-  }
-  return _fireballAnimations;
-}
-
-AnimationCollection& RyuConfig::Animations()
-{
-  if (!_animLoaded)
-  {
-    StaticAssetUtils::LoadAnimations(normalAnimations, attackAnimations, _animations);
-    StaticAssetUtils::CreateAnimationDebug(normalAnimations, attackAnimations, _animations);
-    _animLoaded = true;
-  }
-  return _animations;
-}
-
-void RyuConfig::Reload()
-{
-  StaticAssetUtils::LoadAnimations(normalAnimations, attackAnimations, _animations);
-}
-
-bool RyuConfig::_animLoaded = false;
-bool RyuConfig::_fireballsLoaded = false;
-
-AnimationCollection RyuConfig::_animations;
-AnimationCollection RyuConfig::_fireballAnimations;

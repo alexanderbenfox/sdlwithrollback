@@ -2,6 +2,8 @@
 #include "Components/Animator.h"
 #include "Components/RenderComponent.h"
 
+#include "AssetManagement/AnimationCollectionManager.h"
+
 struct CutsceneAction;
 
 class CutsceneActor : public IComponent
@@ -83,14 +85,14 @@ struct PlayAnimation : public CutsceneAction, public IAnimatorListener
     animator->Play(anim, false);
     animator->ChangeListener(this);
 
-    auto& actionAnimation = animator->GetCurrentAnimation();
+    Animation* actionAnimation = GAnimArchive.GetAnimationData(animator->animCollectionID, animator->currentAnimationName);
     // render from the sheet of the new animation
-    renderer->SetRenderResource(actionAnimation.GetSheetTexture<RenderType>());
-    renderer->sourceRect = actionAnimation.GetFrameSrcRect(0);
+    renderer->SetRenderResource(actionAnimation->GetSheetTexture<RenderType>());
+    renderer->sourceRect = actionAnimation->GetFrameSrcRect(0);
 
     // do everything facing right now and ill fix this eventually
     properties->horizontalFlip = false;
-    properties->offset = -animator->AnimationLib()->GetRenderOffset(anim, false, 0);
+    properties->offset = -GAnimArchive.GetCollection(animator->animCollectionID).GetRenderOffset(anim, false, 0);
   }
   void OnComplete() override {}
   virtual bool CheckEndConditions() override { return animFinished; }

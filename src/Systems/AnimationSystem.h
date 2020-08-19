@@ -4,6 +4,8 @@
 #include "Components/StateComponents/AttackStateComponent.h"
 #include "Components/StateComponent.h"
 
+#include "AssetManagement/AnimationCollectionManager.h"
+
 class AttackAnimationSystem : public ISystem<AttackStateComponent, Animator, Transform, StateComponent>
 {
 public:
@@ -37,7 +39,9 @@ public:
         }
 
         // Checks if an event should be trigger this frame of animation and calls its callback if so
-        std::vector<AnimationEvent>& potentialEvents = atkState.GetEventsStarting(frame);
+        EventList& linkedEventList = *GAnimArchive.GetCollection(animator.animCollectionID).GetEventList(atkState.attackAnimation);
+        std::vector<AnimationEvent>& potentialEvents = linkedEventList[frame];
+
         if (!potentialEvents.empty())
         {
           for (auto& evt : potentialEvents)
@@ -87,7 +91,7 @@ public:
         // do this on the following frame so that the last frame of animation can still render
         if (auto* listener = animator.GetListener())
         {
-          if (!animator.looping && animator.frame == (animator.GetCurrentAnimation().GetFrameCount() - 1))
+          if (!animator.looping && animator.frame == (GAnimArchive.GetAnimationData(animator.animCollectionID, animator.currentAnimationName)->GetFrameCount() - 1))
             listener->OnAnimationComplete(animator.currentAnimationName);
         }
 
@@ -96,7 +100,7 @@ public:
           int framesToAdv = (int)std::floor(animator.accumulatedTime / secPerFrame);
 
           // get next frame off of the type of anim it is
-          int totalAnimFrames = animator.GetCurrentAnimation().GetFrameCount();
+          int totalAnimFrames = GAnimArchive.GetAnimationData(animator.animCollectionID, animator.currentAnimationName)->GetFrameCount();
 
           int nextFrame = animator.looping ? GetNextFrameLooping(framesToAdv, animator.frame, totalAnimFrames)
             : GetNextFrameOnce(framesToAdv, animator.frame, totalAnimFrames);
@@ -105,8 +109,8 @@ public:
           if (nextFrame != animator.frame)
           {
             animator.frame = nextFrame;
-            renderer.SetRenderResource(animator.GetCurrentAnimation().GetSheetTexture<RenderType>());
-            renderer.sourceRect = animator.GetCurrentAnimation().GetFrameSrcRect(animator.frame);
+            renderer.SetRenderResource(GAnimArchive.GetAnimationData(animator.animCollectionID, animator.currentAnimationName)->GetSheetTexture<RenderType>());
+            renderer.sourceRect = GAnimArchive.GetAnimationData(animator.animCollectionID, animator.currentAnimationName)->GetFrameSrcRect(animator.frame);
           }
 
           // 

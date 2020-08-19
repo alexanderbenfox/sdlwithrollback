@@ -1,5 +1,5 @@
 #pragma once
-#include "AssetManagement/Animation.h"
+#include "AssetManagement/StaticAssets/AnimationAssetData.h"
 #include <unordered_map>
 
 const SpriteSheet idleAndWalking("spritesheets\\idle_and_walking.png", 6, 6, false);
@@ -16,44 +16,13 @@ const SpriteSheet specialMoves("spritesheets\\special_moves.png", 10, 8, false);
 const SpriteSheet knockdowns("spritesheets\\knockdowns.png", 9, 6, false);
 
 const SpriteSheet fireballSheet("spritesheets\\coolfireballspritesheet.png", 1, 4, false);
+const SpriteSheet hitblockSparks("sfx\\hitblocksparks.png", 8, 7, false);
 
-class ICharacterConfig {};
-
-class RyuConfig : public ICharacterConfig
+// Careful with static initialization here....
+struct RyuAnimationData
 {
-public:
-  //!
-  static AnimationCollection& FireballAnimations();
-  static AnimationCollection& Animations();
-  static void Reload();
-  //!
-  static float moveSpeed;
-  //!
-  static float jumpHeight;
-
-protected:
-
   //!
   static std::unordered_map<std::string, AnimationInfo> normalAnimations;
   //! contains animation info, frame data, and hitbox sheet
   static std::unordered_map<std::string, AttackAnimationData> attackAnimations;
-
-  static bool _animLoaded, _fireballsLoaded;
-  static AnimationCollection _animations;
-
-  static AnimationCollection _fireballAnimations;
-
-};
-
-struct AnimCollectionsGetter
-{
-  static AnimationCollection& GetCollection(const std::string& name)
-  {
-    if (name == "Ryu")
-      return RyuConfig::Animations();
-    if (name == "Fireball")
-      return RyuConfig::FireballAnimations();
-
-    return RyuConfig::Animations();
-  }
 };

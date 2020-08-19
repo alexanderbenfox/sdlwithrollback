@@ -129,7 +129,9 @@ public:
   }
 };
 
-class FrameAdvantageSystem : public ISystem<AttackStateComponent, RenderProperties>
+#include "AssetManagement/AnimationCollectionManager.h"
+
+class FrameAdvantageSystem : public ISystem<AttackStateComponent, Animator, RenderProperties>
 {
 public:
   static void DoTick(float dt)
@@ -137,32 +139,27 @@ public:
     for (const EntityID& entity : Registered)
     {
       AttackStateComponent& atkState = ComponentArray<AttackStateComponent>::Get().GetComponent(entity);
+      Animator& animator = ComponentArray<Animator>::Get().GetComponent(entity);
       RenderProperties& properties = ComponentArray<RenderProperties>::Get().GetComponent(entity);
 
-      // because the animation system will end up incrementing and ending the attack
-      // state component, a shitty work around is that the frame advantage system
-      // will end the color change a frame early
-      // i will have to fix the way that the attack animations work first
-      /*if (atkState->GetRemainingFrames() <= 1)
-      {
-        renderer->SetDisplayColor(255, 255, 255);
-        continue;
-      }*/
-
-
       // initially disadvantage if nothing is currently blocking or hit by it
-      int attackerFrameAdvantage = -atkState.GetRemainingFrames();
+      int attackerAnimTotalFrames = GAnimArchive.GetAnimationData(animator.animCollectionID, animator.currentAnimationName)->GetFrameCount() - 1;
+      // set advantage to current remaining frames
+      int attackerFrameAdvantage = -(attackerAnimTotalFrames - animator.frame);
 
       ComponentArray<HitStateComponent>::Get().ForEach([&attackerFrameAdvantage](HitStateComponent& hitEntity)
       {
         attackerFrameAdvantage += hitEntity.GetRemainingFrames();
       });
 
-      ComponentArray<AttackStateComponent>::Get().ForEach([&attackerFrameAdvantage, &atkState](AttackStateComponent& otherAttackingEntity)
+      // this is for stuff like fireball
+      /*ComponentArray<AttackStateComponent>::Get().ForEach([&attackerFrameAdvantage, &atkState](AttackStateComponent& otherAttackingEntity)
       {
-        if (&otherAttackingEntity != &atkState)
-          attackerFrameAdvantage += otherAttackingEntity.GetRemainingFrames();
-      });
+          if (&otherAttackingEntity != &atkState)
+          {
+            attackerFrameAdvantage += otherAttackingEntity.GetRemainingFrames();
+          }
+      });*/
 
       if (attackerFrameAdvantage > 0)
         properties.SetDisplayColor(0, 0, 255);

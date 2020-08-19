@@ -734,8 +734,8 @@
 				{
 					"Animator" : 
 					{
-						"anim" : "Normal",
-						"collection" : "Fireball",
+						"anim" : "Fireball",
+						"collection" : "General",
 						"isLooped" : true
 					},
 					"DynamicCollider" : 

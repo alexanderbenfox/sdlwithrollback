@@ -2,19 +2,25 @@
 #include "Managers/GameManagement.h"
 #include "Systems/TimerSystem/TimerContainer.h"
 
-static AnimationCollection HitSFXAnimationCollection;
-SpriteSheet hitblockSparks("sfx\\hitblocksparks.png", 8, 7, true);
+#include "AssetManagement/AnimationCollectionManager.h"
+
+// for hit block sparks sprite sheet data... stupid but ill fix later
+SpriteSheet hitblockSparksInfo("sfx\\hitblocksparks.png", 8, 7, true);
+
 
 void SFXComponent::OnAdd(const EntityID& entity)
 {
   _sfxEntity = GameManager::Get().CreateEntity<RenderComponent<GLTexture>, Transform, Animator, TimerContainer>();
-
   _sfxEntity->SetScale(Vector2<float>(0.75, 0.75f));
 
-  hitblockSparks.GenerateSheetInfo();
-  HitSFXAnimationCollection.RegisterAnimation("HitSparks", hitblockSparks, 0, 28, AnchorPoint::BL);
-  HitSFXAnimationCollection.RegisterAnimation("BlockSparks", hitblockSparks, 28, 28, AnchorPoint::BL);
-  _sfxEntity->GetComponent<Animator>()->SetAnimations(&HitSFXAnimationCollection);
+  _sfxEntity->GetComponent<Animator>()->animCollectionID = AnimationCollectionManager::Get().GetCollectionID("Sparks");
+
+  static bool SSDataGenerated = false;
+  if (!SSDataGenerated)
+  {
+    hitblockSparksInfo.GenerateSheetInfo();
+    SSDataGenerated = true;
+  }
 }
 
 void SFXComponent::OnRemove(const EntityID& entity)
@@ -27,7 +33,8 @@ void SFXComponent::ShowHitSparks(bool directionRight)
   if (_subroutine)
     _subroutine->Cancel();
 
-  Vector2<float> size = (Vector2<float>)hitblockSparks.frameSize * _sfxEntity->GetComponent<Transform>()->scale;
+  Vector2<float> size = (Vector2<float>)hitblockSparksInfo.frameSize * _sfxEntity->GetComponent<Transform>()->scale;
+
   _sfxEntity->GetComponent<Transform>()->position = Vector2<float>(showLocation.x - size.x / 2, showLocation.y - size.y / 2);
   _sfxEntity->GetComponent<Animator>()->Play("HitSparks", false, 2.5f, true);
 
@@ -49,7 +56,8 @@ void SFXComponent::ShowBlockSparks(bool directionRight)
   if (_subroutine)
     _subroutine->Cancel();
 
-  Vector2<float> size = (Vector2<float>)hitblockSparks.frameSize * _sfxEntity->GetComponent<Transform>()->scale;
+  Vector2<float> size = (Vector2<float>)hitblockSparksInfo.frameSize * _sfxEntity->GetComponent<Transform>()->scale;
+  
   _sfxEntity->GetComponent<Transform>()->position = Vector2<float>(showLocation.x - size.x / 2, showLocation.y - size.y / 2);
   _sfxEntity->GetComponent<Animator>()->Play("BlockSparks", false, 2.5f, true);
 

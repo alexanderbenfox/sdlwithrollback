@@ -7,16 +7,8 @@ class Animator : public IComponent, public ISerializable
 {
 public:
   Animator();
-
-  void SetAnimations(AnimationCollection* animations);
-
   // Setter function
   Animation* Play(const std::string& name, bool isLooped, float speed = 1.0f, bool forcePlay = false);
-
-  Animation& GetCurrentAnimation() { return _currentAnimation->second; }
-  //!
-  AnimationCollection* AnimationLib() {return _animations; }
-
   //!
   void ChangeListener(IAnimatorListener* listener) { _listener = listener; }
   //!
@@ -35,6 +27,8 @@ public:
   std::string currentAnimationName;
   //! multiplier for speed of animation to play at
   float playSpeed = 1.0f;
+  //! Animation collection asset ID
+  unsigned int animCollectionID;
   
   //! Override ISerializable functions
   void Serialize(std::ostream& os) const override;
@@ -43,23 +37,19 @@ public:
 protected:
   //! Things that need to know when an animation is done
   IAnimatorListener* _listener;
-  //! All animations registered to this animator
-  AnimationCollection* _animations = nullptr;
-  //!
-  std::unordered_map<std::string, Animation>::iterator _currentAnimation;
 
 };
 
 template <> struct ComponentInitParams<Animator>
 {
-  AnimationCollection* collection;
+  unsigned int collectionID;
   std::string name;
   bool isLooped;
   bool horizontalFlip;
   float speed = 1.0f;
   static void Init(Animator& component, const ComponentInitParams<Animator>& params)
   {
-    component.SetAnimations(params.collection);
+    component.animCollectionID = params.collectionID;
     component.Play(params.name, params.isLooped, params.speed);
   }
 };

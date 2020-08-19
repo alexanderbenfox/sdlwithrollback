@@ -3,25 +3,27 @@
 #include "Components/Animator.h"
 #include "Components/Collider.h"
 
+#include "AssetManagement/AnimationCollectionManager.h"
+
 
 Animator::Animator() :
   _listener(nullptr), playing(false), looping(false), accumulatedTime(0.0f), frame(0), currentAnimationName(""), IComponent()
 {}
 
-void Animator::SetAnimations(AnimationCollection* animations)
-{
-  _animations = animations;
-}
-
 Animation* Animator::Play(const std::string& name, bool isLooped, float speed, bool forcePlay)
 {
+  AnimationCollection& collection = AnimationCollectionManager::Get().GetCollection(animCollectionID);
+
   // dont play again if we are already playing it
-  if (!forcePlay && (playing && name == currentAnimationName)) return _animations->GetAnimation(currentAnimationName);
-  auto animation = _animations->GetAnimationIt(name);
-  if (_animations->IsValid(animation))
+  if (!forcePlay && (playing && name == currentAnimationName))
+  {
+    return collection.GetAnimation(currentAnimationName);
+  }
+
+  auto animation = collection.GetAnimationIt(name);
+  if (collection.IsValid(animation))
   {
     currentAnimationName = name;
-    _currentAnimation = animation;
     playing = true;
 
     // reset all parameters
@@ -31,7 +33,7 @@ Animation* Animator::Play(const std::string& name, bool isLooped, float speed, b
     looping = isLooped;
     playSpeed = speed;
   }
-  return _animations->GetAnimation(currentAnimationName);
+  return collection.GetAnimation(currentAnimationName);
 }
 
 void Animator::Serialize(std::ostream& os) const
@@ -42,6 +44,7 @@ void Animator::Serialize(std::ostream& os) const
   Serializer<int>::Serialize(os, frame);
   Serializer<std::string>::Serialize(os, currentAnimationName);
   Serializer<float>::Serialize(os, playSpeed);
+  Serializer<unsigned int>::Serialize(os, animCollectionID);
 }
 
 void Animator::Deserialize(std::istream& is)
@@ -52,9 +55,5 @@ void Animator::Deserialize(std::istream& is)
   Serializer<int>::Deserialize(is, frame);
   Serializer<std::string>::Deserialize(is, currentAnimationName);
   Serializer<float>::Deserialize(is, playSpeed);
-
-  // do this for now while we still have stupid pointers here...
-  auto animation = _animations->GetAnimationIt(currentAnimationName);
-  if (_animations->IsValid(animation))
-    _currentAnimation = animation;
+  Serializer<unsigned int>::Deserialize(is, animCollectionID);
 }

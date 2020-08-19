@@ -1,5 +1,5 @@
 #include "AssetManagement/StaticAssets/AnimationAssetData.h"
-#include "AssetManagement/StaticAssets/CharacterConfig.h"
+#include "AssetManagement/AnimationCollectionManager.h"
 #include "Core/ECS/Entity.h"
 
 #include "Components/Transform.h"
@@ -50,7 +50,7 @@ void EntityCreationData::AddComponents(EntityID creatorID, const Transform* crea
     else if (instruction.first == "Animator")
     {
       ComponentInitParams<Animator> params;
-      params.collection = &AnimCollectionsGetter::GetCollection(instruction.second["collection"].asString());
+      params.collectionID = GAnimArchive.GetCollectionID(instruction.second["collection"].asString());
       params.isLooped = instruction.second["isLooped"].asBool();
       params.name = instruction.second["anim"].asString();
 
@@ -62,7 +62,7 @@ void EntityCreationData::AddComponents(EntityID creatorID, const Transform* crea
       entity->AddComponent<RenderComponent<RenderType>>();
       auto renderer = entity->GetComponent<RenderComponent<RenderType>>();
 
-      Animation* anim = params.collection->GetAnimation(params.name);
+      Animation* anim = GAnimArchive.GetAnimationData(params.collectionID, params.name);
       if (anim)
       {
         renderer->SetRenderResource(anim->GetSheetTexture<RenderType>());

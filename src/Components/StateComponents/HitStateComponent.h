@@ -15,7 +15,7 @@ public:
   virtual int GetRemainingFrames();
 
 protected:
-  //!
+  //! Remove this later
   TimedActionComponent* _linkedTimer;
 };
 

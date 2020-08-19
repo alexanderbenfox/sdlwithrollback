@@ -33,7 +33,7 @@
 #include "Systems/ActionSystems/ActionHandleInputSystem.h"
 #include "Core/Prefab/ActionFactory.h"
 
-#include "AssetManagement/StaticAssets/CharacterConfig.h"
+#include "AssetManagement/AnimationCollectionManager.h"
 
 const Vector2<float> cameraOrigin(m_nativeWidth / 2.0f, m_nativeHeight / 2.0f);
 
@@ -312,7 +312,7 @@ void BattleScene::InitCharacter(Vector2<float> position, std::shared_ptr<Entity>
     createHPEntities(UIAnchor::TR, Vector2<float>(-200 - healthBarOffset.x * 2, 0));
 
   player->GetComponent<Gravity>()->force = GlobalVars::Gravity;
-  player->GetComponent<Animator>()->SetAnimations(&RyuConfig::Animations());
+  player->GetComponent<Animator>()->animCollectionID = GAnimArchive.GetCollectionID("Ryu");
 
   player->GetComponent<Transform>()->SetWidthAndHeight(entitySize.x, entitySize.y);
   player->GetComponent<RenderProperties>()->baseRenderOffset = ((-1.0 / 2.0) * entitySize);

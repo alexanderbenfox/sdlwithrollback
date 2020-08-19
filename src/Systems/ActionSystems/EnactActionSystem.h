@@ -8,6 +8,8 @@
 #include "Components/Hurtbox.h"
 #include "Components/Actors/GameActor.h"
 
+#include "AssetManagement/AnimationCollectionManager.h"
+
 struct EnactAnimationActionSystem : public ISystem<EnactActionComponent, AnimatedActionComponent, Animator, RenderProperties, RenderComponent<RenderType>, Hurtbox, GameActor>
 {
   static void DoTick(float dt)
@@ -21,17 +23,14 @@ struct EnactAnimationActionSystem : public ISystem<EnactActionComponent, Animate
       Hurtbox& hurtbox = ComponentArray<Hurtbox>::Get().GetComponent(entity);
       GameActor& actor = ComponentArray<GameActor>::Get().GetComponent(entity);
 
-      if (animator.AnimationLib() && animator.AnimationLib()->GetAnimation(action.animation))
+      Animation* actionAnimation = animator.Play(action.animation, action.isLoopedAnimation, action.playSpeed, action.forceAnimRestart);
+      properties.horizontalFlip = !action.isFacingRight;
+      properties.offset = -GAnimArchive.GetCollection(animator.animCollectionID).GetRenderOffset(action.animation, !action.isFacingRight, (int)std::floor(hurtbox.unscaledRect.Width()));
+      if (actionAnimation)
       {
-        Animation* actionAnimation = animator.Play(action.animation, action.isLoopedAnimation, action.playSpeed, action.forceAnimRestart);
-        properties.horizontalFlip = !action.isFacingRight;
-        properties.offset = -animator.AnimationLib()->GetRenderOffset(action.animation, !action.isFacingRight, (int)std::floor(hurtbox.unscaledRect.Width()));
-        if (actionAnimation)
-        {
-          // render from the sheet of the new animation
-          renderer.SetRenderResource(actionAnimation->GetSheetTexture<RenderType>());
-          renderer.sourceRect = actionAnimation->GetFrameSrcRect(0);
-        }
+        // render from the sheet of the new animation
+        renderer.SetRenderResource(actionAnimation->GetSheetTexture<RenderType>());
+        renderer.sourceRect = actionAnimation->GetFrameSrcRect(0);
       }
     }
   }
@@ -49,10 +48,10 @@ struct EnactAttackActionSystem : public ISystem<EnactActionComponent, AnimatedAc
       AttackActionComponent& action = ComponentArray<AttackActionComponent>::Get().GetComponent(entity);
       Animator& animator = ComponentArray<Animator>::Get().GetComponent(entity);
 
-      if (animator.AnimationLib()->GetAnimation(actionData.animation) && animator.AnimationLib()->GetEventList(actionData.animation))
+      if (GAnimArchive.GetCollection(animator.animCollectionID).GetEventList(actionData.animation))
       {
         GameManager::Get().GetEntityByID(entity)->AddComponent<AttackStateComponent>();
-        GameManager::Get().GetEntityByID(entity)->GetComponent<AttackStateComponent>()->Init(animator.AnimationLib()->GetAnimation(actionData.animation), animator.AnimationLib()->GetEventList(actionData.animation));
+        GameManager::Get().GetEntityByID(entity)->GetComponent<AttackStateComponent>()->attackAnimation = actionData.animation;
       }
     }
   }

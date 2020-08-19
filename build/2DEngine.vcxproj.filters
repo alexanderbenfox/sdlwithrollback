@@ -137,9 +137,6 @@
     <ClCompile Include="..\src\DebugGUI\GUIController.cpp">
       <Filter>Source Files\DebugGUI</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\AssetManagement\StaticAssets\CharacterConfig.cpp">
-      <Filter>Source Files\AssetManagement\StaticAssets</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\Rendering\RenderManager.cpp">
       <Filter>Source Files\Rendering</Filter>
     </ClCompile>
@@ -244,6 +241,12 @@
     </ClCompile>
     <ClCompile Include="..\src\Core\ECS\ECSCoordinator.cpp">
       <Filter>Source Files\Core\ECS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\AssetManagement\StaticAssets\AnimationAssets.cpp">
+      <Filter>Source Files\AssetManagement\StaticAssets</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\AssetManagement\AnimationCollectionManager.cpp">
+      <Filter>Source Files\AssetManagement</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -502,9 +505,6 @@
     <ClInclude Include="..\src\AssetManagement\StaticAssets\AnimationAssetData.h">
       <Filter>Source Files\AssetManagement\StaticAssets</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\AssetManagement\StaticAssets\CharacterConfig.h">
-      <Filter>Source Files\AssetManagement\StaticAssets</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\Components\DebugComponent\DebugComponent.h">
       <Filter>Source Files\Components\DebugComponent</Filter>
     </ClInclude>
@@ -552,6 +552,12 @@
     </ClInclude>
     <ClInclude Include="..\src\Core\ECS\ECSCoordinator.h">
       <Filter>Source Files\Core\ECS</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\AssetManagement\AnimationCollectionManager.h">
+      <Filter>Source Files\AssetManagement</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\AssetManagement\StaticAssets\AnimationAssets.h">
+      <Filter>Source Files\AssetManagement\StaticAssets</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -1,12 +1,14 @@
 #pragma once
-#include "CharacterConfig.h"
-#include "AnimationAssetData.h"
+#include "AssetManagement/StaticAssets/AnimationAssetData.h"
+#include "AssetManagement/Animation.h"
 
 class StaticAssetUtils
 {
 public:
 
   static void LoadNormal(const std::string& name, const AnimationInfo& data, AnimationCollection& collection);
+
+  static void LoadNormal(const std::string& name, const AnimationInfo& data, const SpriteSheet& ss, AnimationCollection& collection);
 
   static void LoadAttackAnim(const std::string& name, const AttackAnimationData& data, AnimationCollection& collection);
 

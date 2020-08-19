@@ -321,7 +321,11 @@ void ActionFactory::SetDashAction(const EntityID& entity, StateComponent* state,
 
   std::string animationName = dashDirectionForward ? "ForwardDash" : "BackDash";
   // set up animation
-  float dashPlaySpeed = static_cast<float>(animator->AnimationLib()->GetAnimation(animationName)->GetFrameCount()) / static_cast<float>(GlobalVars::nDashFrames);
+
+  // get the number of animation frames on the sprite sheet to determine how much the anim should be slowed by
+  int ssAnimFrames = GAnimArchive.GetAnimationData(animator->animCollectionID, animationName)->GetFrameCount();
+  float dashPlaySpeed = static_cast<float>(ssAnimFrames) / static_cast<float>(GlobalVars::nDashFrames);
+
   GameManager::Get().GetEntityByID(entity)->AddComponent<AnimatedActionComponent>({ state->onLeftSide, false, true, dashPlaySpeed, animationName });
 
   GameManager::Get().GetEntityByID(entity)->AddComponent<DashingAction>();
