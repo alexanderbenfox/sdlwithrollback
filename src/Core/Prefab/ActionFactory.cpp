@@ -28,6 +28,8 @@ void ActionFactory::SetKnockdownAirborne(const EntityID& entity, StateComponent*
   DisableAbility(entity);
 
   state->actionState = ActionState::HITSTUN;
+  state->onNewState = true;
+  state->hitting = false;
 
   // Always reset action complete flag on new action
   GameManager::Get().GetEntityByID(entity)->GetComponent<GameActor>()->actionTimerComplete = false;
@@ -104,6 +106,7 @@ void ActionFactory::SetKnockdownGroundInvincible(const EntityID& entity, StateCo
   DisableAbility(entity);
 
   state->actionState = ActionState::NONE;
+  state->onNewState = true;
 
   // Always reset action complete flag on new action
   GameManager::Get().GetEntityByID(entity)->GetComponent<GameActor>()->actionTimerComplete = false;
@@ -142,6 +145,8 @@ void ActionFactory::SetBlockStunAction(const EntityID& entity, StateComponent* s
   DisableAbility(entity);
 
   state->actionState = ActionState::BLOCKSTUN;
+  state->onNewState = true;
+  state->hitting = false;
 
   // Always reset action complete flag on new action
   GameManager::Get().GetEntityByID(entity)->GetComponent<GameActor>()->actionTimerComplete = false;
@@ -188,6 +193,8 @@ void ActionFactory::SetHitStunAction(const EntityID& entity, StateComponent* sta
   DisableAbility(entity);
 
   state->actionState = ActionState::HITSTUN;
+  state->onNewState = true;
+  state->hitting = false;
 
   // Always reset action complete flag on new action
   GameManager::Get().GetEntityByID(entity)->GetComponent<GameActor>()->actionTimerComplete = false;
@@ -234,6 +241,9 @@ void ActionFactory::SetGrappledAction(const EntityID& entity, StateComponent* st
   RemoveTransitionComponents(entity);
   DisableAbility(entity);
 
+  state->onNewState = true;
+  state->hitting = false;
+
   // Always reset action complete flag on new action
   GameManager::Get().GetEntityByID(entity)->GetComponent<GameActor>()->actionTimerComplete = false;
 
@@ -259,8 +269,10 @@ void ActionFactory::SetAttackAction(const EntityID& entity, StateComponent* stat
 
   // resetting state component... i dont really like this
   state->hitting = false;
+
   // mark action type here
   state->actionState = actionType;
+  state->onNewState = true;
 
   // Always reset action complete flag on new action
   GameManager::Get().GetEntityByID(entity)->GetComponent<GameActor>()->actionTimerComplete = false;
@@ -360,6 +372,10 @@ void ActionFactory::GoToNeutralAction(const EntityID& entity, StateComponent* st
   GameManager::Get().GetEntityByID(entity)->RemoveComponents<DashingAction, AbleToReturnToNeutral>();
 
   state->actionState = ActionState::NONE;
+  state->onNewState = true;
+
+  // this is gross
+  state->hitting = false;
 }
 
 void ActionFactory::GoToWalkLeftAction(const EntityID& entity, GameActor* actor, StateComponent* state, const Vector2<float>& mvmt)

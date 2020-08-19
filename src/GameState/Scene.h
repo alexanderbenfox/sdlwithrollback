@@ -70,7 +70,7 @@ protected:
   std::shared_ptr<Entity> _p1, _p2;
   // entities to be destroyed after this scene ends
   std::shared_ptr<Entity> _borders[3];
-  std::shared_ptr<Entity> _p1UIAnchor, _p2UIAnchor, _p1ComboText, _p2ComboText;
+  std::shared_ptr<Entity> _p1UIAnchor, _p2UIAnchor;
   std::vector<std::shared_ptr<Entity>> _uiEntities;
 
   std::shared_ptr<Entity> _uiCamera, _camera;

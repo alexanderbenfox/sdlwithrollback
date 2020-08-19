@@ -93,10 +93,6 @@ void BattleScene::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2)
   _p1->AddComponent<InputListenerComponent>();
   _p2->AddComponent<InputListenerComponent>();
 
-  // set the combo text anchors to the other side
-  _p2ComboText->GetComponent<UITransform>()->parent = _p1UIAnchor->GetComponent<UITransform>();
-  _p1ComboText->GetComponent<UITransform>()->parent = _p2UIAnchor->GetComponent<UITransform>();
-
   // set up camera
   _uiCamera = GameManager::Get().CreateEntity<Camera, Transform>();
   _uiCamera->GetComponent<Camera>()->Init(m_nativeWidth, m_nativeHeight);
@@ -125,6 +121,10 @@ void BattleScene::Update(float deltaTime)
 
   // update player side system here cause it forces new state
   PlayerSideSystem::DoTick(deltaTime);
+
+  // update ui based on state right before inputs are collected
+  UIPositionUpdateSystem::DoTick(deltaTime);
+  UIContainerUpdateSystem::DoTick(deltaTime);
 
   // update based on state at start of frame
   UpdateAISystem::DoTick(deltaTime);
@@ -168,9 +168,6 @@ void BattleScene::Update(float deltaTime)
 
   // update AI timers, UI timers (all non-state timers)
   TimerSystem::DoTick(deltaTime);
-
-  UIPositionUpdateSystem::DoTick(deltaTime);
-  UIContainerUpdateSystem::DoTick(deltaTime);
 
   ////++++ end section for state dependent auxilliary info systems ++++////
 
@@ -278,20 +275,22 @@ void BattleScene::InitCharacter(Vector2<float> position, std::shared_ptr<Entity>
     // set the ui data transfer callback
     _uiEntities.back()->GetComponent<UITransform>()->callback = [comboTextEntity](const StateComponent* lastState, const StateComponent* newState, UIComponent* comp)
     {
-      if (newState->onNewState)
+      if (lastState->hitting && newState->comboCounter > 1)
       {
-        if (newState->actionState != ActionState::HITSTUN && lastState->actionState == ActionState::HITSTUN)
+        auto& activeTimers = comboTextEntity->GetComponent<TimerContainer>()->timings;
+        if (!activeTimers.empty())
         {
-          // remove render properties to hide the text
-          std::shared_ptr<ActionTimer> endComboText = std::shared_ptr<ActionTimer>(new SimpleActionTimer(
-            [comboTextEntity]() { comboTextEntity->RemoveComponent<RenderProperties>(); },
-            5));
-          comboTextEntity->GetComponent<TimerContainer>()->timings.push_back(endComboText);
+          for (auto timer : activeTimers)
+            timer->Cancel();
         }
-        else if (newState->actionState == ActionState::HITSTUN)
-        {
-          comboTextEntity->AddComponent<RenderProperties>();
-        }
+
+        const int comboTextVisibleFrames = 35;
+        // replace active timer with new one that will remove render properties to hide the text
+        std::shared_ptr<ActionTimer> endComboText = std::shared_ptr<ActionTimer>(new SimpleActionTimer([comboTextEntity]() { comboTextEntity->RemoveComponent<RenderProperties>(); }, comboTextVisibleFrames));
+        comboTextEntity->GetComponent<TimerContainer>()->timings.push_back(endComboText);
+
+        // ensure the combo text is visible
+        comboTextEntity->AddComponent<RenderProperties>();
 
         std::string comboText = "Combo: " + std::to_string(newState->comboCounter);
         comboTextEntity->GetComponent<TextRenderer>()->SetText(comboText);
@@ -302,9 +301,9 @@ void BattleScene::InitCharacter(Vector2<float> position, std::shared_ptr<Entity>
     uiContainer->uiComponents.push_back(_uiEntities.back()->GetComponent<UITransform>());
 
     if (isPlayer1)
-      _p1ComboText = comboTextEntity;
+      comboTextEntity->GetComponent<UITransform>()->parent = _p1UIAnchor->GetComponent<UITransform>();
     else
-      _p2ComboText = comboTextEntity;
+      comboTextEntity->GetComponent<UITransform>()->parent = _p2UIAnchor->GetComponent<UITransform>();
   };
 
   if (isPlayer1)

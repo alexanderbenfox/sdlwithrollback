@@ -32,10 +32,7 @@ public:
               state.comboCounter++;
             else
               state.comboCounter = 0;
-
-            otherState.onNewState = false;
           }
-
 
           bool lastSide = state.onLeftSide;
           if (teamComp.team != otherEntityTeam.team && otherEntityTeam.playerEntity)
@@ -63,7 +60,8 @@ public:
       StateComponent& state = ComponentArray<StateComponent>::Get().GetComponent(entity);
 
       //const InputBuffer& unitInputState = inputHandler->QueryInput();
-
+      // reset on new state
+      state.onNewState = false;
       state.collision = rigidbody.lastCollisionSide;
       actor.TransferInputData(inputHandler.QueryInput(), &state);
       

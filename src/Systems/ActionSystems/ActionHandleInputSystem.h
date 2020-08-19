@@ -26,7 +26,7 @@ struct HandleInputJump : public ISystem<InputListenerComponent, JumpingAction, R
   static void DoTick(float dt);
 };
 
-struct HandleInputCrouch : public ISystem<InputListenerComponent, CrouchingAction, Rigidbody, GameActor>
+struct HandleInputCrouch : public ISystem<CrouchingAction, Rigidbody, GameActor>
 {
   static void DoTick(float dt);
 };
