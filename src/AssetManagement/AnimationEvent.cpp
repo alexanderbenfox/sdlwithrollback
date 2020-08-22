@@ -7,6 +7,31 @@
 #include "Systems/DestroyEntitiesSystem.h"
 
 //______________________________________________________________________________
+void AnimationEvent::EndHitboxEvent(EntityID entity)
+{
+  GameManager::Get().GetEntityByID(entity)->RemoveComponent<Hitbox>();
+}
+
+//______________________________________________________________________________
+void AnimationEvent::EndThrowboxEvent(EntityID entity)
+{
+  GameManager::Get().GetEntityByID(entity)->RemoveComponent<Throwbox>();
+  GameManager::Get().GetEntityByID(entity)->RemoveComponent<ThrowFollower>();
+}
+
+//______________________________________________________________________________
+void AnimationEvent::EndMovementEvent(EntityID entity)
+{
+
+}
+
+//______________________________________________________________________________
+void AnimationEvent::EndEntitySpawnEvent(EntityID entity)
+{
+
+}
+
+//______________________________________________________________________________
 EventList AnimationEventHelper::BuildEventList(const Vector2<int> offset, const std::vector<AnimationActionEventData>& animEventData, const FrameData& frameData, int totalSheetFrames, std::vector<int>& animFrameToSheetFrame)
 {
   auto DespawnHitbox = [](EntityID entity) { GameManager::Get().GetEntityByID(entity)->RemoveComponent<Hitbox>(); };
@@ -37,16 +62,16 @@ EventList AnimationEventHelper::BuildEventList(const Vector2<int> offset, const 
   int startFrame = 0;
   int counter = 0;
 
-  auto addEventToList = [&startFrame, &counter, &updates, &eventList, &trigger](const std::function<void(EntityID)>& onComplete)
+  auto addEventToList = [&startFrame, &counter, &updates, &eventList, &trigger](const std::function<void(EntityID)>& onComplete, AnimationEvent::Type type)
   {
-    eventList[startFrame].emplace_back(startFrame, counter, trigger, updates, onComplete);
+    eventList[startFrame].emplace_back(startFrame, counter, trigger, updates, onComplete, type);
     updates.clear();
     counter = 0;
     startFrame = 0;
   };
 
   auto eventCheck = [addEventToList, &startFrame, &counter, &eventList, &animationData, &trigger, &updates]
-  (int i, const std::function<void(EntityID)>& onComplete, const std::function<void(EntityID, Transform*, StateComponent*)>& callback, bool conditionMet,
+  (int i, const std::function<void(EntityID)>& onComplete, const std::function<void(EntityID, Transform*, StateComponent*)>& callback, bool conditionMet, AnimationEvent::Type type,
     std::function<void(EntityID, Transform*, StateComponent*)>* onTrigger = nullptr)
   {
     if (conditionMet)
@@ -95,7 +120,7 @@ EventList AnimationEventHelper::BuildEventList(const Vector2<int> offset, const 
     }
     else if (counter > 0)
     {
-      addEventToList(onComplete);
+      addEventToList(onComplete, type);
     }
   };
 
@@ -137,7 +162,7 @@ EventList AnimationEventHelper::BuildEventList(const Vector2<int> offset, const 
           GameManager::Get().GetEntityByID(entity)->GetComponent<ThrowFollower>()->MoveDataBoxAroundTransform(rect, trans, hitbox, offset, GameManager::Get().GetEntityByID(entity)->GetComponent<ThrowFollower>()->startSideLeft);
         }
       };
-      eventCheck(i, DespawnThrowStuff, throwUpdate, hitboxCondition, &throwInitiate);
+      eventCheck(i, DespawnThrowStuff, throwUpdate, hitboxCondition, AnimationEvent::Type::Throwbox, &throwInitiate);
     }
     else
     {
@@ -150,12 +175,12 @@ EventList AnimationEventHelper::BuildEventList(const Vector2<int> offset, const 
         GameManager::Get().GetEntityByID(entity)->GetComponent<Hitbox>()->MoveDataBoxAroundTransform(rect, trans, hitbox, offset, state->onLeftSide);
       };
 
-      eventCheck(i, DespawnHitbox, hitboxUpdateFunc, hitboxCondition);
+      eventCheck(i, DespawnHitbox, hitboxUpdateFunc, hitboxCondition, AnimationEvent::Type::Hitbox);
     }
   }
 
   if (counter > 0)
-    addEventToList(DespawnHitbox);
+    addEventToList(DespawnHitbox, AnimationEvent::Type::Hitbox);
 
   for (int i = 0; i < animFrames; i++)
   {
@@ -172,11 +197,11 @@ EventList AnimationEventHelper::BuildEventList(const Vector2<int> offset, const 
       }
     };
 
-    eventCheck(i, EndMovement, movementEvent, mvmtCondition);
+    eventCheck(i, EndMovement, movementEvent, mvmtCondition, AnimationEvent::Type::Movement);
   }
 
   if (counter > 0)
-    addEventToList(EndMovement);
+    addEventToList(EndMovement, AnimationEvent::Type::Movement);
 
   // create entity section
   for (int i = 0; i < animFrames; i++)
@@ -197,7 +222,7 @@ EventList AnimationEventHelper::BuildEventList(const Vector2<int> offset, const 
         finder++;
 
       startFrame = animationData.sheetFrameToRealFrame[i + finder][0];
-      eventList[startFrame].emplace_back(startFrame, 1, creationEvent, updates, DestroyCreatedEntity);
+      eventList[startFrame].emplace_back(startFrame, 1, creationEvent, updates, DestroyCreatedEntity, AnimationEvent::Type::EntitySpawner);
     }
   }
 

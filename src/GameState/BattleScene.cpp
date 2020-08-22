@@ -138,7 +138,8 @@ void BattleScene::Update(float deltaTime)
 
   // Enact new action states then clean them up
   EnactAggregate::DoTick(deltaTime);
-  CleanUpActionSystem::PostUpdate();
+  if(deltaTime > 0)
+    CleanUpActionSystem::PostUpdate();
 
   ////++++ end state machine section ++++////
 

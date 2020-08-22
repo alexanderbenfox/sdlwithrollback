@@ -14,6 +14,9 @@ struct EnactAnimationActionSystem : public ISystem<EnactActionComponent, Animate
 {
   static void DoTick(float dt)
   {
+    if (dt <= 0)
+      return;
+
     for (const EntityID& entity : Registered)
     {
       AnimatedActionComponent& action = ComponentArray<AnimatedActionComponent>::Get().GetComponent(entity);
@@ -42,6 +45,9 @@ struct EnactAttackActionSystem : public ISystem<EnactActionComponent, AnimatedAc
 {
   static void DoTick(float dt)
   {
+    if (dt <= 0)
+      return;
+
     for (const EntityID& entity : Registered)
     {
       AnimatedActionComponent& actionData = ComponentArray<AnimatedActionComponent>::Get().GetComponent(entity);
@@ -61,6 +67,9 @@ struct EnactGrappleActionSystem : public ISystem<EnactActionComponent, GrappleAc
 {
   static void DoTick(float dt)
   {
+    if (dt <= 0)
+      return;
+
     for (const EntityID& entity : Registered)
     {
       Rigidbody& rb = ComponentArray<Rigidbody>::Get().GetComponent(entity);
@@ -77,6 +86,9 @@ struct EnactActionMovementSystem : public ISystem<EnactActionComponent, MovingAc
   {
     for (const EntityID& entity : Registered)
     {
+      if (dt <= 0)
+        return;
+
       MovingActionComponent& action = ComponentArray<MovingActionComponent>::Get().GetComponent(entity);
       Rigidbody& rb = ComponentArray<Rigidbody>::Get().GetComponent(entity);
 
@@ -95,6 +107,9 @@ struct EnactActionDamageSystem : public ISystem<EnactActionComponent, ReceivedDa
 {
   static void DoTick(float dt)
   {
+    if (dt <= 0)
+      return;
+
     for (const EntityID& entity : Registered)
     {
       ReceivedDamageAction& action = ComponentArray<ReceivedDamageAction>::Get().GetComponent(entity);
@@ -126,6 +141,9 @@ struct EnactGrappledSystem : public ISystem<EnactActionComponent, ReceivedGrappl
 {
   static void DoTick(float dt)
   {
+    if (dt <= 0)
+      return;
+
     for (const EntityID& entity : Registered)
     {
       ReceivedGrappleAction& action = ComponentArray<ReceivedGrappleAction>::Get().GetComponent(entity);

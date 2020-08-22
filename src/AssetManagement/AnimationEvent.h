@@ -8,13 +8,28 @@
 class AnimationEvent
 {
 public:
-  AnimationEvent(int startFrame, int duration, std::function<void(EntityID, Transform*, StateComponent*)> onTriggerCallback, std::vector<std::function<void(EntityID, Transform*, StateComponent*)>> update, std::function<void(EntityID)> onEndCallback) :
-    _frame(startFrame), _duration(duration), _onTrigger(onTriggerCallback), _updates(update), _onEnd(onEndCallback) {}
+  enum class Type
+  {
+    Hitbox, Throwbox, Movement, EntitySpawner
+  };
+
+  AnimationEvent(int startFrame, int duration, std::function<void(EntityID, Transform*, StateComponent*)> onTriggerCallback,
+    std::vector<std::function<void(EntityID, Transform*, StateComponent*)>> update, std::function<void(EntityID)> onEndCallback, Type type) :
+    _frame(startFrame), _duration(duration), _onTrigger(onTriggerCallback), _updates(update), _onEnd(onEndCallback), type(type) {}
 
   void TriggerEvent(EntityID id, Transform* trans, StateComponent* state) { _onTrigger(id, trans, state); }
   void UpdateEvent(int frame, EntityID id, Transform* trans, StateComponent* state) { _updates[frame - _frame - 1](id, trans, state); }
   void EndEvent(EntityID id) { _onEnd(id); }
+
+  int GetStartFrame() { return _frame; }
   int GetEndFrame() { return _frame + _duration; }
+
+  static void EndHitboxEvent(EntityID entity);
+  static void EndThrowboxEvent(EntityID entity);
+  static void EndMovementEvent(EntityID entity);
+  static void EndEntitySpawnEvent(EntityID entity);
+
+  Type type;
 
 private:
   //! Frame this event will be called on

@@ -48,15 +48,20 @@ public:
   //! request scene change at end of update loop
   void RequestSceneChange(SceneType newSceneType);
   //! Schedules a function to be ran when scene is changed
-  void TriggerOnSceneChange(std::function<void()> function)
+  void TriggerOnSceneChange(std::function<void()> fn)
   {
-    _onSceneChangeFunctionQueue.push_back(function);
+    _onSceneChangeFunctionQueue.push_back(fn);
   }
 
   //! Schedules some functor to be called at the end of the update loop
-  void TriggerEndOfFrame(std::function<void()> function)
+  void TriggerEndOfFrame(std::function<void()> fn)
   {
-    _endOfFrameQueue.push_back(function);
+    _endOfFrameQueue.push_back(fn);
+  }
+
+  void TriggerBeginningOfFrame(std::function<void()> fn)
+  {
+    _beginningOfFrameQueue.push_back(fn);
   }
 
 private:
@@ -83,7 +88,7 @@ private:
   //
   bool _sceneChangeRequested = false;
   //
-  std::vector<std::function<void()>> _onSceneChangeFunctionQueue, _endOfFrameQueue;
+  std::vector<std::function<void()>> _onSceneChangeFunctionQueue, _endOfFrameQueue, _beginningOfFrameQueue;
 
 
 

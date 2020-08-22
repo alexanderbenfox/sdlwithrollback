@@ -26,8 +26,8 @@ AnimationCollectionManager::AnimationCollectionManager() : _livingCollectionCoun
 
   AnimationInfo sfxHitSparks(hitblockSparks.src, hitblockSparks, 0, 28, AnchorPoint::BL);
   AnimationInfo sfxBlockSparks(hitblockSparks.src, hitblockSparks, 28, 28, AnchorPoint::BL);
-  LoadSingleAnimation("Sparks", "HitSparks", sfxHitSparks);
-  LoadSingleAnimation("Sparks", "BlockSparks", sfxBlockSparks);
+  LoadSingleAnimation("General", "HitSparks", sfxHitSparks);
+  LoadSingleAnimation("General", "BlockSparks", sfxBlockSparks);
 
   //! load more complex character collections
   LoadCharacterCollection("Ryu", RyuAnimationData::normalAnimations, RyuAnimationData::attackAnimations);

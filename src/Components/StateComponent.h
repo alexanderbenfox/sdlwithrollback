@@ -3,6 +3,8 @@
 #include "Core/Geometry2D/RectHelper.h"
 #include "AssetManagement/StaticAssets/AnimationAssetData.h"
 
+#include "Core/Interfaces/Serializable.h"
+
 //! marks the entity as the loser of the round
 struct LoserComponent : public IComponent {};
 
@@ -19,7 +21,7 @@ struct TeamComponent : public IComponent
 };
 
 //! hitbox is the area that will hit the opponent
-class StateComponent : public IDebugComponent
+class StateComponent : public IDebugComponent, public ISerializable
 {
 public:
   StateComponent() : IDebugComponent("State Component") {}
@@ -73,6 +75,9 @@ public:
     return !(operator==(other));
   }
 
+  void Serialize(std::ostream& os) const override;
+  void Deserialize(std::istream& is) override;
+
 };
 
 inline StateComponent::StateComponent(const StateComponent& other) : IDebugComponent()
@@ -118,4 +123,40 @@ inline StateComponent& StateComponent::operator=(StateComponent&& other) noexcep
   this->throwSuccess = other.throwSuccess;
   this->triedToThrowThisFrame = other.triedToThrowThisFrame;
   return *this;
+}
+
+inline void StateComponent::Serialize(std::ostream& os) const
+{
+  Serializer<bool>::Serialize(os, onLeftSide);
+  Serializer<CollisionSide>::Serialize(os, collision);
+  Serializer<bool>::Serialize(os, hitThisFrame);
+  Serializer<bool>::Serialize(os, thrownThisFrame);
+  Serializer<HitData>::Serialize(os, hitData);
+  Serializer<int>::Serialize(os, comboCounter);
+  Serializer<bool>::Serialize(os, hitting);
+  Serializer<bool>::Serialize(os, throwSuccess);
+  Serializer<bool>::Serialize(os, triedToThrowThisFrame);
+  Serializer<int>::Serialize(os, hp);
+  Serializer<bool>::Serialize(os, invulnerable);
+  Serializer<ActionState>::Serialize(os, actionState);
+  Serializer<StanceState>::Serialize(os, stanceState);
+  Serializer<bool>::Serialize(os, onNewState);
+}
+
+inline void StateComponent::Deserialize(std::istream& is)
+{
+  Serializer<bool>::Deserialize(is, onLeftSide);
+  Serializer<CollisionSide>::Deserialize(is, collision);
+  Serializer<bool>::Deserialize(is, hitThisFrame);
+  Serializer<bool>::Deserialize(is, thrownThisFrame);
+  Serializer<HitData>::Deserialize(is, hitData);
+  Serializer<int>::Deserialize(is, comboCounter);
+  Serializer<bool>::Deserialize(is, hitting);
+  Serializer<bool>::Deserialize(is, throwSuccess);
+  Serializer<bool>::Deserialize(is, triedToThrowThisFrame);
+  Serializer<int>::Deserialize(is, hp);
+  Serializer<bool>::Deserialize(is, invulnerable);
+  Serializer<ActionState>::Deserialize(is, actionState);
+  Serializer<StanceState>::Deserialize(is, stanceState);
+  Serializer<bool>::Deserialize(is, onNewState);
 }

@@ -90,7 +90,7 @@ protected:
 
 };
 
-class RenderProperties : public IComponent
+class RenderProperties : public IComponent, ISerializable
 {
 public:
   RenderProperties();
@@ -106,6 +106,22 @@ public:
   virtual void SetDisplayColor(Uint8 r, Uint8 g, Uint8 b, Uint8 a);
   virtual SDL_Color GetDisplayColor() const;
   Vector2<int> Offset() const;
+
+  void Serialize(std::ostream& os) const override
+  {
+    os << baseRenderOffset;
+    os << offset;
+    Serializer<bool>::Serialize(os, horizontalFlip);
+    Serializer<SDL_Color>::Serialize(os, _displayColor);
+  }
+
+  void Deserialize(std::istream& is) override
+  {
+    is >> baseRenderOffset;
+    is >> offset;
+    Serializer<bool>::Deserialize(is, horizontalFlip);
+    Serializer<SDL_Color>::Deserialize(is, _displayColor);
+  }
 
 protected:
   //!

@@ -23,7 +23,7 @@ public:
         int frame = animator.frame;
 
         // update all in progress events now
-        for (int i = 0; i < atkState.inProgressEvents.size(); i++)
+        /*for (int i = 0; i < atkState.inProgressEvents.size(); i++)
         {
           AnimationEvent* evt = atkState.inProgressEvents[i];
           if (frame >= evt->GetEndFrame())
@@ -36,7 +36,7 @@ public:
           {
             evt->UpdateEvent(frame, entity, &transform, &stateComp);
           }
-        }
+        }*/
 
         // Checks if an event should be trigger this frame of animation and calls its callback if so
         EventList& linkedEventList = *GAnimArchive.GetCollection(animator.animCollectionID).GetEventList(atkState.attackAnimation);
@@ -46,8 +46,28 @@ public:
         {
           for (auto& evt : potentialEvents)
           {
-            atkState.inProgressEvents.push_back(&evt);
             evt.TriggerEvent(entity, &transform, &stateComp);
+            atkState.inProgressEventTypes.insert(evt.type);
+          }
+        }
+
+        for (int f = 0; f <= frame; f++)
+        {
+          auto& frameEvtTriggers = linkedEventList[f];
+
+          if (!frameEvtTriggers.empty())
+          {
+            for (auto& evt : frameEvtTriggers)
+            {
+              if (frame < evt.GetEndFrame() && frame > evt.GetStartFrame())
+              {
+                evt.UpdateEvent(frame, entity, &transform, &stateComp);
+              }
+              else if (frame == evt.GetEndFrame())
+              {
+                evt.EndEvent(entity);
+              }
+            }
           }
         }
 

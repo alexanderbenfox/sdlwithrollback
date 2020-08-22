@@ -287,7 +287,7 @@ void GameManager::BeginGameLoop()
 
     if(ImGui::Button("Make P1 Snapshot"))
     {
-      _p1Snapshots.push_back(_p1->CreateEntitySnapshot());
+      TriggerEndOfFrame([this]() { _p1Snapshots.push_back(_p1->CreateEntitySnapshot()); });
     }
     if (ImGui::CollapsingHeader("P1 Snapshot List"))
     {
@@ -296,7 +296,7 @@ void GameManager::BeginGameLoop()
         std::string btnLabel = "SNAPSHOT " + std::to_string(i + 1);
         if (ImGui::Button(btnLabel.c_str()))
         {
-          _p1->LoadEntitySnapshot(_p1Snapshots[i]);
+          TriggerBeginningOfFrame([this, i]() {_p1->LoadEntitySnapshot(_p1Snapshots[i]); });
         }
       }
     }
@@ -304,7 +304,7 @@ void GameManager::BeginGameLoop()
 
     if (ImGui::Button("Make P2 Snapshot"))
     {
-      _p2Snapshots.push_back(_p2->CreateEntitySnapshot());
+      TriggerEndOfFrame([this]() {_p2Snapshots.push_back(_p2->CreateEntitySnapshot()); });
     }
 
     if (ImGui::CollapsingHeader("P2 Snapshot List"))
@@ -314,7 +314,7 @@ void GameManager::BeginGameLoop()
         std::string btnLabel = "SNAPSHOT " + std::to_string(i + 1);
         if (ImGui::Button(btnLabel.c_str()))
         {
-          _p2->LoadEntitySnapshot(_p2Snapshots[i]);
+          TriggerBeginningOfFrame([this, i]() { _p2->LoadEntitySnapshot(_p2Snapshots[i]); });
         }
       }
     }
@@ -442,6 +442,12 @@ void GameManager::ChangeScene(SceneType scene)
 void GameManager::Update(float deltaTime)
 {
   UpdateInput();
+  if (!_beginningOfFrameQueue.empty())
+  {
+    for (auto& func : _beginningOfFrameQueue)
+      func();
+    _beginningOfFrameQueue.clear();
+  }
   _currentScene->Update(deltaTime);
 }
 
