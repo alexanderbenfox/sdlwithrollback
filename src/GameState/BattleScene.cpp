@@ -337,11 +337,11 @@ void BattleScene::InitCharacter(Vector2<float> position, std::shared_ptr<Entity>
 
 
   // add this component for doing magic series
-  if (!player->GetComponent<HasTargetCombo>())
+  if (!player->GetComponent<AttackLinkMap>())
   {
-    player->AddComponent<HasTargetCombo>();
+    player->AddComponent<AttackLinkMap>();
 
-    auto magicSeriesMap = player->GetComponent<HasTargetCombo>();
+    auto magicSeriesMap = player->GetComponent<AttackLinkMap>();
     magicSeriesMap->links[ActionState::LIGHT] = InputState::BTN2;
     magicSeriesMap->links[ActionState::MEDIUM] = InputState::BTN3;
   }

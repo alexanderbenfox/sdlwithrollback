@@ -15,6 +15,20 @@ public:
   virtual void Init(const FrameData& frameData);
 
   virtual void MoveDataBoxAroundTransform(const Rect<double>& unscaledTransformRect, const Transform* transform, const Rect<double>& box, const Vector2<float> offset, bool onLeft);
+
+  virtual void Serialize(std::ostream& os) const override
+  {
+    RectColliderD::Serialize(os);
+    Serializer<HitData>::Serialize(os, tData);
+    Serializer<bool>::Serialize(os, hitFlag);
+  }
+
+  virtual void Deserialize(std::istream& is) override
+  {
+    RectColliderD::Deserialize(is);
+    Serializer<HitData>::Deserialize(is, tData);
+    Serializer<bool>::Deserialize(is, hitFlag);
+  }
 };
 
 //! hitbox is the area that will hit the opponent
@@ -29,6 +43,20 @@ public:
   bool destroyOnHit = false;
 
   virtual void OnCollision(const EntityID& entity, ICollider* collider) override;
+
+  virtual void Serialize(std::ostream& os) const override
+  {
+    TransferDataBox::Serialize(os);
+    Serializer<bool>::Serialize(os, travelWithTransform);
+    Serializer<bool>::Serialize(os, destroyOnHit);
+  }
+
+  virtual void Deserialize(std::istream& is) override
+  {
+    TransferDataBox::Deserialize(is);
+    Serializer<bool>::Deserialize(is, travelWithTransform);
+    Serializer<bool>::Deserialize(is, destroyOnHit);
+  }
 
 };
 
@@ -67,5 +95,17 @@ public:
   ThrowFollower() : TransferDataBox() {}
   //!
   bool startSideLeft = false;
+
+  virtual void Serialize(std::ostream& os) const override
+  {
+    TransferDataBox::Serialize(os);
+    Serializer<bool>::Serialize(os, startSideLeft);
+  }
+
+  virtual void Deserialize(std::istream& is) override
+  {
+    TransferDataBox::Deserialize(is);
+    Serializer<bool>::Deserialize(is, startSideLeft);
+  }
 
 };

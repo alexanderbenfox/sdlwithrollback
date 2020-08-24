@@ -67,6 +67,9 @@ Entity* Entity::Copy()
 
 void Entity::Serialize(std::ostream& os) const
 {
+  std::stringstream serializationLog;
+  serializationLog << "SERIALIZING: \n";
+
   const ComponentBitFlag& signature = GetSignature();
   // serialize bitset first to know which components are attached to this one
   os << signature;
@@ -75,14 +78,21 @@ void Entity::Serialize(std::ostream& os) const
   {
     if (signature.test(compIndex))
     {
+      serializationLog << ECSCoordinator::Get().GetComponentName(compIndex) << "\n";
       // write component data to stream based on signature
       ECSCoordinator::Get().SerializeComponent(_id, os, compIndex);
     }
   }
+
+  std::string log = serializationLog.str();
+  std::cout << log;
 }
 
 void Entity::Deserialize(std::istream& is)
 {
+  std::stringstream serializationLog;
+  serializationLog << "DESERIALIZING: \n";
+
   ComponentBitFlag signature;
   // stream first thing should be signature
   is >> signature;
@@ -92,6 +102,8 @@ void Entity::Deserialize(std::istream& is)
     std::type_index compTypeIndex = ECSCoordinator::Get().GetTypeIndex(compIndex);
     if (signature.test(compIndex))
     {
+      serializationLog << ECSCoordinator::Get().GetComponentName(compIndex) << "\n";
+
       // if deleter is already present, component already attached to entity
       if (_deleteComponent.find(compTypeIndex) == _deleteComponent.end())
       {
@@ -117,6 +129,9 @@ void Entity::Deserialize(std::istream& is)
   EntityManager::Get().SetSignature(GetID(), signature);
   // recheck against systems to register with systems
   CheckAgainstSystems(this);
+
+  std::string log = serializationLog.str();
+  std::cout << log;
 }
 
 SBuffer Entity::CreateEntitySnapshot() const

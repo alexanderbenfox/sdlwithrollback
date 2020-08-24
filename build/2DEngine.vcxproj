@@ -36,6 +36,7 @@
     <ClCompile Include="..\src\AssetManagement\StaticAssets\AnimationAssets.cpp" />
     <ClCompile Include="..\src\AssetManagement\StaticAssets\StaticAssetUtils.cpp" />
     <ClCompile Include="..\src\AssetManagement\Text.cpp" />
+    <ClCompile Include="..\src\Components\Actors\GameActor.cpp" />
     <ClCompile Include="..\src\Components\AIPrograms\AIPrograms.cpp" />
     <ClCompile Include="..\src\Components\Animator.cpp" />
     <ClCompile Include="..\src\Components\Components.cpp" />
@@ -120,6 +121,7 @@
     <ClInclude Include="..\src\Components\StateComponent.h" />
     <ClInclude Include="..\src\Components\StateComponents\AttackStateComponent.h" />
     <ClInclude Include="..\src\Components\StateComponents\HitStateComponent.h" />
+    <ClInclude Include="..\src\Components\StaticComponents\AttackLinkMap.h" />
     <ClInclude Include="..\src\Components\Transform.h" />
     <ClInclude Include="..\src\Components\UIComponents.h" />
     <ClInclude Include="..\src\Core\ECS\ComponentArray.h" />

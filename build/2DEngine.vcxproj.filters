@@ -84,6 +84,9 @@
     <Filter Include="Source Files\Core\Utility">
       <UniqueIdentifier>{eb7394ef-9ed9-4dac-abed-0d3a502875af}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Components\StaticComponents">
+      <UniqueIdentifier>{1992a82e-affa-4092-ab9a-dc2ae8cc576c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\2DEngine.cpp">
@@ -247,6 +250,9 @@
     </ClCompile>
     <ClCompile Include="..\src\AssetManagement\AnimationCollectionManager.cpp">
       <Filter>Source Files\AssetManagement</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Components\Actors\GameActor.cpp">
+      <Filter>Source Files\Components\Actors</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -558,6 +564,9 @@
     </ClInclude>
     <ClInclude Include="..\src\AssetManagement\StaticAssets\AnimationAssets.h">
       <Filter>Source Files\AssetManagement\StaticAssets</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Components\StaticComponents\AttackLinkMap.h">
+      <Filter>Source Files\Components\StaticComponents</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

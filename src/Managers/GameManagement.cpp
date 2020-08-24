@@ -287,7 +287,7 @@ void GameManager::BeginGameLoop()
 
     if(ImGui::Button("Make P1 Snapshot"))
     {
-      TriggerEndOfFrame([this]() { _p1Snapshots.push_back(_p1->CreateEntitySnapshot()); });
+      TriggerBeginningOfFrame([this]() { _p1Snapshots.push_back(_p1->CreateEntitySnapshot()); });
     }
     if (ImGui::CollapsingHeader("P1 Snapshot List"))
     {
@@ -304,7 +304,7 @@ void GameManager::BeginGameLoop()
 
     if (ImGui::Button("Make P2 Snapshot"))
     {
-      TriggerEndOfFrame([this]() {_p2Snapshots.push_back(_p2->CreateEntitySnapshot()); });
+      TriggerBeginningOfFrame([this]() {_p2Snapshots.push_back(_p2->CreateEntitySnapshot()); });
     }
 
     if (ImGui::CollapsingHeader("P2 Snapshot List"))

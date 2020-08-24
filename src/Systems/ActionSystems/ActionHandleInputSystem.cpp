@@ -105,7 +105,7 @@ void HandleInputCrouch::DoTick(float dt)
   {
     GameActor& actor = ComponentArray<GameActor>::Get().GetComponent(entity);
 
-    if (!HasState(actor.LastButtons(), InputState::DOWN))
+    if (!HasState(actor.input.normal, InputState::DOWN))
     {
       RunOnDeferGuardDestroy(entity,
         GameManager::Get().GetEntityByID(entity)->RemoveComponent<CrouchingAction>();
@@ -163,8 +163,8 @@ void CheckForReturnToNeutral::DoTick(float dt)
     if (!actor.newInputs || !rigidbody.IsGrounded())
       continue;
 
-    if (HasState(actor.LastButtons(), InputState::LEFT) || HasState(actor.LastButtons(), InputState::RIGHT)) {}
-    else if (!HasState(actor.LastButtons(), InputState::DOWN))
+    if (HasState(actor.input.normal, InputState::LEFT) || HasState(actor.input.normal, InputState::RIGHT)) {}
+    else if (!HasState(actor.input.normal, InputState::DOWN))
     {
       RunOnDeferGuardDestroy((entity, &state), ActionFactory::GoToNeutralAction(entity, &state));
     }
@@ -185,7 +185,7 @@ void CheckForMoveLeft::DoTick(float dt)
     if (!actor.newInputs || !rigidbody.IsGrounded())
       continue;
 
-    if (HasState(actor.LastButtons(), InputState::LEFT))
+    if (HasState(actor.input.normal, InputState::LEFT))
     {
       Vector2<float> movementVector = Vector2<float>(-0.5f * GlobalVars::BaseWalkSpeed, 0.0f);
       RunOnDeferGuardDestroy((entity, &actor, &state, movementVector), ActionFactory::GoToWalkLeftAction(entity, &actor, &state, movementVector));
@@ -207,7 +207,7 @@ void CheckForMoveRight::DoTick(float dt)
     if (!actor.newInputs || !rigidbody.IsGrounded())
       continue;
 
-    if (HasState(actor.LastButtons(), InputState::RIGHT))
+    if (HasState(actor.input.normal, InputState::RIGHT))
     {
       Vector2<float> movementVector = movementVector = Vector2<float>(0.5f * GlobalVars::BaseWalkSpeed, 0.0f);
       RunOnDeferGuardDestroy((entity, &actor, &state, movementVector), ActionFactory::GoToWalkRightAction(entity, &actor, &state, movementVector));
@@ -229,12 +229,12 @@ void CheckForJump::DoTick(float dt)
     if (!rigidbody.IsGrounded())
       continue;
 
-    if (HasState(actor.LastButtons(), InputState::UP))
+    if (HasState(actor.input.normal, InputState::UP))
     {
       Vector2<float> movementVector;
-      if (HasState(actor.LastButtons(), InputState::LEFT))
+      if (HasState(actor.input.normal, InputState::LEFT))
         movementVector = Vector2<float>(-0.5f * GlobalVars::BaseWalkSpeed, -GlobalVars::JumpVelocity);
-      else if (HasState(actor.LastButtons(), InputState::RIGHT))
+      else if (HasState(actor.input.normal, InputState::RIGHT))
         movementVector = Vector2<float>(0.5f * GlobalVars::BaseWalkSpeed, -GlobalVars::JumpVelocity);
       else
         movementVector = Vector2<float>(0.0f, -GlobalVars::JumpVelocity);
@@ -276,6 +276,7 @@ void CheckForFalling::DoTick(float dt)
         GameManager::Get().GetEntityByID(entity)->AddComponent<AnimatedActionComponent>({ state.onLeftSide, false, true, 1.0f, "Falling" });
         // because we're falling, remove any movement component
         GameManager::Get().GetEntityByID(entity)->RemoveComponent<MovingActionComponent>();
+        GameManager::Get().GetEntityByID(entity)->AddComponent<EnactActionComponent>();
       });
     }
   }
@@ -295,7 +296,7 @@ void CheckForBeginCrouching::DoTick(float dt)
     if (!rigidbody.IsGrounded())
       continue;
 
-    if (HasState(actor.LastButtons(), InputState::DOWN))
+    if (HasState(actor.input.normal, InputState::DOWN))
     {
       RunOnDeferGuardDestroy((entity, &state), {
         GameManager::Get().GetEntityByID(entity)->AddComponent<EnactActionComponent>();
@@ -338,7 +339,7 @@ void CheckHitThisFrameSystem::DoTick(float dt)
       // consume the hit this frame flag
       state.hitThisFrame = false;
 
-      InputState const& buttons = actor.LastButtons();
+      InputState const& buttons = actor.input.normal;
       if (hittable.canBlock && rigidbody.IsGrounded())
       {
         bool blockedRight = HasState(buttons, InputState::LEFT) && state.onLeftSide;
@@ -382,12 +383,12 @@ void CheckSpecialAttackInputSystem::DoTick(float dt)
     GameActor& actor = ComponentArray<GameActor>::Get().GetComponent(entity);
 
     // only for ryu right now... probably need some kind of move mapping component
-    if (HasState(actor.LastButtons(), InputState::BTN1) || HasState(actor.LastButtons(), InputState::BTN2) || HasState(actor.LastButtons(), InputState::BTN3))
+    if (HasState(actor.input.normal, InputState::BTN1) || HasState(actor.input.normal, InputState::BTN2) || HasState(actor.input.normal, InputState::BTN3))
     {
-      bool fireball = (actor.LastSpecial() == SpecialInputState::QCF && state.onLeftSide) || (actor.LastSpecial() == SpecialInputState::QCB && !state.onLeftSide);
-      bool donkeyKick = fireball && (HasState(actor.LastButtons(), InputState::BTN3));
-      bool tatsu = (actor.LastSpecial() == SpecialInputState::QCF && !state.onLeftSide) || (actor.LastSpecial() == SpecialInputState::QCB && state.onLeftSide);
-      bool dp = (actor.LastSpecial() == SpecialInputState::DPF && state.onLeftSide) || (actor.LastSpecial() == SpecialInputState::DPB && !state.onLeftSide);
+      bool fireball = (actor.input.special == SpecialInputState::QCF && state.onLeftSide) || (actor.input.special == SpecialInputState::QCB && !state.onLeftSide);
+      bool donkeyKick = fireball && (HasState(actor.input.normal, InputState::BTN3));
+      bool tatsu = (actor.input.special == SpecialInputState::QCF && !state.onLeftSide) || (actor.input.special == SpecialInputState::QCB && state.onLeftSide);
+      bool dp = (actor.input.special == SpecialInputState::DPF && state.onLeftSide) || (actor.input.special == SpecialInputState::DPB && !state.onLeftSide);
       if (fireball || donkeyKick || tatsu || dp)
       {
         if (donkeyKick)
@@ -441,8 +442,8 @@ void CheckDashSystem::DoTick(float dt)
     if (!rigidbody.IsGrounded())
       continue;
 
-    const InputState& btns = actor.LastButtons();
-    const SpecialInputState& sp = actor.LastSpecial();
+    const InputState& btns = actor.input.normal;
+    const SpecialInputState& sp = actor.input.special;
 
     if (HasState(btns, InputState::LEFT))
     {
@@ -473,40 +474,40 @@ void CheckAttackInputSystem::DoTick(float dt)
     if (HasState(state.collision, CollisionSide::DOWN))
     {
       // first check throws
-      if (HasState(actor.LastButtons(), InputState::BTN4))
+      if (HasState(actor.input.normal, InputState::BTN4))
       {
-        bool backthrow = (state.onLeftSide && HasState(actor.LastButtons(), InputState::LEFT)) || (!state.onLeftSide && HasState(actor.LastButtons(), InputState::RIGHT));
+        bool backthrow = (state.onLeftSide && HasState(actor.input.normal, InputState::LEFT)) || (!state.onLeftSide && HasState(actor.input.normal, InputState::RIGHT));
         RunOnDeferGuardDestroy((entity, &state, backthrow), ActionFactory::SetAttackAction(entity, &state, backthrow ? "BackThrow" : "ForwardThrow", ActionState::NONE));
         GameManager::Get().GetEntityByID(entity)->AddComponent<GrappleActionComponent>();
         continue;
       }
 
-      bool crouchPossible = HasState(actor.LastButtons(), InputState::DOWN);
+      bool crouchPossible = HasState(actor.input.normal, InputState::DOWN);
       // then check attacks
-      if (HasState(actor.LastButtons(), InputState::BTN1))
+      if (HasState(actor.input.normal, InputState::BTN1))
       {
         RunOnDeferGuardDestroy((entity, &state, crouchPossible), ActionFactory::SetAttackAction(entity, &state, crouchPossible ? "CrouchingLight" : "StandingLight", ActionState::LIGHT));
       }
-      else if (HasState(actor.LastButtons(), InputState::BTN2))
+      else if (HasState(actor.input.normal, InputState::BTN2))
       {
         RunOnDeferGuardDestroy((entity, &state, crouchPossible), ActionFactory::SetAttackAction(entity, &state, crouchPossible ? "CrouchingMedium" : "StandingMedium", ActionState::MEDIUM));
       }
-      else if (HasState(actor.LastButtons(), InputState::BTN3))
+      else if (HasState(actor.input.normal, InputState::BTN3))
       {
         RunOnDeferGuardDestroy((entity, &state, crouchPossible), ActionFactory::SetAttackAction(entity, &state, crouchPossible ? "CrouchingHeavy" : "StandingHeavy", ActionState::HEAVY));
       }
     }
     else
     {
-      if (HasState(actor.LastButtons(), InputState::BTN1))
+      if (HasState(actor.input.normal, InputState::BTN1))
       {
         RunOnDeferGuardDestroy((entity, &state), ActionFactory::SetAttackAction(entity, &state, "JumpingLight", ActionState::LIGHT));
       }
-      else if (HasState(actor.LastButtons(), InputState::BTN2))
+      else if (HasState(actor.input.normal, InputState::BTN2))
       {
         RunOnDeferGuardDestroy((entity, &state), ActionFactory::SetAttackAction(entity, &state, "JumpingMedium", ActionState::MEDIUM));
       }
-      else if (HasState(actor.LastButtons(), InputState::BTN3))
+      else if (HasState(actor.input.normal, InputState::BTN3))
       {
         RunOnDeferGuardDestroy((entity, &state), ActionFactory::SetAttackAction(entity, &state, "JumpingHeavy", ActionState::HEAVY));
       }
@@ -541,6 +542,9 @@ void ListenForAirborneSystem::DoTick(float dt)
   DeferGuard guard;
   for (const EntityID& entity : Registered)
   {
+    if (ComponentArray<JumpingAction>::Get().HasComponent(entity))
+      continue;
+
     Rigidbody& rigidbody = ComponentArray<Rigidbody>::Get().GetComponent(entity);
     if (!rigidbody.IsGrounded())
     {
@@ -562,7 +566,7 @@ void TransitionToNeutralSystem::DoTick(float dt)
     if (actor.actionTimerComplete)
     {
       RunOnDeferGuardDestroy((entity, &state), ActionFactory::GoToNeutralAction(entity, &state));
-      if (rigidbody.IsGrounded() && HasState(actor.LastButtons(), InputState::DOWN))
+      if (rigidbody.IsGrounded() && HasState(actor.input.normal, InputState::DOWN))
       {
         RunOnDeferGuardDestroy((entity, &state), ActionFactory::SetCrouchingState(entity, &state));
       }
@@ -664,7 +668,7 @@ void TargetComboCancelActionSystem::DoTick(float dt)
   {
     GameActor& actor = ComponentArray<GameActor>::Get().GetComponent(entity);
     StateComponent& state = ComponentArray<StateComponent>::Get().GetComponent(entity);
-    HasTargetCombo& comboableMap = ComponentArray<HasTargetCombo>::Get().GetComponent(entity);
+    AttackLinkMap& comboableMap = ComponentArray<AttackLinkMap>::Get().GetComponent(entity);
 
     // can only be cancelled on hit for now (replace with HittingComponent maybe?)
     if (state.hitting)
@@ -672,7 +676,7 @@ void TargetComboCancelActionSystem::DoTick(float dt)
       // if has a combo for this state and player is pressing that corresponding input
       if (comboableMap.links.find(state.actionState) != comboableMap.links.end())
       {
-        if (comboableMap.links[state.actionState] == actor.LastButtons())
+        if (comboableMap.links[state.actionState] == actor.input.normal)
         {
           RunOnDeferGuardDestroy(entity, {
             GameManager::Get().GetEntityByID(entity)->AddComponent<AbleToAttackState>();

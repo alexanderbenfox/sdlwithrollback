@@ -2,58 +2,37 @@
 #include "Components/StateComponent.h"
 #include "Components/InputHandlers/InputBuffer.h"
 
-class GameActor : public IComponent
+//______________________________________________________________________________
+struct GameActor : public IComponent, ISerializable
 {
-public:
-  GameActor();
-  //!
-  StanceState const& GetStanceState() { return _currStance; }
-  ActionState const& GetActionState() { return _currAction; }
-
-  friend std::ostream& operator<<(std::ostream& os, const GameActor& actor);
-  friend std::istream& operator>>(std::istream& is, GameActor& actor);
-
-  void TransferInputData(const InputBuffer& buffer, const StateComponent* stateInfo)
+  struct InputData
   {
-    newInputs = false;
-    if (forceNewInputOnNextFrame || buffer.Latest() != _lastInput || buffer.GetLastSpecialInput() != _lastSpInput)
-    {
-      _lastInput = buffer.Latest();
-      _lastSpInput = buffer.GetLastSpecialInput();
-      newInputs = true;
-    }
-    forceNewInputOnNextFrame = false;
+    //! Last normal button pressed
+    InputState normal = InputState::NONE;
+    //! Last special input from sp input buffer
+    SpecialInputState special = SpecialInputState::NONE;
+  };
 
-    if (stateInfo->collision != _lastState.collision || stateInfo->onNewState)
-    {
-      _lastState = *stateInfo;
-      newInputs = true;
-    }
-  }
-
+  //! Set of last processed input states
+  InputData input;
+  //! Copy of last state. Used to check if latest input should be analyzed
+  StateComponent lastState;
+  //! Tells systems that they should check inputs
   bool newInputs = true;
+
+  //! Forces this game actor to update the input state and flag newInputs so that the state would be checked again
   bool forceNewInputOnNextFrame = false;
   //! indicates current action is complete and entity should trigger its "TransitionTo" action if it has one
   bool actionTimerComplete = false;
 
-  InputState const& LastButtons() { return _lastInput; }
-  SpecialInputState const& LastSpecial() { return _lastSpInput; }
-
-private:
-  //!
-  InputState _lastInput;
-  SpecialInputState _lastSpInput;
-
-  //!
-  StateComponent _lastState;
-
-  bool _newState;
-  
-
-  StanceState _currStance;
-  ActionState _currAction;
+  //! Updates input state helper function
+  void TransferInputData(const InputBuffer& buffer, const StateComponent* stateInfo);
+  //! Serializer overrides
+  void Serialize(std::ostream& os) const override;
+  void Deserialize(std::istream& is) override;
 
 };
 
+//______________________________________________________________________________
 //! Empty flag for identifying entity as an actor in the scene
 struct Actor : public IComponent {};

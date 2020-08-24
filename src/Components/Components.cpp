@@ -10,7 +10,6 @@
 #include "Components/Rigidbody.h"
 #include "Components/RenderComponent.h"
 #include "Components/UIComponents.h"
-#include "Components/Actors/GameActor.h"
 
 #include "Managers/GameManagement.h"
 #include "Managers/ResourceManager.h"
@@ -20,9 +19,6 @@
 #include "Components/ActionComponents.h"
 
 #include "DebugGUI/GUIController.h"
-
-//______________________________________________________________________________
-WallPushComponent::WallPushComponent() : IComponent() {}
 
 //______________________________________________________________________________
 void WallPushComponent::OnRemove(const EntityID& entity)
@@ -110,32 +106,6 @@ void RectCollider<T>::Draw()
   draw.valid = true;
 
   GRenderer.DrawPrimitiveDebug(draw, RenderLayer::World);
-}
-
-//______________________________________________________________________________
-GameActor::GameActor() : _newState(true), _lastInput(InputState::NONE), IComponent()
-{
-}
-
-std::ostream& operator<<(std::ostream& os, const GameActor& actor)
-{
-  // need to figure out how to get the "_currentAction" into a serializable state...
-  os << (unsigned char)actor._lastInput;
-  //os << (unsigned char)actor._lastContext;
-  os << actor._newState;
-  return os;
-}
-
-std::istream& operator>>(std::istream& is, GameActor& actor)
-{
-  unsigned char lastInput, lastContext;
-  is >> lastInput;
-  is >> lastContext;
-  is >> actor._newState;
-
-  actor._lastInput = (InputState)lastInput;
-  //actor._lastContext = (GameContext)lastContext;
-  return is;
 }
 
 void Rigidbody::Serialize(std::ostream& os) const

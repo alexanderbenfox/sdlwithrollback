@@ -166,6 +166,7 @@ struct CleanUpActionSystem : public ISystem<EnactActionComponent>
     DeferGuard guard;
     for (const EntityID& entity : Registered)
     {
+      EntityID id = entity;
       RunOnDeferGuardDestroy(entity,
         GameManager::Get().GetEntityByID(entity)->RemoveComponent<EnactActionComponent>();
         // we want to be listening for a new action now

@@ -5,6 +5,7 @@
 #include "Components/Rigidbody.h"
 #include "Components/Animator.h"
 #include "Components/Actors/GameActor.h"
+#include "Components/StaticComponents/AttackLinkMap.h"
 
 struct TimedActionSystem : public ISystem<TimedActionComponent, GameActor>
 {
@@ -130,7 +131,7 @@ struct SpecialMoveCancelActionSystem : public ISystem<CancelOnSpecial, GameActor
   static void DoTick(float dt);
 };
 
-struct TargetComboCancelActionSystem : public ISystem<CancelOnNormal, HasTargetCombo, GameActor, StateComponent>
+struct TargetComboCancelActionSystem : public ISystem<CancelOnNormal, AttackLinkMap, GameActor, StateComponent>
 {
   static void DoTick(float dt);
 };

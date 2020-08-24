@@ -12,7 +12,7 @@ public:
 
 //!
 template <typename T>
-class RectCollider : public ICollider
+class RectCollider : public ICollider, ISerializable
 {
 public:
   //!
@@ -22,22 +22,19 @@ public:
   void MoveToTransform(const Transform& transform) { rect.CenterOnPoint(transform.position); }
   //!
   virtual void Draw() override;
+
   //!
-
-
   Rect<T> rect;
   Rect<T> unscaledRect;
 
-  friend std::ostream& operator<<(std::ostream& os, const RectCollider& collider)
+  virtual void Serialize(std::ostream& os) const override
   {
-    os << collider.rect;
-    return os;
+    os << rect;
   }
 
-  friend std::istream& operator>>(std::istream& is, RectCollider& collider)
+  virtual void Deserialize(std::istream& is) override
   {
-    is >> collider.rect;
-    return is;
+    is >> rect;
   }
 
 protected:

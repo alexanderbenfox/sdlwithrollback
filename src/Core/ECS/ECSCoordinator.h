@@ -45,6 +45,8 @@ public:
   void SerializeComponent(EntityID entity, std::ostream& os, int componentID) { _serializationHelpers[componentID].SerializeSelf(entity, os); }
   //! Deserializes component data from stream if entity has comp and if it is serializable
   void DeserializeComponent(EntityID entity, std::istream& is, int componentID) { _serializationHelpers[componentID].DeserializeSelf(entity, is); }
+  //! Gets name of component at this componentID
+  std::string_view GetComponentName(int componentID) { return _serializationHelpers[componentID].typeIndex.name(); }
 
   //!
 //void CopyComponentData(EntityID original, EntityID newEntity, int componentID);

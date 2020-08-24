@@ -5,7 +5,7 @@
 #include "Components/StateComponent.h"
 #include "Components/Actors/GameActor.h"
 
-struct AnimatedActionComponent : public IComponent
+struct AnimatedActionComponent : public IComponent, ISerializable
 {
   //! State of player when starting this action
   //!
@@ -23,6 +23,25 @@ struct AnimatedActionComponent : public IComponent
 
   //! State of this action
   bool complete = false;
+
+  void Serialize(std::ostream& os) const override
+  {
+    Serializer<bool>::Serialize(os, isFacingRight);
+    Serializer<bool>::Serialize(os, isLoopedAnimation);
+    Serializer<bool>::Serialize(os, forceAnimRestart);
+    Serializer<float>::Serialize(os, playSpeed);
+    Serializer<std::string>::Serialize(os, animation);
+    Serializer<bool>::Serialize(os, complete);
+  }
+  void Deserialize(std::istream& is) override
+  {
+    Serializer<bool>::Deserialize(is, isFacingRight);
+    Serializer<bool>::Deserialize(is, isLoopedAnimation);
+    Serializer<bool>::Deserialize(is, forceAnimRestart);
+    Serializer<float>::Deserialize(is, playSpeed);
+    Serializer<std::string>::Deserialize(is, animation);
+    Serializer<bool>::Deserialize(is, complete);
+  }
 
 };
 
@@ -51,10 +70,21 @@ struct EnactActionComponent : public IComponent {};
 struct InputListenerComponent : public IComponent {};
 
 // Marks entity hittable
-struct HittableState : public IComponent
+struct HittableState : public IComponent, ISerializable
 {
   bool canBlock = true;
   bool inKnockdown = false;
+
+  void Serialize(std::ostream& os) const override
+  {
+    Serializer<bool>::Serialize(os, canBlock);
+    Serializer<bool>::Serialize(os, inKnockdown);
+  }
+  void Deserialize(std::istream& is) override
+  {
+    Serializer<bool>::Deserialize(is, canBlock);
+    Serializer<bool>::Deserialize(is, inKnockdown);
+  }
 };
 
 struct AbleToAttackState : public IComponent {};
@@ -98,9 +128,19 @@ struct CancelOnNormal : public IComponent {};
 
 //! Components that describe the enacting parameters for a given action type
 
-struct AttackActionComponent : public IComponent
+struct AttackActionComponent : public IComponent, ISerializable
 {
   ActionState type = ActionState::NONE;
+
+  void Serialize(std::ostream& os) const override
+  {
+    Serializer<ActionState>::Serialize(os, type);
+  }
+  void Deserialize(std::istream& is) override
+  {
+    Serializer<ActionState>::Deserialize(is, type);
+  }
+
 };
 
 struct GrappleActionComponent : public IComponent
@@ -112,22 +152,49 @@ struct GrappleActionComponent : public IComponent
   }
 };
 
-struct MovingActionComponent : public IComponent
+struct MovingActionComponent : public IComponent, ISerializable
 {
   //
   bool horizontalMovementOnly = false;
   Vector2<float> velocity;
+
+  void Serialize(std::ostream& os) const override
+  {
+    Serializer<bool>::Serialize(os, horizontalMovementOnly);
+    os << velocity;
+  }
+  void Deserialize(std::istream& is) override
+  {
+    Serializer<bool>::Deserialize(is, horizontalMovementOnly);
+    is >> velocity;
+  }
+
 };
 
-struct ReceivedDamageAction : public IComponent
+struct ReceivedDamageAction : public IComponent, ISerializable
 {
   int damageAmount;
   bool isBlocking = false;
   bool fromGrapple = false;
   bool isKillingBlow = false;
+
+  void Serialize(std::ostream& os) const override
+  {
+    Serializer<int>::Serialize(os, damageAmount);
+    Serializer<bool>::Serialize(os, isBlocking);
+    Serializer<bool>::Serialize(os, fromGrapple);
+    Serializer<bool>::Serialize(os, isKillingBlow);
+  }
+  void Deserialize(std::istream& is) override
+  {
+    Serializer<int>::Deserialize(is, damageAmount);
+    Serializer<bool>::Deserialize(is, isBlocking);
+    Serializer<bool>::Deserialize(is, fromGrapple);
+    Serializer<bool>::Deserialize(is, isKillingBlow);
+  }
 };
 
-struct ReceivedGrappleAction : public IComponent
+struct ReceivedGrappleAction : public IComponent, ISerializable
 {
   void OnRemove(const EntityID& entity) override
   {
@@ -137,9 +204,22 @@ struct ReceivedGrappleAction : public IComponent
   int damageAmount;
   bool isKillingBlow = false;
   int damageAndKnockbackDelay = 0;
+
+  void Serialize(std::ostream& os) const override
+  {
+    Serializer<int>::Serialize(os, damageAmount);
+    Serializer<bool>::Serialize(os, isKillingBlow);
+    Serializer<int>::Serialize(os, damageAndKnockbackDelay);
+  }
+  void Deserialize(std::istream& is) override
+  {
+    Serializer<int>::Deserialize(is, damageAmount);
+    Serializer<bool>::Deserialize(is, isKillingBlow);
+    Serializer<int>::Deserialize(is, damageAndKnockbackDelay);
+  }
 };
 
-struct DashingAction : public IComponent
+struct DashingAction : public IComponent, ISerializable
 {
   void OnAdd(const EntityID& entity) override
   {
@@ -151,6 +231,15 @@ struct DashingAction : public IComponent
   }
 
   float dashSpeed = 0.0f;
+
+  void Serialize(std::ostream& os) const override
+  {
+    Serializer<float>::Serialize(os, dashSpeed);
+  }
+  void Deserialize(std::istream& is) override
+  {
+    Serializer<float>::Deserialize(is, dashSpeed);
+  }
 };
 
 struct JumpingAction : public IComponent
@@ -179,7 +268,7 @@ struct CrouchingAction : public IComponent
 
 //! Components that describe the completion parameters for a given action type
 
-struct TimedActionComponent : public IComponent
+struct TimedActionComponent : public IComponent, ISerializable
 {
   //!
   float playTime = 0.0f;
@@ -187,6 +276,21 @@ struct TimedActionComponent : public IComponent
   int totalFrames = 0;
 
   bool cancelled = false;
+
+  void Serialize(std::ostream& os) const override
+  {
+    Serializer<float>::Serialize(os, playTime);
+    Serializer<int>::Serialize(os, currFrame);
+    Serializer<int>::Serialize(os, totalFrames);
+    Serializer<bool>::Serialize(os, cancelled);
+  }
+  void Deserialize(std::istream& is) override
+  {
+    Serializer<float>::Deserialize(is, playTime);
+    Serializer<int>::Deserialize(is, currFrame);
+    Serializer<int>::Deserialize(is, totalFrames);
+    Serializer<bool>::Deserialize(is, cancelled);
+  }
 };
 
 struct WaitForAnimationComplete : public IComponent {};
@@ -194,28 +298,26 @@ struct WaitForAnimationComplete : public IComponent {};
 //! Fully transitions to jumping state
 struct WaitingForJumpAirborne : public IComponent {};
 
-// for input state
-#include "Components/InputHandlers/InputBuffer.h"
-
-
-//! Character type identifier components??
-// Works with the CancelOnNormal component
-
-struct HasTargetCombo : public IComponent
-{
-  //! Defines which normals can be cancelled into each other
-  std::unordered_map<ActionState, InputState> links;
-
-};
-
 
 //! Component for pushing player away from other player when pressuring on the wall - plz move later
-struct WallPushComponent : public IComponent
+struct WallPushComponent : public IComponent, ISerializable
 {
-  WallPushComponent();
   void OnRemove(const EntityID& entity) override;
 
-  float pushAmount;
+  float pushAmount = 0.0f;
   float amountPushed = 0.0f;
-  float velocity;
+  float velocity = 0.0f;
+
+  void Serialize(std::ostream& os) const override
+  {
+    Serializer<float>::Serialize(os, pushAmount);
+    Serializer<float>::Serialize(os, amountPushed);
+    Serializer<float>::Serialize(os, velocity);
+  }
+  void Deserialize(std::istream& is) override
+  {
+    Serializer<float>::Deserialize(is, pushAmount);
+    Serializer<float>::Deserialize(is, amountPushed);
+    Serializer<float>::Deserialize(is, velocity);
+  }
 };

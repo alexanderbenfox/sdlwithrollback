@@ -490,12 +490,12 @@ void ActionFactory::EnableAbility(const EntityID& entity)
 bool ActionFactory::ActorDidSpecialInputRyu(GameActor* actor, StateComponent* state)
 {
   // only for ryu right now... probably need some kind of move mapping component
-  if (HasState(actor->LastButtons(), InputState::BTN1) || HasState(actor->LastButtons(), InputState::BTN2) || HasState(actor->LastButtons(), InputState::BTN3))
+  if (HasState(actor->input.normal, InputState::BTN1) || HasState(actor->input.normal, InputState::BTN2) || HasState(actor->input.normal, InputState::BTN3))
   {
-    bool fireball = (actor->LastSpecial() == SpecialInputState::QCF && state->onLeftSide) || (actor->LastSpecial() == SpecialInputState::QCB && !state->onLeftSide);
-    bool donkeyKick = fireball && (HasState(actor->LastButtons(), InputState::BTN3));
-    bool tatsu = (actor->LastSpecial() == SpecialInputState::QCF && !state->onLeftSide) || (actor->LastSpecial() == SpecialInputState::QCB && state->onLeftSide);
-    bool dp = (actor->LastSpecial() == SpecialInputState::DPF && state->onLeftSide) || (actor->LastSpecial() == SpecialInputState::DPB && !state->onLeftSide);
+    bool fireball = (actor->input.special == SpecialInputState::QCF && state->onLeftSide) || (actor->input.special == SpecialInputState::QCB && !state->onLeftSide);
+    bool donkeyKick = fireball && (HasState(actor->input.normal, InputState::BTN3));
+    bool tatsu = (actor->input.special == SpecialInputState::QCF && !state->onLeftSide) || (actor->input.special == SpecialInputState::QCB && state->onLeftSide);
+    bool dp = (actor->input.special == SpecialInputState::DPF && state->onLeftSide) || (actor->input.special == SpecialInputState::DPB && !state->onLeftSide);
 
     return fireball || donkeyKick || tatsu || dp;
   }
