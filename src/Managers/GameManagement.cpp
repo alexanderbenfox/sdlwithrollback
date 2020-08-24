@@ -30,6 +30,8 @@
 
 #include "Components/Actors/GameActor.h"
 
+#include <sstream>
+
 #ifdef _DEBUG
 //used for debugger
 #include <thread>
@@ -318,6 +320,24 @@ void GameManager::BeginGameLoop()
         }
       }
     }
+
+    if (ImGui::Button("Make Game State Snapshot"))
+    {
+      TriggerBeginningOfFrame([this]() { _gameStateSnapshots.push_back(CreateGameStateSnapshot()); });
+    }
+
+    if (ImGui::CollapsingHeader("Game State Snapshot List"))
+    {
+      for (int i = 0; i < _gameStateSnapshots.size(); i++)
+      {
+        std::string btnLabel = "SNAPSHOT " + std::to_string(i + 1);
+        if (ImGui::Button(btnLabel.c_str()))
+        {
+          TriggerBeginningOfFrame([this, i]() { LoadGamestateSnapshot(_gameStateSnapshots[i]); });
+        }
+      }
+    }
+    
   });
 
   int frameCount = 0;
@@ -420,6 +440,63 @@ void GameManager::RequestSceneChange(SceneType newSceneType)
 {
   _sceneChangeRequested = true;
   _currentSceneType = newSceneType;
+}
+
+//______________________________________________________________________________
+SBuffer GameManager::CreateGameStateSnapshot() const
+{
+  std::stringstream stream;
+
+  // maybe serialize some metadata here?
+  Serializer<SceneType>::Serialize(stream, _currentSceneType);
+
+  for (auto entity : _gameEntities)
+  {
+    Serializer<EntityID>::Serialize(stream, entity.first);
+    entity.second->Serialize(stream);
+  }
+  return SBuffer(std::istreambuf_iterator<char>(stream), {});
+}
+
+//______________________________________________________________________________
+void GameManager::LoadGamestateSnapshot(const SBuffer& snapshot)
+{
+  // write contents to the stream
+  std::stringstream stream;
+  stream.write((const char*)snapshot.data(), snapshot.size());
+
+  // get the scene the snapshot was written in
+  SceneType snapshotScene;
+  Serializer<SceneType>::Deserialize(stream, snapshotScene);
+  assert(_currentSceneType == snapshotScene);
+
+  while (!stream.eof())
+  {
+    EntityID cpID = 0;
+    Serializer<EntityID>::Deserialize(stream, cpID);
+
+    if (stream.eof())
+      break;
+
+    std::shared_ptr<Entity> entity = nullptr;
+
+    // if this has already been destroyed, create new entity because it could possibly be a fireball or something
+    // but maybe it should still throw a warning
+    if (_gameEntities.find(cpID) == _gameEntities.end())
+    {
+      entity = CreateEntity<>();
+      std::cerr << "Attempting to load gamestate with inaccessible entities. Be careful entities are not being copied.\n";
+      //throw std::exception("Attempting to load gamestate with inaccessible entities.");
+    }
+    else
+    {
+      entity = _gameEntities[cpID];
+    }
+
+    // finally load the entire component state into the entity
+    entity->Deserialize(stream);
+  }
+
 }
 
 //______________________________________________________________________________

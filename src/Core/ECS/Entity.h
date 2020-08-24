@@ -21,15 +21,17 @@ public:
   Entity();
   //! Set signature to null, reset systems, deregister from entity manager
   ~Entity();
-  //! Makes a copy of entity and copies each serializable component
-  Entity* Copy();
 
+  //! Serializes JUST THE COMPONENTS
   void Serialize(std::ostream& os) const override;
+  //! Deserializes JUST THE COMPONENTS
   void Deserialize(std::istream& is) override;
 
   //! Create data stream of current component signature and serializable component data and write to buffer
+  //! This snapshot is loadable by any entity, does not store the EntityID
   SBuffer CreateEntitySnapshot() const;
-  //! Load in component config and data from a data buffer
+
+  //! Load in component config and data from a data buffer (which shouldn't have EntityID attached)
   void LoadEntitySnapshot(const SBuffer& snapshot);
 
   //! Removes all added components by calling list of deleter functions

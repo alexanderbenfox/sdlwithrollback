@@ -64,6 +64,11 @@ public:
     _beginningOfFrameQueue.push_back(fn);
   }
 
+  //! Creates a snapshot of all of the current entities' states (prepending the EntityID before each entity state is written)
+  SBuffer CreateGameStateSnapshot() const;
+  //! Loads the snapshot of the current game state
+  void LoadGamestateSnapshot(const SBuffer& snapshot);
+
 private:
   void ChangeScene(SceneType scene);
   //! Updates all components in specified order
@@ -95,6 +100,7 @@ private:
   ////!!!!! EXPERIMENTAL CODE FOR SNAPSHOT
   std::vector<SBuffer> _p1Snapshots;
   std::vector<SBuffer> _p2Snapshots;
+  std::vector<SBuffer> _gameStateSnapshots;
   
 
   //______________________________________________________________________________

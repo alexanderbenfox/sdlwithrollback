@@ -309,6 +309,7 @@ void CheckForBeginCrouching::DoTick(float dt)
         GameManager::Get().GetEntityByID(entity)->AddComponent<WaitForAnimationComplete>();
         GameManager::Get().GetEntityByID(entity)->AddComponent<TransitionToCrouching>();
         GameManager::Get().GetEntityByID(entity)->AddComponent<CrouchingAction>();
+        GameManager::Get().GetEntityByID(entity)->AddComponent<AbleToReturnToNeutral>();
 
         GameManager::Get().GetEntityByID(entity)->RemoveComponent<AbleToCrouch>();
         GameManager::Get().GetEntityByID(entity)->RemoveComponent<AbleToWalkLeft>();

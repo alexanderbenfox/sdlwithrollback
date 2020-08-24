@@ -12,11 +12,13 @@
 
 #include <sstream>
 
+//______________________________________________________________________________
 Entity::Entity()
 {
   _id = EntityManager::Get().RegisterEntity();
 }
 
+//______________________________________________________________________________
 Entity::~Entity()
 {
   // set signature to remove from all systems
@@ -27,48 +29,11 @@ Entity::~Entity()
   EntityManager::Get().DestroyEntity(_id);
 }
 
-Entity* Entity::Copy()
-{
-  Entity* nEntity = new Entity;
-
-  // loop through signature finding all attached components
-  const ComponentBitFlag& signature = GetSignature();
-  for (size_t compIndex = 0; compIndex < ECSGlobalStatus::NRegisteredComponents; compIndex++)
-  {
-    std::type_index compTypeIndex = ECSCoordinator::Get().GetTypeIndex(compIndex);
-    if (signature.test(compIndex))
-    {
-      // if deleter is already present, component already attached to entity
-      if (nEntity->_deleteComponent.find(compTypeIndex) == nEntity->_deleteComponent.end())
-      {
-        // add self via generator which needs to add deleter
-        auto deleterFn = ECSCoordinator::Get().AddSelf(nEntity->GetID(), compIndex);
-        nEntity->_deleteComponent.insert(std::make_pair(compTypeIndex, deleterFn));
-      }
-      //ECSCoordinator::Get().CopyComponentData(GetID(), nEntity->GetID(), compIndex);
-    }
-    else
-    {
-      // only delete if its already present
-      if (nEntity->_deleteComponent.find(compTypeIndex) != nEntity->_deleteComponent.end())
-      {
-        ECSCoordinator::Get().RemoveSelf(nEntity->GetID(), compIndex);
-        // be sure to remove deleter when removing components through the generator
-        nEntity->_deleteComponent.erase(compTypeIndex);
-      }
-    }
-  }
-
-  // propogate entity creation and addition of new components to systems
-  CheckAgainstSystems(nEntity);
-  return nEntity;
-}
-
-
+//______________________________________________________________________________
 void Entity::Serialize(std::ostream& os) const
 {
-  std::stringstream serializationLog;
-  serializationLog << "SERIALIZING: \n";
+  //std::stringstream serializationLog;
+  //serializationLog << "SERIALIZING: \n";
 
   const ComponentBitFlag& signature = GetSignature();
   // serialize bitset first to know which components are attached to this one
@@ -78,16 +43,17 @@ void Entity::Serialize(std::ostream& os) const
   {
     if (signature.test(compIndex))
     {
-      serializationLog << ECSCoordinator::Get().GetComponentName(compIndex) << "\n";
+      //serializationLog << ECSCoordinator::Get().GetComponentName(compIndex) << "\n";
       // write component data to stream based on signature
       ECSCoordinator::Get().SerializeComponent(_id, os, compIndex);
     }
   }
 
-  std::string log = serializationLog.str();
-  std::cout << log;
+  /*std::string log = serializationLog.str();
+  std::cout << log;*/
 }
 
+//______________________________________________________________________________
 void Entity::Deserialize(std::istream& is)
 {
   std::stringstream serializationLog;
@@ -134,6 +100,7 @@ void Entity::Deserialize(std::istream& is)
   std::cout << log;
 }
 
+//______________________________________________________________________________
 SBuffer Entity::CreateEntitySnapshot() const
 {
   std::stringstream stream;
@@ -142,6 +109,7 @@ SBuffer Entity::CreateEntitySnapshot() const
   return SBuffer(std::istreambuf_iterator<char>(stream), {});
 }
 
+//______________________________________________________________________________
 void Entity::LoadEntitySnapshot(const SBuffer& snapshot)
 {
   std::stringstream stream;
@@ -150,6 +118,7 @@ void Entity::LoadEntitySnapshot(const SBuffer& snapshot)
   Deserialize(stream);
 }
 
+//______________________________________________________________________________
 void Entity::RemoveAllComponents()
 {
   for(auto func : _deleteComponent)
@@ -159,11 +128,13 @@ void Entity::RemoveAllComponents()
   CheckAgainstSystems(this);
 }
 
+//______________________________________________________________________________
 void Entity::DestroySelf()
 {
   GameManager::Get().TriggerEndOfFrame([this]() { GameManager::Get().DestroyEntity(shared_from_this()); });
 }
 
+//______________________________________________________________________________
 void Entity::SetScale(Vector2<float> scale)
 {
   Transform& transform = *GetComponent<Transform>();
@@ -194,6 +165,7 @@ void Entity::SetScale(Vector2<float> scale)
   transform.scale.y = scale.y;
 }
 
+//______________________________________________________________________________
 void Entity::CheckAgainstSystems(Entity* entity)
 {
   GameManager::Get().CheckAgainstSystems(entity);
