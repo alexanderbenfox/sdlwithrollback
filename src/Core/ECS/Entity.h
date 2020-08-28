@@ -26,6 +26,8 @@ public:
   void Serialize(std::ostream& os) const override;
   //! Deserializes JUST THE COMPONENTS
   void Deserialize(std::istream& is) override;
+  //!
+  std::string Log() override;
 
   //! Create data stream of current component signature and serializable component data and write to buffer
   //! This snapshot is loadable by any entity, does not store the EntityID

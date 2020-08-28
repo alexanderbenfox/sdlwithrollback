@@ -1,10 +1,10 @@
 #pragma once
 
-#include "GameState/GameState.h"
 #include "GameState/Scene.h"
 #include "Core/ECS/IComponent.h"
 #include "Core/Timer.h"
 #include "Rendering/RenderManager.h"
+#include "Core/InputState.h"
 
 #include <thread>
 #include <mutex>
@@ -29,8 +29,6 @@ public:
   //! Add entity to game entity list and add components to it
   template <class ... Args>
   std::shared_ptr<Entity> CreateEntity();
-  //! Gets the result of the latest SDL_PollEvent
-  SDL_Event const& GetLocalInput() { return _localInput; }
 
   std::shared_ptr<Entity> GetEntityByID(int id) { return _gameEntities[id]; }
 
@@ -68,23 +66,34 @@ public:
   SBuffer CreateGameStateSnapshot() const;
   //! Loads the snapshot of the current game state
   void LoadGamestateSnapshot(const SBuffer& snapshot);
-
-private:
-  void ChangeScene(SceneType scene);
+  //!
+  std::string LogGamestate();
   //! Updates all components in specified order
   void Update(float deltaTime);
+  //! Updates player input after a sync
+  void SyncPlayerInputs(InputState* inputs);
+
+
+private:
+  //! Collects inputs and runs update function
+  void RunFrame(float deltaTime);
+  //!
+  void ChangeScene(SceneType scene);
   //!
   void PostUpdate();
   //! Updates SDL input based on the SDL event system
-  void UpdateInput();
+  SDL_Event UpdateLocalInput();
   //! Flushes last render frame, draws all objects on the screen, displays all drawn objects
   void Draw();
   //! Flag for whether or not the GM has been initialized
   bool _initialized;
   //!
-  SDL_Event _localInput;
-  //!
   Timer _clock;
+
+  //!
+  bool _frameStopActive = false;
+  //!
+  int _frameStop = 0;
 
   //!
   std::unique_ptr<IScene> _currentScene;
@@ -95,7 +104,7 @@ private:
   //
   std::vector<std::function<void()>> _onSceneChangeFunctionQueue, _endOfFrameQueue, _beginningOfFrameQueue;
 
-
+  SDL_Event _hardwareEvents;
 
   ////!!!!! EXPERIMENTAL CODE FOR SNAPSHOT
   std::vector<SBuffer> _p1Snapshots;

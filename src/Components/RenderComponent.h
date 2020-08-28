@@ -123,6 +123,17 @@ public:
     Serializer<SDL_Color>::Deserialize(is, _displayColor);
   }
 
+  std::string Log() override
+  {
+    std::stringstream ss;
+    ss << "RenderProperties: \n";
+    ss << "\tBase Render Offset: " << baseRenderOffset.x << " " << baseRenderOffset.y << "\n";
+    ss << "\tOffset: " << offset.x << " " << offset.y << "\n";
+    ss << "\tHorizontal flip: " << horizontalFlip << "\n";
+    ss << "\tColor: " << _displayColor.r << " " << _displayColor.g << " " << _displayColor.b << " " << _displayColor.a << "\n";
+    return ss.str();
+  }
+
 protected:
   //!
   SDL_Color _displayColor;

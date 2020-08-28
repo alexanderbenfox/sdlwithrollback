@@ -9,19 +9,32 @@
 
 enum class InputType : int
 {
-  Keyboard = 0, Joystick = 1, Gamepad = 2, DefendAll = 3, DefendAfter = 4, RepeatCM = 5
+  Keyboard = 0, Joystick = 1, Gamepad = 2, DefendAll = 3, DefendAfter = 4, RepeatCM = 5, NetworkCtrl = 6
 };
 
 //______________________________________________________________________________
 //!
-class GameInputComponent : public IDebugComponent
+class GameInputComponent : public IDebugComponent, ISerializable
 {
 public:
-  GameInputComponent() : IDebugComponent("Input Handler") {}
+  GameInputComponent() : _input(20), _keyboard(_input), _joystick(_input), _gamepad(_input), _ai(_input), _network(_input), IDebugComponent("Input Handler") {}
+
+  GameInputComponent& operator=(const GameInputComponent& other)
+  {
+    AssignHandler(other.GetAssignedHandler());
+    return *this;
+  }
   //! Assign this component to use a certain handler type
   void AssignHandler(InputType type);
   //! Handler interprets latest raw input and returns it
-  InputBuffer const& QueryInput();
+  //InputBuffer& QueryInput(const SDL_Event& local);
+  InputState TranslateEvent(const SDL_Event& local) { return _handler->TranslateEvent(local); }
+  //!
+  void PushState(const InputState state) { _handler->CommitInput(state); }
+  //! Gets input after it has already been interpretted by QueryInput (and GGPO, if applicable)
+  InputBuffer const& GetInput() { return _handler->GetInterprettedInput(); }
+  //! Sync last input from synced ggpo session
+  void Sync(InputState syncState) { _handler->SyncLastInput(syncState); }
   //! Clears the input buffer
   void Clear();
   //! Assigns handler key to an action
@@ -29,6 +42,13 @@ public:
   void AssignActionKey(KeyType key, InputState action) {}
   //! Allows switching of input mode and key assignments
   void OnDebug() override;
+
+  InputType GetAssignedHandler() const { return _assignedHandler; }
+
+  //! Override ISerializable functions (only serialize buffer state)
+  void Serialize(std::ostream& os) const override { _input.Serialize(os); }
+  void Deserialize(std::istream& is) override { _input.Deserialize(is); }
+  std::string Log() override { return _input.Log(); }
 
 protected:
   IInputHandler* _handler = nullptr;
@@ -38,33 +58,8 @@ protected:
   JoystickInputHandler _joystick;
   GamepadInputHandler _gamepad;
   AIInputHandler _ai;
+  NetworkInputHandler _network;
+
+  InputBuffer _input;
 
 };
-
-#ifdef _WIN32
-#include <GGPO/ggponet.h>
-
-struct GGPOInput
-{
-  GGPOSession* session;
-  InputState** inputs;
-  GGPOPlayerHandle** handles;
-};
-
-//______________________________________________________________________________
-//!
-class GGPOInputHandler : public IInputHandler
-{
-public:
-  //!
-  GGPOInputHandler() : IInputHandler() {}
-  //!
-  ~GGPOInputHandler() {}
-  //!
-  virtual InputBuffer const& CollectInputState() final;
-
-private:
-  std::shared_ptr<GGPOInput> _input;
-};
-
-#endif

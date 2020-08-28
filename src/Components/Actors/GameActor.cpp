@@ -1,4 +1,5 @@
 #include "Components/Actors/GameActor.h"
+#include <sstream>
 
 //______________________________________________________________________________
 void GameActor::TransferInputData(const InputBuffer& buffer, const StateComponent* stateInfo)
@@ -39,4 +40,17 @@ void GameActor::Deserialize(std::istream& is)
   Serializer<bool>::Deserialize(is, forceNewInputOnNextFrame);
   Serializer<bool>::Deserialize(is, actionTimerComplete);
   lastState.Deserialize(is);
+}
+
+//______________________________________________________________________________
+std::string GameActor::Log()
+{
+  std::stringstream ss;
+  ss << "GameActor: \n";
+  ss << "\tInput State: " << (int)input.normal << "\n";
+  ss << "\tSpecial Input State: " << (int)input.special << "\n";
+  ss << "\tIs New Input?: " << newInputs << "\n";
+  ss << "\tForce new input: " << forceNewInputOnNextFrame << "\n";
+  ss << "\tAction complete: " << actionTimerComplete << "\n";
+  return ss.str();
 }

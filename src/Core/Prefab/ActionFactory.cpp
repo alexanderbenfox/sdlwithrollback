@@ -397,7 +397,6 @@ void ActionFactory::GoToWalkLeftAction(const EntityID& entity, GameActor* actor,
   GameManager::Get().GetEntityByID(entity)->GetComponent<MovingActionComponent>()->horizontalMovementOnly = true;
 
   // add states for potential outside influence
-  GameManager::Get().GetEntityByID(entity)->AddComponent<>();
   GameManager::Get().GetEntityByID(entity)->GetComponent<HittableState>()->canBlock = true;
   GameManager::Get().GetEntityByID(entity)->GetComponent<HittableState>()->inKnockdown = false;
 
@@ -422,7 +421,6 @@ void ActionFactory::GoToWalkRightAction(const EntityID& entity, GameActor* actor
   GameManager::Get().GetEntityByID(entity)->GetComponent<MovingActionComponent>()->horizontalMovementOnly = true;
 
   // add states for potential outside influence
-  GameManager::Get().GetEntityByID(entity)->AddComponent<>();
   GameManager::Get().GetEntityByID(entity)->GetComponent<HittableState>()->canBlock = true;
   GameManager::Get().GetEntityByID(entity)->GetComponent<HittableState>()->inKnockdown = false;
 

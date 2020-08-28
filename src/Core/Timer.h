@@ -90,7 +90,7 @@ public:
   //! Constructor
   Timer() : _frames(0.0f), _fixedTimeStep(true), _lastFrameTime(_mainClock.now()) {}
   //! Start function gets the FPS from internal hardward
-  void Start();
+  void Start(int fps);
   //! Begins pause coroutine on this clock for the given time
   void PauseForTime(float seconds);
   //! Begins a user custom coroutine function
@@ -141,6 +141,8 @@ private:
   };
   //! Main clock
   SDLClock _mainClock;
+  //! updates based on monitor refresh rate?
+  SDLClock _renderClock;
   //!
   AvgCounter _perfCounter;
 

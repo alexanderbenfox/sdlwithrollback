@@ -37,15 +37,12 @@ void GameInputComponent::AssignHandler(InputType type)
     GameManager::Get().GetEntityByID(entityID)->AddComponent<AIComponent>();
     _ai.SetAIProgram(GameManager::Get().GetEntityByID(entityID)->GetComponent<AIComponent>(), new RepeatInputAI(InputState::DOWN | InputState::BTN2));
     _handler = &_ai;
+    break;
+  case InputType::NetworkCtrl:
+    _handler = &_network;
   default:
     break;
   }
-}
-
-//______________________________________________________________________________
-InputBuffer const& GameInputComponent::QueryInput()
-{
-  return _handler->CollectInputState();
 }
 
 //______________________________________________________________________________
@@ -84,7 +81,7 @@ void GameInputComponent::OnDebug()
 
 //______________________________________________________________________________
 template <>
-void GameInputComponent::AssignActionKey<SDL_Keycode>(SDL_Keycode key, InputState action)
+void GameInputComponent::AssignActionKey<SDL_Scancode>(SDL_Scancode key, InputState action)
 {
   _keyboard.AssignKey(key, action);
 }
@@ -102,33 +99,3 @@ void GameInputComponent::AssignActionKey<SDL_GameControllerButton>(SDL_GameContr
 {
   _gamepad.AssignKey(key, action);
 }
-
-#ifdef _WIN32
-//______________________________________________________________________________
-InputBuffer const& GGPOInputHandler::CollectInputState()
-{
-  // notify ggpo of local player's inputs
-  GGPOErrorCode result = ggpo_add_local_input(_input->session, (*_input->handles)[0], &(*_input->inputs)[0], sizeof((*_input->inputs)[0]));
-
-  // synchronize inputs
-  if (GGPO_SUCCEEDED(result))
-  {
-    int disconnectFlags;
-    result = ggpo_synchronize_input(_input->session, (*_input->inputs), sizeof(*_input->inputs), &disconnectFlags);
-    if (GGPO_SUCCEEDED(result))
-    {
-      _inputBuffer.Push((*_input->inputs)[1]);
-    }
-    else
-    {
-      _inputBuffer.Push(InputState::NONE);
-    }
-  }
-  else
-  {
-    _inputBuffer.Push(InputState::NONE);
-  }
-  return _inputBuffer;
-
-}
-#endif

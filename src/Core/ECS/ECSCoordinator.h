@@ -15,6 +15,7 @@ struct ComponentEntityFnSet
   std::function<void(EntityID)> RemoveSelf;
   std::function<void(EntityID, std::ostream&)> SerializeSelf;
   std::function<void(EntityID, std::istream&)> DeserializeSelf;
+  std::function<std::string(EntityID)> LogSelf;
   //std::function<SBuffer(EntityID)> CopyDataToBuffer;
   //std::function<void(EntityID, const SBuffer&)> CopyFromBuffer;
   std::type_index typeIndex = typeid(int);
@@ -47,6 +48,8 @@ public:
   void DeserializeComponent(EntityID entity, std::istream& is, int componentID) { _serializationHelpers[componentID].DeserializeSelf(entity, is); }
   //! Gets name of component at this componentID
   std::string_view GetComponentName(int componentID) { return _serializationHelpers[componentID].typeIndex.name(); }
+  //! Gets log information for component
+  std::string LogData(EntityID entity, int componentID);
 
   //!
 //void CopyComponentData(EntityID original, EntityID newEntity, int componentID);

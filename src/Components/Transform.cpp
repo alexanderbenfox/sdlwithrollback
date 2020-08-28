@@ -45,3 +45,14 @@ void Transform::Deserialize(std::istream& is)
   is >> rotation;
   is >> scale;
 }
+
+std::string Transform::Log()
+{
+  std::stringstream ss;
+  ss << "Transform: \n";
+  ss << "\tPosition: x=" << position.x << " y=" << position.y << "\n";
+  ss << "\tRotation: x=" << rotation.x << " y=" << rotation.y << "\n";
+  ss << "\tScale: x=" << scale.x << " y=" << scale.y << "\n";
+  return ss.str();
+}
+

@@ -29,6 +29,7 @@
 #include "GameState/Scene.h"
 
 #include "Components/Actors/GameActor.h"
+#include "Managers/GGPOManager.h"
 
 #include <sstream>
 
@@ -194,12 +195,6 @@ void GameManager::Destroy()
 //______________________________________________________________________________
 void GameManager::BeginGameLoop()
 {
-  //start the timer
-  _clock.Start();
-
-  //initialize the functions
-  UpdateFunction update = std::bind(&GameManager::Update, this, std::placeholders::_1);
-
   if constexpr (std::is_same_v<RenderType, SDL_Texture>)
   {
     GUIController::Get().InitSDLWindow();
@@ -340,6 +335,91 @@ void GameManager::BeginGameLoop()
     
   });
 
+  static int localPlayerIndex = 0;
+
+  GUIController::Get().AddImguiWindowFunction("GGPO", "Connect Player", [this]()
+  {
+    ImGui::BeginGroup();
+
+    if (!GGPOManager::Get().InMatch())
+    {
+      static int localUDPPort = static_cast<int>(NetGlobals::LocalUDPPort);
+      if (ImGui::InputInt("Local Port", &localUDPPort))
+        NetGlobals::LocalUDPPort = static_cast<unsigned short>(localUDPPort);
+
+      ImGui::InputInt("Frame Delay", &NetGlobals::FrameDelay);
+
+      static char ip[128];
+      ImGui::InputText("Remote Player Address", ip, 128);
+
+      static int port;
+      ImGui::InputInt("Connection Port", &port);
+
+      if (ImGui::Button("Connect On Position 1"))
+      {
+        _p2->GetComponent<GameInputComponent>()->AssignHandler(InputType::NetworkCtrl);
+        localPlayerIndex = 0;
+        std::string_view remoteIP = ip;
+        unsigned short pport = (unsigned short)port;
+
+        GGPOPlayer players[2] = { GGPOManager::Get().CreateLocalPlayer(), GGPOManager::Get().CreateRemotePlayer(remoteIP, pport) };
+        players[0].player_num = 1;
+        players[1].player_num = 2;
+
+        GGPOManager::Get().BeginSession(players);
+      }
+
+      if (ImGui::Button("Connect On Position 2"))
+      {
+        _p1->GetComponent<GameInputComponent>()->AssignHandler(InputType::NetworkCtrl);
+        localPlayerIndex = 1;
+        std::string_view remoteIP = ip;
+        unsigned short pport = (unsigned short)port;
+
+        GGPOPlayer players[2] = { GGPOManager::Get().CreateRemotePlayer(remoteIP, pport), GGPOManager::Get().CreateLocalPlayer() };
+        players[0].player_num = 1;
+        players[1].player_num = 2;
+
+        GGPOManager::Get().BeginSession(players);
+      }
+    }
+    ImGui::EndGroup();
+  });
+
+  GUIController::Get().AddImguiWindowFunction("GGPO", "Network Stats", []()
+    {
+      ImGui::BeginGroup();
+
+      if (GGPOManager::Get().InMatch())
+      {
+        for (int i = 0; i < 2; i++)
+        {
+          if (i == localPlayerIndex)
+            continue;
+
+          ImGui::BeginGroup();
+
+          GGPONetworkStats stats = GGPOManager::Get().GetPlayerStats(i);
+          ImGui::Text("P%d Stats\n", (i + 1));
+          ImGui::Text("Ping: %d ms", stats.network.ping);
+          ImGui::Text("Frame Lag: %.1f frames", stats.network.ping ? stats.network.ping * 60.0 / 1000 : 0);
+          ImGui::Text("Bandwidth: %.2f kilobytes/sec", stats.network.kbps_sent / 8.0);
+          ImGui::Text("Local Frames Behind: %d frames", stats.timesync.local_frames_behind);
+          ImGui::Text("Remote Frames Behind: %d frames", stats.timesync.remote_frames_behind);
+
+          ImGui::EndGroup();
+        }
+      }
+      ImGui::EndGroup();
+    });
+
+
+  //start the timer at 60 fps
+  _clock.Start(60);
+
+  //initialize the functions
+  UpdateFunction update = std::bind(&GameManager::RunFrame, this, std::placeholders::_1);
+
   int frameCount = 0;
   for (;;)
   {
@@ -348,12 +428,12 @@ void GameManager::BeginGameLoop()
 
     //! Update all components and coroutines
     _clock.Update(update);
-    //! Do post update (update gui and change scene)
-    PostUpdate();
-    //! Finally render the scene
+    //! Update gui
+    GUIController::Get().MainLoop();
+    //! render the scene
     Draw();
 
-    if (_localInput.type == SDL_QUIT)
+    if (_hardwareEvents.type == SDL_QUIT)
       break;
 
     frameCount = (++frameCount) % 10;
@@ -404,7 +484,9 @@ void GameManager::CheckAgainstSystems(Entity* entity)
 //______________________________________________________________________________
 void GameManager::ActivateHitStop(int frames)
 {
-  _clock.PauseForTime(static_cast<float>(frames) * secPerFrame);
+  _frameStop = frames;
+  _frameStopActive = true;
+  //_clock.PauseForTime(static_cast<float>(frames) * secPerFrame);
 }
 
 //______________________________________________________________________________
@@ -450,11 +532,23 @@ SBuffer GameManager::CreateGameStateSnapshot() const
   // maybe serialize some metadata here?
   Serializer<SceneType>::Serialize(stream, _currentSceneType);
 
-  for (auto entity : _gameEntities)
+  // serialize frame stop data here
+  Serializer<bool>::Serialize(stream, _frameStopActive);
+  Serializer<int>::Serialize(stream, _frameStop);
+
+  /*for (auto entity : _gameEntities)
   {
     Serializer<EntityID>::Serialize(stream, entity.first);
     entity.second->Serialize(stream);
-  }
+  }*/
+
+  // right now, lets just copy the player entities
+  Serializer<EntityID>::Serialize(stream, _p1->GetID());
+  _p1->Serialize(stream);
+
+  Serializer<EntityID>::Serialize(stream, _p2->GetID());
+  _p2->Serialize(stream);
+
   return SBuffer(std::istreambuf_iterator<char>(stream), {});
 }
 
@@ -469,6 +563,9 @@ void GameManager::LoadGamestateSnapshot(const SBuffer& snapshot)
   SceneType snapshotScene;
   Serializer<SceneType>::Deserialize(stream, snapshotScene);
   assert(_currentSceneType == snapshotScene);
+
+  Serializer<bool>::Deserialize(stream, _frameStopActive);
+  Serializer<int>::Deserialize(stream, _frameStop);
 
   while (!stream.eof())
   {
@@ -500,6 +597,83 @@ void GameManager::LoadGamestateSnapshot(const SBuffer& snapshot)
 }
 
 //______________________________________________________________________________
+std::string GameManager::LogGamestate()
+{
+  return _p1->Log() + _p2->Log();
+}
+
+//______________________________________________________________________________
+void GameManager::Update(float deltaTime)
+{
+  _currentScene->Update(_frameStopActive ? 0.0f : deltaTime);
+  //! Do post update (update gui and change scene)
+  PostUpdate();
+
+  // end of frame decrement frame stop if necessary
+  if (_frameStopActive)
+  {
+    _frameStop--;
+    if (_frameStop <= 0)
+      _frameStopActive = false;
+  }
+
+  GGPOManager::Get().NotifyAdvanceFrame();
+}
+
+//______________________________________________________________________________
+void GameManager::SyncPlayerInputs(InputState* inputs)
+{
+  //_p1->GetComponent<GameInputComponent>()->Sync(inputs[0]);
+  //_p2->GetComponent<GameInputComponent>()->Sync(inputs[1]);
+
+
+  _p1->GetComponent<GameInputComponent>()->PushState(inputs[0]);
+  _p2->GetComponent<GameInputComponent>()->PushState(inputs[1]);
+}
+
+//______________________________________________________________________________
+void GameManager::RunFrame(float deltaTime)
+{
+  if (!_beginningOfFrameQueue.empty())
+  {
+    for (auto& func : _beginningOfFrameQueue)
+      func();
+    _beginningOfFrameQueue.clear();
+  }
+
+  // grab events from hardware
+  _hardwareEvents = UpdateLocalInput();
+  // update debug gui logic
+  GUIController::Get().UpdateLogic(_hardwareEvents);
+  // translate events to input state
+  InputState inputs[2];
+  inputs[0] = _p1->GetComponent<GameInputComponent>()->TranslateEvent(_hardwareEvents);
+  inputs[1] = _p2->GetComponent<GameInputComponent>()->TranslateEvent(_hardwareEvents);
+
+  // if we're not online, we can just advance the frame
+  bool advanceFrame = true;
+
+  if (GGPOManager::Get().InMatch())
+  {
+    if (!GGPOManager::Get().SyncInputs(inputs))
+    {
+      advanceFrame = false;
+    }
+  }
+
+  // advance frame with correct inputs assigned
+  if (advanceFrame)
+  {
+    _p1->GetComponent<GameInputComponent>()->PushState(inputs[0]);
+    _p2->GetComponent<GameInputComponent>()->PushState(inputs[1]);
+
+    Update(deltaTime);
+
+
+  }
+}
+
+//______________________________________________________________________________
 void GameManager::ChangeScene(SceneType scene)
 {
   _currentScene.reset();
@@ -516,23 +690,8 @@ void GameManager::ChangeScene(SceneType scene)
 }
 
 //______________________________________________________________________________
-void GameManager::Update(float deltaTime)
-{
-  UpdateInput();
-  if (!_beginningOfFrameQueue.empty())
-  {
-    for (auto& func : _beginningOfFrameQueue)
-      func();
-    _beginningOfFrameQueue.clear();
-  }
-  _currentScene->Update(deltaTime);
-}
-
-//______________________________________________________________________________
 void GameManager::PostUpdate()
 {
-  //! update debug gui
-  GUIController::Get().MainLoop(_localInput);
   // defer scene change until end of update loops
   if(_sceneChangeRequested)
   {
@@ -553,18 +712,20 @@ void GameManager::PostUpdate()
 }
 
 //______________________________________________________________________________
-void GameManager::UpdateInput()
+SDL_Event GameManager::UpdateLocalInput()
 {
+  SDL_Event event;
   // Check for quit or resize and update input object
-  if (SDL_PollEvent(&_localInput)) {
-    if (_localInput.type == SDL_WINDOWEVENT)
+  if (SDL_PollEvent(&event)) {
+    if (event.type == SDL_WINDOWEVENT)
     {
-      if (_localInput.window.event == SDL_WINDOWEVENT_RESIZED)
+      if (event.window.event == SDL_WINDOWEVENT_RESIZED)
       {
-        GRenderer.ProcessResizeEvent(_localInput);
+        GRenderer.ProcessResizeEvent(event);
       }
     }
   }
+  return event;
 }
 
 //______________________________________________________________________________

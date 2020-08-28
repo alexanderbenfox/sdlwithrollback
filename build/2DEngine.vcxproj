@@ -62,11 +62,11 @@
     <ClCompile Include="..\src\Core\Utility\InputSequenceBuffer.cpp" />
     <ClCompile Include="..\src\Core\Utility\String.cpp" />
     <ClCompile Include="..\src\DebugGUI\GUIController.cpp" />
-    <ClCompile Include="..\src\GameState\GGPOGameState.cpp" />
     <ClCompile Include="..\src\GameState\BattleScene.cpp" />
     <ClCompile Include="..\src\GameState\StartScene.cpp" />
     <ClCompile Include="..\src\Globals.cpp" />
     <ClCompile Include="..\src\Managers\GameManagement.cpp" />
+    <ClCompile Include="..\src\Managers\GGPOManager.cpp" />
     <ClCompile Include="..\src\Rendering\GLTexture.cpp" />
     <ClCompile Include="..\src\Rendering\OpenGLRenderer.cpp" />
     <ClCompile Include="..\src\Rendering\RenderManager.cpp" />
@@ -151,11 +151,10 @@
     <ClInclude Include="..\src\Core\Utility\TrieNode.h" />
     <ClInclude Include="..\src\Core\Utility\TypeTraits.h" />
     <ClInclude Include="..\src\DebugGUI\GUIController.h" />
-    <ClInclude Include="..\src\GameState\GameState.h" />
-    <ClInclude Include="..\src\GameState\GGPOGameState.h" />
     <ClInclude Include="..\src\GameState\Scene.h" />
     <ClInclude Include="..\src\Globals.h" />
     <ClInclude Include="..\src\Managers\GameManagement.h" />
+    <ClInclude Include="..\src\Managers\GGPOManager.h" />
     <ClInclude Include="..\src\Managers\ResourceManager.h" />
     <ClInclude Include="..\src\Rendering\GLTexture.h" />
     <ClInclude Include="..\src\Rendering\OpenGLRenderer.h" />
@@ -279,7 +278,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>GGPO_SYNC_TEST;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>external\ggpo\include;..\src;external\sdl2-ttf_x64-windows\include;external\sdl2-image_x64-windows\include;external\jsoncpp_x64-windows\include;external\sdl2_x64-windows\include\SDL2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>

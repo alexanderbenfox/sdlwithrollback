@@ -3,6 +3,8 @@
 #include <algorithm>
 #include <chrono>
 
+#include "Managers/GGPOManager.h"
+
 //______________________________________________________________________________
 SDLClock::SDLClock() : startTicks(0), pauseTicks(0), lag(0), paused(false), started(false) {}
 
@@ -90,9 +92,13 @@ Timer::Coroutine::Status Timer::Coroutine::Update() const
 }
 
 //______________________________________________________________________________
-void Timer::Start()
+void Timer::Start(int fps)
 {
-    _mainClock.SetFPS();
+  _renderClock.SetFPS();
+
+  _mainClock.fps = fps;
+  _mainClock.timestep = 1000.f / static_cast<float>(fps);
+  _mainClock.frametime = 1.0f / static_cast<float>(fps);
   _lastFrameTime = _mainClock.GetElapsedTicks();
   _mainClock.Start();
 }
@@ -158,7 +164,18 @@ void Timer::Update(UpdateFunction& updateFunction)
 
     //cap framerate
     uint32_t updatedDt = (_mainClock.GetElapsedTicks() - _lastFrameTime) + dt;
-    SDL_Delay(_mainClock.timestep - updatedDt % _mainClock.timestep);
+    uint32_t delayMS = _mainClock.timestep - updatedDt % _mainClock.timestep;
+
+    if (GGPOManager::Get().InMatch())
+    {
+      GGPOManager::Get().Idle(delayMS);
+    }
+    else
+    {
+      SDL_Delay(delayMS);
+      //SDL_Delay(_mainClock.timestep - updatedDt % _mainClock.timestep);
+    }
+    
   }
   else
   {

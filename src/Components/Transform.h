@@ -18,7 +18,8 @@ struct Transform : public IComponent, public ISerializable
   void SetWidthAndHeight(float width, float height);
 
   void Serialize(std::ostream& os) const override;
-  void Deserialize(std::istream& is);
+  void Deserialize(std::istream& is) override;
+  std::string Log() override;
 
 };
 

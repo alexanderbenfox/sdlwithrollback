@@ -63,3 +63,12 @@ void AttackStateComponent::Deserialize(std::istream& is)
     inProgressEventTypes.insert(type);
   }
 }
+
+std::string AttackStateComponent::Log()
+{
+  std::stringstream ss;
+  ss << "Attack State Component: \n";
+  ss << "\tAttack animation: " << attackAnimation << "\n";
+  ss << "\tLast frame: " << lastFrame << "\n";
+  return ss.str();
+}

@@ -29,7 +29,8 @@ public:
   bool InitImGUI();
   bool InitImGUI(SDL_Window* existingWindow, SDL_GLContext existingContext);
 
-  void MainLoop(SDL_Event& event);
+  void UpdateLogic(const SDL_Event& event);
+  void MainLoop();
   void RenderFrame();
   void CleanUp();
 
@@ -49,6 +50,8 @@ private:
   bool _ownsWindow = false;
 
   bool _drawComponentDebug = true;
+
+  bool _init = false;
 
   struct WindowFn
   {

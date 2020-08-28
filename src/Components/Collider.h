@@ -37,6 +37,14 @@ public:
     is >> rect;
   }
 
+  std::string Log() override
+  {
+    std::stringstream ss;
+    ss << "RectCollider\n";
+    ss << "\tRect x = " << rect.beg.x << " y = " << rect.beg.y << " w = " << rect.Width() << " h = " << rect.Height() << "\n";
+    return ss.str();
+  }
+
 protected:
   bool _drawDebug = true;
 

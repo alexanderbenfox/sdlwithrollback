@@ -5,6 +5,8 @@
 #include "Components/StateComponent.h"
 #include "Components/Actors/GameActor.h"
 
+#include <sstream>
+
 struct AnimatedActionComponent : public IComponent, ISerializable
 {
   //! State of player when starting this action
@@ -41,6 +43,19 @@ struct AnimatedActionComponent : public IComponent, ISerializable
     Serializer<float>::Deserialize(is, playSpeed);
     Serializer<std::string>::Deserialize(is, animation);
     Serializer<bool>::Deserialize(is, complete);
+  }
+
+  std::string Log() override
+  {
+    std::stringstream ss;
+    ss << "AnimationActionComponent: \n";
+    ss << "\tIs facing right: " << isFacingRight << "\n";
+    ss << "\tIs looped action: " << isLoopedAnimation << "\n";
+    ss << "\tforceAnimRestart: " << forceAnimRestart << "\n";
+    ss << "\tPlay Speed: " << playSpeed << "\n";
+    ss << "\tAnimation name: " << animation << "\n";
+    ss << "\tComplete: " << complete << "\n";
+    return ss.str();
   }
 
 };
@@ -84,6 +99,15 @@ struct HittableState : public IComponent, ISerializable
   {
     Serializer<bool>::Deserialize(is, canBlock);
     Serializer<bool>::Deserialize(is, inKnockdown);
+  }
+
+  std::string Log() override
+  {
+    std::stringstream ss;
+    ss << "HittableState: \n";
+    ss << "\tCan block: " << canBlock << "\n";
+    ss << "\tIn knockdown: " << inKnockdown << "\n";
+    return ss.str();
   }
 };
 
@@ -141,6 +165,14 @@ struct AttackActionComponent : public IComponent, ISerializable
     Serializer<ActionState>::Deserialize(is, type);
   }
 
+  std::string Log() override
+  {
+    std::stringstream ss;
+    ss << "AttackActionComponent: \n";
+    ss << "\tAction type: " << (int)type << "\n";
+    return ss.str();
+  }
+
 };
 
 struct GrappleActionComponent : public IComponent
@@ -169,6 +201,15 @@ struct MovingActionComponent : public IComponent, ISerializable
     is >> velocity;
   }
 
+  std::string Log() override
+  {
+    std::stringstream ss;
+    ss << "MovingActionComponent: \n";
+    ss << "\tHorizontal movement only: " << horizontalMovementOnly << "\n";
+    ss << "\tVelocity: " << velocity.x << " " << velocity.y << "\n";
+    return ss.str();
+  }
+
 };
 
 struct ReceivedDamageAction : public IComponent, ISerializable
@@ -191,6 +232,17 @@ struct ReceivedDamageAction : public IComponent, ISerializable
     Serializer<bool>::Deserialize(is, isBlocking);
     Serializer<bool>::Deserialize(is, fromGrapple);
     Serializer<bool>::Deserialize(is, isKillingBlow);
+  }
+
+  std::string Log() override
+  {
+    std::stringstream ss;
+    ss << "ReceivedDamageAction: \n";
+    ss << "\tDamage Amount: " << damageAmount << "\n";
+    ss << "\tIs Blocking: " << isBlocking << "\n";
+    ss << "\tFrom Grapple: " << fromGrapple << "\n";
+    ss << "\tIs Killing blow: " << isKillingBlow << "\n";
+    return ss.str();
   }
 };
 
@@ -217,6 +269,18 @@ struct ReceivedGrappleAction : public IComponent, ISerializable
     Serializer<bool>::Deserialize(is, isKillingBlow);
     Serializer<int>::Deserialize(is, damageAndKnockbackDelay);
   }
+
+  std::string Log() override
+  {
+    std::stringstream ss;
+    ss << "ReceivedGrappleAction: \n";
+    ss << "\tDamage Amount: " << damageAmount << "\n";
+    ss << "\tIs Killing blow: " << isKillingBlow << "\n";
+    ss << "\tDamage and knockback delay: " << damageAndKnockbackDelay << "\n";
+    return ss.str();
+  }
+
+
 };
 
 struct DashingAction : public IComponent, ISerializable
@@ -239,6 +303,14 @@ struct DashingAction : public IComponent, ISerializable
   void Deserialize(std::istream& is) override
   {
     Serializer<float>::Deserialize(is, dashSpeed);
+  }
+
+  std::string Log() override
+  {
+    std::stringstream ss;
+    ss << "DashingAction: \n";
+    ss << "\tDash Speed: " << dashSpeed << "\n";
+    return ss.str();
   }
 };
 
@@ -291,6 +363,17 @@ struct TimedActionComponent : public IComponent, ISerializable
     Serializer<int>::Deserialize(is, totalFrames);
     Serializer<bool>::Deserialize(is, cancelled);
   }
+
+  std::string Log() override
+  {
+    std::stringstream ss;
+    ss << "TimedActionComponent: \n";
+    ss << "\tPlay Time: " << playTime << "\n";
+    ss << "\tCurrent Frame: " << currFrame << "\n";
+    ss << "\tTotal frames: " << totalFrames << "\n";
+    ss << "\tCancelled: " << cancelled << "\n";
+    return ss.str();
+  }
 };
 
 struct WaitForAnimationComplete : public IComponent {};
@@ -319,5 +402,16 @@ struct WallPushComponent : public IComponent, ISerializable
     Serializer<float>::Deserialize(is, pushAmount);
     Serializer<float>::Deserialize(is, amountPushed);
     Serializer<float>::Deserialize(is, velocity);
+  }
+
+
+  std::string Log() override
+  {
+    std::stringstream ss;
+    ss << "WallPushComponent: \n";
+    ss << "\tPush amount: " << pushAmount << "\n";
+    ss << "\tAmount pushed: " << amountPushed << "\n";
+    ss << "\tSpeed: " << velocity << "\n";
+    return ss.str();
   }
 };

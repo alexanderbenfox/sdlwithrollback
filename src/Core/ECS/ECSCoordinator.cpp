@@ -27,6 +27,12 @@ void ECSCoordinator::RemoveSelf(EntityID entity, int componentID)
   _serializationHelpers[componentID].RemoveSelf(entity);
 }
 
+
+std::string ECSCoordinator::LogData(EntityID entity, int componentID)
+{
+  return _serializationHelpers[componentID].LogSelf(entity);
+}
+
 //______________________________________________________________________________
 /*void ECSCoordinator::CopyComponentData(EntityID original, EntityID newEntity, int componentID)
 {

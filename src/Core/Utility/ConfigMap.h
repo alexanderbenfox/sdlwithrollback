@@ -42,9 +42,12 @@ public:
   ValueWrapper operator[](const T2& key) { return ValueWrapper(_backward[key], key, this); }
   ValueWrapper operator[](const T1& key) { return ValueWrapper(key, _forward[key], this); }
 
+  std::vector<T1> const& GetKeys() { return _keys; }
+
 private:
   std::unordered_map<T1, T2> _forward;
   std::unordered_map<T2, T1> _backward;
+  std::vector<T1> _keys;
 
 };
 
@@ -56,10 +59,18 @@ void ConfigMap<T1, T2>::SetValue(T1 a, T2 b)
   {
     T1 currentKey = _backward[b];
     _forward.erase(currentKey);
+    int i;
+    for (i = 0; i < _keys.size(); i++)
+    {
+      if (_keys[i] == currentKey)
+        break;
+    }
+    _keys.erase(_keys.begin() + i);
   }
 
   _forward[a] = b;
   _backward[b] = a;
+  _keys.push_back(a);
 }
 
 template <typename T1, typename T2>

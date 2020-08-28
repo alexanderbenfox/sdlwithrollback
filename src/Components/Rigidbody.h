@@ -15,6 +15,13 @@ struct Gravity : public IComponent, public ISerializable
 
   void Serialize(std::ostream& os) const override { os << force; }
   void Deserialize(std::istream& is) override { is >> force; }
+  std::string Log() override
+  {
+    std::stringstream ss;
+    ss << "Gravity: \n";
+    ss << "\tForce =: " << force.x << " " << force.y << "\n";
+    return ss.str();
+  }
 };
 
 //!
@@ -40,6 +47,18 @@ public:
 
   void Serialize(std::ostream& os) const override;
   void Deserialize(std::istream& is) override;
+
+  std::string Log() override
+  {
+    std::stringstream ss;
+    ss << "Rigidbody: \n";
+    ss << "\tLast Collision Side: " << (int)lastCollisionSide << "\n";
+    ss << "\tVelocity x = " << velocity.x << " y = " << velocity.y << "\n";
+    ss << "\tAcceleration x = " << acceleration.x << " y = " << acceleration.y << "\n";
+    ss << "\tElastic collisions " << elasticCollisions << "\n";
+    ss << "\tIgnore Dynamic Colliders " << ignoreDynamicColliders << "\n";
+    return ss.str();
+  }
 
 };
 

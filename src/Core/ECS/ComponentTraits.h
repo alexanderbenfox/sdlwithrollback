@@ -27,6 +27,7 @@ private:
   const void CopyDataToEntity(EntityID entity, const SBuffer& buffer);
   const void Serialize(EntityID entity, std::ostream& os);
   const void Deserialize(EntityID entity, std::istream& is);
+  const std::string LogSelf(EntityID entity);
 
   int _ID = 0;
   std::bitset<MAX_COMPONENTS> _signature;
@@ -58,6 +59,7 @@ inline ComponentTraits<T>::ComponentTraits()
     std::function<void(EntityID)>([this](EntityID e) { RemoveSelf(e); }),
     std::function<void(EntityID, std::ostream&)>([this](EntityID e, std::ostream& os) { Serialize(e, os); }),
     std::function<void(EntityID, std::istream&)>([this](EntityID e, std::istream& is) { Deserialize(e, is); }),
+    std::function<std::string(EntityID)>([this](EntityID e) { return LogSelf(e); }),
     //std::function<SBuffer(EntityID)>([](EntityID e) { SBuffer buffer; CopyDataFromEntity(e, buffer); return buffer; }),
     //std::function<void(EntityID, const SBuffer&)>([](EntityID e, const SBuffer& b) { CopyDataToEntity(e, b); }),
     std::type_index(typeid(T))
@@ -114,3 +116,12 @@ const void ComponentTraits<T>::Deserialize(EntityID entity, std::istream& is)
   if constexpr (std::is_base_of_v<ISerializable, T>)
     ComponentArray<T>::Get().GetComponent(entity).Deserialize(is);
 }
+
+template <typename T>
+const std::string ComponentTraits<T>::LogSelf(EntityID entity)
+{
+  if constexpr (std::is_base_of_v<ISerializable, T>)
+    return ComponentArray<T>::Get().GetComponent(entity).Log();
+  else return "";
+}
+

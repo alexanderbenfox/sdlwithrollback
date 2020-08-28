@@ -44,6 +44,15 @@ public:
 };
 
 //______________________________________________________________________________
+class NetGlobals
+{
+public:
+  static unsigned short LocalUDPPort;
+  //! defined based on the values found in https://github.com/pond3r/ggpo/blob/master/src/apps/vectorwar/vectorwar.h
+  static int FrameDelay;
+};
+
+//______________________________________________________________________________
 //! Used by timed actions to interpolate
 struct Interpolation
 {

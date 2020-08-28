@@ -8,11 +8,15 @@ class AIInputHandler : public IInputHandler
 {
 public:
   //!
-  AIInputHandler() = default;
+  AIInputHandler(InputBuffer& buffer) : _ai(nullptr), IInputHandler(buffer) {}
   //!
   ~AIInputHandler() = default;
   //!
-  virtual InputBuffer const& CollectInputState() final;
+  virtual InputState TranslateEvent(const SDL_Event&) final;
+  //! Override commit input so it does nothing until it gets interpretted later
+  virtual void CommitInput(const InputState& input) override {}
+  //! Use this to get interpretted input after it has been collected and synced if playing online
+  virtual InputBuffer const& GetInterprettedInput() final;
   //! Sets the AI program (memory owned by the AIInputHandler)
   void SetAIProgram(AIComponent* comp, IAIProgram* program);
 

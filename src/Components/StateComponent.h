@@ -4,6 +4,7 @@
 #include "AssetManagement/StaticAssets/AnimationAssetData.h"
 
 #include "Core/Interfaces/Serializable.h"
+#include <sstream>
 
 //! marks the entity as the loser of the round
 struct LoserComponent : public IComponent {};
@@ -77,6 +78,9 @@ public:
 
   void Serialize(std::ostream& os) const override;
   void Deserialize(std::istream& is) override;
+  std::string Log() override;
+
+
 
 };
 
@@ -159,4 +163,25 @@ inline void StateComponent::Deserialize(std::istream& is)
   Serializer<ActionState>::Deserialize(is, actionState);
   Serializer<StanceState>::Deserialize(is, stanceState);
   Serializer<bool>::Deserialize(is, onNewState);
+}
+
+inline std::string StateComponent::Log()
+{
+  std::stringstream ss;
+  ss << "StateComponent: \n";
+  ss << "\tOn Left Side: " << onLeftSide << "\n";
+  ss << "\tCollision Side: " << (int)collision << "\n";
+  ss << "\tHit this frame: " << hitThisFrame << "\n";
+  ss << "\tThrown this frame: " << thrownThisFrame << "\n";
+  ss << "\tHit Data: " << "NOT IMPLEMENTED" << "\n";
+  ss << "\tCombo counter: " << comboCounter << "\n";
+  ss << "\tHitting: " << hitting << "\n";
+  ss << "\tThrow success: " << throwSuccess << "\n";
+  ss << "\tTried to throw this frame: " << triedToThrowThisFrame << "\n";
+  ss << "\tHP: " << hp << "\n";
+  ss << "\tInvulnerable: " << invulnerable << "\n";
+  ss << "\tAction State: " << (int)actionState << "\n";
+  ss << "\tStance State: " << (int)stanceState << "\n";
+  ss << "\tOn New State: " << onNewState << "\n";
+  return ss.str();
 }

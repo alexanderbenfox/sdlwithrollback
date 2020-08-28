@@ -5,6 +5,8 @@
 
 #include "AssetManagement/AnimationCollectionManager.h"
 
+#include <sstream>
+
 
 Animator::Animator() :
   _listener(nullptr), playing(false), looping(false), accumulatedTime(0.0f), frame(0), currentAnimationName(""), IComponent()
@@ -56,4 +58,19 @@ void Animator::Deserialize(std::istream& is)
   Serializer<std::string>::Deserialize(is, currentAnimationName);
   Serializer<float>::Deserialize(is, playSpeed);
   Serializer<unsigned int>::Deserialize(is, animCollectionID);
+}
+
+//______________________________________________________________________________
+std::string Animator::Log()
+{
+  std::stringstream ss;
+  ss << "Animator: \n";
+  ss << "\tIs Playing: " << playing << "\n";
+  ss << "\tIs Looping: " << looping << "\n";
+  ss << "\tAccumulated time: " << accumulatedTime << "\n";
+  ss << "\tCurrent frame: " << frame << "\n";
+  ss << "\tAnimation Name: " << currentAnimationName << "\n";
+  ss << "\tPlay Speed: " << playSpeed << "\n";
+  ss << "\tAnimation Collection ID: " << animCollectionID << "\n";
+  return ss.str();
 }

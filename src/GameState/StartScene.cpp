@@ -17,12 +17,6 @@
 
 IScene::~IScene()
 {
-  // after every scene, clear the input buffers on all devices
-  ComponentArray<GameInputComponent>::Get().ForEach([](GameInputComponent& source)
-  {
-    source.Clear();
-  });
-
 }
 
 StartScene::~StartScene()
@@ -62,6 +56,12 @@ CharacterSelectScene::~CharacterSelectScene()
 {
   GameManager::Get().DestroyEntity(_uiCamera);
   _p1->RemoveComponent<MenuState>();
+
+  // clear input buffer before battlescene
+  ComponentArray<GameInputComponent>::Get().ForEach([](GameInputComponent& source)
+  {
+    source.Clear();
+  });
 }
 
 void CharacterSelectScene::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2)

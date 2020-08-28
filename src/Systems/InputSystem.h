@@ -63,7 +63,7 @@ public:
       // reset on new state
       state.onNewState = false;
       state.collision = rigidbody.lastCollisionSide;
-      actor.TransferInputData(inputHandler.QueryInput(), &state);
+      actor.TransferInputData(inputHandler.GetInput(), &state);
       
 
       /*state->onNewState = false;

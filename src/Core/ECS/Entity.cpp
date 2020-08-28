@@ -56,8 +56,8 @@ void Entity::Serialize(std::ostream& os) const
 //______________________________________________________________________________
 void Entity::Deserialize(std::istream& is)
 {
-  std::stringstream serializationLog;
-  serializationLog << "DESERIALIZING: \n";
+  //std::stringstream serializationLog;
+  //serializationLog << "DESERIALIZING: \n";
 
   ComponentBitFlag signature;
   // stream first thing should be signature
@@ -68,7 +68,7 @@ void Entity::Deserialize(std::istream& is)
     std::type_index compTypeIndex = ECSCoordinator::Get().GetTypeIndex(compIndex);
     if (signature.test(compIndex))
     {
-      serializationLog << ECSCoordinator::Get().GetComponentName(compIndex) << "\n";
+      //serializationLog << ECSCoordinator::Get().GetComponentName(compIndex) << "\n";
 
       // if deleter is already present, component already attached to entity
       if (_deleteComponent.find(compTypeIndex) == _deleteComponent.end())
@@ -96,8 +96,29 @@ void Entity::Deserialize(std::istream& is)
   // recheck against systems to register with systems
   CheckAgainstSystems(this);
 
-  std::string log = serializationLog.str();
-  std::cout << log;
+  //std::string log = serializationLog.str();
+  //std::cout << log;
+}
+
+//______________________________________________________________________________
+std::string Entity::Log()
+{
+  std::stringstream ss;
+  ss << "Entity " << GetID() << "\n";
+
+  ss << "ComponentBitSignature: ";
+  const ComponentBitFlag& signature = GetSignature();
+  ss << signature << "\n";
+
+  for (size_t compIndex = 0; compIndex < ECSGlobalStatus::NRegisteredComponents; compIndex++)
+  {
+    if (signature.test(compIndex))
+    {
+      ss << ECSCoordinator::Get().LogData(_id, compIndex);
+    }
+  }
+  ss << "\n";
+  return ss.str();
 }
 
 //______________________________________________________________________________

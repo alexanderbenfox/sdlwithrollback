@@ -28,7 +28,7 @@ public:
       GameInputComponent& input = ComponentArray<GameInputComponent>::Get().GetComponent(entity);
       MenuState& menu = ComponentArray<MenuState>::Get().GetComponent(entity);
 
-      const InputBuffer& lastInput = input.QueryInput();
+      const InputBuffer& lastInput = input.GetInput();
       // get button from keydown event
       InputState pressed = lastInput.LatestPressed();
 

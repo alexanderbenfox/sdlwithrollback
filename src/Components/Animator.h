@@ -33,6 +33,7 @@ public:
   //! Override ISerializable functions
   void Serialize(std::ostream& os) const override;
   void Deserialize(std::istream& is) override;
+  std::string Log() override;
 
 protected:
   //! Things that need to know when an animation is done

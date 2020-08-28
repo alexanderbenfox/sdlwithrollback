@@ -8,13 +8,13 @@ class KeyboardInputHandler : public IInputHandler
 {
 public:
   //!
-  KeyboardInputHandler();
+  KeyboardInputHandler(InputBuffer& buffer);
   //!
   ~KeyboardInputHandler();
   //!
-  virtual InputBuffer const& CollectInputState() final;
+  virtual InputState TranslateEvent(const SDL_Event&) final;
   //!
-  void AssignKey(SDL_Keycode keyCode, InputState action)
+  void AssignKey(SDL_Scancode keyCode, InputState action)
   {
     _config[keyCode] = action;
   }
@@ -23,6 +23,6 @@ private:
   //!
   const uint8_t* _keyStates = nullptr;
   //!
-  ConfigMap<SDL_Keycode, InputState> _config;
-
+  //ConfigMap<SDL_Keycode, InputState> _eventConfig;
+  ConfigMap<SDL_Scancode, InputState> _config;
 };

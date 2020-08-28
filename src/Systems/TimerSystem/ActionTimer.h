@@ -18,6 +18,7 @@ public:
   //! Serializing functions (might not ever use)
   virtual void Serialize(std::ostream& os) const override;
   virtual void Deserialize(std::istream& is) override;
+  std::string Log() override { return ""; }
 
   //! gets whether or not this action has been cancelled preemptively
   virtual bool const Cancelled() = 0;

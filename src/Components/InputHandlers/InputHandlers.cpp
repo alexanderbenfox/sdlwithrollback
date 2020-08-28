@@ -6,7 +6,7 @@
 #include "Managers/GameManagement.h"
 
 #include <deque>
-#include <SDL2/SDL_events.h>
+#include <sstream>
 
 //Analog joystick dead zone
 const int JOYSTICK_DEAD_ZONE = 8000;
@@ -40,6 +40,19 @@ InputState InputBuffer::LatestPressed() const
 }
 
 //______________________________________________________________________________
+void InputBuffer::Swap(InputState input)
+{
+  InputState last = _buffer[_limit - 1];
+  if (last != input)
+  {
+    // replace last input
+    _buffer[_limit - 1] = input;
+    _spMovesBuffer.RollbackLastInput();
+    _spMovesBuffer.PushInput(input);
+  }
+}
+
+//______________________________________________________________________________
 void InputBuffer::Clear()
 {
   for(int i = 0; i < _limit; i++)
@@ -48,9 +61,47 @@ void InputBuffer::Clear()
 }
 
 //______________________________________________________________________________
-InputBuffer const& AIInputHandler::CollectInputState()
+void InputBuffer::Serialize(std::ostream& os) const
 {
-  if(_ai)
+  // write out the contents of the input state buffer
+  os.write((const char*)_buffer.data(), _limit * sizeof(InputState));
+  _spMovesBuffer.Serialize(os);
+}
+
+//______________________________________________________________________________
+void InputBuffer::Deserialize(std::istream& is)
+{
+  is.read((char*)_buffer.data(), _limit * sizeof(InputState));
+  _spMovesBuffer.Deserialize(is);
+}
+
+//______________________________________________________________________________
+std::string InputBuffer::Log()
+{
+  std::stringstream ss;
+  ss << "Input buffer: ";
+  for (int i = 0; i < _limit; i++)
+  {
+    ss << (int)_buffer[i] << " ";
+  }
+  ss << "\n";
+  ss << _spMovesBuffer.Log();
+
+  return ss.str();
+}
+
+//______________________________________________________________________________
+InputState AIInputHandler::TranslateEvent(const SDL_Event&)
+{
+  if (_ai)
+    return _ai->lastDecision;
+  return InputState::NONE;
+}
+
+//______________________________________________________________________________
+InputBuffer const& AIInputHandler::GetInterprettedInput()
+{
+  if (_ai)
     _inputBuffer.Push(_ai->lastDecision);
   return _inputBuffer;
 }
@@ -64,50 +115,67 @@ void AIInputHandler::SetAIProgram(AIComponent* comp, IAIProgram* program)
 }
 
 //______________________________________________________________________________
-KeyboardInputHandler::KeyboardInputHandler() : IInputHandler()
+KeyboardInputHandler::KeyboardInputHandler(InputBuffer& buffer) : IInputHandler(buffer)
 {
   //assign direction buttons
-  _config[SDLK_w] = InputState::UP;
-  _config[SDLK_a] = InputState::LEFT;
-  _config[SDLK_s] = InputState::DOWN;
-  _config[SDLK_d] = InputState::RIGHT;
+  _config[SDL_SCANCODE_W] = InputState::UP;
+  _config[SDL_SCANCODE_A] = InputState::LEFT;
+  _config[SDL_SCANCODE_S] = InputState::DOWN;
+  _config[SDL_SCANCODE_D] = InputState::RIGHT;
 
   //assign the button events
-  _config[SDLK_u] = InputState::BTN1;
-  _config[SDLK_i] = InputState::BTN2;
-  _config[SDLK_o] = InputState::BTN3;
-  _config[SDLK_p] = InputState::BTN4;
+  _config[SDL_SCANCODE_U] = InputState::BTN1;
+  _config[SDL_SCANCODE_I] = InputState::BTN2;
+  _config[SDL_SCANCODE_O] = InputState::BTN3;
+  _config[SDL_SCANCODE_P] = InputState::BTN4;
+
+
+  /*//assign direction buttons
+  _eventConfig[SDLK_w] = InputState::UP;
+  _eventConfig[SDLK_a] = InputState::LEFT;
+  _eventConfig[SDLK_s] = InputState::DOWN;
+  _eventConfig[SDLK_d] = InputState::RIGHT;
+
+  //assign the button events
+  _eventConfig[SDLK_u] = InputState::BTN1;
+  _eventConfig[SDLK_i] = InputState::BTN2;
+  _eventConfig[SDLK_o] = InputState::BTN3;
+  _eventConfig[SDLK_p] = InputState::BTN4;*/
 }
 
 //______________________________________________________________________________
 KeyboardInputHandler::~KeyboardInputHandler() {}
 
 //______________________________________________________________________________
-InputBuffer const& KeyboardInputHandler::CollectInputState()
+InputState KeyboardInputHandler::TranslateEvent(const SDL_Event& input)
 {
-  InputState frameState = _inputBuffer.Latest();
+  InputState frameState = InputState::NONE;//_inputBuffer.Latest();
 
-  _keyStates = SDL_GetKeyboardState(0);
+  _keyStates = SDL_GetKeyboardState(NULL);
+  for (const SDL_Scancode& key : _config.GetKeys())
+  {
+    if (_keyStates[key])
+      frameState |= _config[key];
+    else
+      frameState &= (~(InputState)_config[key]);
+  }
 
-  const SDL_Event& input = GameManager::Get().GetLocalInput();
-
-  SDL_Keycode key = input.key.keysym.sym;
+  /*SDL_Keycode key = input.key.keysym.sym;
   switch (input.type)
   {
   case SDL_KEYDOWN:
-    frameState |= _config[key];
+    frameState |= _eventConfig[key];
     break;
   case SDL_KEYUP:
-    frameState &= (~(InputState)_config[key]);
+    frameState &= (~(InputState)_eventConfig[key]);
     break;
-  }
-
-  _inputBuffer.Push(frameState);
-  return _inputBuffer;
+  }*/
+  
+  return frameState;
 }
 
 //______________________________________________________________________________
-JoystickInputHandler::JoystickInputHandler() : IInputHandler()
+JoystickInputHandler::JoystickInputHandler(InputBuffer& buffer) : IInputHandler(buffer)
 {
   if(SDL_NumJoysticks() < 1) {}
   else
@@ -133,14 +201,12 @@ JoystickInputHandler::~JoystickInputHandler()
 }
 
 //______________________________________________________________________________
-InputBuffer const& JoystickInputHandler::CollectInputState()
+InputState JoystickInputHandler::TranslateEvent(const SDL_Event& input)
 {
   InputState frameState = _inputBuffer.Latest();
 
   //reset movement state
   frameState &= ~((InputState)(0xf0));
-
-  const SDL_Event& input = GameManager::Get().GetLocalInput();
 
   switch (input.type)
   {
@@ -187,12 +253,11 @@ InputBuffer const& JoystickInputHandler::CollectInputState()
     break;
   }
 
-  _inputBuffer.Push(frameState);
-  return _inputBuffer;
+  return frameState;
 }
 
 //______________________________________________________________________________
-GamepadInputHandler::GamepadInputHandler() : IInputHandler()
+GamepadInputHandler::GamepadInputHandler(InputBuffer& buffer) : IInputHandler(buffer)
 {
   if(SDL_NumJoysticks() < 1) {}
   else
@@ -229,11 +294,10 @@ GamepadInputHandler::~GamepadInputHandler()
 }
 
 //______________________________________________________________________________
-InputBuffer const& GamepadInputHandler::CollectInputState()
+InputState GamepadInputHandler::TranslateEvent(const SDL_Event& input)
 {
   InputState frameState = _inputBuffer.Latest();
 
-  const SDL_Event& input = GameManager::Get().GetLocalInput();
   switch (input.type)
   {
     case SDL_CONTROLLERBUTTONDOWN:
@@ -288,7 +352,12 @@ InputBuffer const& GamepadInputHandler::CollectInputState()
     }
     break;
   }
+  return frameState;
+}
 
-  _inputBuffer.Push(frameState);
-  return _inputBuffer;
+//______________________________________________________________________________
+InputState NetworkInputHandler::TranslateEvent(const SDL_Event& input)
+{
+  // push nothing and just wait for synchronization to take care of input data
+  return InputState::NONE;
 }

@@ -2,6 +2,7 @@
 #include <ostream>
 #include <istream>
 #include <vector>
+#include <sstream>
 
 //! Serialized buffer
 typedef std::vector<char> SBuffer;
@@ -10,6 +11,8 @@ struct ISerializable
 {
   virtual void Serialize(std::ostream& os) const = 0;
   virtual void Deserialize(std::istream& is) = 0;
+
+  virtual std::string Log() = 0;
 };
 
 //! Specialized serializer for writing primitive types to char* buffer
@@ -44,4 +47,3 @@ template <> struct Serializer<std::string>
 
   }
 };
-

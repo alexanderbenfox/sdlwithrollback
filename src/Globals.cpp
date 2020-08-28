@@ -12,8 +12,11 @@ float GlobalVars::BaseWalkSpeed = 520.0f;
 Vector2<float> GlobalVars::Gravity = Vector2<float>(0, 2700.0f);
 Vector2<float> GlobalVars::JuggleGravity = Vector2<float>(0, 2300.0f);
 float GlobalVars::JumpVelocity = 1200.0f;
-
 bool GlobalVars::ShowHitEffects = true;
+
+//______________________________________________________________________________
+unsigned short NetGlobals::LocalUDPPort = 8001;
+int NetGlobals::FrameDelay = 2;
 
 //______________________________________________________________________________
 float Interpolation::Plateau::a = 2.0f;

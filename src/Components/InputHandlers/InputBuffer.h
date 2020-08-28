@@ -3,6 +3,8 @@
 #include <unordered_map>
 #include "Core/Utility/InputSequenceBuffer.h"
 
+#include "Core/Interfaces/Serializable.h"
+
 // simple move dict to test this out
 const TrieNode<InputState, SpecialInputState> UnivSpecMoveDict
 {
@@ -15,7 +17,7 @@ const TrieNode<InputState, SpecialInputState> UnivSpecMoveDict
 };
 
 //! Input buffer class for storing 
-class InputBuffer
+class InputBuffer : ISerializable
 {
 public:
   //! construct with a limit to the size of the buffer
@@ -26,11 +28,18 @@ public:
   InputState const& Latest() const { return _buffer.back(); }
   //! gets most recently added item if it was just pressed this frame
   InputState LatestPressed() const;
+  //! Swaps value with last value. If a different value is swapped in, sp buffer needs to be reevaluated
+  void Swap(InputState input);
   //! evaluate possible special motions
   //SpecialInputState Evaluate(const TrieNode<InputState, SpecialInputState>& spMoveDict) const;
   SpecialInputState const& GetLastSpecialInput() const { return _spMovesBuffer.GetLastSpecialInput(); }
   //!
   void Clear();
+
+  //! Override ISerializable functions
+  void Serialize(std::ostream& os) const override;
+  void Deserialize(std::istream& is) override;
+  std::string Log() override;
 
 private:
   std::vector<InputState> _buffer;

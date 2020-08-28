@@ -8,11 +8,11 @@ class JoystickInputHandler : public IInputHandler
 {
 public:
   //!
-  JoystickInputHandler();
+  JoystickInputHandler(InputBuffer& buffer);
   //!
   ~JoystickInputHandler();
   //!
-  virtual InputBuffer const& CollectInputState() final;
+  virtual InputState TranslateEvent(const SDL_Event&) final;
 
   void AssignKey(uint8_t keyCode, InputState action)
   {

@@ -30,6 +30,7 @@ struct GameActor : public IComponent, ISerializable
   //! Serializer overrides
   void Serialize(std::ostream& os) const override;
   void Deserialize(std::istream& is) override;
+  std::string Log() override;
 
 };
 

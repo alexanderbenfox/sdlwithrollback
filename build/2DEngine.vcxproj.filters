@@ -98,9 +98,6 @@
     <ClCompile Include="..\src\Components\Components.cpp">
       <Filter>Source Files\Components</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\GameState\GGPOGameState.cpp">
-      <Filter>Source Files\GameState</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\Components\Animator.cpp">
       <Filter>Source Files\Components</Filter>
     </ClCompile>
@@ -254,6 +251,9 @@
     <ClCompile Include="..\src\Components\Actors\GameActor.cpp">
       <Filter>Source Files\Components\Actors</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\Managers\GGPOManager.cpp">
+      <Filter>Source Files\Managers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\imgui\imconfig.h">
@@ -356,12 +356,6 @@
       <Filter>Source Files\Managers</Filter>
     </ClInclude>
     <ClInclude Include="..\src\GameState\Scene.h">
-      <Filter>Source Files\GameState</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\GameState\GameState.h">
-      <Filter>Source Files\GameState</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\GameState\GGPOGameState.h">
       <Filter>Source Files\GameState</Filter>
     </ClInclude>
     <ClInclude Include="..\src\DebugGUI\GUIController.h">
@@ -567,6 +561,9 @@
     </ClInclude>
     <ClInclude Include="..\src\Components\StaticComponents\AttackLinkMap.h">
       <Filter>Source Files\Components\StaticComponents</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Managers\GGPOManager.h">
+      <Filter>Source Files\Managers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

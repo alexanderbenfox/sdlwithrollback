@@ -9,11 +9,11 @@ class GamepadInputHandler : public IInputHandler
 {
 public:
   //!
-  GamepadInputHandler();
+  GamepadInputHandler(InputBuffer& buffer);
   //!
   ~GamepadInputHandler();
   //!
-  virtual InputBuffer const& CollectInputState() final;
+  virtual InputState TranslateEvent(const SDL_Event&) final;
 
   void AssignKey(SDL_GameControllerButton keyCode, InputState action)
   {
@@ -29,4 +29,15 @@ private:
   //!
   ConfigMap<SDL_GameControllerButton, InputState> _config;
   
+};
+
+//______________________________________________________________________________
+//!
+class NetworkInputHandler : public IInputHandler
+{
+public:
+  //!
+  NetworkInputHandler(InputBuffer& buffer) : IInputHandler(buffer) {}
+  //!
+  virtual InputState TranslateEvent(const SDL_Event&) final;
 };

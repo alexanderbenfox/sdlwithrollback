@@ -96,18 +96,24 @@ bool GUIController::InitImGUI(SDL_Window* existingWindow, SDL_GLContext existing
   return true;
 }
 
-void GUIController::MainLoop(SDL_Event& event)
+void GUIController::UpdateLogic(const SDL_Event& event)
+{
+  // Poll and handle events (inputs, window resize, etc.)
+  ImGui_ImplSDL2_ProcessEvent(&event);
+}
+
+void GUIController::MainLoop()
 {
   ImGuiIO& io = ImGui::GetIO();
   ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
-
-  // Poll and handle events (inputs, window resize, etc.)
-  ImGui_ImplSDL2_ProcessEvent(&event);
 
   // Start the Dear ImGui frame
   ImGui_ImplOpenGL2_NewFrame();
   ImGui_ImplSDL2_NewFrame(_window);
   ImGui::NewFrame();
+
+  // inform that we can now render gui
+  _init = true;
 
   static bool showGUI = true;
   if (ImGui::BeginMainMenuBar())
@@ -196,6 +202,9 @@ void GUIController::RemoveImguiWindowFunction(const std::string& window, const s
 
 void GUIController::RenderFrame()
 {
+  if (!_init)
+    return;
+
   // draw the "in-game" debug information before drawing the imgui UI
   if (_drawComponentDebug)
   {
