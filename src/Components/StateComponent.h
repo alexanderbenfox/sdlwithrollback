@@ -135,7 +135,7 @@ inline void StateComponent::Serialize(std::ostream& os) const
   Serializer<CollisionSide>::Serialize(os, collision);
   Serializer<bool>::Serialize(os, hitThisFrame);
   Serializer<bool>::Serialize(os, thrownThisFrame);
-  Serializer<HitData>::Serialize(os, hitData);
+  hitData.Serialize(os);
   Serializer<int>::Serialize(os, comboCounter);
   Serializer<bool>::Serialize(os, hitting);
   Serializer<bool>::Serialize(os, throwSuccess);
@@ -153,7 +153,7 @@ inline void StateComponent::Deserialize(std::istream& is)
   Serializer<CollisionSide>::Deserialize(is, collision);
   Serializer<bool>::Deserialize(is, hitThisFrame);
   Serializer<bool>::Deserialize(is, thrownThisFrame);
-  Serializer<HitData>::Deserialize(is, hitData);
+  hitData.Deserialize(is);
   Serializer<int>::Deserialize(is, comboCounter);
   Serializer<bool>::Deserialize(is, hitting);
   Serializer<bool>::Deserialize(is, throwSuccess);
@@ -173,7 +173,7 @@ inline std::string StateComponent::Log()
   ss << "\tCollision Side: " << (int)collision << "\n";
   ss << "\tHit this frame: " << hitThisFrame << "\n";
   ss << "\tThrown this frame: " << thrownThisFrame << "\n";
-  ss << "\tHit Data: " << "NOT IMPLEMENTED" << "\n";
+  ss << hitData.Log();
   ss << "\tCombo counter: " << comboCounter << "\n";
   ss << "\tHitting: " << hitting << "\n";
   ss << "\tThrow success: " << throwSuccess << "\n";

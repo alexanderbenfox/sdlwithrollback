@@ -55,12 +55,16 @@ void ActionFactory::SetKnockdownAirborne(const EntityID& entity, StateComponent*
   GameManager::Get().GetEntityByID(entity)->GetComponent<ReceivedDamageAction>()->isBlocking = false;
 
   GameManager::Get().GetEntityByID(entity)->AddComponent<EnactActionComponent>();
+  GameManager::Get().GetEntityByID(entity)->AddComponent<HitStateComponent>();
 
   // we are in a juggle state here
   GameManager::Get().GetEntityByID(entity)->GetComponent<Gravity>()->force = GlobalVars::JuggleGravity;
 
   // in case we still have a grapple state attached
   GameManager::Get().GetEntityByID(entity)->RemoveComponent<ReceivedGrappleAction>();
+
+  //! Can't decide another action from here right?
+  GameManager::Get().GetEntityByID(entity)->RemoveComponent<InputListenerComponent>();
 }
 
 void ActionFactory::SetKnockdownGroundOTG(const EntityID& entity, StateComponent* state)
@@ -181,7 +185,6 @@ void ActionFactory::SetBlockStunAction(const EntityID& entity, StateComponent* s
   GameManager::Get().GetEntityByID(entity)->AddComponent<EnactActionComponent>();
 
   GameManager::Get().GetEntityByID(entity)->AddComponent<HitStateComponent>();
-  GameManager::Get().GetEntityByID(entity)->GetComponent<HitStateComponent>()->SetTimer(GameManager::Get().GetEntityByID(entity)->GetComponent<TimedActionComponent>());
 
   //! Can't decide another action from here right?
   GameManager::Get().GetEntityByID(entity)->RemoveComponent<InputListenerComponent>();
@@ -230,7 +233,6 @@ void ActionFactory::SetHitStunAction(const EntityID& entity, StateComponent* sta
   GameManager::Get().GetEntityByID(entity)->AddComponent<EnactActionComponent>();
 
   GameManager::Get().GetEntityByID(entity)->AddComponent<HitStateComponent>();
-  GameManager::Get().GetEntityByID(entity)->GetComponent<HitStateComponent>()->SetTimer(GameManager::Get().GetEntityByID(entity)->GetComponent<TimedActionComponent>());
 
   //! Can't decide another action from here right?
   GameManager::Get().GetEntityByID(entity)->RemoveComponent<InputListenerComponent>();

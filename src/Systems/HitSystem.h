@@ -131,12 +131,12 @@ public:
 
 #include "AssetManagement/AnimationCollectionManager.h"
 
-class FrameAdvantageSystem : public ISystem<AttackStateComponent, Animator, RenderProperties>
+class FrameAdvantageSystem : public IMultiSystem<SysComponents<AttackStateComponent, Animator, RenderProperties>, SysComponents<HitStateComponent, TimedActionComponent>>
 {
 public:
   static void DoTick(float dt)
   {
-    for (const EntityID& entity : Registered)
+    for (const EntityID& entity : MainSystem::Registered)
     {
       AttackStateComponent& atkState = ComponentArray<AttackStateComponent>::Get().GetComponent(entity);
       Animator& animator = ComponentArray<Animator>::Get().GetComponent(entity);
@@ -147,10 +147,13 @@ public:
       // set advantage to current remaining frames
       int attackerFrameAdvantage = -(attackerAnimTotalFrames - animator.frame);
 
-      ComponentArray<HitStateComponent>::Get().ForEach([&attackerFrameAdvantage](HitStateComponent& hitEntity)
+      for (const EntityID& e2 : SubSystem::Registered)
       {
-        attackerFrameAdvantage += hitEntity.GetRemainingFrames();
-      });
+        TimedActionComponent hitstun = ComponentArray<TimedActionComponent>::Get().GetComponent(e2);
+        int remainingFrames = hitstun.totalFrames - hitstun.currFrame;
+
+        attackerFrameAdvantage += remainingFrames;
+      }
 
       // this is for stuff like fireball
       /*ComponentArray<AttackStateComponent>::Get().ForEach([&attackerFrameAdvantage, &atkState](AttackStateComponent& otherAttackingEntity)

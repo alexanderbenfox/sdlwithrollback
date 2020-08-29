@@ -1,6 +1,7 @@
 #pragma once
 #include "Core/Math/Vector2.h"
 #include "Core/Geometry2D/Rect.h"
+#include "Core/Interfaces/Serializable.h"
 
 #include <vector>
 
@@ -84,7 +85,7 @@ struct FrameData : public IJsonLoadable
 };
 
 //! Holds the data for one frame of attack that is hitting opponent
-struct HitData
+struct HitData : ISerializable
 {
   // how many frames from the moment you get hit will you be unable to do another action
   int framesInStunBlock, framesInStunHit;
@@ -92,6 +93,37 @@ struct HitData
   Vector2<float> knockback;
   int damage;
   bool knockdown = false;
+
+  void Serialize(std::ostream& os) const override
+  {
+    Serializer<int>::Serialize(os, framesInStunBlock);
+    Serializer<int>::Serialize(os, framesInStunHit);
+    Serializer<int>::Serialize(os, activeFrames);
+    os << knockback;
+    Serializer<int>::Serialize(os, damage);
+    Serializer<bool>::Serialize(os, knockdown);
+  }
+
+  void Deserialize(std::istream& is) override
+  {
+    Serializer<int>::Deserialize(is, framesInStunBlock);
+    Serializer<int>::Deserialize(is, framesInStunHit);
+    Serializer<int>::Deserialize(is, activeFrames);
+    is >> knockback;
+    Serializer<int>::Deserialize(is, damage);
+    Serializer<bool>::Deserialize(is, knockdown);
+  }
+
+  std::string Log() override
+  {
+    std::stringstream ss;
+    ss << "HitData: \n";
+    ss << "\tStun Block :" << framesInStunBlock << " Stun Hit:" << framesInStunHit << " Active Frames:" << activeFrames << "\n";
+    ss << "\tKnockback Vector: x=" << knockback.x << " y=" << knockback.y << "\n";
+    ss << "\tDamage: " << damage << "\n";
+    ss << "\tIs Knockdown? " << knockdown << "\n";
+    return ss.str();
+  }
 
 };
 

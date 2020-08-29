@@ -248,6 +248,9 @@ bool SaveGameState(unsigned char** buffer, int* len, int* checksum, int frame)
 
   //copy the contents
   *buffer = new unsigned char[size];
+  if (!*buffer)
+    return false;
+
   memcpy_s(*buffer, size, gamestate.data(), size);
 
   // using basic checksum from the ggpo example
@@ -306,11 +309,23 @@ bool LogGameState(char* filename, unsigned char* buffer, int len)
     entity->Deserialize(stream);
 
     auto signature = entity->GetSignature();
+
+    std::cout << "Signature for entity: " << signature << "\n";
+    /*std::cout << "Checking signature attachments via signature test: \n";
+    
+    for (int i = 0; i < signature.size(); i++)
+    {
+      if (signature.test(i))
+      {
+        std::cout << "\t" << ECSCoordinator::Get().GetComponentName(i) << "\n";
+      }
+    }*/
+
+    std::cout << "Checking signature attachements via ECSGlobalStatus: \n";
     for (size_t compIndex = 0; compIndex < ECSGlobalStatus::NRegisteredComponents; compIndex++)
     {
       if (signature.test(compIndex))
       {
-        //serializationLog << ECSCoordinator::Get().GetComponentName(compIndex) << "\n";
         std::cout << "\t" << ECSCoordinator::Get().GetComponentName(compIndex) << "\n";
       }
     }
