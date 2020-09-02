@@ -115,6 +115,7 @@
     <ClInclude Include="..\src\Components\InputHandlers\InputBuffer.h" />
     <ClInclude Include="..\src\Components\InputHandlers\JoystickInputHandler.h" />
     <ClInclude Include="..\src\Components\InputHandlers\KeyboardHandler.h" />
+    <ClInclude Include="..\src\Components\MetaGameComponents.h" />
     <ClInclude Include="..\src\Components\RenderComponent.h" />
     <ClInclude Include="..\src\Components\Rigidbody.h" />
     <ClInclude Include="..\src\Components\SFXComponent.h" />
@@ -278,7 +279,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>GGPO_SYNC_TEST;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>external\ggpo\include;..\src;external\sdl2-ttf_x64-windows\include;external\sdl2-image_x64-windows\include;external\jsoncpp_x64-windows\include;external\sdl2_x64-windows\include\SDL2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -288,12 +289,11 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>external\ggpo\debug;external\sdl2-ttf_x64-windows\debug\lib;external\sdl2-image_x64-windows\debug\lib;external\sdl2_x64-windows\debug\lib;external\jsoncpp_x64-windows\debug\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>external\ggpo\debug\lib;external\sdl2-ttf_x64-windows\debug\lib;external\sdl2-image_x64-windows\debug\lib;external\sdl2_x64-windows\debug\lib;external\jsoncpp_x64-windows\debug\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <EntryPointSymbol>
       </EntryPointSymbol>
       <AdditionalDependencies>ws2_32.lib;user32.lib;winmm.lib;GGPO.lib;opengl32.lib;jsoncpp.lib;SDL2d.lib;SDL2_image.lib;SDL2_ttf.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <DelayLoadDLLs>
-      </DelayLoadDLLs>
+      <DelayLoadDLLs>GGPO.dll</DelayLoadDLLs>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -337,12 +337,11 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>external\ggpo\release;external\sdl2-ttf_x64-windows\lib;external\sdl2-image_x64-windows\lib;external\jsoncpp_x64-windows\lib;external\sdl2_x64-windows\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>external\ggpo\release\lib;external\sdl2-ttf_x64-windows\lib;external\sdl2-image_x64-windows\lib;external\jsoncpp_x64-windows\lib;external\sdl2_x64-windows\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <EntryPointSymbol>
       </EntryPointSymbol>
-      <AdditionalDependencies>ws2_32.lib;user32.lib;winmm.lib;GGPO.lib;opengl32.lib;jsoncpp.lib;SDL2.lib;SDL2_image.lib;SDL2_ttf.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <DelayLoadDLLs>
-      </DelayLoadDLLs>
+      <AdditionalDependencies>ws2_32.lib;user32.lib;winmm.lib;opengl32.lib;jsoncpp.lib;SDL2.lib;SDL2_image.lib;SDL2_ttf.lib;GGPO.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <DelayLoadDLLs>GGPO.dll</DelayLoadDLLs>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

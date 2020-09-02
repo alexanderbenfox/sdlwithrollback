@@ -565,6 +565,9 @@
     <ClInclude Include="..\src\Managers\GGPOManager.h">
       <Filter>Source Files\Managers</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\Components\MetaGameComponents.h">
+      <Filter>Source Files\Components</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -166,15 +166,14 @@ void Timer::Update(UpdateFunction& updateFunction)
     uint32_t updatedDt = (_mainClock.GetElapsedTicks() - _lastFrameTime) + dt;
     uint32_t delayMS = _mainClock.timestep - updatedDt % _mainClock.timestep;
 
+#ifdef _WIN32
     if (GGPOManager::Get().InMatch())
-    {
       GGPOManager::Get().Idle(delayMS);
-    }
     else
-    {
       SDL_Delay(delayMS);
-      //SDL_Delay(_mainClock.timestep - updatedDt % _mainClock.timestep);
-    }
+#else
+    SDL_Delay(delayMS);
+#endif
     
   }
   else

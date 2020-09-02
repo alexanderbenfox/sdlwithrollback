@@ -9,6 +9,7 @@
 #include "Components/Hitbox.h"
 #include "Components/Hurtbox.h"
 #include "Components/StateComponent.h"
+#include "Components/MetaGameComponents.h"
 
 #include "Managers/GameManagement.h"
 

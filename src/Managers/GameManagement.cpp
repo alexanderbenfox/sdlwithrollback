@@ -173,6 +173,9 @@ void GameManager::Initialize()
   _p1 = CreateEntity<GameInputComponent, Actor>();
   _p2 = CreateEntity<GameInputComponent, Actor>();
 
+  AddToNetworkedList(_p1->GetID());
+  AddToNetworkedList(_p2->GetID());
+
   //! Initialize them with keyboard handlers
   _p1->GetComponent<GameInputComponent>()->AssignHandler(InputType::Keyboard);
   //! Initialize second player as defend all AI
@@ -190,6 +193,7 @@ void GameManager::Destroy()
   GRenderer.Destroy();
 
   _gameEntities.clear();
+  _networkedEntities.clear();
 }
 
 //______________________________________________________________________________
@@ -337,6 +341,7 @@ void GameManager::BeginGameLoop()
 
   static int localPlayerIndex = 0;
 
+#ifdef _WIN32
   GUIController::Get().AddImguiWindowFunction("GGPO", "Connect Player", [this]()
   {
     ImGui::BeginGroup();
@@ -412,6 +417,7 @@ void GameManager::BeginGameLoop()
       }
       ImGui::EndGroup();
     });
+#endif
 
 
   //start the timer at 60 fps
@@ -512,6 +518,13 @@ void GameManager::DestroyEntity(const EntityID& entity)
   auto it = _gameEntities.find(entity);
   if (it != _gameEntities.end())
   {
+    // delete from networked entities list 
+    auto nIt = std::find(_networkedEntities.begin(), _networkedEntities.end(), entity);
+    if (nIt != _networkedEntities.end())
+    {
+      _networkedEntities.erase(nIt);
+    }
+
     it->second->RemoveAllComponents();
     _gameEntities.erase(it);
   }
@@ -542,12 +555,17 @@ SBuffer GameManager::CreateGameStateSnapshot() const
     entity.second->Serialize(stream);
   }*/
 
-  // right now, lets just copy the player entities
-  Serializer<EntityID>::Serialize(stream, _p1->GetID());
-  _p1->Serialize(stream);
+  for (const EntityID& id : _networkedEntities)
+  {
+    Serializer<EntityID>::Serialize(stream, id);
+    _gameEntities.at(id)->Serialize(stream);
+  }
 
-  Serializer<EntityID>::Serialize(stream, _p2->GetID());
-  _p2->Serialize(stream);
+  // right now, lets just copy the player entities
+
+
+  //Serializer<EntityID>::Serialize(stream, _p2->GetID());
+  //_p2->Serialize(stream);
 
   return SBuffer(std::istreambuf_iterator<char>(stream), {});
 }
@@ -567,6 +585,7 @@ void GameManager::LoadGamestateSnapshot(const SBuffer& snapshot)
   Serializer<bool>::Deserialize(stream, _frameStopActive);
   Serializer<int>::Deserialize(stream, _frameStop);
 
+  std::vector<EntityID> nonLoadedEntities = _networkedEntities;
   while (!stream.eof())
   {
     EntityID cpID = 0;
@@ -583,7 +602,9 @@ void GameManager::LoadGamestateSnapshot(const SBuffer& snapshot)
     {
       entity = CreateEntity<>();
       std::cerr << "Attempting to load gamestate with inaccessible entities. Be careful entities are not being copied.\n";
-      //throw std::exception("Attempting to load gamestate with inaccessible entities.");
+
+      // add to networked list... probably need to sync this
+      AddToNetworkedList(entity->GetID());
     }
     else
     {
@@ -592,14 +613,26 @@ void GameManager::LoadGamestateSnapshot(const SBuffer& snapshot)
 
     // finally load the entire component state into the entity
     entity->Deserialize(stream);
+
+    // remove from list of entities
+    auto it = std::find(nonLoadedEntities.begin(), nonLoadedEntities.end(), cpID);
+    if (it != nonLoadedEntities.end())
+      nonLoadedEntities.erase(it);
   }
 
+  for (const EntityID& id : nonLoadedEntities)
+    DestroyEntity(id);
 }
 
 //______________________________________________________________________________
 std::string GameManager::LogGamestate()
 {
-  return _p1->Log() + _p2->Log();
+  std::string s = "";
+  for (const EntityID& id : _networkedEntities)
+  {
+    s += _gameEntities.at(id)->Log();
+  }
+  return s;
 }
 
 //______________________________________________________________________________
@@ -617,7 +650,9 @@ void GameManager::Update(float deltaTime)
       _frameStopActive = false;
   }
 
+#ifdef _WIN32
   GGPOManager::Get().NotifyAdvanceFrame();
+#endif
 }
 
 //______________________________________________________________________________
@@ -653,6 +688,7 @@ void GameManager::RunFrame(float deltaTime)
   // if we're not online, we can just advance the frame
   bool advanceFrame = true;
 
+#ifdef _WIN32
   if (GGPOManager::Get().InMatch())
   {
     if (!GGPOManager::Get().SyncInputs(inputs))
@@ -660,6 +696,7 @@ void GameManager::RunFrame(float deltaTime)
       advanceFrame = false;
     }
   }
+#endif // _WIN32
 
   // advance frame with correct inputs assigned
   if (advanceFrame)

@@ -26,11 +26,6 @@ public:
   void Destroy();
   //! Starts the game loop. Returns when the game has been ended
   void BeginGameLoop();
-  //! Add entity to game entity list and add components to it
-  template <class ... Args>
-  std::shared_ptr<Entity> CreateEntity();
-
-  std::shared_ptr<Entity> GetEntityByID(int id) { return _gameEntities[id]; }
 
   void CheckAgainstSystems(Entity* entity);
 
@@ -38,10 +33,14 @@ public:
 
   void DebugDraws();
 
+  //______________________________________________________________________________
+  //! Add entity to game entity list and add components to it
+  template <class ... Args>
+  std::shared_ptr<Entity> CreateEntity();
+  std::shared_ptr<Entity> GetEntityByID(int id) { return _gameEntities[id]; }
   void DestroyEntity(std::shared_ptr<Entity> entity);
   void DestroyEntity(const EntityID& entity);
-
-  std::shared_ptr<Entity> GetEntity(const EntityID& entity) { return _gameEntities[entity]; }
+  void AddToNetworkedList(const EntityID& entity) { _networkedEntities.push_back(entity); }
 
   //! request scene change at end of update loop
   void RequestSceneChange(SceneType newSceneType);
@@ -66,8 +65,9 @@ public:
   SBuffer CreateGameStateSnapshot() const;
   //! Loads the snapshot of the current game state
   void LoadGamestateSnapshot(const SBuffer& snapshot);
-  //!
+  //! 
   std::string LogGamestate();
+
   //! Updates all components in specified order
   void Update(float deltaTime);
   //! Updates player input after a sync
@@ -119,10 +119,16 @@ private:
   static auto AddComponentToEntity(Entity* entity) -> std::enable_if_t<!std::is_void<T>::value>;
   //! Helper function for adding multiple components to an entity at one time
   template <typename T = IComponent, typename ... Rest>
-  static auto ComponentExistsOnEntity(Entity* entity);// -> std::enable_if_t<!std::is_void<T>::value>;
+  static auto ComponentExistsOnEntity(Entity* entity);
+
   //! All entities in the scene
   std::unordered_map<EntityID, std::shared_ptr<Entity>> _gameEntities;
+  //! Game state dependent entities that must be transferred by the network
+  std::vector<EntityID> _networkedEntities;
+  //!
   std::shared_ptr<Entity> _p1, _p2;
+
+
   //______________________________________________________________________________
   //!
   GameManager();

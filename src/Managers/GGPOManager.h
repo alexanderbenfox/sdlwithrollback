@@ -83,6 +83,7 @@ private:
   //! Calls exit
   ~GGPOManager();
 
+
   GGPOSession* _session;
   GGPOSessionCallbacks _callbacks;
 
@@ -148,4 +149,4 @@ static bool AdvanceFrame(int flags);
  */
 static bool OnEvent(GGPOEvent* info);
 
-#endif
+#endif // _WIN32

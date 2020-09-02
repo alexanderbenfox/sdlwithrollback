@@ -215,6 +215,7 @@ EventList AnimationEventHelper::BuildEventList(const Vector2<int> offset, const 
       {
         std::shared_ptr<Entity> eventEntity = GameManager::Get().CreateEntity<DestroyOnSceneEnd>();
         data.AddComponents(entity, trans, state, eventEntity);
+        GameManager::Get().AddToNetworkedList(eventEntity->GetID());
       };
 
       int finder = 0;

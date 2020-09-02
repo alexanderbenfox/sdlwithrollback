@@ -8,6 +8,7 @@
 #include "Components/Hitbox.h"
 #include "Components/StateComponents/HitStateComponent.h"
 #include "Components/Actors/GameActor.h"
+#include "Components/MetaGameComponents.h"
 
 #include "Components/ActionComponents.h"
 

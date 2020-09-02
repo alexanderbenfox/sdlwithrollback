@@ -1,4 +1,6 @@
 #include "Managers/GGPOManager.h"
+
+#ifdef _WIN32
 #include "Managers/GameManagement.h"
 #include "Core/InputState.h"
 
@@ -384,3 +386,5 @@ bool OnEvent(GGPOEvent* info)
   }
   return true;
 }
+
+#endif

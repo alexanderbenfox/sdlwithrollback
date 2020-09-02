@@ -52,6 +52,14 @@ protected:
 class BattleScene : public IScene
 {
 public:
+  // eventually use this for initiating different battle scene types
+  enum class BattleType
+  {
+    Training,
+    BestOf3,
+    BestOf5
+  };
+
   virtual ~BattleScene();
   virtual void Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2) final;
   virtual void Update(float deltaTime) final;
@@ -89,7 +97,6 @@ public:
 protected:
   std::shared_ptr<Entity> _p1, _p2;
   std::shared_ptr<Entity> _borders[3];
-
 
   Wait winnerAction1;
   PlayAnimation winnerAction2;
