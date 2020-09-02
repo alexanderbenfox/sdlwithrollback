@@ -1,7 +1,8 @@
 #include "AssetManagement/StaticAssets/StaticAssetUtils.h"
-#include "GameManagement.h"
+#include "Managers/GameManagement.h"
 #include "DebugGUI/GUIController.h"
-#include "Utils.h"
+
+#include "Core/Utility/String.h"
 
 #include <fstream>
 #include <json/json.h>
@@ -13,6 +14,11 @@ bool StaticAssetUtils::loadFromFile = true;
 void StaticAssetUtils::LoadNormal(const std::string& name, const AnimationInfo& data, AnimationCollection& collection)
 {
   collection.RegisterAnimation(name, SpriteSheet(data.sheet.src.c_str(), data.sheet.rows, data.sheet.columns), data.startIndexOnSheet, data.frames, data.anchor);
+}
+
+void StaticAssetUtils::LoadNormal(const std::string& name, const AnimationInfo& data, const SpriteSheet& ss, AnimationCollection& collection)
+{
+  collection.RegisterAnimation(name, ss, data.startIndexOnSheet, data.frames, data.anchor);
 }
 
 void StaticAssetUtils::LoadAttackAnim(const std::string& name, const AttackAnimationData& data, AnimationCollection& collection)
@@ -73,7 +79,7 @@ void StaticAssetUtils::CreateAnimationDebug(std::unordered_map<std::string, Anim
   const size_t fileCharacterSize = 256;
   jsonWriteOutLocation.resize(fileCharacterSize);
 
-  std::function<void()> f = [fileCharacterSize]() {
+  /*std::function<void()> f = [fileCharacterSize]() {
     ImGui::BeginGroup();
     ImGui::InputText("Write out Json location", StaticAssetUtils::jsonWriteOutLocation.data(), fileCharacterSize);
     if (ImGui::Button("Reload Animation Data", ImVec2(100, 20)))
@@ -84,7 +90,7 @@ void StaticAssetUtils::CreateAnimationDebug(std::unordered_map<std::string, Anim
     ImGui::EndGroup();
   };
 
-  GUIController::Get().AddImguiWindowFunction("Ryu Attack Animations", f);
+  GUIController::Get().AddImguiWindowFunction("Ryu Character Data", "Attack Animations", f);*/
 
   for (auto& anim : attackAnimations)
   {
@@ -191,7 +197,7 @@ void StaticAssetUtils::CreateAnimationDebug(std::unordered_map<std::string, Anim
         }
       }
     };
-    GUIController::Get().AddImguiWindowFunction("Ryu Attack Animations", ModFrameData);
+    GUIController::Get().AddImguiWindowFunction("Ryu Character Data", "Attack Animations", ModFrameData);
   }
 }
 

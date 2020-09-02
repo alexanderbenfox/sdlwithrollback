@@ -28,43 +28,52 @@
     <ClCompile Include="..\imgui\impl\imgui_impl_sdl.cpp" />
     <ClCompile Include="..\src\2DEngine.cpp" />
     <ClCompile Include="..\src\AssetManagement\Animation.cpp" />
+    <ClCompile Include="..\src\AssetManagement\AnimationCollectionManager.cpp" />
     <ClCompile Include="..\src\AssetManagement\AnimationEvent.cpp" />
     <ClCompile Include="..\src\AssetManagement\LetterCase.cpp" />
     <ClCompile Include="..\src\AssetManagement\Resource.cpp" />
     <ClCompile Include="..\src\AssetManagement\StaticAssets\AnimationAssetData.cpp" />
-    <ClCompile Include="..\src\AssetManagement\StaticAssets\CharacterConfig.cpp" />
+    <ClCompile Include="..\src\AssetManagement\StaticAssets\AnimationAssets.cpp" />
     <ClCompile Include="..\src\AssetManagement\StaticAssets\StaticAssetUtils.cpp" />
     <ClCompile Include="..\src\AssetManagement\Text.cpp" />
+    <ClCompile Include="..\src\Components\Actors\GameActor.cpp" />
+    <ClCompile Include="..\src\Components\AIPrograms\AIPrograms.cpp" />
     <ClCompile Include="..\src\Components\Animator.cpp" />
-    <ClCompile Include="..\src\Components\CompDataHandlers\AIPrograms.cpp" />
-    <ClCompile Include="..\src\Components\CompDataHandlers\InputHandlers.cpp" />
     <ClCompile Include="..\src\Components\Components.cpp" />
+    <ClCompile Include="..\src\Components\DebugComponent\DebugComponent.cpp" />
     <ClCompile Include="..\src\Components\Hitbox.cpp" />
     <ClCompile Include="..\src\Components\Input.cpp" />
-    <ClCompile Include="..\src\Components\Hurtbox.cpp" />
+    <ClCompile Include="..\src\Components\InputHandlers\InputHandlers.cpp" />
     <ClCompile Include="..\src\Components\RenderComponent.cpp" />
     <ClCompile Include="..\src\Components\SFXComponent.cpp" />
     <ClCompile Include="..\src\Components\StateComponents\AttackStateComponent.cpp" />
     <ClCompile Include="..\src\Components\StateComponents\HitStateComponent.cpp" />
     <ClCompile Include="..\src\Components\Transform.cpp" />
+    <ClCompile Include="..\src\Core\ECS\ECSCoordinator.cpp" />
+    <ClCompile Include="..\src\Core\ECS\Entity.cpp" />
+    <ClCompile Include="..\src\Core\ECS\EntityManager.cpp" />
     <ClCompile Include="..\src\Core\Geometry2D\RectHelper.cpp" />
+    <ClCompile Include="..\src\Core\InputState.cpp" />
     <ClCompile Include="..\src\Core\Math\Matrix4.cpp" />
+    <ClCompile Include="..\src\Core\Prefab\ActionFactory.cpp" />
     <ClCompile Include="..\src\Core\Prefab\MenuButtonArray.cpp" />
-    <ClCompile Include="..\src\DebugGUI\DebugItem.cpp" />
+    <ClCompile Include="..\src\Core\Timer.cpp" />
+    <ClCompile Include="..\src\Core\Utility\DeferGuard.cpp" />
+    <ClCompile Include="..\src\Core\Utility\InputSequenceBuffer.cpp" />
+    <ClCompile Include="..\src\Core\Utility\String.cpp" />
     <ClCompile Include="..\src\DebugGUI\GUIController.cpp" />
-    <ClCompile Include="..\src\Entity.cpp" />
-    <ClCompile Include="..\src\GameManagement.cpp" />
-    <ClCompile Include="..\src\GameState\GGPOGameState.cpp" />
     <ClCompile Include="..\src\GameState\BattleScene.cpp" />
     <ClCompile Include="..\src\GameState\StartScene.cpp" />
+    <ClCompile Include="..\src\Globals.cpp" />
+    <ClCompile Include="..\src\Managers\GameManagement.cpp" />
+    <ClCompile Include="..\src\Managers\GGPOManager.cpp" />
     <ClCompile Include="..\src\Rendering\GLTexture.cpp" />
     <ClCompile Include="..\src\Rendering\OpenGLRenderer.cpp" />
     <ClCompile Include="..\src\Rendering\RenderManager.cpp" />
-    <ClCompile Include="..\src\StateMachine\ActionUtil.cpp" />
-    <ClCompile Include="..\src\StateMachine\AnimatedAction.cpp" />
-    <ClCompile Include="..\src\StateMachine\TimedAction.cpp" />
+    <ClCompile Include="..\src\Systems\ActionSystems\ActionHandleInputSystem.cpp" />
     <ClCompile Include="..\src\Systems\Physics.cpp" />
-    <ClCompile Include="..\src\Timer.cpp" />
+    <ClCompile Include="..\src\Systems\TimerSystem\ActionTimer.cpp" />
+    <ClCompile Include="..\src\Systems\WallPush\WallPushSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\imgui\imconfig.h" />
@@ -77,86 +86,100 @@
     <ClInclude Include="..\imgui\imstb_rectpack.h" />
     <ClInclude Include="..\imgui\imstb_textedit.h" />
     <ClInclude Include="..\imgui\imstb_truetype.h" />
-    <ClInclude Include="..\include\AssetManagement\Animation.h" />
-    <ClInclude Include="..\include\AssetManagement\AnimationEvent.h" />
-    <ClInclude Include="..\include\AssetManagement\BlitOperation.h" />
-    <ClInclude Include="..\include\AssetManagement\LetterCase.h" />
-    <ClInclude Include="..\include\AssetManagement\Resource.h" />
-    <ClInclude Include="..\include\AssetManagement\StaticAssets\AnimationAssetData.h" />
-    <ClInclude Include="..\include\AssetManagement\StaticAssets\CharacterConfig.h" />
-    <ClInclude Include="..\include\AssetManagement\StaticAssets\StaticAssetUtils.h" />
-    <ClInclude Include="..\include\AssetManagement\Text.h" />
-    <ClInclude Include="..\include\ComponentConst.h" />
-    <ClInclude Include="..\include\Components\AIComponent.h" />
-    <ClInclude Include="..\include\Components\AIPrograms\Defend.h" />
-    <ClInclude Include="..\include\Components\AIPrograms\IAIProgram.h" />
-    <ClInclude Include="..\include\Components\Animator.h" />
-    <ClInclude Include="..\include\Components\Camera.h" />
-    <ClInclude Include="..\include\Components\Collider.h" />
-    <ClInclude Include="..\include\Components\ComponentManager.h" />
-    <ClInclude Include="..\include\Components\CutsceneActor.h" />
-    <ClInclude Include="..\include\Components\GameActor.h" />
-    <ClInclude Include="..\include\Components\InputHandlers\AIInputHandler.h" />
-    <ClInclude Include="..\include\Components\InputHandlers\GamepadInputHandler.h" />
-    <ClInclude Include="..\include\Components\InputHandlers\IInputHandler.h" />
-    <ClInclude Include="..\include\Components\InputHandlers\InputBuffer.h" />
-    <ClInclude Include="..\include\Components\InputHandlers\JoystickInputHandler.h" />
-    <ClInclude Include="..\include\Components\InputHandlers\KeyboardHandler.h" />
-    <ClInclude Include="..\include\Components\SFXComponent.h" />
-    <ClInclude Include="..\include\Components\StateComponents\AttackStateComponent.h" />
-    <ClInclude Include="..\include\Components\StateComponents\HitStateComponent.h" />
-    <ClInclude Include="..\include\Components\UIComponents.h" />
-    <ClInclude Include="..\include\Components\Hitbox.h" />
-    <ClInclude Include="..\include\Components\Hurtbox.h" />
-    <ClInclude Include="..\include\Components\IComponent.h" />
-    <ClInclude Include="..\include\Components\Input.h" />
-    <ClInclude Include="..\include\Components\Rigidbody.h" />
-    <ClInclude Include="..\include\Components\RenderComponent.h" />
-    <ClInclude Include="..\include\Components\StateComponent.h" />
-    <ClInclude Include="..\include\Components\Transform.h" />
-    <ClInclude Include="..\include\Core\Geometry2D\Rect.h" />
-    <ClInclude Include="..\include\Core\Geometry2D\RectHelper.h" />
-    <ClInclude Include="..\include\Core\Math\Matrix.h" />
-    <ClInclude Include="..\include\Core\Math\Matrix4.h" />
-    <ClInclude Include="..\include\Core\Math\Vector2.h" />
-    <ClInclude Include="..\include\Core\Math\Vector3.h" />
-    <ClInclude Include="..\include\Core\Prefab\MenuButtonArray.h" />
-    <ClInclude Include="..\include\DebugGUI\DebugItem.h" />
-    <ClInclude Include="..\include\DebugGUI\GUIController.h" />
-    <ClInclude Include="..\include\Entity.h" />
-    <ClInclude Include="..\include\GameManagement.h" />
-    <ClInclude Include="..\include\GameState\GameState.h" />
-    <ClInclude Include="..\include\GameState\GGPOGameState.h" />
-    <ClInclude Include="..\include\GameState\Scene.h" />
-    <ClInclude Include="..\include\Rendering\GLTexture.h" />
-    <ClInclude Include="..\include\Rendering\OpenGLRenderer.h" />
-    <ClInclude Include="..\include\Rendering\RenderManager.h" />
-    <ClInclude Include="..\include\Rendering\Shader.h" />
-    <ClInclude Include="..\include\ResourceManager.h" />
-    <ClInclude Include="..\include\StateMachine\ActionTimer.h" />
-    <ClInclude Include="..\include\StateMachine\ActionUtil.h" />
-    <ClInclude Include="..\include\StateMachine\AnimatedAction.h" />
-    <ClInclude Include="..\include\StateMachine\AttackAction.h" />
-    <ClInclude Include="..\include\StateMachine\IAction.h" />
-    <ClInclude Include="..\include\StateMachine\RecvHit.h" />
-    <ClInclude Include="..\include\StateMachine\StateEnums.h" />
-    <ClInclude Include="..\include\StateMachine\TimedAction.h" />
-    <ClInclude Include="..\include\Systems\AISystem.h" />
-    <ClInclude Include="..\include\Systems\AnimationSystem.h" />
-    <ClInclude Include="..\include\Systems\CheckBattleEndSystem.h" />
-    <ClInclude Include="..\include\Systems\CutsceneSystem.h" />
-    <ClInclude Include="..\include\Systems\DestroyEntitiesSystem.h" />
-    <ClInclude Include="..\include\Systems\DrawCallSystems.h" />
-    <ClInclude Include="..\include\Systems\HitSystem.h" />
-    <ClInclude Include="..\include\Systems\InputSystem.h" />
-    <ClInclude Include="..\include\Systems\ISystem.h" />
-    <ClInclude Include="..\include\Systems\MenuSystem.h" />
-    <ClInclude Include="..\include\Systems\MoveSystem.h" />
-    <ClInclude Include="..\include\Systems\Physics.h" />
-    <ClInclude Include="..\include\Systems\TimerSystem.h" />
-    <ClInclude Include="..\include\Systems\UISystem.h" />
-    <ClInclude Include="..\include\Timer.h" />
-    <ClInclude Include="..\include\Utils.h" />
+    <ClInclude Include="..\src\AssetManagement\Animation.h" />
+    <ClInclude Include="..\src\AssetManagement\AnimationCollectionManager.h" />
+    <ClInclude Include="..\src\AssetManagement\AnimationEvent.h" />
+    <ClInclude Include="..\src\AssetManagement\BlitOperation.h" />
+    <ClInclude Include="..\src\AssetManagement\LetterCase.h" />
+    <ClInclude Include="..\src\AssetManagement\Resource.h" />
+    <ClInclude Include="..\src\AssetManagement\StaticAssets\AnimationAssetData.h" />
+    <ClInclude Include="..\src\AssetManagement\StaticAssets\AnimationAssets.h" />
+    <ClInclude Include="..\src\AssetManagement\StaticAssets\StaticAssetUtils.h" />
+    <ClInclude Include="..\src\AssetManagement\Text.h" />
+    <ClInclude Include="..\src\Components\ActionComponents.h" />
+    <ClInclude Include="..\src\Components\Actors\CutsceneActor.h" />
+    <ClInclude Include="..\src\Components\Actors\GameActor.h" />
+    <ClInclude Include="..\src\Components\AIComponent.h" />
+    <ClInclude Include="..\src\Components\AIPrograms\Defend.h" />
+    <ClInclude Include="..\src\Components\AIPrograms\IAIProgram.h" />
+    <ClInclude Include="..\src\Components\Animator.h" />
+    <ClInclude Include="..\src\Components\Camera.h" />
+    <ClInclude Include="..\src\Components\Collider.h" />
+    <ClInclude Include="..\src\Components\DebugComponent\DebugComponent.h" />
+    <ClInclude Include="..\src\Components\Hitbox.h" />
+    <ClInclude Include="..\src\Components\Hurtbox.h" />
+    <ClInclude Include="..\src\Components\Input.h" />
+    <ClInclude Include="..\src\Components\InputHandlers\AIInputHandler.h" />
+    <ClInclude Include="..\src\Components\InputHandlers\GamepadInputHandler.h" />
+    <ClInclude Include="..\src\Components\InputHandlers\IInputHandler.h" />
+    <ClInclude Include="..\src\Components\InputHandlers\InputBuffer.h" />
+    <ClInclude Include="..\src\Components\InputHandlers\JoystickInputHandler.h" />
+    <ClInclude Include="..\src\Components\InputHandlers\KeyboardHandler.h" />
+    <ClInclude Include="..\src\Components\MetaGameComponents.h" />
+    <ClInclude Include="..\src\Components\RenderComponent.h" />
+    <ClInclude Include="..\src\Components\Rigidbody.h" />
+    <ClInclude Include="..\src\Components\SFXComponent.h" />
+    <ClInclude Include="..\src\Components\StateComponent.h" />
+    <ClInclude Include="..\src\Components\StateComponents\AttackStateComponent.h" />
+    <ClInclude Include="..\src\Components\StateComponents\HitStateComponent.h" />
+    <ClInclude Include="..\src\Components\StaticComponents\AttackLinkMap.h" />
+    <ClInclude Include="..\src\Components\Transform.h" />
+    <ClInclude Include="..\src\Components\UIComponents.h" />
+    <ClInclude Include="..\src\Core\ECS\ComponentArray.h" />
+    <ClInclude Include="..\src\Core\ECS\ECSCoordinator.h" />
+    <ClInclude Include="..\src\Core\ECS\ComponentTraits.h" />
+    <ClInclude Include="..\src\Core\ECS\Entity.h" />
+    <ClInclude Include="..\src\Core\ECS\EntityManager.h" />
+    <ClInclude Include="..\src\Core\ECS\IComponent.h" />
+    <ClInclude Include="..\src\Core\ECS\ISystem.h" />
+    <ClInclude Include="..\src\Core\Geometry2D\Rect.h" />
+    <ClInclude Include="..\src\Core\Geometry2D\RectHelper.h" />
+    <ClInclude Include="..\src\Core\InputState.h" />
+    <ClInclude Include="..\src\Core\Interfaces\AnimatorListener.h" />
+    <ClInclude Include="..\src\Core\Interfaces\Serializable.h" />
+    <ClInclude Include="..\src\Core\Math\Matrix.h" />
+    <ClInclude Include="..\src\Core\Math\Matrix4.h" />
+    <ClInclude Include="..\src\Core\Math\Vector2.h" />
+    <ClInclude Include="..\src\Core\Math\Vector3.h" />
+    <ClInclude Include="..\src\Core\Prefab\ActionFactory.h" />
+    <ClInclude Include="..\src\Core\Prefab\MenuButtonArray.h" />
+    <ClInclude Include="..\src\Core\Timer.h" />
+    <ClInclude Include="..\src\Core\Utility\ConfigMap.h" />
+    <ClInclude Include="..\src\Core\Utility\DeferGuard.h" />
+    <ClInclude Include="..\src\Core\Utility\InputSequenceBuffer.h" />
+    <ClInclude Include="..\src\Core\Utility\ScopeGuard.h" />
+    <ClInclude Include="..\src\Core\Utility\String.h" />
+    <ClInclude Include="..\src\Core\Utility\TrieNode.h" />
+    <ClInclude Include="..\src\Core\Utility\TypeTraits.h" />
+    <ClInclude Include="..\src\DebugGUI\GUIController.h" />
+    <ClInclude Include="..\src\GameState\Scene.h" />
+    <ClInclude Include="..\src\Globals.h" />
+    <ClInclude Include="..\src\Managers\GameManagement.h" />
+    <ClInclude Include="..\src\Managers\GGPOManager.h" />
+    <ClInclude Include="..\src\Managers\ResourceManager.h" />
+    <ClInclude Include="..\src\Rendering\GLTexture.h" />
+    <ClInclude Include="..\src\Rendering\OpenGLRenderer.h" />
+    <ClInclude Include="..\src\Rendering\RenderManager.h" />
+    <ClInclude Include="..\src\Rendering\Shader.h" />
+    <ClInclude Include="..\src\Systems\ActionSystems\ActionHandleInputSystem.h" />
+    <ClInclude Include="..\src\Systems\ActionSystems\ActionListenerSystem.h" />
+    <ClInclude Include="..\src\Systems\ActionSystems\EnactActionSystem.h" />
+    <ClInclude Include="..\src\Systems\AISystem.h" />
+    <ClInclude Include="..\src\Systems\AnimationSystem.h" />
+    <ClInclude Include="..\src\Systems\CheckBattleEndSystem.h" />
+    <ClInclude Include="..\src\Systems\CutsceneSystem.h" />
+    <ClInclude Include="..\src\Systems\DestroyEntitiesSystem.h" />
+    <ClInclude Include="..\src\Systems\DrawCallSystems.h" />
+    <ClInclude Include="..\src\Systems\HitSystem.h" />
+    <ClInclude Include="..\src\Systems\InputSystem.h" />
+    <ClInclude Include="..\src\Systems\MenuSystem.h" />
+    <ClInclude Include="..\src\Systems\MoveSystem.h" />
+    <ClInclude Include="..\src\Systems\Physics.h" />
+    <ClInclude Include="..\src\Systems\TimerSystem\ActionTimer.h" />
+    <ClInclude Include="..\src\Systems\TimerSystem\TimerContainer.h" />
+    <ClInclude Include="..\src\Systems\TimerSystem\TimerSystem.h" />
+    <ClInclude Include="..\src\Systems\UISystem.h" />
+    <ClInclude Include="..\src\Systems\WallPush\WallPushSystem.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\imgui\impl\imgui_impl_osx.mm" />
@@ -168,6 +191,7 @@
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>My2DEngine</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.18362.0</WindowsTargetPlatformVersion>
+    <ProjectName>FGDuelEngine</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -255,21 +279,21 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>GGPO_SYNC_TEST;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>external\ggpo\include;..\include;external\sdl2-ttf_x64-windows\include;external\sdl2-image_x64-windows\include;external\jsoncpp_x64-windows\include;external\sdl2_x64-windows\include\SDL2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>external\ggpo\include;..\src;external\sdl2-ttf_x64-windows\include;external\sdl2-image_x64-windows\include;external\jsoncpp_x64-windows\include;external\sdl2_x64-windows\include\SDL2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>external\ggpo\debug;external\sdl2-ttf_x64-windows\debug\lib;external\sdl2-image_x64-windows\debug\lib;external\sdl2_x64-windows\debug\lib;external\jsoncpp_x64-windows\debug\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>external\ggpo\debug\lib;external\sdl2-ttf_x64-windows\debug\lib;external\sdl2-image_x64-windows\debug\lib;external\sdl2_x64-windows\debug\lib;external\jsoncpp_x64-windows\debug\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <EntryPointSymbol>
       </EntryPointSymbol>
       <AdditionalDependencies>ws2_32.lib;user32.lib;winmm.lib;GGPO.lib;opengl32.lib;jsoncpp.lib;SDL2d.lib;SDL2_image.lib;SDL2_ttf.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <DelayLoadDLLs>
-      </DelayLoadDLLs>
+      <DelayLoadDLLs>GGPO.dll</DelayLoadDLLs>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -303,21 +327,21 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>external\ggpo\include;..\include;external\sdl2-ttf_x64-windows\include;external\sdl2-image_x64-windows\include;external\jsoncpp_x64-windows\include;external\sdl2_x64-windows\include\SDL2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>external\ggpo\include;..\src;external\sdl2-ttf_x64-windows\include;external\sdl2-image_x64-windows\include;external\jsoncpp_x64-windows\include;external\sdl2_x64-windows\include\SDL2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>external\ggpo\release;external\sdl2-ttf_x64-windows\lib;external\sdl2-image_x64-windows\lib;external\jsoncpp_x64-windows\lib;external\sdl2_x64-windows\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>external\ggpo\release\lib;external\sdl2-ttf_x64-windows\lib;external\sdl2-image_x64-windows\lib;external\jsoncpp_x64-windows\lib;external\sdl2_x64-windows\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <EntryPointSymbol>
       </EntryPointSymbol>
-      <AdditionalDependencies>ws2_32.lib;user32.lib;winmm.lib;GGPO.lib;opengl32.lib;jsoncpp.lib;SDL2.lib;SDL2_image.lib;SDL2_ttf.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <DelayLoadDLLs>
-      </DelayLoadDLLs>
+      <AdditionalDependencies>ws2_32.lib;user32.lib;winmm.lib;opengl32.lib;jsoncpp.lib;SDL2.lib;SDL2_image.lib;SDL2_ttf.lib;GGPO.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <DelayLoadDLLs>GGPO.dll</DelayLoadDLLs>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

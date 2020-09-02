@@ -1,38 +1,74 @@
 #include "Components/StateComponents/AttackStateComponent.h"
 #include "Components/RenderComponent.h"
 
-AttackStateComponent::AttackStateComponent(std::shared_ptr<Entity> owner) :
-  lastFrame(-1), _attackAnim(nullptr), IComponent(owner)
+AttackStateComponent::AttackStateComponent() :
+  lastFrame(-1), IComponent()
 {
 }
 
-AttackStateComponent::~AttackStateComponent()
+void AttackStateComponent::OnRemove(const EntityID& entity)
 {
-  ClearEvents();
+  ClearEvents(entity);
   //reset color back to white in case stuck in frame advantage
-  if (auto properties = _owner->GetComponent<RenderProperties>())
-    properties->SetDisplayColor(255, 255, 255);
+  if (ComponentArray<RenderProperties>::Get().HasComponent(entity))
+    ComponentArray<RenderProperties>::Get().GetComponent(entity).SetDisplayColor(255, 255, 255);
 }
 
-void AttackStateComponent::Init(Animation* animation, std::shared_ptr<EventList> eventList)
+void AttackStateComponent::ClearEvents(const EntityID& entity)
 {
-  _attackAnim = animation;
-  _eventList = eventList;
+  /*for(auto& event : inProgressEvents)
+    event->EndEvent(entity);
+  inProgressEvents.clear();*/
+
+  for (const AnimationEvent::Type& type: inProgressEventTypes)
+  {
+    if (type == AnimationEvent::Type::EntitySpawner)
+      AnimationEvent::EndEntitySpawnEvent(entity);
+    else if (type == AnimationEvent::Type::Hitbox)
+      AnimationEvent::EndHitboxEvent(entity);
+    else if (type == AnimationEvent::Type::Throwbox)
+      AnimationEvent::EndThrowboxEvent(entity);
+    else if (type == AnimationEvent::Type::Movement)
+      AnimationEvent::EndMovementEvent(entity);
+  }
+  inProgressEventTypes.clear();
 }
 
-void AttackStateComponent::ClearEvents()
+void AttackStateComponent::Serialize(std::ostream& os) const
 {
-  for(auto& event : inProgressEvents)
-    event->EndEvent(_owner->GetComponent<Transform>().get());
-  inProgressEvents.clear();
+  Serializer<std::string>::Serialize(os, attackAnimation);
+  Serializer<int>::Serialize(os, lastFrame);
+
+  //serialize event list
+  //write in n entries in set
+  int types = (int)inProgressEventTypes.size();
+  Serializer<int>::Serialize(os, types);
+  for (const AnimationEvent::Type& type : inProgressEventTypes)
+  {
+    Serializer<AnimationEvent::Type>::Serialize(os, type);
+  }
 }
 
-std::vector<AnimationEvent>& AttackStateComponent::GetEventsStarting(int frame)
+void AttackStateComponent::Deserialize(std::istream& is)
 {
-  return (*_eventList)[frame];
+  Serializer<std::string>::Deserialize(is, attackAnimation);
+  Serializer<int>::Deserialize(is, lastFrame);
+
+  int nTypes = 0;
+  Serializer<int>::Deserialize(is, nTypes);
+  for (int i = 0; i < nTypes; i++)
+  {
+    AnimationEvent::Type type;
+    Serializer<AnimationEvent::Type>::Deserialize(is, type);
+    inProgressEventTypes.insert(type);
+  }
 }
 
-int AttackStateComponent::GetRemainingFrames()
+std::string AttackStateComponent::Log()
 {
-  return (_attackAnim->GetFrameCount() - 1) - lastFrame;
+  std::stringstream ss;
+  ss << "Attack State Component: \n";
+  ss << "\tAttack animation: " << attackAnimation << "\n";
+  ss << "\tLast frame: " << lastFrame << "\n";
+  return ss.str();
 }

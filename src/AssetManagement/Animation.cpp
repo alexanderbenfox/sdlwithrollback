@@ -1,8 +1,8 @@
 #include "AssetManagement/Animation.h"
 #include "Components/Hitbox.h"
 #include "Components/Rigidbody.h"
-#include "GameManagement.h"
-#include "ResourceManager.h"
+#include "Managers/GameManagement.h"
+#include "Managers/ResourceManager.h"
 #include <math.h>
 #include <fstream>
 

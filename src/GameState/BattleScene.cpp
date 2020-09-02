@@ -1,27 +1,39 @@
 #include "GameState/Scene.h"
-#include "GameManagement.h"
+#include "Managers/GameManagement.h"
 
 #include "Components/Camera.h"
 #include "Components/Animator.h"
-#include "Components/GameActor.h"
+
 #include "Components/Rigidbody.h"
 #include "Components/Collider.h"
 #include "Components/Input.h"
 #include "Components/RenderComponent.h"
 #include "Components/SFXComponent.h"
 
+#include "Components/Actors/GameActor.h"
+#include "Components/Actors/CutsceneActor.h"
+
+// for wall push
+#include "Components/ActionComponents.h"
+
 #include "Systems/Physics.h"
 #include "Systems/AnimationSystem.h"
 #include "Systems/MoveSystem.h"
 #include "Systems/InputSystem.h"
 #include "Systems/HitSystem.h"
-#include "Systems/TimerSystem.h"
+#include "Systems/TimerSystem/TimerSystem.h"
 #include "Systems/CheckBattleEndSystem.h"
 #include "Systems/CutsceneSystem.h"
 #include "Systems/UISystem.h"
 #include "Systems/AISystem.h"
+#include "Systems/WallPush/WallPushSystem.h"
 
-#include "AssetManagement/StaticAssets/CharacterConfig.h"
+#include "Systems/ActionSystems/EnactActionSystem.h"
+#include "Systems/ActionSystems/ActionListenerSystem.h"
+#include "Systems/ActionSystems/ActionHandleInputSystem.h"
+#include "Core/Prefab/ActionFactory.h"
+
+#include "AssetManagement/AnimationCollectionManager.h"
 
 const Vector2<float> cameraOrigin(m_nativeWidth / 2.0f, m_nativeHeight / 2.0f);
 
@@ -53,8 +65,8 @@ BattleScene::~BattleScene()
   GameManager::Get().DestroyEntity(_camera);
 
   // we are moving into the after match cutscene, so only remove game state related components
-  _p1->RemoveComponents<GameActor, Hurtbox, StateComponent, UIContainer, PushComponent, Rigidbody, TimerContainer>();
-  _p2->RemoveComponents<GameActor, Hurtbox, StateComponent, UIContainer, PushComponent, Rigidbody, TimerContainer>();
+  _p1->RemoveComponents<GameActor, Hurtbox, StateComponent, UIContainer, WallPushComponent, Rigidbody, Gravity, TimerContainer>();
+  _p2->RemoveComponents<GameActor, Hurtbox, StateComponent, UIContainer, WallPushComponent, Rigidbody, Gravity, TimerContainer>();
 
   //_p1->RemoveComponents<Animator, RenderComponent<RenderType>, RenderProperties, Rigidbody, GameActor, DynamicCollider, Hurtbox, StateComponent, UIContainer, TimerContainer, Transform>();
   //_p1->RemoveComponents<Animator, RenderComponent<RenderType>, RenderProperties, Rigidbody, GameActor, DynamicCollider, Hurtbox, StateComponent, UIContainer, TimerContainer, Transform>();
@@ -75,52 +87,92 @@ void BattleScene::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2)
   InitCharacter(Vector2<int>(100, 0), _p1, true);
   InitCharacter(Vector2<int>(400, 0), _p2, false);
 
-  // set the combo text anchors to the other side
-  _p2ComboText->GetComponent<UITransform>()->parent = _p1UIAnchor->GetComponent<UITransform>();
-  _p1ComboText->GetComponent<UITransform>()->parent = _p2UIAnchor->GetComponent<UITransform>();
+  //set player state to neutral
+  ActionFactory::GoToNeutralAction(_p1->GetID(), _p1->GetComponent<StateComponent>());
+  ActionFactory::GoToNeutralAction(_p2->GetID(), _p2->GetComponent<StateComponent>());
+  _p1->AddComponent<InputListenerComponent>();
+  _p2->AddComponent<InputListenerComponent>();
 
   // set up camera
   _uiCamera = GameManager::Get().CreateEntity<Camera, Transform>();
   _uiCamera->GetComponent<Camera>()->Init(m_nativeWidth, m_nativeHeight);
-  GRenderer.EstablishCamera(RenderLayer::UI, _uiCamera->GetComponent<Camera>().get());
+  
 
-  _camera = GameManager::Get().CreateEntity<Camera, Transform>();
+  // add camera follows players component so that it is flagged for that system
+  _camera = GameManager::Get().CreateEntity<Camera, Transform, CameraFollowsPlayers>();
   _camera->GetComponent<Camera>()->Init(m_nativeWidth, m_nativeHeight);
-  _camera->GetComponent<Camera>()->followPlayers = true;
-  _camera->GetComponent<Camera>()->player1 = _p1;
-  _camera->GetComponent<Camera>()->player2 = _p2;
   _camera->GetComponent<Camera>()->origin = cameraOrigin;
   _camera->GetComponent<Camera>()->clamp = stage.clamp;
-  GRenderer.EstablishCamera(RenderLayer::World, _camera->GetComponent<Camera>().get());
+
+  GRenderer.EstablishCamera(RenderLayer::UI, _uiCamera->GetComponent<Camera>());
+  GRenderer.EstablishCamera(RenderLayer::World, _camera->GetComponent<Camera>());
 
 }
 
 void BattleScene::Update(float deltaTime)
 {
+  // transition entities to neutral before enacting
+  TransitionToNeutralSystem::DoTick(deltaTime);
+
+  // check the hitboxes potentially just created
+  HitSystem::DoTick(deltaTime);
+  ThrowSystem::DoTick(deltaTime);
+  WallPushSystem::DoTick(deltaTime);
+
+  // update player side system here cause it forces new state
+  PlayerSideSystem::DoTick(deltaTime);
+
+  // update ui based on state right before inputs are collected
   UIPositionUpdateSystem::DoTick(deltaTime);
   UIContainerUpdateSystem::DoTick(deltaTime);
 
-  TimerSystem::DoTick(deltaTime);
-  HitSystem::DoTick(deltaTime);
-  ThrowSystem::DoTick(deltaTime);
-  PushSystem::DoTick(deltaTime);
-
-  PlayerSideSystem::DoTick(deltaTime);
+  // update based on state at start of frame
   UpdateAISystem::DoTick(deltaTime);
+
+  ////++++ state machine section ++++////
   InputSystem::DoTick(deltaTime);
 
-  FrameAdvantageSystem::DoTick(deltaTime);
+  // Check action state machine after all game context gets updated
+  StateTransitionAggregate::DoTick(deltaTime);
+  HandleUpdateAggregate::DoTick(deltaTime);
 
+  // Enact new action states then clean them up
+  EnactAggregate::DoTick(deltaTime);
+  if(deltaTime > 0)
+    CleanUpActionSystem::PostUpdate();
+
+  ////++++ end state machine section ++++////
+
+  
+  // update timer systems after state has been chosen
+  TimedActionSystem::DoTick(deltaTime);
+
+  // update animation listener
+  AnimationListenerSystem::DoTick(deltaTime);
   AnimationSystem::DoTick(deltaTime);
+  // advance attack event schedules before checking hitboxes
   AttackAnimationSystem::DoTick(deltaTime);
 
   // resolve collisions
+  ApplyGravitySystem::DoTick(deltaTime);
   PhysicsSystem::DoTick(deltaTime);
   // update the location of the colliders
   MoveSystem::DoTick(deltaTime);
   // move walls according to camera position
   MoveWallSystem::DoTick(deltaTime);
 
+
+  ////++++ section for state dependent auxilliary info systems ++++////
+
+// do stuff that requires up to date actions
+  FrameAdvantageSystem::DoTick(deltaTime);
+
+  // update AI timers, UI timers (all non-state timers)
+  TimerSystem::DoTick(deltaTime);
+
+  ////++++ end section for state dependent auxilliary info systems ++++////
+
+  // check for battle complete and scene change
   CheckBattleEndSystem::DoTick(deltaTime);
 }
 
@@ -132,29 +184,24 @@ BattleScene::StageBorders BattleScene::CreateStageBorders(const Rect<float>& sta
   const float borderWidth = 200;
   const float borderHeight = 80;
 
-  stage.borders[0] = GameManager::Get().CreateEntity<Transform, RenderComponent<RenderType>, StaticCollider>();
+  stage.borders[0] = GameManager::Get().CreateEntity<Transform, StaticCollider>();
   stage.borders[0]->GetComponent<Transform>()->position.x = (stageRect.beg.x + stageRect.end.x) / 2.0f;
   stage.borders[0]->GetComponent<Transform>()->position.y = stageRect.end.y;
-  stage.borders[0]->GetComponent<RenderComponent<RenderType>>()->Init(ResourceManager::Get().GetAsset<RenderType>("spritesheets\\ryu.png"));
   stage.borders[0]->GetComponent<StaticCollider>()->Init(Vector2<double>(stageRect.beg.x, stageRect.end.y - borderHeight / 2.0f), Vector2<double>(stageRect.end.x, stageRect.end.y + borderHeight / 2.0f));
   stage.borders[0]->GetComponent<StaticCollider>()->MoveToTransform(*stage.borders[0]->GetComponent<Transform>());
 
-  stage.borders[1] = GameManager::Get().CreateEntity<Transform, RenderComponent<RenderType>, StaticCollider>();
+  stage.borders[1] = GameManager::Get().CreateEntity<Transform, StaticCollider, WallMoveComponent>();
   stage.borders[1]->GetComponent<Transform>()->position.x = stageRect.beg.x - 100;
   stage.borders[1]->GetComponent<Transform>()->position.y = (stageRect.beg.y + stageRect.end.y) / 2.0f;
-  stage.borders[1]->GetComponent<RenderComponent<RenderType>>()->Init(ResourceManager::Get().GetAsset<RenderType>("spritesheets\\ryu.png"));
   stage.borders[1]->GetComponent<StaticCollider>()->Init(Vector2<double>(-borderWidth, 0), Vector2<double>(0, stageRect.Height()));
   stage.borders[1]->GetComponent<StaticCollider>()->MoveToTransform(*stage.borders[1]->GetComponent<Transform>());
-  stage.borders[1]->AddComponent<WallMoveComponent>();
   stage.borders[1]->GetComponent<WallMoveComponent>()->leftWall = true;
 
-  stage.borders[2] = GameManager::Get().CreateEntity<Transform, RenderComponent<RenderType>, StaticCollider>();
+  stage.borders[2] = GameManager::Get().CreateEntity<Transform, StaticCollider, WallMoveComponent>();
   stage.borders[2]->GetComponent<Transform>()->position.x = stageRect.end.x + 100.0f;
   stage.borders[2]->GetComponent<Transform>()->position.y = (stageRect.beg.y + stageRect.end.y) / 2.0f;
-  stage.borders[2]->GetComponent<RenderComponent<RenderType>>()->Init(ResourceManager::Get().GetAsset<RenderType>("spritesheets\\ryu.png"));
   stage.borders[2]->GetComponent<StaticCollider>()->Init(Vector2<double>(0, 0), Vector2<double>(borderWidth, stageRect.Height()));
   stage.borders[2]->GetComponent<StaticCollider>()->MoveToTransform(*stage.borders[2]->GetComponent<Transform>());
-  stage.borders[2]->AddComponent<WallMoveComponent>();
   stage.borders[2]->GetComponent<WallMoveComponent>()->leftWall = false;
   
   return stage;
@@ -165,11 +212,12 @@ void BattleScene::InitCharacter(Vector2<float> position, std::shared_ptr<Entity>
 {
   Vector2<int> textureSize = ResourceManager::Get().GetTextureWidthAndHeight("spritesheets\\ryu.png");
   Vector2<double> entitySize(static_cast<double>(textureSize.x) * .75, static_cast<double>(textureSize.y) * .95);
+  position.y = static_cast<float>(m_nativeHeight) - static_cast<float>(entitySize.y);
 
   // quick hack to make the debug stuff for attacks work... need to remove eventually
   player->RemoveComponents<Transform, Animator>();
 
-  player->AddComponents<Transform, GameInputComponent, Animator, RenderComponent<RenderType>, RenderProperties, Rigidbody, GameActor, DynamicCollider, Hurtbox, StateComponent, TeamComponent, SFXComponent>();
+  player->AddComponents<Transform, GameInputComponent, Animator, RenderComponent<RenderType>, RenderProperties, Rigidbody, Gravity, GameActor, DynamicCollider, Hurtbox, StateComponent, TeamComponent, SFXComponent>();
   player->AddComponents<UIContainer, TimerContainer>();
 
   auto uiContainer = player->GetComponent<UIContainer>();
@@ -224,31 +272,28 @@ void BattleScene::InitCharacter(Vector2<float> position, std::shared_ptr<Entity>
     _uiEntities.back()->GetComponent<UITransform>()->anchor = UIAnchor::BL;
     _uiEntities.back()->GetComponent<UITransform>()->position = Vector2<float>(5.0f, 20.0f);
     std::shared_ptr<Entity> comboTextEntity = _uiEntities.back();
-    int& comboCounter = isPlayer1 ? _comboCounterP1 : _comboCounterP2;
 
     // set the ui data transfer callback
-    _uiEntities.back()->GetComponent<UITransform>()->callback = [comboTextEntity, &comboCounter](const StateComponent* lastState, const StateComponent* newState, UIComponent* comp)
+    _uiEntities.back()->GetComponent<UITransform>()->callback = [comboTextEntity](const StateComponent* lastState, const StateComponent* newState, UIComponent* comp)
     {
-      if (newState->onNewState)
+      if (lastState->hitting && newState->comboCounter > 1)
       {
-        if (newState->actionState != ActionState::HITSTUN && lastState->actionState == ActionState::HITSTUN)
+        auto& activeTimers = comboTextEntity->GetComponent<TimerContainer>()->timings;
+        if (!activeTimers.empty())
         {
-          comboCounter = 0;
-          // remove render properties to hide the text
-          std::shared_ptr<ActionTimer> endComboText = std::shared_ptr<ActionTimer>(new SimpleActionTimer(
-            [comboTextEntity]() { comboTextEntity->RemoveComponent<RenderProperties>(); },
-            5));
-          comboTextEntity->GetComponent<TimerContainer>()->timings.push_back(endComboText);
-        }
-        else if (newState->actionState == ActionState::HITSTUN)
-        {
-          comboTextEntity->AddComponent<RenderProperties>();
+          for (auto timer : activeTimers)
+            timer->Cancel();
         }
 
-        if (newState->actionState == ActionState::HITSTUN)
-          comboCounter++;
+        const int comboTextVisibleFrames = 35;
+        // replace active timer with new one that will remove render properties to hide the text
+        std::shared_ptr<ActionTimer> endComboText = std::shared_ptr<ActionTimer>(new SimpleActionTimer([comboTextEntity]() { comboTextEntity->RemoveComponent<RenderProperties>(); }, comboTextVisibleFrames));
+        comboTextEntity->GetComponent<TimerContainer>()->timings.push_back(endComboText);
 
-        std::string comboText = "Combo: " + std::to_string(comboCounter);
+        // ensure the combo text is visible
+        comboTextEntity->AddComponent<RenderProperties>();
+
+        std::string comboText = "Combo: " + std::to_string(newState->comboCounter);
         comboTextEntity->GetComponent<TextRenderer>()->SetText(comboText);
       }
     };
@@ -257,9 +302,9 @@ void BattleScene::InitCharacter(Vector2<float> position, std::shared_ptr<Entity>
     uiContainer->uiComponents.push_back(_uiEntities.back()->GetComponent<UITransform>());
 
     if (isPlayer1)
-      _p1ComboText = comboTextEntity;
+      comboTextEntity->GetComponent<UITransform>()->parent = _p1UIAnchor->GetComponent<UITransform>();
     else
-      _p2ComboText = comboTextEntity;
+      comboTextEntity->GetComponent<UITransform>()->parent = _p2UIAnchor->GetComponent<UITransform>();
   };
 
   if (isPlayer1)
@@ -267,8 +312,8 @@ void BattleScene::InitCharacter(Vector2<float> position, std::shared_ptr<Entity>
   else
     createHPEntities(UIAnchor::TR, Vector2<float>(-200 - healthBarOffset.x * 2, 0));
 
-  player->GetComponent<Rigidbody>()->Init(true);
-  player->GetComponent<Animator>()->SetAnimations(&RyuConfig::Animations());
+  player->GetComponent<Gravity>()->force = GlobalVars::Gravity;
+  player->GetComponent<Animator>()->animCollectionID = GAnimArchive.GetCollectionID("Ryu");
 
   player->GetComponent<Transform>()->SetWidthAndHeight(entitySize.x, entitySize.y);
   player->GetComponent<RenderProperties>()->baseRenderOffset = ((-1.0 / 2.0) * entitySize);
@@ -289,6 +334,22 @@ void BattleScene::InitCharacter(Vector2<float> position, std::shared_ptr<Entity>
     player->GetComponent<TeamComponent>()->team = TeamComponent::Team::TeamB;
 
   player->GetComponent<TeamComponent>()->playerEntity = true;
+
+
+  // add this component for doing magic series
+  if (!player->GetComponent<AttackLinkMap>())
+  {
+    player->AddComponent<AttackLinkMap>();
+
+    auto magicSeriesMap = player->GetComponent<AttackLinkMap>();
+    magicSeriesMap->links[ActionState::LIGHT] = InputState::BTN2;
+    magicSeriesMap->links[ActionState::MEDIUM] = InputState::BTN3;
+  }
+
+  //! Janky loading
+  player->GetComponent<SFXComponent>()->ShowHitSparks(false);
+  player->GetComponent<SFXComponent>()->ShowBlockSparks(false);
+
 }
 
 PostMatchScene::~PostMatchScene()
@@ -300,6 +361,7 @@ PostMatchScene::~PostMatchScene()
   GameManager::Get().DestroyEntity(_camera);
 
   // always delete transform last because it will access the other components
+  // in this case, no longer 'acting' so actor comp can be removed
   _p1->RemoveComponents<Animator, RenderComponent<RenderType>, RenderProperties, Rigidbody, DynamicCollider, CutsceneActor, Transform>();
   _p2->RemoveComponents<Animator, RenderComponent<RenderType>, RenderProperties, Rigidbody, DynamicCollider, CutsceneActor, Transform>();
 }
@@ -340,16 +402,14 @@ void PostMatchScene::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2
   // set up camera
   _uiCamera = GameManager::Get().CreateEntity<Camera, Transform>();
   _uiCamera->GetComponent<Camera>()->Init(m_nativeWidth, m_nativeHeight);
-  GRenderer.EstablishCamera(RenderLayer::UI, _uiCamera->GetComponent<Camera>().get());
+  GRenderer.EstablishCamera(RenderLayer::UI, _uiCamera->GetComponent<Camera>());
 
-  _camera = GameManager::Get().CreateEntity<Camera, Transform>();
+  // add camera follows players component so that it is flagged for that system
+  _camera = GameManager::Get().CreateEntity<Camera, Transform, CameraFollowsPlayers>();
   _camera->GetComponent<Camera>()->Init(m_nativeWidth, m_nativeHeight);
-  _camera->GetComponent<Camera>()->followPlayers = true;
-  _camera->GetComponent<Camera>()->player1 = _p1;
-  _camera->GetComponent<Camera>()->player2 = _p2;
   _camera->GetComponent<Camera>()->origin = cameraOrigin;
   _camera->GetComponent<Camera>()->clamp = stage.clamp;
-  GRenderer.EstablishCamera(RenderLayer::World, _camera->GetComponent<Camera>().get());
+  GRenderer.EstablishCamera(RenderLayer::World, _camera->GetComponent<Camera>());
 }
 
 void PostMatchScene::Update(float deltaTime)
@@ -358,6 +418,7 @@ void PostMatchScene::Update(float deltaTime)
 
   CutsceneSystem::DoTick(deltaTime);
   // resolve collisions
+  ApplyGravitySystem::DoTick(deltaTime);
   PhysicsSystem::DoTick(deltaTime);
   // prevent continued movement after hitting the ground
   CutsceneMovementSystem::DoTick(deltaTime);

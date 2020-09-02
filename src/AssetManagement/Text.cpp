@@ -1,5 +1,5 @@
 #include "AssetManagement/Text.h"
-#include "GameManagement.h"
+#include "Managers/GameManagement.h"
 
 TextResource::TextResource(Resource<TTF_Font> font, const char* text, SDL_Color color)
 {

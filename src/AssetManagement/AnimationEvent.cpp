@@ -2,23 +2,48 @@
 #include "Components/Hitbox.h"
 #include "Components/Hurtbox.h"
 #include "Components/Rigidbody.h"
-#include "GameManagement.h"
+#include "Managers/GameManagement.h"
 
 #include "Systems/DestroyEntitiesSystem.h"
 
 //______________________________________________________________________________
+void AnimationEvent::EndHitboxEvent(EntityID entity)
+{
+  GameManager::Get().GetEntityByID(entity)->RemoveComponent<Hitbox>();
+}
+
+//______________________________________________________________________________
+void AnimationEvent::EndThrowboxEvent(EntityID entity)
+{
+  GameManager::Get().GetEntityByID(entity)->RemoveComponent<Throwbox>();
+  GameManager::Get().GetEntityByID(entity)->RemoveComponent<ThrowFollower>();
+}
+
+//______________________________________________________________________________
+void AnimationEvent::EndMovementEvent(EntityID entity)
+{
+
+}
+
+//______________________________________________________________________________
+void AnimationEvent::EndEntitySpawnEvent(EntityID entity)
+{
+
+}
+
+//______________________________________________________________________________
 EventList AnimationEventHelper::BuildEventList(const Vector2<int> offset, const std::vector<AnimationActionEventData>& animEventData, const FrameData& frameData, int totalSheetFrames, std::vector<int>& animFrameToSheetFrame)
 {
-  auto DespawnHitbox = [](Transform* trans) { trans->RemoveComponent<Hitbox>(); };
-  auto DespawnThrowStuff = [](Transform* trans)
+  auto DespawnHitbox = [](EntityID entity) { GameManager::Get().GetEntityByID(entity)->RemoveComponent<Hitbox>(); };
+  auto DespawnThrowStuff = [](EntityID entity)
   {
-    trans->RemoveComponent<Throwbox>();
-    trans->RemoveComponent<ThrowFollower>();
+    GameManager::Get().GetEntityByID(entity)->RemoveComponent<Throwbox>();
+    GameManager::Get().GetEntityByID(entity)->RemoveComponent<ThrowFollower>();
   };
-  auto EndMovement = [](Transform* trans) {};
+  auto EndMovement = [](EntityID) {};
 
-  std::function<void(Transform*, StateComponent*)> trigger;
-  std::vector<std::function<void(Transform*, StateComponent*)>> updates;
+  std::function<void(EntityID, Transform*, StateComponent*)> trigger;
+  std::vector<std::function<void(EntityID, Transform*, StateComponent*)>> updates;
 
   EventBuilderDictionary animationData = ParseAnimationEventList(animEventData, frameData, totalSheetFrames);
 
@@ -37,17 +62,17 @@ EventList AnimationEventHelper::BuildEventList(const Vector2<int> offset, const 
   int startFrame = 0;
   int counter = 0;
 
-  auto addEventToList = [&startFrame, &counter, &updates, &eventList, &trigger](const std::function<void(Transform*)>& onComplete)
+  auto addEventToList = [&startFrame, &counter, &updates, &eventList, &trigger](const std::function<void(EntityID)>& onComplete, AnimationEvent::Type type)
   {
-    eventList[startFrame].emplace_back(startFrame, counter, trigger, updates, onComplete);
+    eventList[startFrame].emplace_back(startFrame, counter, trigger, updates, onComplete, type);
     updates.clear();
     counter = 0;
     startFrame = 0;
   };
 
   auto eventCheck = [addEventToList, &startFrame, &counter, &eventList, &animationData, &trigger, &updates]
-  (int i, const std::function<void(Transform*)>& onComplete, const std::function<void(Transform*, StateComponent*)>& callback, bool conditionMet,
-    std::function<void(Transform*, StateComponent*)>* onTrigger = nullptr)
+  (int i, const std::function<void(EntityID)>& onComplete, const std::function<void(EntityID, Transform*, StateComponent*)>& callback, bool conditionMet, AnimationEvent::Type type,
+    std::function<void(EntityID, Transform*, StateComponent*)>* onTrigger = nullptr)
   {
     if (conditionMet)
     {
@@ -95,7 +120,7 @@ EventList AnimationEventHelper::BuildEventList(const Vector2<int> offset, const 
     }
     else if (counter > 0)
     {
-      addEventToList(onComplete);
+      addEventToList(onComplete, type);
     }
   };
 
@@ -108,86 +133,89 @@ EventList AnimationEventHelper::BuildEventList(const Vector2<int> offset, const 
     if (frameData.isThrow)
     {
       // add normal hitbox data
-      std::function<void(Transform*, StateComponent*)> throwInitiate = [hitbox, frameData, offset](Transform* trans, StateComponent* state)
+      std::function<void(EntityID, Transform*, StateComponent*)> throwInitiate = [hitbox, frameData, offset](EntityID entity, Transform* trans, StateComponent* state)
       {
-        trans->AddComponent<Throwbox>();
-        trans->GetComponent<Throwbox>()->Init(frameData);
-        trans->GetComponent<Throwbox>()->MoveDataBoxAroundTransform(trans, hitbox, offset, state->onLeftSide);
+        GameManager::Get().GetEntityByID(entity)->AddComponent<Throwbox>();
+        GameManager::Get().GetEntityByID(entity)->GetComponent<Throwbox>()->Init(frameData);
+
+        auto rect = GameManager::Get().GetEntityByID(entity)->GetComponent<Hurtbox>()->unscaledRect;
+        GameManager::Get().GetEntityByID(entity)->GetComponent<Throwbox>()->MoveDataBoxAroundTransform(rect, trans, hitbox, offset, state->onLeftSide);
 
         state->triedToThrowThisFrame = true;
       };
 
-      std::function<void(Transform*, StateComponent*)> throwUpdate = [hitbox, frameData, offset](Transform* trans, StateComponent* state)
+      std::function<void(EntityID, Transform*, StateComponent*)> throwUpdate = [hitbox, frameData, offset](EntityID entity, Transform* trans, StateComponent* state)
       {
         bool throwSuccess = true;
-        if (trans->GetComponent<Throwbox>())
+        if (GameManager::Get().GetEntityByID(entity)->GetComponent<Throwbox>())
         {
-          throwSuccess = trans->GetComponent<Throwbox>()->hitFlag;
-          trans->RemoveComponent<Throwbox>();
-          trans->AddComponent<ThrowFollower>();
-          trans->GetComponent<ThrowFollower>()->startSideLeft = state->onLeftSide;
+          throwSuccess = GameManager::Get().GetEntityByID(entity)->GetComponent<Throwbox>()->hitFlag;
+          GameManager::Get().GetEntityByID(entity)->RemoveComponent<Throwbox>();
+          GameManager::Get().GetEntityByID(entity)->AddComponent<ThrowFollower>();
+          GameManager::Get().GetEntityByID(entity)->GetComponent<ThrowFollower>()->startSideLeft = state->onLeftSide;
         }
 
         if (throwSuccess)
         {
-          trans->GetComponent<ThrowFollower>()->Init(frameData);
-          trans->GetComponent<ThrowFollower>()->MoveDataBoxAroundTransform(trans, hitbox, offset, trans->GetComponent<ThrowFollower>()->startSideLeft);
+          GameManager::Get().GetEntityByID(entity)->GetComponent<ThrowFollower>()->Init(frameData);
+          auto rect = GameManager::Get().GetEntityByID(entity)->GetComponent<Hurtbox>()->unscaledRect;
+          GameManager::Get().GetEntityByID(entity)->GetComponent<ThrowFollower>()->MoveDataBoxAroundTransform(rect, trans, hitbox, offset, GameManager::Get().GetEntityByID(entity)->GetComponent<ThrowFollower>()->startSideLeft);
         }
       };
-      eventCheck(i, DespawnThrowStuff, throwUpdate, hitboxCondition, &throwInitiate);
+      eventCheck(i, DespawnThrowStuff, throwUpdate, hitboxCondition, AnimationEvent::Type::Throwbox, &throwInitiate);
     }
     else
     {
       // add normal hitbox data
-      std::function<void(Transform*, StateComponent*)> hitboxUpdateFunc = [hitbox, frameData, offset](Transform* trans, StateComponent* state)
+      std::function<void(EntityID, Transform*, StateComponent*)> hitboxUpdateFunc = [hitbox, frameData, offset](EntityID entity, Transform* trans, StateComponent* state)
       {
-        trans->AddComponent<Hitbox>();
-        trans->GetComponent<Hitbox>()->Init(frameData);
-        trans->GetComponent<Hitbox>()->MoveDataBoxAroundTransform(trans, hitbox, offset, state->onLeftSide);
+        GameManager::Get().GetEntityByID(entity)->AddComponent<Hitbox>();
+        GameManager::Get().GetEntityByID(entity)->GetComponent<Hitbox>()->Init(frameData);
+        auto rect = GameManager::Get().GetEntityByID(entity)->GetComponent<Hurtbox>()->unscaledRect;
+        GameManager::Get().GetEntityByID(entity)->GetComponent<Hitbox>()->MoveDataBoxAroundTransform(rect, trans, hitbox, offset, state->onLeftSide);
       };
 
-      eventCheck(i, DespawnHitbox, hitboxUpdateFunc, hitboxCondition);
+      eventCheck(i, DespawnHitbox, hitboxUpdateFunc, hitboxCondition, AnimationEvent::Type::Hitbox);
     }
   }
 
   if (counter > 0)
-    addEventToList(DespawnHitbox);
+    addEventToList(DespawnHitbox, AnimationEvent::Type::Hitbox);
 
   for (int i = 0; i < animFrames; i++)
   {
     const Vector2<float>& movement = animEventData[i].movement;
     bool mvmtCondition = movement.x != 0 || movement.y != 0;
-    auto movementEvent = [movement](Transform* trans, StateComponent* state)
+    auto movementEvent = [movement](EntityID entity, Transform* trans, StateComponent* state)
     {
-      if (auto rb = trans->GetComponent<Rigidbody>())
+      if (auto rb = GameManager::Get().GetEntityByID(entity)->GetComponent<Rigidbody>())
       {
         auto move = movement;
         if (!state->onLeftSide)
           move.x *= -1.0f;
-        rb->_vel += move;
+        rb->velocity += move;
       }
     };
 
-    eventCheck(i, EndMovement, movementEvent, mvmtCondition);
+    eventCheck(i, EndMovement, movementEvent, mvmtCondition, AnimationEvent::Type::Movement);
   }
 
   if (counter > 0)
-    addEventToList(EndMovement);
+    addEventToList(EndMovement, AnimationEvent::Type::Movement);
 
   // create entity section
   for (int i = 0; i < animFrames; i++)
   {
     const EntityCreationData& data = animEventData[i].create;
-    // remove all children as the work around
-    auto DestroyCreatedEntity = [](Transform* trans) { /*trans->RemoveAllChildren();*/ };
+    auto DestroyCreatedEntity = [](EntityID){};
 
     if (!data.instructions.empty())
     {
-      auto creationEvent = [data](Transform* trans, StateComponent* state)
+      auto creationEvent = [data](EntityID entity, Transform* trans, StateComponent* state)
       {
         std::shared_ptr<Entity> eventEntity = GameManager::Get().CreateEntity<DestroyOnSceneEnd>();
-        data.AddComponents(trans, state, eventEntity);
-        //trans->AddChild(eventEntity);
+        data.AddComponents(entity, trans, state, eventEntity);
+        GameManager::Get().AddToNetworkedList(eventEntity->GetID());
       };
 
       int finder = 0;
@@ -195,7 +223,7 @@ EventList AnimationEventHelper::BuildEventList(const Vector2<int> offset, const 
         finder++;
 
       startFrame = animationData.sheetFrameToRealFrame[i + finder][0];
-      eventList[startFrame].emplace_back(startFrame, 1, creationEvent, updates, DestroyCreatedEntity);
+      eventList[startFrame].emplace_back(startFrame, 1, creationEvent, updates, DestroyCreatedEntity, AnimationEvent::Type::EntitySpawner);
     }
   }
 

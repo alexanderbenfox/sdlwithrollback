@@ -7,7 +7,7 @@
 #include "Systems/MenuSystem.h"
 #include "Systems/DestroyEntitiesSystem.h"
 
-#include "GameManagement.h"
+#include "Managers/GameManagement.h"
 
 MenuButtonArray::MenuButtonArray(int columns, int rows, float margin) : _size(columns, rows)
 {

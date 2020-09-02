@@ -1,26 +1,31 @@
-#include "Entity.h"
+#include "Core/ECS/Entity.h"
+#include "Managers/ResourceManager.h"
 #include "Components/Animator.h"
 #include "Components/Collider.h"
-#include "ResourceManager.h"
 
-Animator::Animator(std::shared_ptr<Entity> owner) :
-  _listener(nullptr), playing(false), looping(false), accumulatedTime(0.0f), frame(0), currentAnimationName(""), IComponent(owner)
+#include "AssetManagement/AnimationCollectionManager.h"
+
+#include <sstream>
+
+
+Animator::Animator() :
+  _listener(nullptr), playing(false), looping(false), accumulatedTime(0.0f), frame(0), currentAnimationName(""), IComponent()
 {}
-
-void Animator::SetAnimations(AnimationCollection* animations)
-{
-  _animations = animations;
-}
 
 Animation* Animator::Play(const std::string& name, bool isLooped, float speed, bool forcePlay)
 {
+  AnimationCollection& collection = AnimationCollectionManager::Get().GetCollection(animCollectionID);
+
   // dont play again if we are already playing it
-  if (!forcePlay && (playing && name == currentAnimationName)) return _animations->GetAnimation(currentAnimationName);
-  auto animation = _animations->GetAnimationIt(name);
-  if (_animations->IsValid(animation))
+  if (!forcePlay && (playing && name == currentAnimationName))
+  {
+    return collection.GetAnimation(currentAnimationName);
+  }
+
+  auto animation = collection.GetAnimationIt(name);
+  if (collection.IsValid(animation))
   {
     currentAnimationName = name;
-    _currentAnimation = animation;
     playing = true;
 
     // reset all parameters
@@ -30,5 +35,42 @@ Animation* Animator::Play(const std::string& name, bool isLooped, float speed, b
     looping = isLooped;
     playSpeed = speed;
   }
-  return _animations->GetAnimation(currentAnimationName);
+  return collection.GetAnimation(currentAnimationName);
+}
+
+void Animator::Serialize(std::ostream& os) const
+{
+  Serializer<bool>::Serialize(os, playing);
+  Serializer<bool>::Serialize(os, looping);
+  Serializer<float>::Serialize(os, accumulatedTime);
+  Serializer<int>::Serialize(os, frame);
+  Serializer<std::string>::Serialize(os, currentAnimationName);
+  Serializer<float>::Serialize(os, playSpeed);
+  Serializer<unsigned int>::Serialize(os, animCollectionID);
+}
+
+void Animator::Deserialize(std::istream& is)
+{
+  Serializer<bool>::Deserialize(is, playing);
+  Serializer<bool>::Deserialize(is, looping);
+  Serializer<float>::Deserialize(is, accumulatedTime);
+  Serializer<int>::Deserialize(is, frame);
+  Serializer<std::string>::Deserialize(is, currentAnimationName);
+  Serializer<float>::Deserialize(is, playSpeed);
+  Serializer<unsigned int>::Deserialize(is, animCollectionID);
+}
+
+//______________________________________________________________________________
+std::string Animator::Log()
+{
+  std::stringstream ss;
+  ss << "Animator: \n";
+  ss << "\tIs Playing: " << playing << "\n";
+  ss << "\tIs Looping: " << looping << "\n";
+  ss << "\tAccumulated time: " << accumulatedTime << "\n";
+  ss << "\tCurrent frame: " << frame << "\n";
+  ss << "\tAnimation Name: " << currentAnimationName << "\n";
+  ss << "\tPlay Speed: " << playSpeed << "\n";
+  ss << "\tAnimation Collection ID: " << animCollectionID << "\n";
+  return ss.str();
 }

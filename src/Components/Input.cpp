@@ -1,12 +1,15 @@
 #include "Components/Input.h"
 #include "Components/AIPrograms/Defend.h"
-#include "Entity.h"
+#include "Core/ECS/Entity.h"
+
+#include "Managers/GameManagement.h"
+#include "DebugGUI/GUIController.h"
 
 //______________________________________________________________________________
 void GameInputComponent::AssignHandler(InputType type)
 {
   if((int)_assignedHandler >= (int)InputType::DefendAll)
-    _owner->RemoveComponent<AIComponent>();
+    GameManager::Get().GetEntityByID(entityID)->RemoveComponent<AIComponent>();
 
   _assignedHandler = type;
   switch (type)
@@ -21,23 +24,25 @@ void GameInputComponent::AssignHandler(InputType type)
     _handler = &_joystick;
     break;
   case InputType::DefendAll:
-    _owner->AddComponent<AIComponent>();
-    _ai.SetAIProgram(_owner->GetComponent<AIComponent>(), new DefendAI);
+    GameManager::Get().GetEntityByID(entityID)->AddComponent<AIComponent>();
+    _ai.SetAIProgram(GameManager::Get().GetEntityByID(entityID)->GetComponent<AIComponent>(), new DefendAI);
     _handler = &_ai;
     break;
   case InputType::DefendAfter:
-    _owner->AddComponent<AIComponent>();
-    _ai.SetAIProgram(_owner->GetComponent<AIComponent>(), new DefendAfter);
+    GameManager::Get().GetEntityByID(entityID)->AddComponent<AIComponent>();
+    _ai.SetAIProgram(GameManager::Get().GetEntityByID(entityID)->GetComponent<AIComponent>(), new DefendAfter);
     _handler = &_ai;
+    break;
+  case InputType::RepeatCM:
+    GameManager::Get().GetEntityByID(entityID)->AddComponent<AIComponent>();
+    _ai.SetAIProgram(GameManager::Get().GetEntityByID(entityID)->GetComponent<AIComponent>(), new RepeatInputAI(InputState::DOWN | InputState::BTN2));
+    _handler = &_ai;
+    break;
+  case InputType::NetworkCtrl:
+    _handler = &_network;
   default:
     break;
   }
-}
-
-//______________________________________________________________________________
-InputBuffer const& GameInputComponent::QueryInput()
-{
-  return _handler->CollectInputState();
 }
 
 //______________________________________________________________________________
@@ -49,11 +54,10 @@ void GameInputComponent::Clear()
 //______________________________________________________________________________
 void GameInputComponent::OnDebug() 
 {
-  int entityId = _owner->GetID();
-  std::string pName = "P" + std::to_string(entityId);
+  std::string pName = "P" + std::to_string(entityID);
   if (ImGui::CollapsingHeader(pName.c_str()))
   {
-    const char* items[] = { "Keyboard", "Joystick", "Gamepad", "DefendAll", "DefendAfter" };
+    const char* items[] = { "Keyboard", "Joystick", "Gamepad", "DefendAll", "DefendAfter", "RepeatCM" };
     static const char* currentItem = nullptr;
     currentItem = items[(int)_assignedHandler];
     auto func = [this](const std::string& i)
@@ -68,14 +72,16 @@ void GameInputComponent::OnDebug()
         AssignHandler(InputType::DefendAll);
       else if (i == "DefendAfter")
         AssignHandler(InputType::DefendAfter);
+      else if (i == "RepeatCM")
+        AssignHandler(InputType::RepeatCM);
     };
-    DropDown::Show(currentItem, items, 5, func);
+    DropDown::Show(currentItem, items, 6, func);
   }
 }
 
 //______________________________________________________________________________
 template <>
-void GameInputComponent::AssignActionKey<SDL_Keycode>(SDL_Keycode key, InputState action)
+void GameInputComponent::AssignActionKey<SDL_Scancode>(SDL_Scancode key, InputState action)
 {
   _keyboard.AssignKey(key, action);
 }
@@ -93,33 +99,3 @@ void GameInputComponent::AssignActionKey<SDL_GameControllerButton>(SDL_GameContr
 {
   _gamepad.AssignKey(key, action);
 }
-
-#ifdef _WIN32
-//______________________________________________________________________________
-InputBuffer const& GGPOInputHandler::CollectInputState()
-{
-  // notify ggpo of local player's inputs
-  GGPOErrorCode result = ggpo_add_local_input(_input->session, (*_input->handles)[0], &(*_input->inputs)[0], sizeof((*_input->inputs)[0]));
-
-  // synchronize inputs
-  if (GGPO_SUCCEEDED(result))
-  {
-    int disconnectFlags;
-    result = ggpo_synchronize_input(_input->session, (*_input->inputs), sizeof(*_input->inputs), &disconnectFlags);
-    if (GGPO_SUCCEEDED(result))
-    {
-      _inputBuffer.Push((*_input->inputs)[1]);
-    }
-    else
-    {
-      _inputBuffer.Push(InputState::NONE);
-    }
-  }
-  else
-  {
-    _inputBuffer.Push(InputState::NONE);
-  }
-  return _inputBuffer;
-
-}
-#endif

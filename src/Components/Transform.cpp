@@ -1,17 +1,12 @@
 #include "Components/Transform.h"
-#include "GameManagement.h"
+#include "Managers/GameManagement.h"
 
-Transform::Transform(std::shared_ptr<Entity> owner) :
+Transform::Transform() :
   position(Vector2<float>(0.0f, 0.0f)),
   scale(Vector2<float>(1.0f, 1.0f)),
   rotation(Vector2<float>(0.0f, 0.0f)),
-  rect(), IComponent(owner)
+  rect(), IComponent()
 {
-}
-
-Transform::~Transform()
-{
-  //RemoveAllChildren();
 }
 
 void Transform::SetWidthAndHeight(float width, float height)
@@ -37,18 +32,27 @@ void Transform::RemoveAllChildren()
   children.clear();
 }*/
 
-std::ostream& operator<<(std::ostream& os, const Transform& transform)
+void Transform::Serialize(std::ostream& os) const
 {
-  os << transform.position;
-  os << transform.scale;
-  os << transform.rotation;
-  return os;
+  os << position;
+  os << rotation;
+  os << scale;
 }
 
-std::istream& operator>>(std::istream& is, Transform& transform)
+void Transform::Deserialize(std::istream& is)
 {
-  is >> transform.position;
-  is >> transform.rotation;
-  is >> transform.scale;
-  return is;
+  is >> position;
+  is >> rotation;
+  is >> scale;
 }
+
+std::string Transform::Log()
+{
+  std::stringstream ss;
+  ss << "Transform: \n";
+  ss << "\tPosition: x=" << position.x << " y=" << position.y << "\n";
+  ss << "\tRotation: x=" << rotation.x << " y=" << rotation.y << "\n";
+  ss << "\tScale: x=" << scale.x << " y=" << scale.y << "\n";
+  return ss.str();
+}
+

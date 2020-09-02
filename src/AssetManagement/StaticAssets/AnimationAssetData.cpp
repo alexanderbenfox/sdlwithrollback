@@ -1,6 +1,6 @@
 #include "AssetManagement/StaticAssets/AnimationAssetData.h"
-#include "AssetManagement/StaticAssets/CharacterConfig.h"
-#include "Entity.h"
+#include "AssetManagement/AnimationCollectionManager.h"
+#include "Core/ECS/Entity.h"
 
 #include "Components/Transform.h"
 #include "Components/Animator.h"
@@ -9,8 +9,11 @@
 #include "Components/Hitbox.h"
 #include "Components/Hurtbox.h"
 #include "Components/StateComponent.h"
+#include "Components/MetaGameComponents.h"
 
-void EntityCreationData::AddComponents(Transform* creator, const StateComponent* creatorState, std::shared_ptr<Entity> entity) const
+#include "Managers/GameManagement.h"
+
+void EntityCreationData::AddComponents(EntityID creatorID, const Transform* creator, const StateComponent* creatorState, std::shared_ptr<Entity> entity) const
 {
   Vector2<float> scale(1.0f, 1.0f);
   std::vector<RectColliderD*> moveableColliders;
@@ -48,7 +51,7 @@ void EntityCreationData::AddComponents(Transform* creator, const StateComponent*
     else if (instruction.first == "Animator")
     {
       ComponentInitParams<Animator> params;
-      params.collection = &AnimCollectionsGetter::GetCollection(instruction.second["collection"].asString());
+      params.collectionID = GAnimArchive.GetCollectionID(instruction.second["collection"].asString());
       params.isLooped = instruction.second["isLooped"].asBool();
       params.name = instruction.second["anim"].asString();
 
@@ -60,7 +63,7 @@ void EntityCreationData::AddComponents(Transform* creator, const StateComponent*
       entity->AddComponent<RenderComponent<RenderType>>();
       auto renderer = entity->GetComponent<RenderComponent<RenderType>>();
 
-      Animation* anim = params.collection->GetAnimation(params.name);
+      Animation* anim = GAnimArchive.GetAnimationData(params.collectionID, params.name);
       if (anim)
       {
         renderer->SetRenderResource(anim->GetSheetTexture<RenderType>());
@@ -89,7 +92,12 @@ void EntityCreationData::AddComponents(Transform* creator, const StateComponent*
       params.velocity = Vector2<float>(instruction.second["initVelocityX"].asFloat(), instruction.second["initVelocityY"].asFloat());
       if (!creatorState->onLeftSide)
         params.velocity.x = -params.velocity.x;
-      params.useGravity = instruction.second["useGravity"].asBool();
+
+      bool useGravity = instruction.second["useGravity"].asBool();
+      if (useGravity)
+      {
+        entity->AddComponent<Gravity>(ComponentInitParams<Gravity>{ GlobalVars::Gravity });
+      }
       entity->AddComponent<Rigidbody>(params);
     }
     else if (instruction.first == "DynamicCollider")
@@ -97,14 +105,14 @@ void EntityCreationData::AddComponents(Transform* creator, const StateComponent*
       ComponentInitParams<DynamicCollider> params;
       params.size = Vector2<float>(instruction.second["sizex"].asFloat(), instruction.second["sizey"].asFloat());
       entity->AddComponent<DynamicCollider>(params);
-      moveableColliders.push_back(entity->GetComponent<DynamicCollider>().get());
+      moveableColliders.push_back(entity->GetComponent<DynamicCollider>());
     }
     else if (instruction.first == "Hurtbox")
     {
       ComponentInitParams<Hurtbox> params;
       params.size = Vector2<double>(instruction.second["x"].asDouble(), instruction.second["y"].asDouble());
       entity->AddComponent<Hurtbox>(params);
-      moveableColliders.push_back(entity->GetComponent<Hurtbox>().get());
+      moveableColliders.push_back(entity->GetComponent<Hurtbox>());
     }
     else if (instruction.first == "Hitbox")
     {
@@ -118,7 +126,7 @@ void EntityCreationData::AddComponents(Transform* creator, const StateComponent*
       params.destroyOnHit = instruction.second["destroyOnHit"].asBool();
 
       entity->AddComponent<Hitbox>(params);
-      moveableColliders.push_back(entity->GetComponent<Hitbox>().get());
+      moveableColliders.push_back(entity->GetComponent<Hitbox>());
     }
     else if (instruction.first == "StateComponent")
     {
@@ -128,7 +136,7 @@ void EntityCreationData::AddComponents(Transform* creator, const StateComponent*
 
   // anything created by an entity will be automatically assigned to its team
   entity->AddComponent<TeamComponent>();
-  entity->GetComponent<TeamComponent>()->team = creator->GetComponent<TeamComponent>()->team;
+  entity->GetComponent<TeamComponent>()->team = GameManager::Get().GetEntityByID(creatorID)->GetComponent<TeamComponent>()->team;
 
   // set the scale
   entity->SetScale(scale);

@@ -1,5 +1,5 @@
 #include "Rendering/RenderManager.h"
-#include "GameManagement.h"
+#include "Managers/GameManagement.h"
 #include "Rendering/OpenGLRenderer.h"
 
 #include "Components/Camera.h"

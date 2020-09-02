@@ -1,7 +1,7 @@
 // 2DEngine.cpp : Defines the entry point for the console application.
 //
-#include "GameManagement.h"
-#include "ResourceManager.h"
+#include "Managers/GameManagement.h"
+#include "Managers/ResourceManager.h"
 
 #include <iostream>
 

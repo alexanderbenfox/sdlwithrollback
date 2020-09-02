@@ -2,7 +2,7 @@
 #include "../imgui/imgui.h"
 
 #include <stdio.h>
-#include "GameManagement.h"
+#include "Managers/GameManagement.h"
 #include "Rendering/RenderManager.h"
 
 GUIController::~GUIController()
@@ -96,18 +96,24 @@ bool GUIController::InitImGUI(SDL_Window* existingWindow, SDL_GLContext existing
   return true;
 }
 
-void GUIController::MainLoop(SDL_Event& event)
+void GUIController::UpdateLogic(const SDL_Event& event)
+{
+  // Poll and handle events (inputs, window resize, etc.)
+  ImGui_ImplSDL2_ProcessEvent(&event);
+}
+
+void GUIController::MainLoop()
 {
   ImGuiIO& io = ImGui::GetIO();
   ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
-
-  // Poll and handle events (inputs, window resize, etc.)
-  ImGui_ImplSDL2_ProcessEvent(&event);
 
   // Start the Dear ImGui frame
   ImGui_ImplOpenGL2_NewFrame();
   ImGui_ImplSDL2_NewFrame(_window);
   ImGui::NewFrame();
+
+  // inform that we can now render gui
+  _init = true;
 
   static bool showGUI = true;
   if (ImGui::BeginMainMenuBar())
@@ -129,12 +135,16 @@ void GUIController::MainLoop(SDL_Event& event)
 
   if(showGUI)
   {
-    for (auto& group : _imguiWindowGroups)
+    for (auto& window : _imguiWindows)
     {
-      ImGui::Begin(group.first.c_str());
-      for (auto& func : group.second)
+      ImGui::Begin(window.first.c_str());
+      for(auto& category : window.second)
       {
-        func();
+        ImGui::Text(category.first.c_str());
+        for (auto it : category.second.fns)
+        {
+          it.second();
+        }
       }
       ImGui::End();
     }
@@ -150,35 +160,51 @@ void GUIController::CleanUp()
 }
 
 
-int GUIController::AddImguiWindowFunction(const std::string& group, std::function<void()>& function)
+int GUIController::AddImguiWindowFunction(const std::string& window, const std::string& category, std::function<void()> function)
 {
-  auto it = _imguiWindowGroups.find(group);
-  if (it == _imguiWindowGroups.end())
+  auto windowsIt = _imguiWindows.find(window);
+  if (windowsIt == _imguiWindows.end())
   {
-    _imguiWindowGroups.emplace(group, std::vector<std::function<void()>>());
+    _imguiWindows.emplace(window, WindowGrouping());
   }
-  _imguiWindowGroups[group].push_back(function);
+  auto categoryIt = _imguiWindows[window].find(category);
+  if (categoryIt == _imguiWindows[window].end())
+  {
+    _imguiWindows[window].emplace(category, WindowFn());
+  }
+
+  // this number will eventually get very high... need to swap ids
+  int debugID = _imguiWindows[window][category].fnCount;
+  _imguiWindows[window][category].fns[debugID] = function;
+  _imguiWindows[window][category].fnCount++;
 
   // return the index of the new item
-  return _imguiWindowGroups[group].size() - 1;
+  return debugID;
 }
 
-void GUIController::RemoveImguiWindowFunction(const std::string& group, int index)
+void GUIController::RemoveImguiWindowFunction(const std::string& window, const std::string& category, int index)
 {
-  auto it = _imguiWindowGroups.find(group);
-  if (it != _imguiWindowGroups.end())
+  auto windowsIt = _imguiWindows.find(window);
+  if (windowsIt != _imguiWindows.end())
   {
-    // if its out of range just delete the last one. this is a shitty solution to a shitty problem
-    if(index > it->second.size() - 1)
-      index = it->second.size() - 1;
-
-    it->second.erase(it->second.begin() + index);
+    auto it = _imguiWindows[window].find(category);
+    if (it != _imguiWindows[window].end())
+    {
+      it->second.fns.erase(index);
+      if (it->second.fns.empty())
+      {
+        //reset fn counter as a silly work around for now
+        it->second.fnCount = 0;
+      }
+    }
   }
 }
-
 
 void GUIController::RenderFrame()
 {
+  if (!_init)
+    return;
+
   // draw the "in-game" debug information before drawing the imgui UI
   if (_drawComponentDebug)
   {

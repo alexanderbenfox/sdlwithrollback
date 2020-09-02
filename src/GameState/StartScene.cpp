@@ -1,6 +1,6 @@
 #include "GameState/Scene.h"
-#include "GameManagement.h"
-#include "ResourceManager.h"
+#include "Managers/GameManagement.h"
+#include "Managers/ResourceManager.h"
 
 #include "Systems/UISystem.h"
 #include "Systems/MoveSystem.h"
@@ -17,10 +17,6 @@
 
 IScene::~IScene()
 {
-  // after every scene, clear the input buffers on all devices
-  auto& inputSources = ComponentManager<GameInputComponent>::Get().All();
-  for(auto source : inputSources)
-    source->Clear();
 }
 
 StartScene::~StartScene()
@@ -42,7 +38,7 @@ void StartScene::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2)
   // set up camera
   _uiCamera = GameManager::Get().CreateEntity<Camera, Transform>();
   _uiCamera->GetComponent<Camera>()->Init(m_nativeWidth, m_nativeHeight);
-  GRenderer.EstablishCamera(RenderLayer::UI, _uiCamera->GetComponent<Camera>().get());
+  GRenderer.EstablishCamera(RenderLayer::UI, _uiCamera->GetComponent<Camera>());
 }
 
 void StartScene::Update(float deltaTime)
@@ -60,6 +56,12 @@ CharacterSelectScene::~CharacterSelectScene()
 {
   GameManager::Get().DestroyEntity(_uiCamera);
   _p1->RemoveComponent<MenuState>();
+
+  // clear input buffer before battlescene
+  ComponentArray<GameInputComponent>::Get().ForEach([](GameInputComponent& source)
+  {
+    source.Clear();
+  });
 }
 
 void CharacterSelectScene::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2)
@@ -78,7 +80,7 @@ void CharacterSelectScene::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Enti
   // set up camera
   _uiCamera = GameManager::Get().CreateEntity<Camera, Transform>();
   _uiCamera->GetComponent<Camera>()->Init(m_nativeWidth, m_nativeHeight);
-  GRenderer.EstablishCamera(RenderLayer::UI, _uiCamera->GetComponent<Camera>().get());
+  GRenderer.EstablishCamera(RenderLayer::UI, _uiCamera->GetComponent<Camera>());
 }
 
 void CharacterSelectScene::Update(float deltaTime)
@@ -133,7 +135,7 @@ void ResultsScene::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2)
   // set up camera
   _uiCamera = GameManager::Get().CreateEntity<Camera, Transform>();
   _uiCamera->GetComponent<Camera>()->Init(m_nativeWidth, m_nativeHeight);
-  GRenderer.EstablishCamera(RenderLayer::UI, _uiCamera->GetComponent<Camera>().get());
+  GRenderer.EstablishCamera(RenderLayer::UI, _uiCamera->GetComponent<Camera>());
 }
 
 void ResultsScene::Update(float deltaTime)

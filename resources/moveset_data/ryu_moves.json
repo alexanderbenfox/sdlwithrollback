@@ -37,7 +37,7 @@
 				},
 				"movement" : 
 				{
-					"x" : 15.0,
+					"x" : 30.0,
 					"y" : 0.0
 				}
 			},
@@ -57,7 +57,7 @@
 				},
 				"movement" : 
 				{
-					"x" : 10.0,
+					"x" : 30.0,
 					"y" : 0.0
 				}
 			},
@@ -76,26 +76,20 @@
 					}
 				}
 			},
-			{
-				"movement" : 
-				{
-					"x" : -10.0,
-					"y" : 0.0
-				}
-			},
-			{
-				"movement" : 
-				{
-					"x" : -13.0,
-					"y" : 0.0
-				}
-			},
-			{},
 			{},
 			{
 				"movement" : 
 				{
 					"x" : -15.0,
+					"y" : 0.0
+				}
+			},
+			{},
+			{},
+			{
+				"movement" : 
+				{
+					"x" : -20.0,
 					"y" : 0.0
 				}
 			},
@@ -254,7 +248,7 @@
 			},
 			"onblock" : 3,
 			"onhit" : 4,
-			"recovery" : 7,
+			"recovery" : 8,
 			"startup" : 4
 		},
 		"numFrames" : 7,
@@ -740,8 +734,8 @@
 				{
 					"Animator" : 
 					{
-						"anim" : "Normal",
-						"collection" : "Fireball",
+						"anim" : "Fireball",
+						"collection" : "General",
 						"isLooped" : true
 					},
 					"DynamicCollider" : 
@@ -1100,10 +1094,16 @@
 				"movement" : 
 				{
 					"x" : 30.0,
-					"y" : -150.0
+					"y" : 0.0
 				}
 			},
-			{},
+			{
+				"movement" : 
+				{
+					"x" : 0.0,
+					"y" : -170.0
+				}
+			},
 			{},
 			{},
 			{

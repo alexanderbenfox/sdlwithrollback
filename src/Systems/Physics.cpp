@@ -2,26 +2,22 @@
 
 void PhysicsSystem::DoTick(float dt)
 {
-  for (auto tuple : Tuples)
+  for (const EntityID& entity : Registered)
   {
-    auto collidingObj = tuple.second;
     // try moving
     // Apply last frame of acceleration to the velocity
 
-    auto rigidbody = std::get<Rigidbody*>(collidingObj);
-    auto collider = std::get<DynamicCollider*>(collidingObj);
-    auto transform = std::get<Transform*>(collidingObj);
+    Rigidbody& rigidbody = ComponentArray<Rigidbody>::Get().GetComponent(entity);
+    DynamicCollider& collider = ComponentArray<DynamicCollider>::Get().GetComponent(entity);
+    Transform& transform = ComponentArray<Transform>::Get().GetComponent(entity);
 
-    Vector2<float>& vel = rigidbody->_vel;
-    Vector2<float>& acc = rigidbody->_acc;
-    float& addedAcc = rigidbody->_addedAccel;
-
-    vel += (acc + Vector2<float>(0, addedAcc)) * dt;
+    //! apply acceleration at beginning of frame
+    rigidbody.velocity += rigidbody.acceleration * dt;
 
     // Create the movement vector based on speed and acceleration of the object
     double ddt = ToDouble(dt);
 
-    Vector2<double> movementVector = Vector2<double>(vel.x * ddt, vel.y * ddt);
+    Vector2<double> movementVector = (Vector2<double>)rigidbody.velocity * ddt;
 
     // Check collisions with other physics objects here and correct the movement vector based on those collisions
 
@@ -32,18 +28,19 @@ void PhysicsSystem::DoTick(float dt)
 
     // loop over each other collider
     // if in hitstun, do elastic collision
-    AdjustMovementForCollisions(collider, movementVector, futureCorrection, currentCorrection, rigidbody->elasticCollisions, rigidbody->ignoreDynamicColliders);
+    AdjustMovementForCollisions(&collider, movementVector, futureCorrection, currentCorrection, rigidbody.elasticCollisions, rigidbody.ignoreDynamicColliders);
 
     Vector2<float> caVelocity = PositionAdjustmentToVelocity(futureCorrection.amount, ddt);
     // Convert adjustment vector to a velocity and change object's velocity based on the adjustment
-    vel += caVelocity;
+    rigidbody.velocity += caVelocity;
     //
     Vector2<float> instVelocity = PositionAdjustmentToVelocity(currentCorrection.amount, ddt);
     // Add the movement vector to the entityd
-    transform->position += (vel + instVelocity) * dt;
+    transform.position += (rigidbody.velocity + instVelocity) * dt;
 
-    // end of frame, change the collision sides for this frame
-    rigidbody->_lastCollisionSide = futureCorrection.collisionSides;
+    // end of frame, update the collision sides for this frame if not in hit stop
+    if(dt > 0)
+      rigidbody.lastCollisionSide = futureCorrection.collisionSides;
   }
 }
 
@@ -126,28 +123,28 @@ void PhysicsSystem::AdjustMovementForCollisions( RectColliderD* colliderComponen
   // process all dynamic collisions
   if (!ignoreDynamic)
   {
-    for (auto otherCollider : ComponentManager<DynamicCollider>::Get().All())
+    ComponentArray<DynamicCollider>::Get().ForEach([&colliderComponent, &movementVector, &inst, &potentialRect](DynamicCollider& otherCollider)
     {
-      if (otherCollider.get() != colliderComponent && potentialRect.Intersects(otherCollider->rect))
+      if (&otherCollider != colliderComponent && potentialRect.Intersects(otherCollider.rect))
       {
         // only check right or left on dynamic colliders
-        auto push = GetPushOnDynamicCollision(colliderComponent->rect, otherCollider->rect, movementVector, 0.5);
+        auto push = GetPushOnDynamicCollision(colliderComponent->rect, otherCollider.rect, movementVector, 0.5);
 
         // add to instantaneous corrections because we dont want to maintain momentum for these kinds of collisions
         inst.collisionSides |= push.collisionSides;
         inst.amount += push.amount;
       }
-    }
+    });
   }
   // process static collisions
-  for (auto otherCollider : ComponentManager<StaticCollider>::Get().All())
+  ComponentArray<StaticCollider>::Get().ForEach([&colliderComponent, &movementVector, &elastic, &inst, &momentum, &potentialRect](StaticCollider& otherCollider)
   {
-    if (potentialRect.Intersects(otherCollider->rect))
+    if (potentialRect.Intersects(otherCollider.rect))
     {
       // return the reverse of the overlap to correct for the collision
-      auto overlap = RectHelper::Overlap(potentialRect, otherCollider->rect);
+      auto overlap = RectHelper::Overlap(potentialRect, otherCollider.rect);
 
-      if(colliderComponent->rect.Intersects(otherCollider->rect))
+      if (colliderComponent->rect.Intersects(otherCollider.rect))
       {
         inst.amount += CreateResolveCollisionVector(overlap, movementVector);
         momentum.collisionSides |= overlap.collisionSides;
@@ -155,7 +152,7 @@ void PhysicsSystem::AdjustMovementForCollisions( RectColliderD* colliderComponen
       else
       {
         // if elastic collision, rather than just try and stop the collision, actually bounce it back in the opposite direction
-        if(!elastic)
+        if (!elastic)
           momentum.amount += CreateResolveCollisionVector(overlap, movementVector);
         else
           momentum.amount += 2.0 * CreateResolveCollisionVector(overlap, movementVector);
@@ -163,5 +160,5 @@ void PhysicsSystem::AdjustMovementForCollisions( RectColliderD* colliderComponen
         momentum.collisionSides |= overlap.collisionSides;
       }
     }
-  }
+  });
 }

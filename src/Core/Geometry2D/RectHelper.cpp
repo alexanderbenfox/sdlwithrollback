@@ -29,3 +29,17 @@ CollisionSide operator~(CollisionSide a)
 {
   return (CollisionSide)~((unsigned char)a);
 }
+
+//______________________________________________________________________________
+std::ostream& operator<<(std::ostream& os, const CollisionSide& rb)
+{
+  os.write((const char*)&rb, sizeof(rb));
+  return os;
+}
+
+//______________________________________________________________________________
+std::istream& operator>>(std::istream& is, CollisionSide& rb)
+{
+  is.read((char*)&rb, sizeof(rb));
+  return is;
+}
