@@ -1,5 +1,5 @@
 #include "Core/ECS/ECSCoordinator.h"
-#include "Core/ECS/Entity.h";
+#include "Core/ECS/Entity.h"
 
 //______________________________________________________________________________
 std::bitset<MAX_COMPONENTS> ECSCoordinator::RegisterComponent(int& id, ComponentEntityFnSet fnSet)

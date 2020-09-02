@@ -1,5 +1,6 @@
 #pragma once
 #include "Core/Utility/ScopeGuard.h"
+#include <list>
 
 struct DeferredFn
 {
@@ -18,4 +19,5 @@ struct DeferGuard
 #define ESC_(...) VAN ## __VA_ARGS__
 #define VANISH
 
-#define RunOnDeferGuardDestroy(capture, code) DeferredFn::List.emplace_back(CONCAT([DEPAREN(capture)](), { code ; }));
+//#define RunOnDeferGuardDestroy(capture, code) DeferredFn::List.emplace_back(CONCAT([DEPAREN(capture)](), { code ; }));
+#define RunOnDeferGuardDestroy(capture, code) DeferredFn::List.emplace_back([DEPAREN(capture)](){ code ; });

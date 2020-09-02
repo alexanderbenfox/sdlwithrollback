@@ -14,7 +14,7 @@ public:
     DeferGuard guard;
     for(const EntityID& entity : Registered)
     {
-      RunOnDeferGuardDestroy(entity, GameManager::Get().DestroyEntity(entity););
+      RunOnDeferGuardDestroy(entity, GameManager::Get().DestroyEntity(entity));
     }
   }
 };

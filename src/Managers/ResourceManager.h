@@ -1,4 +1,5 @@
 #pragma once
+#include "Core/Utility/String.h"
 #include "Core/Geometry2D/Rect.h"
 #include "AssetManagement/LetterCase.h"
 
