@@ -64,7 +64,7 @@ public:
     // when scene is finished move to the results screen
     if(!scenePlaying)
     {
-      GameManager::Get().RequestSceneChange(SceneType::RESULTS);
+      GameManager::Get().AdvanceCurrentScene();
     }
   }
 };

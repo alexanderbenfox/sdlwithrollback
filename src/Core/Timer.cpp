@@ -104,23 +104,6 @@ void Timer::Start(int fps)
 }
 
 //______________________________________________________________________________
-void Timer::PauseForTime(float seconds)
-{
-  auto pauseFunction = [this](float percentComplete)
-  {
-    if(percentComplete >= 1.0f)
-    {
-      _mainClock.Start();
-    }
-  };
-
-  // do the "On Start" function before sending it to the coroutine list 
-  _mainClock.Pause();
-  
-  BeginCoroutine(seconds, pauseFunction);
-}
-
-//______________________________________________________________________________
 void Timer::BeginCoroutine(float seconds, UpdateFunction function)
 {
   // construct the event in place

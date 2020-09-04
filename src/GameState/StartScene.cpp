@@ -15,10 +15,6 @@
 
 #include "Core/Prefab/MenuButtonArray.h"
 
-IScene::~IScene()
-{
-}
-
 StartScene::~StartScene()
 {
   GameManager::Get().DestroyEntity(_uiCamera);
@@ -72,9 +68,9 @@ void CharacterSelectScene::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Enti
   _p1->AddComponent<MenuState>();
 
   MenuButtonArray menu(2, 2, 0.2f);
-  menu.CreateMenuOption("Press To Start", [](){ GameManager::Get().RequestSceneChange(SceneType::BATTLE); }, Vector2<int>(0, 0));
-  menu.CreateMenuOption("This Does Nothing", [](){}, Vector2<int>(1, 0));
-  menu.CreateMenuOption("This Does Nothing", [](){}, Vector2<int>(0, 1));
+  menu.CreateMenuOption("TRAINING", []() { GameManager::Get().SetBattleType(BattleType::Training); GameManager::Get().RequestSceneChange(SceneType::MATCH); }, Vector2<int>(0, 0));
+  menu.CreateMenuOption("FIRST TO 2", [](){ GameManager::Get().SetBattleType(BattleType::BestOf3); GameManager::Get().RequestSceneChange(SceneType::MATCH); }, Vector2<int>(1, 0));
+  menu.CreateMenuOption("FIRST TO 3", [](){ GameManager::Get().SetBattleType(BattleType::BestOf5); GameManager::Get().RequestSceneChange(SceneType::MATCH); }, Vector2<int>(0, 1));
   menu.CreateMenuOption("Press To Go Back", [](){ GameManager::Get().RequestSceneChange(SceneType::START); }, Vector2<int>(1, 1));
 
   // set up camera

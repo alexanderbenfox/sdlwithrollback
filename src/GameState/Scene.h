@@ -7,15 +7,24 @@ class Camera;
 class IScene
 {
 public:
-  virtual ~IScene();
+  virtual ~IScene() {}
   virtual void Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2) = 0;
   virtual void Update(float deltaTime) = 0;
+  virtual void AdvanceScene() {}
   
 };
 
 enum class SceneType
 {
-  START, CSELECT, BATTLE, POSTMATCH, RESULTS
+  START, CSELECT, MATCH, RESULTS
+};
+
+// eventually use this for initiating different battle scene types
+enum class BattleType
+{
+  Training,
+  BestOf3,
+  BestOf5
 };
 
 struct SceneHelper
@@ -49,17 +58,11 @@ protected:
 
 };
 
+
+
 class BattleScene : public IScene
 {
 public:
-  // eventually use this for initiating different battle scene types
-  enum class BattleType
-  {
-    Training,
-    BestOf3,
-    BestOf5
-  };
-
   virtual ~BattleScene();
   virtual void Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2) final;
   virtual void Update(float deltaTime) final;
@@ -120,5 +123,29 @@ protected:
   std::shared_ptr<Entity> _p1, _p2;
   std::shared_ptr<Entity> _resultText;
   std::shared_ptr<Entity> _uiCamera;
+
+};
+
+
+class MatchScene : public IScene
+{
+public:
+
+
+  virtual void Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2) final;
+  virtual void Update(float deltaTime) final;
+  virtual void AdvanceScene() final;
+
+  BattleType _battleType = BattleType::Training;
+
+protected:
+  std::shared_ptr<IScene> _subScene;
+
+  std::shared_ptr<Entity> _p1, _p2;
+  int _roundNo = 0;
+  int _scoreP1 = 0;
+  int _scoreP2 = 0;
+
+  bool _inBattle = false;
 
 };

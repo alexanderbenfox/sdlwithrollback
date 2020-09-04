@@ -91,8 +91,6 @@ public:
   Timer() : _frames(0.0f), _fixedTimeStep(true), _lastFrameTime(_mainClock.now()) {}
   //! Start function gets the FPS from internal hardward
   void Start(int fps);
-  //! Begins pause coroutine on this clock for the given time
-  void PauseForTime(float seconds);
   //! Begins a user custom coroutine function
   void BeginCoroutine(float seconds, UpdateFunction function);
   //! Updates timer and runs the user specified update function

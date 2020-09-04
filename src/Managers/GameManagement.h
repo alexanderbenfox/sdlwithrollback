@@ -44,6 +44,10 @@ public:
 
   //! request scene change at end of update loop
   void RequestSceneChange(SceneType newSceneType);
+  //!
+  void AdvanceCurrentScene() { _currentScene->AdvanceScene(); }
+  //!
+  void SetBattleType(BattleType type) { _currentBattleType = type; }
   //! Schedules a function to be ran when scene is changed
   void TriggerOnSceneChange(std::function<void()> fn)
   {
@@ -99,6 +103,8 @@ private:
   std::unique_ptr<IScene> _currentScene;
   //
   SceneType _currentSceneType;
+  //
+  BattleType _currentBattleType = BattleType::Training;
   //
   bool _sceneChangeRequested = false;
   //

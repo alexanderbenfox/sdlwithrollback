@@ -26,7 +26,7 @@ public:
       }
     }
 
-    if(readyToTransition)
-      GameManager::Get().RequestSceneChange(SceneType::POSTMATCH);
+    if (readyToTransition)
+      GameManager::Get().AdvanceCurrentScene();
   }
 };

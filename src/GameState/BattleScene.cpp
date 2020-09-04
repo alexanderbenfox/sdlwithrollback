@@ -45,10 +45,8 @@ IScene* SceneHelper::CreateScene(SceneType type)
       return new StartScene;
     case SceneType::CSELECT:
       return new CharacterSelectScene;
-    case SceneType::BATTLE:
-      return new BattleScene;
-    case SceneType::POSTMATCH:
-      return new PostMatchScene;
+    case SceneType::MATCH:
+      return new MatchScene;
     case SceneType::RESULTS:
       return new ResultsScene;
   }
@@ -426,4 +424,77 @@ void PostMatchScene::Update(float deltaTime)
   MoveSystem::DoTick(deltaTime);
 
   AnimationSystem::DoTick(deltaTime);
+}
+
+void MatchScene::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2)
+{
+  _p1 = p1;
+  _p2 = p2;
+
+  _subScene = std::make_shared<BattleScene>();
+  _subScene->Init(_p1, _p2);
+
+  if (_battleType == BattleType::Training)
+  {
+    _p1->GetComponent<StateComponent>()->invulnerable = true;
+    _p2->GetComponent<StateComponent>()->invulnerable = true;
+  }
+
+  _inBattle = true;
+}
+
+void MatchScene::Update(float deltaTime)
+{
+  _subScene->Update(deltaTime);
+}
+
+void MatchScene::AdvanceScene()
+{
+  auto nextBattleScene = [this](int nRounds)
+  {
+    if (!_inBattle)
+    {
+      if (_scoreP1 >= nRounds || _scoreP2 >= nRounds)
+      {
+        GameManager::Get().RequestSceneChange(SceneType::RESULTS);
+      }
+      else
+      {
+        _p1->RemoveComponent<LoserComponent>();
+        _p2->RemoveComponent<LoserComponent>();
+
+        _subScene = std::make_shared<BattleScene>();
+        _subScene->Init(_p1, _p2);
+        _inBattle = true;
+      }
+    }
+    else
+    {
+      _subScene = std::make_shared<PostMatchScene>();
+      _subScene->Init(_p1, _p2);
+      if (_p1->GetComponent<LoserComponent>())
+        _scoreP2++;
+      else
+        _scoreP1++;
+      _inBattle = false;
+    }
+  };
+
+
+  if (_battleType == BattleType::Training)
+  {
+    _subScene = std::make_shared<BattleScene>();
+    _subScene->Init(_p1, _p2);
+    _p1->GetComponent<StateComponent>()->invulnerable = true;
+    _p2->GetComponent<StateComponent>()->invulnerable = true;
+
+  }
+  else if (_battleType == BattleType::BestOf3)
+  {
+    nextBattleScene(2);
+  }
+  else if (_battleType == BattleType::BestOf5)
+  {
+    nextBattleScene(3);
+  }
 }

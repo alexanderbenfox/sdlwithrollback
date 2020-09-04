@@ -269,7 +269,7 @@ void GameManager::BeginGameLoop()
       else if (i == "Character Select")
         ChangeScene(SceneType::CSELECT);
       else if (i == "Battle")
-        ChangeScene(SceneType::BATTLE);
+        ChangeScene(SceneType::MATCH);
       else
         ChangeScene(SceneType::RESULTS);
     };
@@ -492,7 +492,6 @@ void GameManager::ActivateHitStop(int frames)
 {
   _frameStop = frames;
   _frameStopActive = true;
-  //_clock.PauseForTime(static_cast<float>(frames) * secPerFrame);
 }
 
 //______________________________________________________________________________
@@ -502,9 +501,6 @@ void GameManager::DebugDraws()
   ComponentArray<Hurtbox>::Get().ForEach([](Hurtbox& hb) { hb.Draw(); });
   ComponentArray<Hitbox>::Get().ForEach([](Hitbox& hb) { hb.Draw(); });
   ComponentArray<ThrowFollower>::Get().ForEach([](ThrowFollower& tb) { tb.Draw(); });
-  //ComponentManager<Hurtbox>::Get().Draw();
-  //ComponentManager<Hitbox>::Get().Draw();
-  //ComponentManager<ThrowFollower>::Get().Draw();
 }
 
 //______________________________________________________________________________
@@ -722,8 +718,14 @@ void GameManager::ChangeScene(SceneType scene)
   _onSceneChangeFunctionQueue.clear();
 
   _currentScene = std::unique_ptr<IScene>(SceneHelper::CreateScene(scene));
+  if (scene == SceneType::MATCH)
+  {
+    ((MatchScene*)_currentScene.get())->_battleType = _currentBattleType;
+  }
+
   _currentScene->Init(_p1, _p2);
   _currentSceneType = scene;
+
 }
 
 //______________________________________________________________________________
