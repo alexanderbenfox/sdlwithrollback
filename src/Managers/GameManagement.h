@@ -45,7 +45,7 @@ public:
   //! request scene change at end of update loop
   void RequestSceneChange(SceneType newSceneType);
   //!
-  void AdvanceCurrentScene() { _currentScene->AdvanceScene(); }
+  void AdvanceCurrentScene();
   //!
   void SetBattleType(BattleType type) { _currentBattleType = type; }
   //! Schedules a function to be ran when scene is changed
@@ -89,6 +89,8 @@ private:
   SDL_Event UpdateLocalInput();
   //! Flushes last render frame, draws all objects on the screen, displays all drawn objects
   void Draw();
+  //! Destroys marked entities and clears scene change queue
+  void ClearSceneData();
   //! Flag for whether or not the GM has been initialized
   bool _initialized;
   //!

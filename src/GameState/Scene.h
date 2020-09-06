@@ -27,6 +27,13 @@ enum class BattleType
   BestOf5
 };
 
+enum class MatchStage
+{
+  PREMATCH, BATTLE, POSTMATCH
+};
+
+const Vector2<float> cameraOrigin(m_nativeWidth / 2.0f, m_nativeHeight / 2.0f);
+
 struct SceneHelper
 {
   static IScene* CreateScene(SceneType type);
@@ -58,60 +65,6 @@ protected:
 
 };
 
-
-
-class BattleScene : public IScene
-{
-public:
-  virtual ~BattleScene();
-  virtual void Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2) final;
-  virtual void Update(float deltaTime) final;
-
-  struct StageBorders
-  {
-    std::shared_ptr<Entity> borders[3];
-    Rect<float> clamp;
-  };
-
-  static StageBorders CreateStageBorders(const Rect<float>& stageRect, int screenWidth, int screenHeight);
-
-protected:
-  void InitCharacter(Vector2<float> position, std::shared_ptr<Entity> player, bool isPlayer1);
-
-  std::shared_ptr<Entity> _p1, _p2;
-  // entities to be destroyed after this scene ends
-  std::shared_ptr<Entity> _borders[3];
-  std::shared_ptr<Entity> _p1UIAnchor, _p2UIAnchor;
-  std::vector<std::shared_ptr<Entity>> _uiEntities;
-
-  std::shared_ptr<Entity> _uiCamera, _camera;
-
-};
-
-class PostMatchScene : public IScene
-{
-public:
-  PostMatchScene() : winnerAction1(2), winnerAction2("Win"),
-    loserAction1("KO"), loserAction2(3), IScene() {}
-  virtual ~PostMatchScene();
-  virtual void Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2) final;
-  virtual void Update(float deltaTime) final;
-
-protected:
-  std::shared_ptr<Entity> _p1, _p2;
-  std::shared_ptr<Entity> _borders[3];
-
-  Wait winnerAction1;
-  PlayAnimation winnerAction2;
-  PlayAnimation loserAction1;
-  Wait loserAction2;
-
-  CutsceneAction* _winnerActions[2] = {&winnerAction1, &winnerAction2};
-  CutsceneAction* _loserActions[2] = {&loserAction1, &loserAction2};
-
-  std::shared_ptr<Entity> _uiCamera, _camera;
-};
-
 class ResultsScene : public IScene
 {
 public:
@@ -123,29 +76,5 @@ protected:
   std::shared_ptr<Entity> _p1, _p2;
   std::shared_ptr<Entity> _resultText;
   std::shared_ptr<Entity> _uiCamera;
-
-};
-
-
-class MatchScene : public IScene
-{
-public:
-
-
-  virtual void Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2) final;
-  virtual void Update(float deltaTime) final;
-  virtual void AdvanceScene() final;
-
-  BattleType _battleType = BattleType::Training;
-
-protected:
-  std::shared_ptr<IScene> _subScene;
-
-  std::shared_ptr<Entity> _p1, _p2;
-  int _roundNo = 0;
-  int _scoreP1 = 0;
-  int _scoreP2 = 0;
-
-  bool _inBattle = false;
 
 };

@@ -254,6 +254,12 @@
     <ClCompile Include="..\src\Managers\GGPOManager.cpp">
       <Filter>Source Files\Managers</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\GameState\MatchScene.cpp">
+      <Filter>Source Files\GameState</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Core\Prefab\CharacterConstructor.cpp">
+      <Filter>Source Files\Core\Prefab</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\imgui\imconfig.h">
@@ -567,6 +573,15 @@
     </ClInclude>
     <ClInclude Include="..\src\Components\MetaGameComponents.h">
       <Filter>Source Files\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\GameState\BattleScene.h">
+      <Filter>Source Files\GameState</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\GameState\MatchScene.h">
+      <Filter>Source Files\GameState</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Core\Prefab\CharacterConstructor.h">
+      <Filter>Source Files\Core\Prefab</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

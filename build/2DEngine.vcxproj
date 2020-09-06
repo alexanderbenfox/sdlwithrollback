@@ -56,6 +56,7 @@
     <ClCompile Include="..\src\Core\InputState.cpp" />
     <ClCompile Include="..\src\Core\Math\Matrix4.cpp" />
     <ClCompile Include="..\src\Core\Prefab\ActionFactory.cpp" />
+    <ClCompile Include="..\src\Core\Prefab\CharacterConstructor.cpp" />
     <ClCompile Include="..\src\Core\Prefab\MenuButtonArray.cpp" />
     <ClCompile Include="..\src\Core\Timer.cpp" />
     <ClCompile Include="..\src\Core\Utility\DeferGuard.cpp" />
@@ -63,6 +64,7 @@
     <ClCompile Include="..\src\Core\Utility\String.cpp" />
     <ClCompile Include="..\src\DebugGUI\GUIController.cpp" />
     <ClCompile Include="..\src\GameState\BattleScene.cpp" />
+    <ClCompile Include="..\src\GameState\MatchScene.cpp" />
     <ClCompile Include="..\src\GameState\StartScene.cpp" />
     <ClCompile Include="..\src\Globals.cpp" />
     <ClCompile Include="..\src\Managers\GameManagement.cpp" />
@@ -143,6 +145,7 @@
     <ClInclude Include="..\src\Core\Math\Vector3.h" />
     <ClInclude Include="..\src\Core\Prefab\ActionFactory.h" />
     <ClInclude Include="..\src\Core\Prefab\MenuButtonArray.h" />
+    <ClInclude Include="..\src\Core\Prefab\CharacterConstructor.h" />
     <ClInclude Include="..\src\Core\Timer.h" />
     <ClInclude Include="..\src\Core\Utility\ConfigMap.h" />
     <ClInclude Include="..\src\Core\Utility\DeferGuard.h" />
@@ -152,6 +155,8 @@
     <ClInclude Include="..\src\Core\Utility\TrieNode.h" />
     <ClInclude Include="..\src\Core\Utility\TypeTraits.h" />
     <ClInclude Include="..\src\DebugGUI\GUIController.h" />
+    <ClInclude Include="..\src\GameState\BattleScene.h" />
+    <ClInclude Include="..\src\GameState\MatchScene.h" />
     <ClInclude Include="..\src\GameState\Scene.h" />
     <ClInclude Include="..\src\Globals.h" />
     <ClInclude Include="..\src\Managers\GameManagement.h" />

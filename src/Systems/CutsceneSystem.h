@@ -42,8 +42,10 @@ public:
               {
                 action->OnComplete();
                 action = actor.ActionListPop();
-                if(action)
+                if (action)
                   action->Begin(&animator, &renderer, &properties);
+                else
+                  break;
               }
             }
           }

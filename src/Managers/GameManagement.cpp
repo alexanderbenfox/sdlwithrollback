@@ -27,6 +27,7 @@
 #include "DebugGUI/GUIController.h"
 
 #include "GameState/Scene.h"
+#include "GameState/MatchScene.h"
 
 #include "Components/Actors/GameActor.h"
 #include "Managers/GGPOManager.h"
@@ -265,13 +266,13 @@ void GameManager::BeginGameLoop()
     auto func = [this](const std::string& i)
     {
       if (i == "Start")
-        ChangeScene(SceneType::START);
+        RequestSceneChange(SceneType::START);
       else if (i == "Character Select")
-        ChangeScene(SceneType::CSELECT);
+        RequestSceneChange(SceneType::CSELECT);
       else if (i == "Battle")
-        ChangeScene(SceneType::MATCH);
+        RequestSceneChange(SceneType::MATCH);
       else
-        ChangeScene(SceneType::RESULTS);
+        RequestSceneChange(SceneType::RESULTS);
     };
     DropDown::Show(current_item, items, 4, func);
   };
@@ -534,6 +535,16 @@ void GameManager::RequestSceneChange(SceneType newSceneType)
 }
 
 //______________________________________________________________________________
+void GameManager::AdvanceCurrentScene()
+{
+  _endOfFrameQueue.push_back([this]()
+  {
+    ClearSceneData();
+    _currentScene->AdvanceScene();
+  });
+}
+
+//______________________________________________________________________________
 SBuffer GameManager::CreateGameStateSnapshot() const
 {
   std::stringstream stream;
@@ -654,10 +665,6 @@ void GameManager::Update(float deltaTime)
 //______________________________________________________________________________
 void GameManager::SyncPlayerInputs(InputState* inputs)
 {
-  //_p1->GetComponent<GameInputComponent>()->Sync(inputs[0]);
-  //_p2->GetComponent<GameInputComponent>()->Sync(inputs[1]);
-
-
   _p1->GetComponent<GameInputComponent>()->PushState(inputs[0]);
   _p2->GetComponent<GameInputComponent>()->PushState(inputs[1]);
 }
@@ -710,12 +717,7 @@ void GameManager::RunFrame(float deltaTime)
 void GameManager::ChangeScene(SceneType scene)
 {
   _currentScene.reset();
-
-  DestroyEntitiesSystem::DoTick(0.0);
-
-  for (auto& func : _onSceneChangeFunctionQueue)
-    func();
-  _onSceneChangeFunctionQueue.clear();
+  ClearSceneData();
 
   _currentScene = std::unique_ptr<IScene>(SceneHelper::CreateScene(scene));
   if (scene == SceneType::MATCH)
@@ -731,8 +733,15 @@ void GameManager::ChangeScene(SceneType scene)
 //______________________________________________________________________________
 void GameManager::PostUpdate()
 {
+  if (!_endOfFrameQueue.empty())
+  {
+    for (auto& func : _endOfFrameQueue)
+      func();
+    _endOfFrameQueue.clear();
+  }
+
   // defer scene change until end of update loops
-  if(_sceneChangeRequested)
+  if (_sceneChangeRequested)
   {
     ChangeScene(_currentSceneType);
     _sceneChangeRequested = false;
@@ -740,13 +749,6 @@ void GameManager::PostUpdate()
     // HERE: avoid unwanted scheduled tasks running in new scene
     // added deferments from StateMachine systems are causing problems
     // on scene change
-  }
-
-  if (!_endOfFrameQueue.empty())
-  {
-    for (auto& func : _endOfFrameQueue)
-      func();
-    _endOfFrameQueue.clear();
   }
 }
 
@@ -786,6 +788,15 @@ void GameManager::Draw()
 
   //present this frame
   GRenderer.Present();
+}
+
+//______________________________________________________________________________
+void GameManager::ClearSceneData()
+{
+  DestroyEntitiesSystem::DoTick(0.0);
+  for (auto& func : _onSceneChangeFunctionQueue)
+    func();
+  _onSceneChangeFunctionQueue.clear();
 }
 
 //______________________________________________________________________________
