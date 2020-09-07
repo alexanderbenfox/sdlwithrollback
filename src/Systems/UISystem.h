@@ -41,7 +41,7 @@ public:
       float y = transform.position.y;
       CalcScreenPos(&transform, 
         transform.parent ? 
-        Rect<float>(transform.parent->screenPosition.x, transform.parent->screenPosition.y, transform.parent->rect.Width(), transform.parent->rect.Height()) : ScreenRect,
+        Rect<float>(transform.parent->screenPosition.x, transform.parent->screenPosition.y, transform.parent->screenPosition.x + transform.parent->rect.Width(), transform.parent->screenPosition.y + transform.parent->rect.Height()) : ScreenRect,
         x, y);
     }
   }

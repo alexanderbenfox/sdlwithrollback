@@ -16,7 +16,7 @@ void TextRenderer::SetFont(LetterCase& resource)
   _resource = &resource;
 }
 
-Vector2<float> TextRenderer::SetText(const std::string& text)
+Vector2<float> TextRenderer::SetText(const std::string& text, TextAlignment alignment, int fieldWidth)
 {
   Vector2<float> newSize;
   if (_resource && text != _currentText)
@@ -26,7 +26,7 @@ Vector2<float> TextRenderer::SetText(const std::string& text)
       GRenderer.DeregisterDrawable<BlitOperation<GLTexture>>(RenderLayer::UI);
 
     _currentText = text;
-    _string = _resource->CreateStringField(_currentText.c_str(), 600);
+    _string = _resource->CreateStringField(_currentText.c_str(), fieldWidth, alignment);
 
     float width = 0;
     float height = 0;

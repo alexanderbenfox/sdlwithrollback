@@ -76,7 +76,7 @@ public:
 
   void SetFont(LetterCase& resource);
   //! Sets up GL calls for text rendering and returns the size of the new on screen text field
-  Vector2<float> SetText(const std::string& text);
+  Vector2<float> SetText(const std::string& text, TextAlignment alignment, int fieldWidth = 600);
 
   std::vector<GLDrawOperation> GetRenderOps();
 

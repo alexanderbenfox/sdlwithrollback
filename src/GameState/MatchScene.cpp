@@ -23,12 +23,12 @@
 #include "Core/Prefab/CharacterConstructor.h"
 #include "Core/Prefab/ActionFactory.h"
 
-PreMatchScene::PreMatchScene() :
+PreMatchScene::PreMatchScene(MatchMetaComponent& matchData) :
   _fadeAction1(1.5f, 255, 0),
   _fadeAction2(0.5f, 0, 255),
   _wait1(1),
   _wait2(3),
-  IScene()
+  ISubScene(matchData)
 {}
 
 PreMatchScene::~PreMatchScene() {}
@@ -55,13 +55,14 @@ void PreMatchScene::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2)
   CleanUpActionSystem::PostUpdate();
 
   _roundText = GameManager::Get().CreateEntity<UITransform, TextRenderer, TimerContainer, DestroyOnSceneEnd>();
-  _roundText->GetComponent<TextRenderer>()->SetFont(ResourceManager::Get().GetFontWriter("fonts\\Eurostile.ttf", 36));
-  _roundText->GetComponent<TextRenderer>()->SetText("ROUND X");
+  _roundText->GetComponent<TextRenderer>()->SetFont(ResourceManager::Get().GetFontWriter("fonts\\RUBBBB__.TTF", 36));
+  std::string roundString = "ROUND " + std::to_string(_matchStatus.roundNo + 1);
+  _roundText->GetComponent<TextRenderer>()->SetText(roundString, TextAlignment::Centered);
   _roundText->GetComponent<UITransform>()->anchor = UIAnchor::Center;
 
   _fightText = GameManager::Get().CreateEntity<UITransform, TextRenderer, TimerContainer, DestroyOnSceneEnd>();
-  _fightText->GetComponent<TextRenderer>()->SetFont(ResourceManager::Get().GetFontWriter("fonts\\Eurostile.ttf", 36));
-  _fightText->GetComponent<TextRenderer>()->SetText("FIGHT!");
+  _fightText->GetComponent<TextRenderer>()->SetFont(ResourceManager::Get().GetFontWriter("fonts\\RUBBBB__.TTF", 36));
+  _fightText->GetComponent<TextRenderer>()->SetText("LETS GO!", TextAlignment::Centered);
   _fightText->GetComponent<UITransform>()->anchor = UIAnchor::Center;
 
   _fadeAction1.target = _roundText;
@@ -96,7 +97,7 @@ void PreMatchScene::Update(float deltaTime)
   TimerSystem::DoTick(deltaTime);
 }
 
-PostMatchScene::PostMatchScene() :
+PostMatchScene::PostMatchScene(MatchMetaComponent& matchData) :
   winnerAction1(3),
   winnerAction2("Win"),
   loserAction1("KO"),
@@ -105,7 +106,7 @@ PostMatchScene::PostMatchScene() :
   poseHold(0.5f),
   fadeOutKO(0.05f, 255, 0),
   waitForText(2),
-  IScene()
+  ISubScene(matchData)
 {}
 
 PostMatchScene::~PostMatchScene()
@@ -148,7 +149,7 @@ void PostMatchScene::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2
 
   _koText = GameManager::Get().CreateEntity<UITransform, TextRenderer, TimerContainer, DestroyOnSceneEnd>();
   _koText->GetComponent<TextRenderer>()->SetFont(ResourceManager::Get().GetFontWriter("fonts\\Eurostile.ttf", 36));
-  _koText->GetComponent<TextRenderer>()->SetText("KO!");
+  _koText->GetComponent<TextRenderer>()->SetText("KO!", TextAlignment::Centered);
   _koText->GetComponent<UITransform>()->anchor = UIAnchor::Center;
 
   KODisplay.target = _koText;
@@ -187,6 +188,7 @@ MatchScene::~MatchScene()
   GameManager::Get().DestroyEntity(_stageBorders[0]);
   GameManager::Get().DestroyEntity(_stageBorders[1]);
   GameManager::Get().DestroyEntity(_stageBorders[2]);
+  GameManager::Get().DestroyEntity(_matchData);
 
   //GRenderer.EstablishCamera(RenderLayer::UI, nullptr);
   //GRenderer.EstablishCamera(RenderLayer::World, nullptr);
@@ -216,9 +218,13 @@ void MatchScene::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2)
   _camera->GetComponent<Camera>()->clamp = stage.clamp;
   GRenderer.EstablishCamera(RenderLayer::World, _camera->GetComponent<Camera>());
 
+  // create match metadata
+  _matchData = GameManager::Get().CreateEntity<MatchMetaComponent>();
+  MatchMetaComponent& matchStatus = *_matchData->GetComponent<MatchMetaComponent>();
+
   if (_battleType == BattleType::Training)
   {
-    _subScene = std::make_shared<BattleScene>();
+    _subScene = std::make_shared<BattleScene>(matchStatus);
     _subScene->Init(_p1, _p2);
 
     _p1->GetComponent<StateComponent>()->invulnerable = true;
@@ -227,7 +233,7 @@ void MatchScene::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2)
   }
   else
   {
-    _subScene = std::make_shared<PreMatchScene>();
+    _subScene = std::make_shared<PreMatchScene>(matchStatus);
     _subScene->Init(_p1, _p2);
 
     _p1->GetComponent<StateComponent>()->invulnerable = false;
@@ -243,15 +249,20 @@ void MatchScene::Update(float deltaTime)
 
 void MatchScene::AdvanceScene()
 {
-  auto nextBattleScene = [this](int nRounds)
+  //! read the current match status
+  MatchMetaComponent& matchStatus = *_matchData->GetComponent<MatchMetaComponent>();
+
+  auto nextBattleScene = [this, &matchStatus](int nRounds)
   {
+
+
     if (_currStage == MatchStage::POSTMATCH)
     {
-      if (_scoreP1 >= nRounds || _scoreP2 >= nRounds)
+      if (matchStatus.scoreP1 >= nRounds || matchStatus.scoreP2 >= nRounds)
       {
         _p1->RemoveComponent<LoserComponent>();
         _p2->RemoveComponent<LoserComponent>();
-        if (_scoreP1 > _scoreP2)
+        if (matchStatus.scoreP1 > matchStatus.scoreP2)
           _p2->AddComponent<LoserComponent>();
         else
           _p1->AddComponent<LoserComponent>();
@@ -264,33 +275,36 @@ void MatchScene::AdvanceScene()
         _p1->RemoveComponent<LoserComponent>();
         _p2->RemoveComponent<LoserComponent>();
 
-        _subScene = std::make_shared<PreMatchScene>();
+        // advance round no before instantiating next scene
+        matchStatus.roundNo++;
+
+        _subScene = std::make_shared<PreMatchScene>(matchStatus);
         _subScene->Init(_p1, _p2);
         _currStage = MatchStage::PREMATCH;
       }
     }
     else if (_currStage == MatchStage::PREMATCH)
     {
-      _subScene = std::make_shared<BattleScene>();
+      _subScene = std::make_shared<BattleScene>(matchStatus);
       _subScene->Init(_p1, _p2);
 
       _currStage = MatchStage::BATTLE;
     }
     else
     {
-      _subScene = std::make_shared<PostMatchScene>();
+      _subScene = std::make_shared<PostMatchScene>(matchStatus);
       _subScene->Init(_p1, _p2);
       if (_p1->GetComponent<LoserComponent>())
-        _scoreP2++;
+        matchStatus.scoreP2++;
       else
-        _scoreP1++;
+        matchStatus.scoreP1++;
       _currStage = MatchStage::POSTMATCH;
     }
   };
 
   if (_battleType == BattleType::Training)
   {
-    _subScene = std::make_shared<BattleScene>();
+    _subScene = std::make_shared<BattleScene>(matchStatus);
     _subScene->Init(_p1, _p2);
     _p1->GetComponent<StateComponent>()->invulnerable = true;
     _p2->GetComponent<StateComponent>()->invulnerable = true;

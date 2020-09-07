@@ -2,10 +2,10 @@
 #include "GameState/Scene.h"
 
 //! fades in the text "ROUND X"... "FIGHT"
-class PreMatchScene : public IScene
+class PreMatchScene : public ISubScene
 {
 public:
-  PreMatchScene();
+  PreMatchScene(MatchMetaComponent& matchData);
   virtual ~PreMatchScene();
   virtual void Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2) final;
   virtual void Update(float deltaTime) final;
@@ -20,10 +20,10 @@ protected:
   CutsceneAction* _fadeActionSet2[2] = { &_wait2, &_fadeAction2 };
 };
 
-class PostMatchScene : public IScene
+class PostMatchScene : public ISubScene
 {
 public:
-  PostMatchScene();
+  PostMatchScene(MatchMetaComponent& matchData);
   virtual ~PostMatchScene();
   virtual void Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2) final;
   virtual void Update(float deltaTime) final;
@@ -58,15 +58,12 @@ public:
   BattleType _battleType = BattleType::Training;
 
 protected:
-  std::shared_ptr<IScene> _subScene;
-  std::shared_ptr<Entity> _stageBorders[3];
+  std::shared_ptr<ISubScene> _subScene;
 
+  std::shared_ptr<Entity> _matchData;
+  std::shared_ptr<Entity> _stageBorders[3];
   std::shared_ptr<Entity> _p1, _p2;
-  int _roundNo = 0;
-  int _scoreP1 = 0;
-  int _scoreP2 = 0;
+  std::shared_ptr<Entity> _uiCamera, _camera;
 
   MatchStage _currStage = MatchStage::BATTLE;
-
-  std::shared_ptr<Entity> _uiCamera, _camera;
 };

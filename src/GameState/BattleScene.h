@@ -1,9 +1,10 @@
 #pragma once
 #include "GameState/Scene.h"
 
-class BattleScene : public IScene
+class BattleScene : public ISubScene
 {
 public:
+  BattleScene(MatchMetaComponent& matchData) : ISubScene(matchData) {}
   virtual ~BattleScene();
   virtual void Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2) final;
   virtual void Update(float deltaTime) final;

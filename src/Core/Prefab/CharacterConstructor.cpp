@@ -113,7 +113,7 @@ std::shared_ptr<Entity> CharacterConstructor::InitUIComponents(std::shared_ptr<E
       comboTextEntity->AddComponent<RenderProperties>();
 
       std::string comboText = "Combo: " + std::to_string(newState->comboCounter);
-      comboTextEntity->GetComponent<TextRenderer>()->SetText(comboText);
+      comboTextEntity->GetComponent<TextRenderer>()->SetText(comboText, TextAlignment::Left);
     }
   };
 

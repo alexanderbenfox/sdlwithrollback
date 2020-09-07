@@ -110,17 +110,17 @@ void ResultsScene::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2)
   
   if(_p1->GetComponent<LoserComponent>())
   {
-    _resultText->GetComponent<TextRenderer>()->SetText("PLAYER 2 WINS");
+    _resultText->GetComponent<TextRenderer>()->SetText("PLAYER 2 WINS", TextAlignment::Centered);
     _p1->RemoveComponent<LoserComponent>();
   }
   else if(_p2->GetComponent<LoserComponent>())
   {
-    _resultText->GetComponent<TextRenderer>()->SetText("PLAYER 1 WINS");
+    _resultText->GetComponent<TextRenderer>()->SetText("PLAYER 1 WINS", TextAlignment::Centered);
     _p2->RemoveComponent<LoserComponent>();
   }
   else
   {
-    _resultText->GetComponent<TextRenderer>()->SetText("NOBODY LOST. SOMETHING WENT HORRIBLY WRONG.");
+    _resultText->GetComponent<TextRenderer>()->SetText("NOBODY LOST. SOMETHING WENT HORRIBLY WRONG.", TextAlignment::Centered);
   }
 
   MenuButtonArray menu(3, 3, 0.1f);

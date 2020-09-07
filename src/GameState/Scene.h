@@ -1,6 +1,7 @@
 #pragma once
 #include "Core/ECS/Entity.h"
 #include "Components/Actors/CutsceneActor.h"
+#include "Components/MetaGameComponents.h"
 
 class Camera;
 
@@ -12,6 +13,18 @@ public:
   virtual void Update(float deltaTime) = 0;
   virtual void AdvanceScene() {}
   
+};
+
+class ISubScene : public IScene
+{
+public:
+  ISubScene(MatchMetaComponent& matchData) : _matchStatus(matchData), IScene() {}
+  virtual ~ISubScene() {}
+
+protected:
+  //! match status when this scene was initialized
+  MatchMetaComponent& _matchStatus;
+
 };
 
 enum class SceneType

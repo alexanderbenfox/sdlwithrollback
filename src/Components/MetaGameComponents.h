@@ -15,3 +15,11 @@ struct TeamComponent : public IComponent
   Team team = Team::TeamA;
   bool playerEntity = false;
 };
+
+struct MatchMetaComponent : public IComponent
+{
+  int roundNo = 0;
+  int scoreP1 = 0;
+  int scoreP2 = 0;
+
+};
