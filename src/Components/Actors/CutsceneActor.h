@@ -90,9 +90,8 @@ struct PlayAnimation : public CutsceneAction, public IAnimatorListener
     renderer->SetRenderResource(actionAnimation->GetSheetTexture<RenderType>());
     renderer->sourceRect = actionAnimation->GetFrameSrcRect(0);
 
-    // do everything facing right now and ill fix this eventually
-    properties->horizontalFlip = false;
-    properties->offset = -GAnimArchive.GetCollection(animator->animCollectionID).GetRenderOffset(anim, false, 0);
+    // figure out a better way to do offsets lol
+    properties->offset = -GAnimArchive.GetCollection(animator->animCollectionID).GetRenderOffset(anim, properties->horizontalFlip, 0);
   }
   void OnComplete() override {}
   virtual bool CheckEndConditions() override { return animFinished; }

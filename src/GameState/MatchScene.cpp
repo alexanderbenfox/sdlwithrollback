@@ -26,12 +26,21 @@
 PreMatchScene::PreMatchScene(MatchMetaComponent& matchData) :
   _fadeAction1(1.5f, 255, 0),
   _fadeAction2(0.5f, 0, 255),
-  _wait1(1),
-  _wait2(3),
+  _wait1(3),
+  _wait2(4),
+  _waitForEntranceComplete(2),
+  _pauseP1(0.5f),
+  _pauseP2(0.5f),
+  _entranceAction("Entrance"),
+  _idle("Idle"),
   ISubScene(matchData)
 {}
 
-PreMatchScene::~PreMatchScene() {}
+PreMatchScene::~PreMatchScene()
+{
+  _p1->RemoveComponents<CutsceneActor, TimerContainer>();
+  _p2->RemoveComponents<CutsceneActor, TimerContainer>();
+}
 
 void PreMatchScene::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2)
 {
@@ -44,15 +53,21 @@ void PreMatchScene::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2)
   _p1->GetComponent<TeamComponent>()->team = TeamComponent::Team::TeamA;
   _p2->GetComponent<TeamComponent>()->team = TeamComponent::Team::TeamB;
 
-  PlayerSideSystem::DoTick(0.0f);
+  _p1->GetComponent<StateComponent>()->onLeftSide = false;
+  _p2->GetComponent<StateComponent>()->onLeftSide = true;
 
-  //set player state to neutral
-  ActionFactory::GoToNeutralAction(_p1->GetID(), _p1->GetComponent<StateComponent>());
-  ActionFactory::GoToNeutralAction(_p2->GetID(), _p2->GetComponent<StateComponent>());
+  _p1->GetComponent<RenderProperties>()->horizontalFlip= false;
+  _p2->GetComponent<RenderProperties>()->horizontalFlip = true;
 
-  // this makes the animator play
-  EnactAnimationActionSystem::DoTick(1.0f);
-  CleanUpActionSystem::PostUpdate();
+  _p1->AddComponents<CutsceneActor, TimerContainer>();
+  _p2->AddComponents<CutsceneActor, TimerContainer>();
+
+  _pauseP1.target = _p1;
+  _pauseP2.target = _p2;
+
+  _p1->GetComponent<CutsceneActor>()->SetActionList(_PCEntranceActionSet1, 3);
+  _p2->GetComponent<CutsceneActor>()->SetActionList(_PCEntranceActionSet2, 3);
+
 
   _roundText = GameManager::Get().CreateEntity<UITransform, TextRenderer, TimerContainer, DestroyOnSceneEnd>();
   _roundText->GetComponent<TextRenderer>()->SetFont(ResourceManager::Get().GetFontWriter("fonts\\RUBBBB__.TTF", 36));
@@ -61,8 +76,8 @@ void PreMatchScene::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2)
   _roundText->GetComponent<UITransform>()->anchor = UIAnchor::Center;
 
   _fightText = GameManager::Get().CreateEntity<UITransform, TextRenderer, TimerContainer, DestroyOnSceneEnd>();
-  _fightText->GetComponent<TextRenderer>()->SetFont(ResourceManager::Get().GetFontWriter("fonts\\RUBBBB__.TTF", 36));
-  _fightText->GetComponent<TextRenderer>()->SetText("LETS GO!", TextAlignment::Centered);
+  _fightText->GetComponent<TextRenderer>()->SetFont(ResourceManager::Get().GetFontWriter("fonts\\RUBBBB__.TTF", 52));
+  _fightText->GetComponent<TextRenderer>()->SetText("FIGHT", TextAlignment::Centered);
   _fightText->GetComponent<UITransform>()->anchor = UIAnchor::Center;
 
   _fadeAction1.target = _roundText;
@@ -71,7 +86,7 @@ void PreMatchScene::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2)
   // add these components so they will be ran through the cutscene system (check on this)
   _roundText->AddComponents<RenderProperties, CutsceneActor, RenderComponent<RenderType>, Animator>();
   _fightText->AddComponents<RenderProperties, CutsceneActor, RenderComponent<RenderType>, Animator>();
-  _roundText->GetComponent<CutsceneActor>()->SetActionList(_fadeActionSet1, 2);
+  _roundText->GetComponent<CutsceneActor>()->SetActionList(_fadeActionSet1, 3);
   _fightText->GetComponent<CutsceneActor>()->SetActionList(_fadeActionSet2, 2);
 
   // hide the fight text
@@ -80,6 +95,7 @@ void PreMatchScene::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2)
 
 void PreMatchScene::Update(float deltaTime)
 {
+  PlayerSideSystem::DoTick(deltaTime);
   UIPositionUpdateSystem::DoTick(deltaTime);
 
   CutsceneSystem::DoTick(deltaTime);

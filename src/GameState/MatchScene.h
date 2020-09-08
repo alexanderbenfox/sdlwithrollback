@@ -14,10 +14,18 @@ protected:
   std::shared_ptr<Entity> _p1, _p2;
   std::shared_ptr<Entity> _roundText, _fightText;
 
+  Wait _waitForEntranceComplete;
+
   AlphaFader _fadeAction1, _fadeAction2;
   Wait _wait1, _wait2;
-  CutsceneAction* _fadeActionSet1[2] = { &_fadeAction1, &_wait1 };
+  CutsceneAction* _fadeActionSet1[3] = { &_waitForEntranceComplete, &_fadeAction1, &_wait1 };
   CutsceneAction* _fadeActionSet2[2] = { &_wait2, &_fadeAction2 };
+
+  WaitForTime _pauseP1, _pauseP2;
+  PlayAnimation _entranceAction, _idle;
+  CutsceneAction* _PCEntranceActionSet1[3] = { &_pauseP1, &_entranceAction, &_idle };
+  CutsceneAction* _PCEntranceActionSet2[3] = { &_pauseP2, &_entranceAction, &_idle };
+
 };
 
 class PostMatchScene : public ISubScene

@@ -104,9 +104,9 @@
     }
   },
   {
-    "sheet_location": "spritesheets\\winlose.png",
-    "rows": 6,
-    "columns": 4,
+    "sheet_location": "spritesheets\\winloseentrance.png",
+    "rows": 7,
+    "columns": 6,
     "frameSize": {
       "x": 0,
       "y": 0

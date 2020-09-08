@@ -25,8 +25,9 @@ std::unordered_map<std::string, AnimationInfo> RyuAnimationData::normalAnimation
   { "BackDash", AnimationInfo(dashes.src, dashes, 0, 6, AnchorPoint::BL)},
   { "ForwardDash", AnimationInfo(dashes.src, dashes, 6, 6, AnchorPoint::BL)},
   { "ThrowMiss", AnimationInfo(throws.src, throws, 2, 4, AnchorPoint::BL)},
-  { "Win", AnimationInfo(winLoseSpriteSheet.src, winLoseSpriteSheet, 0, 6, AnchorPoint::BL)},
-  { "KO", AnimationInfo(winLoseSpriteSheet.src, winLoseSpriteSheet, 6, 17, AnchorPoint::BL)}
+  { "Win", AnimationInfo(winLoseEntrance.src, winLoseEntrance, 0, 6, AnchorPoint::BL)},
+  { "KO", AnimationInfo(winLoseEntrance.src, winLoseEntrance, 6, 17, AnchorPoint::BL)},
+  { "Entrance", AnimationInfo(winLoseEntrance.src, winLoseEntrance, 24, 18, AnchorPoint::BL)}
 };
 
 std::unordered_map<std::string, AttackAnimationData> RyuAnimationData::attackAnimations =

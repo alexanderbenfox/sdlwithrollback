@@ -10,7 +10,7 @@ const SpriteSheet jumpingAttacks("spritesheets\\jumping_attacks.png", 5, 5, fals
 const SpriteSheet hitstun("spritesheets\\hitstun_standing&crouching.png", 9, 7, false);
 const SpriteSheet blocks("spritesheets\\blocks.png", 4, 4, false);
 const SpriteSheet throws("spritesheets\\throws.png", 8, 5, false);
-const SpriteSheet winLoseSpriteSheet("spritesheets\\winlose.png", 6, 4, false);
+const SpriteSheet winLoseEntrance("spritesheets\\winloseentrance.png", 7, 6, false);
 const SpriteSheet dashes("spritesheets\\dashes.png", 4, 3, false);
 const SpriteSheet specialMoves("spritesheets\\special_moves.png", 10, 8, false);
 const SpriteSheet knockdowns("spritesheets\\knockdowns.png", 9, 6, false);
