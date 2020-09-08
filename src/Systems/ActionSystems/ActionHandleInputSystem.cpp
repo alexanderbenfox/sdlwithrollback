@@ -209,7 +209,7 @@ void CheckForMoveRight::DoTick(float dt)
 
     if (HasState(actor.input.normal, InputState::RIGHT))
     {
-      Vector2<float> movementVector = movementVector = Vector2<float>(0.5f * GlobalVars::BaseWalkSpeed, 0.0f);
+      Vector2<float> movementVector = Vector2<float>(0.5f * GlobalVars::BaseWalkSpeed, 0.0f);
       RunOnDeferGuardDestroy((entity, &actor, &state, movementVector), ActionFactory::GoToWalkRightAction(entity, &actor, &state, movementVector));
     }
   }
