@@ -170,6 +170,9 @@ void GameManager::Initialize()
 {
   GRenderer.Init();
 
+  //! Call this to initialize animation collections and load them
+  AnimationCollectionManager::Get();
+
   //! initialize our player controllable entities
   _p1 = CreateEntity<GameInputComponent, Actor>();
   _p2 = CreateEntity<GameInputComponent, Actor>();

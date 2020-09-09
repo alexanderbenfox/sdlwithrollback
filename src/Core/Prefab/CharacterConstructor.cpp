@@ -32,6 +32,7 @@ void CharacterConstructor::InitSpatialComponents(std::shared_ptr<Entity> player,
   player->GetComponent<Transform>()->SetWidthAndHeight(entitySize.x, entitySize.y);
   player->GetComponent<RenderProperties>()->baseRenderOffset = ((-1.0 / 2.0) * entitySize);
   player->GetComponent<RenderProperties>()->baseRenderOffset.y -= (static_cast<double>(textureSize.y) * .05);
+  player->GetComponent<RenderProperties>()->unscaledRenderWidth = entitySize.x;
 
   player->GetComponent<DynamicCollider>()->Init(Vector2<double>::Zero, entitySize);
   player->GetComponent<Hurtbox>()->Init(Vector2<double>::Zero, entitySize);

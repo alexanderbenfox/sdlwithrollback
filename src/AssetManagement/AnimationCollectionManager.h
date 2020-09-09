@@ -24,6 +24,7 @@ public:
   //void ReloadRyuAnimation() {}
 
 private:
+  //! Loads all animation collections currently
   AnimationCollectionManager();
 
   // can all of these be made static constexpr if data is known at compile time?

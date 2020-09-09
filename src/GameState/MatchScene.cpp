@@ -29,8 +29,8 @@ PreMatchScene::PreMatchScene(MatchMetaComponent& matchData) :
   _wait1(3),
   _wait2(4),
   _waitForEntranceComplete(2),
-  _pauseP1(0.5f),
-  _pauseP2(0.5f),
+  _pauseP1(1.2f),
+  _pauseP2(1.2f),
   _entranceAction("Entrance"),
   _idle("Idle"),
   ISubScene(matchData)
@@ -91,6 +91,15 @@ void PreMatchScene::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2)
 
   // hide the fight text
   _fightText->GetComponent<RenderProperties>()->SetDisplayColor(255, 255, 255, 0);
+
+  // play idle before going into cutscene actions
+  _p1->GetComponent<Animator>()->Play("Idle", true, 1.0f, true);
+
+  // 
+  Animation* anim = _p2->GetComponent<Animator>()->Play("Idle", true, 1.0f, true);
+  RenderProperties& properties = *_p2->GetComponent<RenderProperties>();
+  Animator& animator = *_p2->GetComponent<Animator>();
+  properties.offset = -GAnimArchive.GetCollection(animator.animCollectionID).GetRenderOffset("Idle", true, (int)std::floor(properties.unscaledRenderWidth));
 }
 
 void PreMatchScene::Update(float deltaTime)

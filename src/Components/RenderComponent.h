@@ -99,8 +99,10 @@ public:
   Vector2<int> baseRenderOffset;
   //! Display offset from top left of texture to top left of transform
   Vector2<int> offset;
-  //!
+  //! Should the display be flipped horizontally
   bool horizontalFlip;
+  //! Size of horizontal segment within an image defines the part that is to be displayed (used for flipping horizontally)
+  float unscaledRenderWidth;
 
   virtual void SetDisplayColor(Uint8 r, Uint8 g, Uint8 b);
   virtual void SetDisplayColor(Uint8 r, Uint8 g, Uint8 b, Uint8 a);

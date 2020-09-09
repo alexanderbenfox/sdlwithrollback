@@ -10,7 +10,7 @@
 
 #include "AssetManagement/AnimationCollectionManager.h"
 
-struct EnactAnimationActionSystem : public ISystem<EnactActionComponent, AnimatedActionComponent, Animator, RenderProperties, RenderComponent<RenderType>, Hurtbox, GameActor>
+struct EnactAnimationActionSystem : public ISystem<EnactActionComponent, AnimatedActionComponent, Animator, RenderProperties, RenderComponent<RenderType>>
 {
   static void DoTick(float dt)
   {
@@ -23,12 +23,10 @@ struct EnactAnimationActionSystem : public ISystem<EnactActionComponent, Animate
       Animator& animator = ComponentArray<Animator>::Get().GetComponent(entity);
       RenderProperties& properties = ComponentArray<RenderProperties>::Get().GetComponent(entity);
       RenderComponent<RenderType>& renderer = ComponentArray<RenderComponent<RenderType>>::Get().GetComponent(entity);
-      Hurtbox& hurtbox = ComponentArray<Hurtbox>::Get().GetComponent(entity);
-      GameActor& actor = ComponentArray<GameActor>::Get().GetComponent(entity);
 
       Animation* actionAnimation = animator.Play(action.animation, action.isLoopedAnimation, action.playSpeed, action.forceAnimRestart);
       properties.horizontalFlip = !action.isFacingRight;
-      properties.offset = -GAnimArchive.GetCollection(animator.animCollectionID).GetRenderOffset(action.animation, !action.isFacingRight, (int)std::floor(hurtbox.unscaledRect.Width()));
+      properties.offset = -GAnimArchive.GetCollection(animator.animCollectionID).GetRenderOffset(action.animation, !action.isFacingRight, (int)std::floor(properties.unscaledRenderWidth));
       if (actionAnimation)
       {
         // render from the sheet of the new animation

@@ -115,8 +115,9 @@ void AIInputHandler::SetAIProgram(AIComponent* comp, IAIProgram* program)
 }
 
 //______________________________________________________________________________
-KeyboardInputHandler::KeyboardInputHandler(InputBuffer& buffer) : IInputHandler(buffer)
+KeyboardInputHandler::KeyboardInputHandler(InputBuffer& buffer) : /*_config(Keys, InitValuesForward, InitValuesBackward),*/ IInputHandler(buffer)
 {
+  
   //assign direction buttons
   _config[SDL_SCANCODE_W] = InputState::UP;
   _config[SDL_SCANCODE_A] = InputState::LEFT;
@@ -128,19 +129,7 @@ KeyboardInputHandler::KeyboardInputHandler(InputBuffer& buffer) : IInputHandler(
   _config[SDL_SCANCODE_I] = InputState::BTN2;
   _config[SDL_SCANCODE_O] = InputState::BTN3;
   _config[SDL_SCANCODE_P] = InputState::BTN4;
-
-
-  /*//assign direction buttons
-  _eventConfig[SDLK_w] = InputState::UP;
-  _eventConfig[SDLK_a] = InputState::LEFT;
-  _eventConfig[SDLK_s] = InputState::DOWN;
-  _eventConfig[SDLK_d] = InputState::RIGHT;
-
-  //assign the button events
-  _eventConfig[SDLK_u] = InputState::BTN1;
-  _eventConfig[SDLK_i] = InputState::BTN2;
-  _eventConfig[SDLK_o] = InputState::BTN3;
-  _eventConfig[SDLK_p] = InputState::BTN4;*/
+  
 }
 
 //______________________________________________________________________________

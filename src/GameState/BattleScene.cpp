@@ -218,8 +218,5 @@ void BattleScene::InitCharacter(Vector2<float> position, std::shared_ptr<Entity>
 
   //! Janky loading
   player->AddComponent<SFXComponent>();
-  player->GetComponent<SFXComponent>()->ShowHitSparks(false);
-  player->GetComponent<SFXComponent>()->ShowBlockSparks(false);
 
 }
-

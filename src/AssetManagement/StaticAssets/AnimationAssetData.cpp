@@ -15,6 +15,7 @@
 
 void EntityCreationData::AddComponents(EntityID creatorID, const Transform* creator, const StateComponent* creatorState, std::shared_ptr<Entity> entity) const
 {
+  float entityWidth = 0.0f;
   Vector2<float> scale(1.0f, 1.0f);
   std::vector<RectColliderD*> moveableColliders;
 
@@ -106,6 +107,8 @@ void EntityCreationData::AddComponents(EntityID creatorID, const Transform* crea
       params.size = Vector2<float>(instruction.second["sizex"].asFloat(), instruction.second["sizey"].asFloat());
       entity->AddComponent<DynamicCollider>(params);
       moveableColliders.push_back(entity->GetComponent<DynamicCollider>());
+
+      entityWidth = params.size.x;
     }
     else if (instruction.first == "Hurtbox")
     {
@@ -137,6 +140,11 @@ void EntityCreationData::AddComponents(EntityID creatorID, const Transform* crea
   // anything created by an entity will be automatically assigned to its team
   entity->AddComponent<TeamComponent>();
   entity->GetComponent<TeamComponent>()->team = GameManager::Get().GetEntityByID(creatorID)->GetComponent<TeamComponent>()->team;
+
+  if (entity->GetComponent<RenderProperties>())
+  {
+    entity->GetComponent<RenderProperties>()->unscaledRenderWidth = entityWidth;
+  }
 
   // set the scale
   entity->SetScale(scale);

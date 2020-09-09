@@ -14,11 +14,15 @@ bool StaticAssetUtils::loadFromFile = true;
 void StaticAssetUtils::LoadNormal(const std::string& name, const AnimationInfo& data, AnimationCollection& collection)
 {
   collection.RegisterAnimation(name, SpriteSheet(data.sheet.src.c_str(), data.sheet.rows, data.sheet.columns), data.startIndexOnSheet, data.frames, data.anchor);
+  // make sure this gets loaded into the resource manager
+  ResourceManager::Get().GetAsset<RenderType>(data.sheetLocation);
 }
 
 void StaticAssetUtils::LoadNormal(const std::string& name, const AnimationInfo& data, const SpriteSheet& ss, AnimationCollection& collection)
 {
   collection.RegisterAnimation(name, ss, data.startIndexOnSheet, data.frames, data.anchor);
+  // make sure this gets loaded into the resource manager
+  ResourceManager::Get().GetAsset<RenderType>(data.sheetLocation);
 }
 
 void StaticAssetUtils::LoadAttackAnim(const std::string& name, const AttackAnimationData& data, AnimationCollection& collection)
@@ -41,6 +45,9 @@ void StaticAssetUtils::LoadAttackAnim(const std::string& name, const AttackAnima
     collection.RegisterAnimation(name, sheet, data.loadingInfo.startIndexOnSheet, data.loadingInfo.frames, data.loadingInfo.anchor);
     collection.SetAnimationEvents(name, CreateEventDataFromHitboxSheet(hitboxSheet.c_str(), copy), data.frameData);
   }
+
+  // make sure this gets loaded into the resource manager
+  ResourceManager::Get().GetAsset<RenderType>(data.loadingInfo.sheetLocation);
 
 }
 
