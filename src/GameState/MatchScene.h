@@ -1,5 +1,6 @@
 #pragma once
 #include "GameState/Scene.h"
+#include <thread>
 
 //! fades in the text "ROUND X"... "FIGHT"
 class PreMatchScene : public ISubScene
@@ -55,6 +56,20 @@ protected:
   CutsceneAction* _loserActions[2] = { &loserAction1, &loserAction2 };
 };
 
+class LoadingScene : public ISubScene
+{
+public:
+  LoadingScene(MatchMetaComponent& matchData) : ISubScene(matchData) {}
+  virtual ~LoadingScene();
+  virtual void Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2) final;
+  virtual void Update(float deltaTime) final;
+
+protected:
+  std::shared_ptr<Entity> _loadingText;
+
+};
+
+
 class MatchScene : public IScene
 {
 public:
@@ -74,4 +89,14 @@ protected:
   std::shared_ptr<Entity> _uiCamera, _camera;
 
   MatchStage _currStage = MatchStage::BATTLE;
+
+  //! 
+  std::thread _sceneSwapperThread;
+  //! scene that will be swapped in after init
+  ISubScene* _queuedScene;
+
+  //! ends current scene and begins the loading subroutine
+  void BeginLoadingThread(ISubScene* scene);
+  //! Function called by the begin loading thread function
+  void LoadSubScene(ISubScene* scene);
 };

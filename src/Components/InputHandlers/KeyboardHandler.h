@@ -5,6 +5,11 @@
 /*static constexpr std::array<SDL_Scancode, 8> Keys
 {
   {SDL_SCANCODE_W, SDL_SCANCODE_A, SDL_SCANCODE_S, SDL_SCANCODE_D, SDL_SCANCODE_U, SDL_SCANCODE_I, SDL_SCANCODE_O, SDL_SCANCODE_P}
+};*/
+
+static constexpr std::array<SDL_Scancode, 8> Keys
+{
+  {SDL_SCANCODE_W, SDL_SCANCODE_A, SDL_SCANCODE_S, SDL_SCANCODE_D, SDL_SCANCODE_U, SDL_SCANCODE_I, SDL_SCANCODE_O, SDL_SCANCODE_P}
 };
 
 static constexpr std::array<std::pair<SDL_Scancode, InputState>, 8> InitValuesForward
@@ -17,7 +22,10 @@ static constexpr std::array<std::pair<InputState, SDL_Scancode>, 8> InitValuesBa
 {
   {{InputState::UP, SDL_SCANCODE_W}, {InputState::LEFT, SDL_SCANCODE_A}, {InputState::DOWN, SDL_SCANCODE_S}, {InputState::RIGHT, SDL_SCANCODE_D},
   {InputState::BTN1, SDL_SCANCODE_U}, {InputState::BTN2, SDL_SCANCODE_I}, {InputState::BTN3, SDL_SCANCODE_O}, {InputState::BTN4, SDL_SCANCODE_P}}
-};*/
+};
+
+static constexpr auto KeyboardConfig = ConstConfigMap<SDL_Scancode, InputState, 8>(Keys, InitValuesForward, InitValuesBackward);
+//static constexpr auto KeyboardConfig = SmallMap<SDL_Scancode, InputState, 8>{ { InitValuesForward } };
 
 //______________________________________________________________________________
 //! Keyboard handler specification
@@ -33,15 +41,18 @@ public:
   //!
   void AssignKey(SDL_Scancode keyCode, InputState action)
   {
-    _config[keyCode] = action;
+    //_config[keyCode] = action;
   }
 
 private:
   //!
   const uint8_t* _keyStates = nullptr;
   //!
-  ConfigMap<SDL_Scancode, InputState> _config;
+  //ConfigMap<SDL_Scancode, InputState> _config;
   //const ConstConfigMap<SDL_Scancode, InputState, 8> _config;
+
+  // the only way this works is if the input is unconfigurable...
+  const ConstConfigMap<SDL_Scancode, InputState, 8>& _config;
 
 
 };

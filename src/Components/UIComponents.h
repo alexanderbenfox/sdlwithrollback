@@ -9,22 +9,9 @@ enum class UIAnchor
   TL, TR, BL, BR, Center, Size
 };
 
-//! Components that need to 
-struct UIComponent
-{
-  virtual void TransferState(const StateComponent* stateInfo)
-  {
-    callback(&lastState, stateInfo, this);
-    lastState = *stateInfo;
-  }
-  // empty callback function
-  std::function<void(const StateComponent*, const StateComponent*, UIComponent*)> callback = [](const StateComponent*, const StateComponent*,UIComponent*){};
-  StateComponent lastState;
-};
-
 //______________________________________________________________________________
 //!
-class UITransform : public Transform, public UIComponent
+class UITransform : public Transform
 {
 public:
   // point to move relative to on the parent (if no parent, then the entire screen)
@@ -38,10 +25,21 @@ public:
 
 struct UIContainer : public IComponent
 {
-  std::vector<UIComponent*> uiComponents;
+  // empty callback function
+  typedef std::function<void(std::shared_ptr<Entity>, const StateComponent*, const StateComponent*)>  UIUpdateFunction;
+
+  struct Updater
+  {
+    std::shared_ptr<Entity> uiElementEntity;
+    UIUpdateFunction callback;
+  };
+
+  std::vector<Updater> uiUpdaters;
+  // last state of the parent
+  StateComponent lastState;
 };
 
-class UIRectangleRenderComponent : public IComponent, public UIComponent
+class UIRectangleRenderComponent : public IComponent
 {
 public:
   UIRectangleRenderComponent();

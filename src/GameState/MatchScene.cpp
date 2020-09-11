@@ -31,8 +31,8 @@ PreMatchScene::PreMatchScene(MatchMetaComponent& matchData) :
   _waitForEntranceComplete(2),
   _pauseP1(1.2f),
   _pauseP2(1.2f),
-  _entranceAction("Entrance"),
-  _idle("Idle"),
+  _entranceAction("Entrance", 0.8f),
+  _idle("Idle", 1.0f),
   ISubScene(matchData)
 {}
 
@@ -124,8 +124,8 @@ void PreMatchScene::Update(float deltaTime)
 
 PostMatchScene::PostMatchScene(MatchMetaComponent& matchData) :
   winnerAction1(3),
-  winnerAction2("Win"),
-  loserAction1("KO"),
+  winnerAction2("Win", 1.0f),
+  loserAction1("KO", 0.9f),
   loserAction2(5),
   KODisplay(0.6f),
   poseHold(0.5f),
@@ -204,6 +204,25 @@ void PostMatchScene::Update(float deltaTime)
   TimerSystem::DoTick(deltaTime);
 }
 
+LoadingScene::~LoadingScene()
+{
+  GameManager::Get().DestroyEntity(_loadingText);
+}
+
+void LoadingScene::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2)
+{
+  _loadingText = GameManager::Get().CreateEntity<UITransform, TextRenderer, RenderProperties>();
+  _loadingText->GetComponent<UITransform>()->anchor = UIAnchor::Center;
+  _loadingText->GetComponent<TextRenderer>()->SetFont(ResourceManager::Get().GetFontWriter("fonts\\Eurostile.ttf", 36));
+  _loadingText->GetComponent<TextRenderer>()->SetText("LOADING...", TextAlignment::Centered);
+}
+
+void LoadingScene::Update(float deltaTime)
+{
+  UIPositionUpdateSystem::DoTick(deltaTime);
+}
+
+
 MatchScene::~MatchScene()
 {
   _subScene.reset();
@@ -214,6 +233,9 @@ MatchScene::~MatchScene()
   GameManager::Get().DestroyEntity(_stageBorders[1]);
   GameManager::Get().DestroyEntity(_stageBorders[2]);
   GameManager::Get().DestroyEntity(_matchData);
+
+  if (_sceneSwapperThread.joinable())
+    _sceneSwapperThread.join();
 
   //GRenderer.EstablishCamera(RenderLayer::UI, nullptr);
   //GRenderer.EstablishCamera(RenderLayer::World, nullptr);
@@ -246,6 +268,7 @@ void MatchScene::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2)
   // create match metadata
   _matchData = GameManager::Get().CreateEntity<MatchMetaComponent>();
   MatchMetaComponent& matchStatus = *_matchData->GetComponent<MatchMetaComponent>();
+  GameManager::Get().AddToNetworkedList(_matchData->GetID());
 
   if (_battleType == BattleType::Training)
   {
@@ -279,8 +302,6 @@ void MatchScene::AdvanceScene()
 
   auto nextBattleScene = [this, &matchStatus](int nRounds)
   {
-
-
     if (_currStage == MatchStage::POSTMATCH)
     {
       if (matchStatus.scoreP1 >= nRounds || matchStatus.scoreP2 >= nRounds)
@@ -305,6 +326,7 @@ void MatchScene::AdvanceScene()
 
         _subScene = std::make_shared<PreMatchScene>(matchStatus);
         _subScene->Init(_p1, _p2);
+        //BeginLoadingThread(new PreMatchScene(matchStatus));
         _currStage = MatchStage::PREMATCH;
       }
     }
@@ -312,13 +334,14 @@ void MatchScene::AdvanceScene()
     {
       _subScene = std::make_shared<BattleScene>(matchStatus);
       _subScene->Init(_p1, _p2);
-
+      //BeginLoadingThread(new BattleScene(matchStatus));
       _currStage = MatchStage::BATTLE;
     }
     else
     {
       _subScene = std::make_shared<PostMatchScene>(matchStatus);
       _subScene->Init(_p1, _p2);
+      //BeginLoadingThread(new PostMatchScene(matchStatus));
       if (_p1->GetComponent<LoserComponent>())
         matchStatus.scoreP2++;
       else
@@ -331,6 +354,7 @@ void MatchScene::AdvanceScene()
   {
     _subScene = std::make_shared<BattleScene>(matchStatus);
     _subScene->Init(_p1, _p2);
+    //BeginLoadingThread(new BattleScene(matchStatus));
     _p1->GetComponent<StateComponent>()->invulnerable = true;
     _p2->GetComponent<StateComponent>()->invulnerable = true;
 
@@ -343,4 +367,36 @@ void MatchScene::AdvanceScene()
   {
     nextBattleScene(3);
   }
+}
+
+void MatchScene::BeginLoadingThread(ISubScene* scene)
+{
+  _subScene.reset();
+
+  if (_sceneSwapperThread.joinable())
+    _sceneSwapperThread.join();
+
+  _sceneSwapperThread = std::thread([this, scene]() { LoadSubScene(scene); });
+
+  // swap in the loading subscene
+  _subScene = std::make_shared<LoadingScene>(*_matchData->GetComponent<MatchMetaComponent>());
+  _subScene->Init(_p1, _p2);
+}
+
+void MatchScene::LoadSubScene(ISubScene* scene)
+{
+  assert(_queuedScene == nullptr);
+
+  _queuedScene = scene;
+  _queuedScene->Init(_p1, _p2);
+
+  // has to be triggered at end of frame or bad things happen
+  GameManager::Get().TriggerBeginningOfFrame(
+  [this]() {
+    // after the queued scene is done loading, swap it back
+    _subScene = std::shared_ptr<ISubScene>(_queuedScene);
+    // setting this to null indicates the process is done
+    _queuedScene = nullptr;
+  });
+
 }

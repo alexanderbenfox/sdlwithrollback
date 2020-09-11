@@ -37,7 +37,8 @@ void CharacterConstructor::InitSpatialComponents(std::shared_ptr<Entity> player,
   player->GetComponent<DynamicCollider>()->Init(Vector2<double>::Zero, entitySize);
   player->GetComponent<Hurtbox>()->Init(Vector2<double>::Zero, entitySize);
 
-  player->SetScale(Vector2<float>(1.4f, 1.7f));
+  const Vector2<float> scale(1.4f, 1.7f);
+  player->SetScale(scale);
   player->GetComponent<Transform>()->position = position;
 
   player->GetComponent<DynamicCollider>()->MoveToTransform(*player->GetComponent<Transform>());
@@ -75,13 +76,13 @@ std::shared_ptr<Entity> CharacterConstructor::InitUIComponents(std::shared_ptr<E
 
   healthbarFill->AddComponent<UIRectangleRenderComponent>();
   healthbarFill->GetComponent<UIRectangleRenderComponent>()->isFilled = true;
-  healthbarFill->GetComponent<UIRectangleRenderComponent>()->callback = [lifeBarSize](const StateComponent* lastState, const StateComponent* info, UIComponent* comp)
-  {
-    float p = (float)info->hp / 100.0f;
-    dynamic_cast<UIRectangleRenderComponent*>(comp)->shownSize.w = (float)lifeBarSize.x * p;
-  };
 
-  playerUIContainerComponent->uiComponents.push_back(healthbarFill->GetComponent<UIRectangleRenderComponent>());
+  playerUIContainerComponent->uiUpdaters.push_back(
+    UIContainer::Updater{ healthbarFill, [lifeBarSize](std::shared_ptr<Entity> entity, const StateComponent* lastState, const StateComponent* info)
+    {
+      float p = (float)info->hp / 100.0f;
+      entity->GetComponent<UIRectangleRenderComponent>()->shownSize.w = (float)lifeBarSize.x * p;
+    } });
 
   // add the combo hit counter entity
   // create the counter text without render properties so that it wont be visible
@@ -93,12 +94,14 @@ std::shared_ptr<Entity> CharacterConstructor::InitUIComponents(std::shared_ptr<E
   comboTextEntity->GetComponent<UITransform>()->anchor = UIAnchor::BL;
   comboTextEntity->GetComponent<UITransform>()->position = Vector2<float>(5.0f, 20.0f);
 
-  // set the ui data transfer callback
-  comboTextEntity->GetComponent<UITransform>()->callback = [comboTextEntity](const StateComponent* lastState, const StateComponent* newState, UIComponent* comp)
+  // set the ui data transfer callback 
+  playerUIContainerComponent->uiUpdaters.push_back(
+  UIContainer::Updater{ comboTextEntity,
+  [](std::shared_ptr<Entity> entity, const StateComponent* lastState, const StateComponent* newState)
   {
     if (lastState->hitting && newState->comboCounter > 1)
     {
-      auto& activeTimers = comboTextEntity->GetComponent<TimerContainer>()->timings;
+      auto& activeTimers = entity->GetComponent<TimerContainer>()->timings;
       if (!activeTimers.empty())
       {
         for (auto timer : activeTimers)
@@ -107,19 +110,19 @@ std::shared_ptr<Entity> CharacterConstructor::InitUIComponents(std::shared_ptr<E
 
       const int comboTextVisibleFrames = 35;
       // replace active timer with new one that will remove render properties to hide the text
-      std::shared_ptr<ActionTimer> endComboText = std::shared_ptr<ActionTimer>(new SimpleActionTimer([comboTextEntity]() { comboTextEntity->RemoveComponent<RenderProperties>(); }, comboTextVisibleFrames));
-      comboTextEntity->GetComponent<TimerContainer>()->timings.push_back(endComboText);
+      std::shared_ptr<ActionTimer> endComboText = std::shared_ptr<ActionTimer>(new SimpleActionTimer([entity]()
+        {
+          entity->RemoveComponent<RenderProperties>();
+        }, comboTextVisibleFrames));
+      entity->GetComponent<TimerContainer>()->timings.push_back(endComboText);
 
       // ensure the combo text is visible
-      comboTextEntity->AddComponent<RenderProperties>();
+      entity->AddComponent<RenderProperties>();
 
       std::string comboText = "Combo: " + std::to_string(newState->comboCounter);
-      comboTextEntity->GetComponent<TextRenderer>()->SetText(comboText, TextAlignment::Left);
+      entity->GetComponent<TextRenderer>()->SetText(comboText, TextAlignment::Left);
     }
-  };
-
-  // finally, add combo text to the ui container
-  playerUIContainerComponent->uiComponents.push_back(comboTextEntity->GetComponent<UITransform>());
+  } });
 
   // anchor the combo text to the outline
   comboTextEntity->GetComponent<UITransform>()->parent = healthbarOutline->GetComponent<UITransform>();

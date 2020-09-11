@@ -61,8 +61,8 @@ BattleScene::~BattleScene()
   GameManager::Get().DestroyEntity(_p2UIAnchor);
 
   // we are moving into the after match cutscene, so only remove game state related components
-  _p1->RemoveComponents<GameActor, Hurtbox, StateComponent, UIContainer, WallPushComponent, Rigidbody, Gravity, TimerContainer>();
-  _p2->RemoveComponents<GameActor, Hurtbox, StateComponent, UIContainer, WallPushComponent, Rigidbody, Gravity, TimerContainer>();
+  _p1->RemoveComponents<GameActor, StateComponent, Hurtbox, UIContainer, WallPushComponent, TimerContainer>();
+  _p2->RemoveComponents<GameActor, StateComponent, Hurtbox, UIContainer, WallPushComponent, TimerContainer>();
 }
 
 void BattleScene::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2)
@@ -78,7 +78,6 @@ void BattleScene::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2)
   ActionFactory::GoToNeutralAction(_p2->GetID(), _p2->GetComponent<StateComponent>());
   _p1->AddComponent<InputListenerComponent>();
   _p2->AddComponent<InputListenerComponent>();
-
 }
 
 void BattleScene::Update(float deltaTime)

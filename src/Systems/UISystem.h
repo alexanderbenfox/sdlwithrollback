@@ -57,10 +57,13 @@ public:
       UIContainer& container = ComponentArray<UIContainer>::Get().GetComponent(entity);
       StateComponent& info = ComponentArray<StateComponent>::Get().GetComponent(entity);
 
-      for (auto item : container.uiComponents)
+      // run callback on each item
+      for (auto item : container.uiUpdaters)
       {
-        item->TransferState(&info);
+        item.callback(item.uiElementEntity, &container.lastState, &info);
       }
+      // update the state
+      container.lastState = info;
     }
   }
 };

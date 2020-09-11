@@ -101,6 +101,7 @@ private:
   //!
   int _frameStop = 0;
 
+  ////!!!!! SCENE CODE
   //!
   std::unique_ptr<IScene> _currentScene;
   //
@@ -109,6 +110,7 @@ private:
   BattleType _currentBattleType = BattleType::Training;
   //
   bool _sceneChangeRequested = false;
+
   //
   std::vector<std::function<void()>> _onSceneChangeFunctionQueue, _endOfFrameQueue, _beginningOfFrameQueue;
 

@@ -540,7 +540,7 @@ void GameManager::RequestSceneChange(SceneType newSceneType)
 //______________________________________________________________________________
 void GameManager::AdvanceCurrentScene()
 {
-  _endOfFrameQueue.push_back([this]()
+  _beginningOfFrameQueue.push_back([this]()
   {
     ClearSceneData();
     _currentScene->AdvanceScene();
@@ -682,6 +682,17 @@ void GameManager::RunFrame(float deltaTime)
     _beginningOfFrameQueue.clear();
   }
 
+  // defer scene change until end of update loops
+  if (_sceneChangeRequested)
+  {
+    ChangeScene(_currentSceneType);
+    _sceneChangeRequested = false;
+
+    // HERE: avoid unwanted scheduled tasks running in new scene
+    // added deferments from StateMachine systems are causing problems
+    // on scene change
+  }
+
   // grab events from hardware
   _hardwareEvents = UpdateLocalInput();
   // update debug gui logic
@@ -741,17 +752,6 @@ void GameManager::PostUpdate()
     for (auto& func : _endOfFrameQueue)
       func();
     _endOfFrameQueue.clear();
-  }
-
-  // defer scene change until end of update loops
-  if (_sceneChangeRequested)
-  {
-    ChangeScene(_currentSceneType);
-    _sceneChangeRequested = false;
-
-    // HERE: avoid unwanted scheduled tasks running in new scene
-    // added deferments from StateMachine systems are causing problems
-    // on scene change
   }
 }
 

@@ -1,16 +1,16 @@
 #pragma once
+#include <array>
 
 //! map backed by array optimized for small data sizes
 template <typename Key, typename Value, size_t N>
-class SmallMap
+struct SmallMap
 {
-public:
-  SmallMap(std::array<std::pair<Key, Value>, N> data) : _data(data) {}
+  std::array<std::pair<Key, Value>, N> data;
 
-  constexpr Value at(const Key& key) const
+  constexpr Value const& at(const Key& key) const
   {
-    const auto it = std::find_if(begin(_data), end(_data), [&key](const auto& v) { return v.first == key; });
-    if (it != end(_data))
+    const auto it = std::find_if(begin(data), end(data), [&key](const auto& v) { return v.first == key; });
+    if (it != end(data))
     {
       return it->second;
     }
@@ -19,10 +19,6 @@ public:
       throw std::range_error("Not Found");
     }
   }
-
-private:
-  std::array<std::pair<Key, Value>, N> _data;
-
 };
 
 //! Two-way map used for configuration maps like gamepad inputs
@@ -116,22 +112,24 @@ template <typename T1, typename T2, size_t N>
 class ConstConfigMap
 {
 public:
-  ConstConfigMap(
+  constexpr ConstConfigMap(
     std::array<T1, N> keys,
     std::array<std::pair<T1, T2>, N> forward,
     std::array<std::pair<T2, T1>, N> backward) :
-    _keys(keys), _forward(forward), _backward(backward)
+    _keys(keys), _forward{ forward }, _backward{ backward }
   {}
+  ~ConstConfigMap() = default;
 
   //! override getter operators
   T2 const& operator[](const T1& key) const;
   T1 const& operator[](const T2& key) const;
 
-  std::array<T1, N> const& GetKeys() { return _keys; }
+  //std::vector<T1> const& GetKeys() const { return _keys; }
+  std::array<T1, N> const& GetKeys() const { return _keys; }
 
 private:
-  const SmallMap<T1, T2, N> _forward;
-  const SmallMap<T2, T1, N> _backward;
+  SmallMap<T1, T2, N> _forward;
+  SmallMap<T2, T1, N> _backward;
   std::array<T1, N> _keys;
 
 };

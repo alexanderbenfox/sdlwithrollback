@@ -76,13 +76,13 @@ struct Wait : public CutsceneAction
 
 struct PlayAnimation : public CutsceneAction, public IAnimatorListener
 {
-  PlayAnimation(std::string animationName) : anim(animationName)
+  PlayAnimation(std::string animationName, float speed) : anim(animationName), speed(speed)
   {
     CutsceneAction::isWaiting = false;
   }
   void Begin(Animator* animator, RenderComponent<RenderType>* renderer, RenderProperties* properties) override
   {
-    animator->Play(anim, false);
+    animator->Play(anim, false, speed);
     animator->ChangeListener(this);
 
     Animation* actionAnimation = GAnimArchive.GetAnimationData(animator->animCollectionID, animator->currentAnimationName);
@@ -104,6 +104,7 @@ struct PlayAnimation : public CutsceneAction, public IAnimatorListener
   }
 
   std::string anim;
+  float speed = 1.0f;
   bool animFinished = false;
 };
 
