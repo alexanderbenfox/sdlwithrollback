@@ -23,6 +23,7 @@ void TransferDataBox::Init(const FrameData& frameData)
   tData.knockback = frameData.knockback;
   tData.activeFrames = frameData.active;
   tData.knockdown = frameData.knockdown;
+  tData.type = frameData.type;
 }
 
 void TransferDataBox::MoveDataBoxAroundTransform(const Rect<double>& unscaledTransformRect, const Transform* transform, const Rect<double>& box, const Vector2<float> offset, bool onLeft)

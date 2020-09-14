@@ -281,7 +281,19 @@ void RenderManager::Draw3DBackground()
   SetUpMatrix();
   glTranslatef(0.0f, 0.0f, 3.0f);
   OpenGLRenderer::RenderQuad3D({ 230, 230, 230, 255 }, stageSize, Vector3<float>(0, -1.0f, 0.0f), Vector3<float>(1.0f, 1.0f, 1.0f));
-  
+
+  /*
+  SetUpMatrix();
+  glTranslatef(0.0f, -0.5f, 3.5f);
+  Mat4::toMat4(Mat4::RotateXN90, m);
+  glMultMatrixf(m);
+  RenderTextureCommand cmd;
+  cmd.texture = ResourceManager::Get().GetAsset<GLTexture>("spritesheets\\ryu.png").Get();
+  auto size = ResourceManager::Get().GetTextureWidthAndHeight("spritesheets\\ryu.png");
+  cmd.srcRect = DrawRect<float>(0, 0, size.x, size.y);
+  OpenGLRenderer::RenderQuad3D(cmd, { 255, 255, 255, 255 }, { 0.1f, 0.1f }, Vector3<float>(0, -1.0f, 0.0f), Vector3<float>(1.0f, 1.0f, 1.0f));
+  */
+
   SetUpMatrix();
   glTranslatef(0.0f, 0.0f, 3.0f);
   Mat4::toMat4(Mat4::RotateZ180, m);

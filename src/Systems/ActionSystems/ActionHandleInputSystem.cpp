@@ -231,6 +231,7 @@ void CheckForJump::DoTick(float dt)
 
     if (HasState(actor.input.normal, InputState::UP))
     {
+      state.stanceState = StanceState::JUMPING;
       Vector2<float> movementVector;
       if (HasState(actor.input.normal, InputState::LEFT))
         movementVector = Vector2<float>(-0.5f * GlobalVars::BaseWalkSpeed, -GlobalVars::JumpVelocity);
@@ -240,6 +241,7 @@ void CheckForJump::DoTick(float dt)
         movementVector = Vector2<float>(0.0f, -GlobalVars::JumpVelocity);
 
       RunOnDeferGuardDestroy((entity, state, movementVector), {
+        
         GameManager::Get().GetEntityByID(entity)->AddComponent<EnactActionComponent>();
 
         GameManager::Get().GetEntityByID(entity)->AddComponent<MovingActionComponent>();
@@ -271,6 +273,7 @@ void CheckForFalling::DoTick(float dt)
 
     if (!rigidbody.IsGrounded())
     {
+      state.stanceState = StanceState::JUMPING;
       RunOnDeferGuardDestroy((entity, state), {
         ActionFactory::SetAerialState(entity);
         GameManager::Get().GetEntityByID(entity)->AddComponent<AnimatedActionComponent>({ state.onLeftSide, false, true, 1.0f, "Falling" });
@@ -298,6 +301,7 @@ void CheckForBeginCrouching::DoTick(float dt)
 
     if (HasState(actor.input.normal, InputState::DOWN))
     {
+      state.stanceState = StanceState::CROUCHING;
       RunOnDeferGuardDestroy((entity, &state), {
         GameManager::Get().GetEntityByID(entity)->AddComponent<EnactActionComponent>();
 
@@ -340,15 +344,20 @@ void CheckHitThisFrameSystem::DoTick(float dt)
       // consume the hit this frame flag
       state.hitThisFrame = false;
 
+      const HitType recvHitType = state.hitData.type;
+      bool canBlockLow = (recvHitType == HitType::Low && state.stanceState == StanceState::CROUCHING);
+      bool canBlockMid = (recvHitType == HitType::Mid && (state.stanceState == StanceState::CROUCHING || state.stanceState == StanceState::STANDING));
+      bool canBlockHigh = (recvHitType == HitType::High && state.stanceState == StanceState::STANDING);
+
       InputState const& buttons = actor.input.normal;
-      if (hittable.canBlock && rigidbody.IsGrounded())
+      if (hittable.canBlock && rigidbody.IsGrounded() && (canBlockLow || canBlockMid || canBlockHigh))
       {
         bool blockedRight = HasState(buttons, InputState::LEFT) && state.onLeftSide;
         bool blockedLeft = HasState(buttons, InputState::RIGHT) && !state.onLeftSide;
         if (blockedRight || blockedLeft)
         {
           RunOnDeferGuardDestroy((entity, &state, buttons), {
-            ActionFactory::SetBlockStunAction(entity, &state, HasState(buttons, InputState::DOWN));
+            ActionFactory::SetBlockStunAction(entity, &state, state.stanceState == StanceState::CROUCHING);
             GameManager::Get().GetEntityByID(entity)->RemoveComponent<InputListenerComponent>();
           });
           continue;
@@ -367,7 +376,7 @@ void CheckHitThisFrameSystem::DoTick(float dt)
 
       // default to hitstun state
       RunOnDeferGuardDestroy((entity, &state, buttons), {
-        ActionFactory::SetHitStunAction(entity, &state, HasState(buttons, InputState::DOWN));
+        ActionFactory::SetHitStunAction(entity, &state, state.stanceState == StanceState::CROUCHING);
         GameManager::Get().GetEntityByID(entity)->RemoveComponent<InputListenerComponent>();
       });
     }
@@ -483,7 +492,7 @@ void CheckAttackInputSystem::DoTick(float dt)
         continue;
       }
 
-      bool crouchPossible = HasState(actor.input.normal, InputState::DOWN);
+      bool crouchPossible = state.stanceState == StanceState::CROUCHING;//HasState(actor.input.normal, InputState::DOWN);
       // then check attacks
       if (HasState(actor.input.normal, InputState::BTN1))
       {

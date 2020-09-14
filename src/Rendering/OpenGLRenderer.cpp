@@ -203,6 +203,47 @@ void OpenGLRenderer::RenderQuad3D(const SDL_Color color, const Vector2<float>& s
 }
 
 //______________________________________________________________________________
+void OpenGLRenderer::RenderQuad3D(const RenderTextureCommand& cmd, const SDL_Color color, const Vector2<float>& size, const Vector3<float>& position, const Vector3<float>& scale)
+{
+  GLfloat minu, maxu, minv, maxv;
+  minu = (GLfloat)cmd.srcRect.x / cmd.texture->w();
+  maxu = (GLfloat)(cmd.srcRect.x + cmd.srcRect.w) / cmd.texture->w();
+  minv = (GLfloat)cmd.srcRect.y / cmd.texture->h();
+  maxv = (GLfloat)(cmd.srcRect.y + cmd.srcRect.h) / cmd.texture->h();
+
+  glPushMatrix();
+  glTranslatef(position.x, position.y, position.z);
+
+  SetBlendMode(renderContext, cmd.texture->BlendMode());
+  glEnable(GL_TEXTURE_2D);
+  glBindTexture(GL_TEXTURE_2D, cmd.texture->ID());
+
+  auto scaler = Mat4::Scale(scale.x, scale.y, scale.z);
+  float m[16];
+  Mat4::toMat4(scaler, m);
+  glMultMatrixf(m);
+
+  glColor4ub((GLubyte)color.r, (GLubyte)color.g, (GLubyte)color.b, (GLubyte)color.a);
+
+  // bottom
+  glBegin(GL_QUADS);
+  glTexCoord2f(maxu, minv);
+  glVertex3f(size.x / 2.0f, 0.0f, -size.y / 2.0f);
+  glTexCoord2f(minu, minv);
+  glVertex3f(-size.x / 2.0f, 0.0f, -size.y / 2.0f);
+  glTexCoord2f(minu, maxv);
+  glVertex3f(-size.x / 2.0f, 0.0f, size.y / 2.0f);
+  glTexCoord2f(maxu, maxv);
+  glVertex3f(size.x / 2.0f, 0.0f, size.y / 2.0f);
+  glEnd();
+
+  glDisable(GL_TEXTURE_2D);
+
+  glPopMatrix();
+}
+
+
+//______________________________________________________________________________
 void OpenGLRenderer::RenderCube3D(const SDL_Color* faceColors, const Vector3<float>& position, const Vector3<float>& scale)
 {
   glTranslatef(position.x, position.y, position.z);

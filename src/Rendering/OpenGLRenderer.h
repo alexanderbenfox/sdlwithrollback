@@ -18,6 +18,13 @@ struct RenderContext
   SDL_BlendMode blendMode = SDL_BlendMode::SDL_BLENDMODE_NONE;
 };
 
+struct RenderTextureCommand
+{
+  GLTexture* texture;
+  DrawRect<float> srcRect;
+  DrawRect<float> dstRect;
+};
+
 static RenderContext renderContext;
 
 class OpenGLRenderer
@@ -32,6 +39,7 @@ public:
 
   //! draws quad facing up centered at position
   static void RenderQuad3D(const SDL_Color color, const Vector2<float>& size, const Vector3<float>& position, const Vector3<float>& scale);
+  static void RenderQuad3D(const RenderTextureCommand& cmd, const SDL_Color color, const Vector2<float>& size, const Vector3<float>& position, const Vector3<float>& scale);
   static void RenderCube3D(const SDL_Color* faceColors, const Vector3<float>& position, const Vector3<float>& scale);
   static void RenderPyramid3D(const SDL_Color* faceColors, const Vector3<float>& position, const Vector3<float>& scale);
 

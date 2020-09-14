@@ -313,7 +313,8 @@
 			"onblock" : 0,
 			"onhit" : 5,
 			"recovery" : 13,
-			"startup" : 10
+			"startup" : 10,
+			"hittype" : "Low"
 		},
 		"numFrames" : 11,
 		"spritesheet" : "spritesheets\\grounded_attacks.png",

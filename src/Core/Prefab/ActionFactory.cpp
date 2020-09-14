@@ -12,6 +12,7 @@ void ActionFactory::SetAerialState(const EntityID& entity)
 {
   GameManager::Get().GetEntityByID(entity)->RemoveComponents<AbleToJump, AbleToCrouch, AbleToDash, AbleToWalkLeft, AbleToWalkRight>();
   GameManager::Get().GetEntityByID(entity)->AddComponent<JumpingAction>();
+  GameManager::Get().GetEntityByID(entity)->GetComponent<StateComponent>()->stanceState = StanceState::JUMPING;
 }
 
 void ActionFactory::SetCrouchingState(const EntityID& entity, StateComponent* state)
@@ -20,6 +21,7 @@ void ActionFactory::SetCrouchingState(const EntityID& entity, StateComponent* st
   GameManager::Get().GetEntityByID(entity)->AddComponent<EnactActionComponent>();
   GameManager::Get().GetEntityByID(entity)->AddComponent<AbleToReturnToNeutral>();
   GameManager::Get().GetEntityByID(entity)->RemoveComponents<TransitionToCrouching, AbleToWalkLeft, AbleToWalkRight>();
+  GameManager::Get().GetEntityByID(entity)->GetComponent<StateComponent>()->stanceState = StanceState::CROUCHING;
 }
 
 void ActionFactory::SetKnockdownAirborne(const EntityID& entity, StateComponent* state)
@@ -28,6 +30,7 @@ void ActionFactory::SetKnockdownAirborne(const EntityID& entity, StateComponent*
   DisableAbility(entity);
 
   state->actionState = ActionState::HITSTUN;
+  state->stanceState = StanceState::KNOCKDOWN;
   state->onNewState = true;
   state->hitting = false;
 
@@ -73,6 +76,7 @@ void ActionFactory::SetKnockdownGroundOTG(const EntityID& entity, StateComponent
   DisableAbility(entity);
 
   state->actionState = ActionState::HITSTUN;
+  state->stanceState = StanceState::KNOCKDOWN;
 
   // Always reset action complete flag on new action
   GameManager::Get().GetEntityByID(entity)->GetComponent<GameActor>()->actionTimerComplete = false;
@@ -110,6 +114,7 @@ void ActionFactory::SetKnockdownGroundInvincible(const EntityID& entity, StateCo
   DisableAbility(entity);
 
   state->actionState = ActionState::NONE;
+  state->stanceState = StanceState::KNOCKDOWN;
   state->onNewState = true;
 
   // Always reset action complete flag on new action
@@ -243,6 +248,7 @@ void ActionFactory::SetGrappledAction(const EntityID& entity, StateComponent* st
   RemoveTransitionComponents(entity);
   DisableAbility(entity);
 
+  state->stanceState = StanceState::KNOCKDOWN;
   state->onNewState = true;
   state->hitting = false;
 
@@ -318,6 +324,8 @@ void ActionFactory::SetDashAction(const EntityID& entity, StateComponent* state,
   RemoveTransitionComponents(entity);
   DisableAbility(entity);
 
+  state->stanceState = StanceState::STANDING;
+
   // Always reset action complete flag on new action
   GameManager::Get().GetEntityByID(entity)->GetComponent<GameActor>()->actionTimerComplete = false;
 
@@ -355,6 +363,7 @@ void ActionFactory::SetDashAction(const EntityID& entity, StateComponent* state,
 
 void ActionFactory::GoToNeutralAction(const EntityID& entity, StateComponent* state)
 {
+  state->stanceState = StanceState::STANDING;
   ResetActionComponents(entity);
   // Always reset action complete flag on new action
   GameManager::Get().GetEntityByID(entity)->GetComponent<GameActor>()->actionTimerComplete = false;
@@ -386,6 +395,7 @@ void ActionFactory::GoToNeutralAction(const EntityID& entity, StateComponent* st
 
 void ActionFactory::GoToWalkLeftAction(const EntityID& entity, GameActor* actor, StateComponent* state, const Vector2<float>& mvmt)
 {
+  state->stanceState = StanceState::STANDING;
   // Always reset action complete flag on new action
   actor->actionTimerComplete = false;
 
@@ -410,6 +420,7 @@ void ActionFactory::GoToWalkLeftAction(const EntityID& entity, GameActor* actor,
 
 void ActionFactory::GoToWalkRightAction(const EntityID& entity, GameActor* actor, StateComponent* state, const Vector2<float>& mvmt)
 {
+  state->stanceState = StanceState::STANDING;
   // Always reset action complete flag on new action
   actor->actionTimerComplete = false;
 

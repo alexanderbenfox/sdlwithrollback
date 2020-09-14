@@ -125,6 +125,22 @@ void StaticAssetUtils::CreateAnimationDebug(std::unordered_map<std::string, Anim
         ImGui::InputInt("Hit stop", &data.frameData.hitstop);
         ImGui::EndGroup();
 
+        ImGui::BeginGroup();
+        ImGui::Text("Hit Type");
+        const char* items[] = { "Low", "Mid", "High" };
+        static const char* current_item = data.frameData.type == HitType::Low ? "Low" : data.frameData.type == HitType::Mid ? "Mid" : "High";
+        auto func = [&data](const std::string& i)
+        {
+          if (i == "Low")
+            data.frameData.type = HitType::Low;
+          else if (i == "Mid")
+            data.frameData.type = HitType::Mid;
+          else if (i == "High")
+            data.frameData.type = HitType::High;
+        };
+        DropDown::Show(current_item, items, 3, func);
+        ImGui::EndGroup();
+
         static int frame = 0;
         Animation::ImGuiDisplayParams imParams = collection.GetAnimation(animName)->GetUVCoordsForFrame(128, frame);
         ImGui::Image((void*)(intptr_t)imParams.ptr, ImVec2(imParams.displaySize.x, imParams.displaySize.y),

@@ -54,6 +54,10 @@ public:
           hurtboxController.hitData = hitbox.tData;
           Vector2<float> knockback = hitbox.tData.knockback;
 
+          // if its a jumping attack, set attack hit type to overhead
+          if (hitboxController.stanceState == StanceState::JUMPING)
+            hurtboxController.hitData.type = HitType::High;
+
           // this needs to be made better
           if (strikeDir < 0)
           {

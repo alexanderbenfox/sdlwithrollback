@@ -7,6 +7,42 @@
 
 #include <json/value.h>
 
+// describe the kind of blocking that can be done for this attack
+enum class HitType
+{
+  Low, Mid, High
+};
+
+static std::string ToString(HitType type)
+{
+  switch (type)
+  {
+  case HitType::Low:
+    return "Low";
+  case HitType::Mid:
+    return "Mid";
+  case HitType::High:
+    return "High";
+  default:
+    return "Mid";
+  }
+}
+
+static std::string ToString(HitType&& type)
+{
+  switch (type)
+  {
+  case HitType::Low:
+    return "Low";
+  case HitType::Mid:
+    return "Mid";
+  case HitType::High:
+    return "High";
+  default:
+    return "Mid";
+  }
+}
+
 struct IJsonLoadable
 {
   virtual void Load(const Json::Value&) = 0;
@@ -31,6 +67,8 @@ struct FrameData : public IJsonLoadable
   bool isThrow = false;
   //
   bool knockdown = false;
+  //
+  HitType type = HitType::Mid;
 
   virtual void Load(const Json::Value& json) override
   {
@@ -52,6 +90,22 @@ struct FrameData : public IJsonLoadable
       if (frameData["isThrow"])
       {
         isThrow = frameData["isThrow"].asBool();
+      }
+
+      // hit type check
+      if (frameData["hittype"])
+      {
+        auto ht = frameData["hittype"].asString();
+        if (ht == "Low")
+          type = HitType::Low;
+        else if (ht == "Mid")
+          type = HitType::Mid;
+        else if (ht == "High")
+          type = HitType::High;
+      }
+      else
+      {
+        type = HitType::Mid;
       }
     }
   }
@@ -80,6 +134,7 @@ struct FrameData : public IJsonLoadable
       {
         frameData["isThrow"] = true;
       }
+      frameData["hittype"] = ToString(type);
     }
   }
 };
@@ -93,6 +148,7 @@ struct HitData : ISerializable
   Vector2<float> knockback;
   int damage;
   bool knockdown = false;
+  HitType type = HitType::Mid;
 
   void Serialize(std::ostream& os) const override
   {
@@ -102,6 +158,7 @@ struct HitData : ISerializable
     os << knockback;
     Serializer<int>::Serialize(os, damage);
     Serializer<bool>::Serialize(os, knockdown);
+    Serializer<HitType>::Serialize(os, type);
   }
 
   void Deserialize(std::istream& is) override
@@ -112,6 +169,7 @@ struct HitData : ISerializable
     is >> knockback;
     Serializer<int>::Deserialize(is, damage);
     Serializer<bool>::Deserialize(is, knockdown);
+    Serializer<HitType>::Deserialize(is, type);
   }
 
   std::string Log() override
