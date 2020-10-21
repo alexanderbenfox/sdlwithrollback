@@ -8,7 +8,7 @@
 #include "Components/Hurtbox.h"
 #include "Components/Actors/GameActor.h"
 
-#include "AssetManagement/AnimationCollectionManager.h"
+#include "Managers/AnimationCollectionManager.h"
 
 struct EnactAnimationActionSystem : public ISystem<EnactActionComponent, AnimatedActionComponent, Animator, RenderProperties, RenderComponent<RenderType>>
 {

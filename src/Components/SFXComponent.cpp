@@ -2,7 +2,7 @@
 #include "Managers/GameManagement.h"
 #include "Systems/TimerSystem/TimerContainer.h"
 
-#include "AssetManagement/AnimationCollectionManager.h"
+#include "Managers/AnimationCollectionManager.h"
 
 // for hit block sparks sprite sheet data... stupid but ill fix later
 SpriteSheet hitblockSparksInfo("sfx\\hitblocksparks.png", 8, 7, true);

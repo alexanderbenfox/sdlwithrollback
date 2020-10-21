@@ -9,20 +9,6 @@
 #include <json/json.h>
 
 //______________________________________________________________________________
-SpriteSheet::SpriteSheet(const char* src, int rows, int columns) : src(src), rows(rows), columns(columns),
-  sheetSize(0, 0), frameSize(0, 0)
-{
-  GenerateSheetInfo();
-}
-
-//______________________________________________________________________________
-void SpriteSheet::GenerateSheetInfo()
-{
-  sheetSize = ResourceManager::Get().GetTextureWidthAndHeight(src);
-  frameSize = Vector2<int>(sheetSize.x / columns, sheetSize.y / rows);
-}
-
-//______________________________________________________________________________
 Animation::Animation(const SpriteSheet& sheet, int startIndexOnSheet, int frames, AnchorPoint anchor) : _startIdx(startIndexOnSheet), _frames(frames),
   _spriteSheet(sheet), _anchorPoint(std::make_pair(anchor, Vector2<int>::Zero))
 {
@@ -42,7 +28,7 @@ Animation::Animation(const SpriteSheet& sheet, int startIndexOnSheet, int frames
 }
 
 //______________________________________________________________________________
-EventList Animation::GenerateEvents(const std::vector<AnimationActionEventData>& attackInfo, FrameData frameData)
+EventList Animation::GenerateEvents(const std::vector<EventData>& attackInfo, FrameData frameData)
 {
   animationEvents = attackInfo;
   return AnimationEventHelper::BuildEventList(Vector2<int>(_lMargin, _tMargin), attackInfo, frameData, _frames, _animFrameToSheetFrame);
@@ -166,7 +152,7 @@ void AnimationCollection::RegisterAnimation(const std::string& animationName, co
 }
 
 //______________________________________________________________________________
-void AnimationCollection::SetAnimationEvents(const std::string& animationName, const std::vector<AnimationActionEventData>& eventData, const FrameData& frameData)
+void AnimationCollection::SetAnimationEvents(const std::string& animationName, const std::vector<EventData>& eventData, const FrameData& frameData)
 {
   if (_animations.find(animationName) != _animations.end())
   {

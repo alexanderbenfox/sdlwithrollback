@@ -4,7 +4,7 @@
 #include "Components/StateComponents/AttackStateComponent.h"
 #include "Components/StateComponent.h"
 
-#include "AssetManagement/AnimationCollectionManager.h"
+#include "Managers/AnimationCollectionManager.h"
 
 class AttackAnimationSystem : public ISystem<AttackStateComponent, Animator, Transform, StateComponent>
 {

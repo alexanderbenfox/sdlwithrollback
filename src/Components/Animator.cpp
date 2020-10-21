@@ -3,7 +3,7 @@
 #include "Components/Animator.h"
 #include "Components/Collider.h"
 
-#include "AssetManagement/AnimationCollectionManager.h"
+#include "Managers/AnimationCollectionManager.h"
 
 #include <sstream>
 

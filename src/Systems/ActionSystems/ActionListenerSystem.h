@@ -5,7 +5,7 @@
 #include "Components/Animator.h"
 #include "Components/Actors/GameActor.h"
 
-#include "AssetManagement/AnimationCollectionManager.h"
+#include "Managers/AnimationCollectionManager.h"
 
 struct AnimationListenerSystem : public ISystem<WaitForAnimationComplete, Animator, GameActor>
 {

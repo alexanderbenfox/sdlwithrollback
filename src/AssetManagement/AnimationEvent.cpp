@@ -32,7 +32,7 @@ void AnimationEvent::EndEntitySpawnEvent(EntityID entity)
 }
 
 //______________________________________________________________________________
-EventList AnimationEventHelper::BuildEventList(const Vector2<int> offset, const std::vector<AnimationActionEventData>& animEventData, const FrameData& frameData, int totalSheetFrames, std::vector<int>& animFrameToSheetFrame)
+EventList AnimationEventHelper::BuildEventList(const Vector2<int> offset, const std::vector<EventData>& animEventData, const FrameData& frameData, int totalSheetFrames, std::vector<int>& animFrameToSheetFrame)
 {
   auto DespawnHitbox = [](EntityID entity) { GameManager::Get().GetEntityByID(entity)->RemoveComponent<Hitbox>(); };
   auto DespawnThrowStuff = [](EntityID entity)
@@ -231,7 +231,7 @@ EventList AnimationEventHelper::BuildEventList(const Vector2<int> offset, const 
 }
 
 //______________________________________________________________________________
-EventBuilderDictionary AnimationEventHelper::ParseAnimationEventList(const std::vector<AnimationActionEventData>& animEventData, const FrameData& frameData, int totalSheetFrames)
+EventBuilderDictionary AnimationEventHelper::ParseAnimationEventList(const std::vector<EventData>& animEventData, const FrameData& frameData, int totalSheetFrames)
 {
   // creating a new list of frames to play to adjust for modified start up, active, and recovery values
   EventBuilderDictionary data;

@@ -1,5 +1,6 @@
 #pragma once
 #include "AssetManagement/Animation.h"
+#include "AssetManagement/EditableAssets/CharacterConfiguration.h"
 
 //! Easy access macro cause name is long :(
 #define GAnimArchive AnimationCollectionManager::Get()
@@ -30,12 +31,7 @@ private:
   // can all of these be made static constexpr if data is known at compile time?
 
   // for now, this is just a static value so keep it private
-  void LoadCharacterCollection(const std::string& lookUpString,
-    std::unordered_map<std::string, AnimationInfo>& normalAnimations,
-    std::unordered_map<std::string, AttackAnimationData>& attackAnimations);
-
-  // loads single animation into an animation collection
-  void LoadSingleAnimation(std::string_view collection, std::string_view name, const AnimationInfo& animInfo);
+  unsigned int RegisterCharacterCollection(const std::string& lookUpString, const CharacterConfiguration& configFiles);
   //! Registers new animation or gets existing if name exists in table
   unsigned int RegisterNewCollection(const std::string& lookUpString);
 
@@ -46,5 +42,11 @@ private:
 
   //! maps name strings to index in array
   std::unordered_map<std::string, unsigned int> _idLookupTable;
+
+  //! Should definitely move this later
+  std::unordered_map<std::string, CharacterConfiguration> _characters;
+
+  //!
+  static void RegisterAnimationToCollection(const std::string& name, const AnimationAsset& data, const std::unordered_map<std::string, SpriteSheet>& sheets, AnimationCollection& collection);
 
 };

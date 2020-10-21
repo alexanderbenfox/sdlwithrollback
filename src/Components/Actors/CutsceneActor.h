@@ -2,7 +2,7 @@
 #include "Components/Animator.h"
 #include "Components/RenderComponent.h"
 
-#include "AssetManagement/AnimationCollectionManager.h"
+#include "Managers/AnimationCollectionManager.h"
 
 struct CutsceneAction;
 

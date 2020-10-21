@@ -1,7 +1,8 @@
 #pragma once
 #include "Core/ECS/IComponent.h"
 #include "Components/Collider.h"
-#include "AssetManagement/StaticAssets/AnimationAssetData.h"
+#include "Core/FightingGameTypes/HitData.h"
+#include "AssetManagement/EditableAssets/FrameData.h"
 
 class TransferDataBox : public RectColliderD
 {

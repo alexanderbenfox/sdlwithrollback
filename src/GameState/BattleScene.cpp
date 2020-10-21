@@ -31,7 +31,7 @@
 #include "Systems/ActionSystems/ActionHandleInputSystem.h"
 #include "Core/Prefab/ActionFactory.h"
 
-#include "AssetManagement/AnimationCollectionManager.h"
+#include "Managers/AnimationCollectionManager.h"
 
 #include "GameState/MatchScene.h"
 

@@ -1,5 +1,4 @@
-#include "AssetManagement/StaticAssets/AnimationAssetData.h"
-#include "AssetManagement/AnimationCollectionManager.h"
+#include "ActionAsset.h"
 #include "Core/ECS/Entity.h"
 
 #include "Components/Transform.h"
@@ -21,7 +20,7 @@ void EntityCreationData::AddComponents(EntityID creatorID, const Transform* crea
 
   for (auto instruction : instructions)
   {
-    if(instruction.first == "Transform")
+    if (instruction.first == "Transform")
     {
       ComponentInitParams<Transform> params;
       scale = params.scale = Vector2<float>(instruction.second["scalex"].asFloat(), instruction.second["scaley"].asFloat());

@@ -1,7 +1,8 @@
 #pragma once
 #include "Globals.h"
 
-#include "AssetManagement/StaticAssets/AnimationAssetData.h"
+#include "AssetManagement/EditableAssets/ActionAsset.h"
+#include "AssetManagement/EditableAssets/SpriteSheet.h"
 #include "Components/Transform.h"
 #include "Components/StateComponent.h"
 #include "AssetManagement/BlitOperation.h"
@@ -21,7 +22,7 @@ class Animation
 public:
   Animation(const SpriteSheet& sheet, int startIndexOnSheet, int frames, AnchorPoint anchor);
 
-  EventList GenerateEvents(const std::vector<AnimationActionEventData>& attackInfo, FrameData frameData);
+  EventList GenerateEvents(const std::vector<EventData>& attackInfo, FrameData frameData);
 
   //! Translates anim frame to the frame on spritesheet
   DrawRect<float> GetFrameSrcRect(int animFrame) const;
@@ -36,6 +37,8 @@ public:
   Vector2<int> FindAnchorPoint(AnchorPoint anchorType, bool fromFirstFrame) const;
   //!
   std::pair<AnchorPoint, Vector2<int>> const& GetMainAnchor() const { return _anchorPoint; }
+  //!
+  Vector2<int> GetAttachedOffset() { return Vector2<int>(_lMargin, _tMargin); }
 
   struct ImGuiDisplayParams
   {
@@ -48,7 +51,9 @@ public:
   ImGuiDisplayParams GetUVCoordsForFrame(int displayHeight, int animFrame);
 
   // NEED TO REMOVE THIS ASAP
-  std::vector<AnimationActionEventData> animationEvents;
+  std::vector<EventData> animationEvents;
+
+  int AnimFrameToSheet(int index) const { return _animFrameToSheetFrame[index]; }
 
 protected:
   //!
@@ -81,7 +86,7 @@ class AnimationCollection
 public:
   AnimationCollection() = default;
   void RegisterAnimation(const std::string& animationName, const SpriteSheet& sheet, int startIndexOnSheet, int frames, AnchorPoint anchor);
-  void SetAnimationEvents(const std::string& animationName, const std::vector<AnimationActionEventData>& eventData, const FrameData& frameData);
+  void SetAnimationEvents(const std::string& animationName, const std::vector<EventData>& eventData, const FrameData& frameData);
 
   Vector2<int> GetRenderOffset(const std::string& animationName, bool flipped, int transformWidth) const;
   //! Getters

@@ -1,4 +1,5 @@
 #pragma once
+#include "Core/ECS/Entity.h"
 #include "Core/ECS/IComponent.h"
 #include "Components/StateComponent.h"
 #include "Components/AIPrograms/IAIProgram.h"
