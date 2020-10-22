@@ -1,0 +1,28 @@
+{
+  "Fireball" : {
+    "sheet_location": "spritesheets\\coolfireballspritesheet.png",
+    "rows": 1,
+    "columns": 4,
+    "frameSize": {
+      "x": 0,
+      "y": 0
+    },
+    "sheetSize": {
+      "x": 0,
+      "y": 0
+    }
+  },
+  "HitblockSparks" : {
+    "sheet_location": "sfx\\hitblocksparks.png",
+    "rows": 8,
+    "columns": 7,
+    "frameSize": {
+      "x": 0,
+      "y": 0
+    },
+    "sheetSize": {
+      "x": 0,
+      "y": 0
+    }
+  }
+}

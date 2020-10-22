@@ -1,0 +1,248 @@
+{
+  "Idle" : {
+    "sheet_name": "IdleAndWalking",
+    "startFrame": 0,
+    "totalFrames": 10,
+    "anchor" : "TL"
+  },
+  "WalkF" : {
+    "sheet_name": "IdleAndWalking",
+    "startFrame": 10,
+    "totalFrames": 12,
+    "anchor" : "TL"
+  },
+  "WalkB" : {
+    "sheet_name": "IdleAndWalking",
+    "startFrame": 22,
+    "totalFrames": 11,
+    "anchor" : "TR"
+  },
+  "Jumping" : {
+    "sheet_name": "JumpFall",
+    "startFrame": 41,
+    "totalFrames": 19,
+    "anchor" : "BL"
+  },
+  "Falling" : {
+    "sheet_name": "JumpFall",
+    "startFrame": 60,
+    "totalFrames": 13,
+    "anchor" : "BL"
+  },
+  "Crouching" : {
+    "sheet_name": "Crouching",
+    "startFrame": 0,
+    "totalFrames": 4,
+    "anchor" : "BL"
+  },
+  "Crouch" : {
+    "sheet_name": "Crouching",
+    "startFrame": 12,
+    "totalFrames": 5,
+    "anchor" : "BL"
+  },
+  "BlockLow" : {
+    "sheet_name": "Blocks",
+    "startFrame": 0,
+    "totalFrames": 5,
+    "anchor" : "BL"
+  },
+  "BlockMid" : {
+    "sheet_name": "Blocks",
+    "startFrame": 5,
+    "totalFrames": 4,
+    "anchor" : "BL"
+  },
+  "BlockHigh" : {
+    "sheet_name": "Blocks",
+    "startFrame": 9,
+    "totalFrames": 6,
+    "anchor" : "BL"
+  },
+  "LightHitstun" : {
+    "sheet_name": "Hitstun",
+    "startFrame": 0,
+    "totalFrames": 3,
+    "anchor" : "BL"
+  },
+  "MedHitstun" : {
+    "sheet_name": "Hitstun",
+    "startFrame": 4,
+    "totalFrames": 11,
+    "anchor" : "BL"
+  },
+  "MedHitstun2" : {
+    "sheet_name": "Hitstun",
+    "startFrame": 14,
+    "totalFrames": 10,
+    "anchor" : "BL"
+  },
+  "HeavyHitstun" : {
+    "sheet_name": "Hitstun",
+    "startFrame": 24,
+    "totalFrames": 7,
+    "anchor" : "BL"
+  },
+  "CrouchingHitstun" : {
+    "sheet_name": "Hitstun",
+    "startFrame": 56,
+    "totalFrames": 11,
+    "anchor" : "BL"
+  },
+  "Knockdown_Air" : {
+    "sheet_name": "Knockdowns",
+    "startFrame": 0,
+    "totalFrames": 8,
+    "anchor" : "BR"
+  },
+  "Knockdown2_Air" : {
+    "sheet_name": "Knockdowns",
+    "startFrame": 25,
+    "totalFrames": 16,
+    "anchor" : "BR"
+  },
+  "Knockdown_HitGround" : {
+    "sheet_name": "Knockdowns",
+    "startFrame": 8,
+    "totalFrames": 11,
+    "anchor" : "BR"
+  },
+  "Knockdown2_HitGround" : {
+    "sheet_name": "Knockdowns",
+    "startFrame": 41,
+    "totalFrames": 5,
+    "anchor" : "BR"
+  },
+  "Knockdown_OnGround" : {
+    "sheet_name": "Knockdowns",
+    "startFrame": 19,
+    "totalFrames": 6,
+    "anchor" : "BR"
+  },
+  "BackDash" : {
+    "sheet_name": "Dashes",
+    "startFrame": 0,
+    "totalFrames": 6,
+    "anchor" : "BL"
+  },
+  "ForwardDash" : {
+    "sheet_name": "Dashes",
+    "startFrame": 6,
+    "totalFrames": 6,
+    "anchor" : "BL"
+  },
+  "ThrowMiss" : {
+    "sheet_name": "Throws",
+    "startFrame": 2,
+    "totalFrames": 4,
+    "anchor" : "BL"
+  },
+  "Win" : {
+    "sheet_name": "WinLoseEntrance",
+    "startFrame": 0,
+    "totalFrames": 6,
+    "anchor" : "BL"
+  },
+  "KO" : {
+    "sheet_name": "WinLoseEntrance",
+    "startFrame": 6,
+    "totalFrames": 17,
+    "anchor" : "BL"
+  },
+  "Entrance" : {
+    "sheet_name": "WinLoseEntrance",
+    "startFrame": 24,
+    "totalFrames": 18,
+    "anchor" : "BL"
+  },
+  "CrouchingLight" : {
+    "sheet_name": "GroundedAttacks",
+    "startFrame": 9,
+    "totalFrames": 7,
+    "anchor" : "BL"
+  },
+  "CrouchingMedium" : {
+    "sheet_name": "GroundedAttacks",
+    "startFrame": 16,
+    "totalFrames": 11,
+    "anchor" : "BL"
+  },
+  "CrouchingHeavy" : {
+    "sheet_name": "GroundedAttacks",
+    "startFrame": 27,
+    "totalFrames": 11,
+    "anchor" : "BL"
+  },
+  "StandingLight" : {
+    "sheet_name": "GroundedAttacks",
+    "startFrame": 38,
+    "totalFrames": 7,
+    "anchor" : "BL"
+  },
+  "StandingMedium" : {
+    "sheet_name": "GroundedAttacks",
+    "startFrame": 45,
+    "totalFrames": 9,
+    "anchor" : "BL"
+  },
+  "StandingHeavy" : {
+    "sheet_name": "GroundedAttacks",
+    "startFrame": 53,
+    "totalFrames": 12,
+    "anchor" : "BL"
+  },
+  "JumpingLight" : {
+    "sheet_name": "JumpingAttacks",
+    "startFrame": 0,
+    "totalFrames": 8,
+    "anchor" : "TL"
+  },
+  "JumpingMedium" : {
+    "sheet_name": "JumpingAttacks",
+    "startFrame": 9,
+    "totalFrames": 9,
+    "anchor" : "TL"
+  },
+  "JumpingHeavy" : {
+    "sheet_name": "JumpingAttacks",
+    "startFrame": 17,
+    "totalFrames": 8,
+    "anchor" : "TL"
+  },
+  "SpecialMove1" : {
+    "sheet_name": "SpecialMoves",
+    "startFrame": 0,
+    "totalFrames": 14,
+    "anchor" : "BL"
+  },
+  "SpecialMove2" : {
+    "sheet_name": "SpecialMoves",
+    "startFrame": 41,
+    "totalFrames": 17,
+    "anchor" : "BL"
+  },
+  "SpecialMove3" : {
+    "sheet_name": "SpecialMoves",
+    "startFrame": 58,
+    "totalFrames": 15,
+    "anchor" : "BL"
+  },
+  "SpecialMove4" : {
+    "sheet_name": "SpecialMoves",
+    "startFrame": 14,
+    "totalFrames": 27,
+    "anchor" : "BL"
+  },
+  "ForwardThrow" : {
+    "sheet_name": "Throws",
+    "startFrame": 6,
+    "totalFrames": 17,
+    "anchor" : "BL"
+  },
+  "BackThrow" : {
+    "sheet_name": "Throws",
+    "startFrame": 23,
+    "totalFrames": 14,
+    "anchor" : "BL"
+  },
+}

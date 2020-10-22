@@ -1,0 +1,20 @@
+{
+  "Fireball" : {
+    "sheet_name": "Fireball",
+    "startFrame": 0,
+    "totalFrames": 4,
+    "anchor" : "BL"
+  },
+  "HitSparks" : {
+    "sheet_name": "HitblockSparks",
+    "startFrame": 0,
+    "totalFrames": 28,
+    "anchor" : "BL"
+  },
+  "BlockSparks" : {
+    "sheet_name": "HitblockSparks",
+    "startFrame": 28,
+    "totalFrames": 28,
+    "anchor" : "BL"
+  }
+}
