@@ -16,6 +16,9 @@ class CharacterConfiguration
 public:
   CharacterConfiguration(const std::string& pathToResourceFolder) : _resourcePath(pathToResourceFolder)
   {
+    FilePath p(pathToResourceFolder);
+    _characterIdentifier = p.GetLast();
+
     LoadAssetFile("spritesheets.json", _spriteSheets);
 
     // remove this once the data is saved in the json...
@@ -32,7 +35,11 @@ public:
     {
       _actionEventLookupers[item.first] = AnimationEventHelper::ParseAnimationEventList(item.second.eventData, item.second.frameData, _animations[item.first].frames);
     }*/
+
+    AddToMenu();
   }
+
+  void AddToMenu();
 
   std::unordered_map<std::string, SpriteSheet> const& GetAssociatedSpriteSheets() const { return _spriteSheets; }
   std::unordered_map<std::string, AnimationAsset> const& GetAnimationConfig() const { return _animations; }
@@ -55,6 +62,7 @@ private:
   void DisplayFrameHitbox(const std::string& animName, Animation* animation, ActionAsset& data, int animationFrame);
 
   const FilePath _resourcePath;
+  std::string _characterIdentifier;
 
   std::unordered_map<std::string, SpriteSheet> _spriteSheets;
   std::unordered_map<std::string, AnimationAsset> _animations;

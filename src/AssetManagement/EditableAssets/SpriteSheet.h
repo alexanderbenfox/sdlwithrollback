@@ -17,43 +17,7 @@ struct SpriteSheet : public IJsonLoadable
   //!
   int rows, columns;
 
-  virtual void Load(const Json::Value& json) override
-  {
-    if (!json["sheet_location"].isNull())
-    {
-      src = json["sheet_location"].asString();
-    }
-    if (!json["rows"].isNull())
-    {
-      rows = json["rows"].asInt();
-    }
-    if (!json["columns"].isNull())
-    {
-      columns = json["columns"].asInt();
-    }
-    if (!json["frameSize"].isNull())
-    {
-      frameSize = Vector2<int>(json["frameSize"]["x"].asInt(), json["frameSize"]["y"].asInt());
-    }
-    if (!json["sheetSize"].isNull())
-    {
-      sheetSize = Vector2<int>(json["sheetSize"]["x"].asInt(), json["sheetSize"]["y"].asInt());
-    }
-
-    if (frameSize == Vector2<int>::Zero || sheetSize == Vector2<int>::Zero)
-    {
-      GenerateSheetInfo();
-    }
-  }
-
-  virtual void Write(Json::Value& json) const override
-  {
-    json["sheet_location"] = src;
-    json["rows"] = rows;
-    json["columns"] = columns;
-    json["frameSize"]["x"] = frameSize.x;
-    json["frameSize"]["y"] = frameSize.y;
-    json["sheetSize"]["x"] = sheetSize.x;
-    json["sheetSize"]["y"] = sheetSize.y;
-  }
+  virtual void Load(const Json::Value& json) override;
+  virtual void Write(Json::Value& json) const override;
+  virtual void DisplayInEditor() override;
 };

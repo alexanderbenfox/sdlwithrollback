@@ -6,6 +6,38 @@
 
 #include "AssetManagement/EditableAssets/Editor/AnimationEditor.h"
 
+
+void CharacterConfiguration::AddToMenu()
+{
+  GUIController::Get().AddMenuItem("Characters", _characterIdentifier.c_str(), [this]()
+  {
+  GameManager::Get().TriggerEndOfFrame([this]()
+    {
+      GUIController::Get().AddImguiWindowFunction("Edit Character", "Assets", [this]()
+        {
+          ImGui::Text("Sprite Sheets");
+          for (auto& item : _spriteSheets)
+          {
+            item.second.DisplayInEditor();
+          }
+
+          ImGui::Text("Animations");
+          for (auto& item : _animations)
+          {
+            item.second.DisplayInEditor();
+          }
+
+          ImGui::Text("Actions");
+          for (auto& item : _actions)
+          {
+            item.second.DisplayInEditor();
+          }
+        });
+    });
+
+  });
+}
+
 void CharacterConfiguration::CreateDebugMenuActions(AnimationCollection* collection)
 {
   for (auto& action : _actions)
@@ -17,13 +49,10 @@ void CharacterConfiguration::CreateDebugMenuActions(AnimationCollection* collect
     {
       if (ImGui::CollapsingHeader(animName.c_str()))
       {
-        data.frameData.DisplayEditableData();
-        //Animation::ImGuiDisplayParams imParams = collection.GetAnimation(animName)->GetUVCoordsForFrame(128, frame);
-        //ImGui::Image((void*)(intptr_t)imParams.ptr, ImVec2(imParams.displaySize.x, imParams.displaySize.y),
-        //  ImVec2(imParams.uv0.x, imParams.uv0.y), ImVec2(imParams.uv1.x, imParams.uv1.y));
+        // This just shows frame data right now
+        data.DisplayInEditor();
 
-        // show hitbox and animation frame if it is there
-
+        // want to eventually move this into the DisplayInEditor code for the event data
         static bool viewingHitboxes = false;
         if (!viewingHitboxes)
         {

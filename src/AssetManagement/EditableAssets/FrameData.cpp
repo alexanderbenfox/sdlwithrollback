@@ -1,37 +1,6 @@
 #include "AssetManagement/EditableAssets/FrameData.h"
 #include "DebugGUI/GUIController.h"
 
-void FrameData::DisplayEditableData()
-{
-  ImGui::BeginGroup();
-  ImGui::InputInt("Start Up Frames", &startUp);
-  ImGui::InputInt("Active Frames", &active);
-  ImGui::InputInt("Recovery Frames", &recover);
-  ImGui::EndGroup();
-
-  ImGui::BeginGroup();
-  ImGui::InputInt("On Hit Frame Advantage", &onHitAdvantage);
-  ImGui::InputInt("On Block Frame Advantage", &onBlockAdvantage);
-  ImGui::EndGroup();
-
-  ImGui::BeginGroup();
-  ImGui::InputInt("Damage", &damage);
-  ImGui::InputFloat2("Knockback Vector", &knockback.x, 1);
-  ImGui::InputInt("Hit stop", &hitstop);
-  ImGui::EndGroup();
-
-  ImGui::BeginGroup();
-  ImGui::Text("Hit Type");
-  const char* items[] = { "Low", "Mid", "High" };
-  static const char* current_item = type == HitType::Low ? "Low" : type == HitType::Mid ? "Mid" : "High";
-  auto func = [this](const std::string& i)
-  {
-    type = FromString(i);
-  };
-  DropDown::Show(current_item, items, 3, func);
-  ImGui::EndGroup();
-}
-
 void FrameData::Load(const Json::Value& json)
 {
   if (!json["framedata"].isNull())
@@ -98,4 +67,35 @@ void FrameData::Write(Json::Value& json) const
     }
     frameData["hittype"] = ToString(type);
   }
+}
+
+void FrameData::DisplayInEditor()
+{
+  ImGui::BeginGroup();
+  ImGui::InputInt("Start Up Frames", &startUp);
+  ImGui::InputInt("Active Frames", &active);
+  ImGui::InputInt("Recovery Frames", &recover);
+  ImGui::EndGroup();
+
+  ImGui::BeginGroup();
+  ImGui::InputInt("On Hit Frame Advantage", &onHitAdvantage);
+  ImGui::InputInt("On Block Frame Advantage", &onBlockAdvantage);
+  ImGui::EndGroup();
+
+  ImGui::BeginGroup();
+  ImGui::InputInt("Damage", &damage);
+  ImGui::InputFloat2("Knockback Vector", &knockback.x, 1);
+  ImGui::InputInt("Hit stop", &hitstop);
+  ImGui::EndGroup();
+
+  ImGui::BeginGroup();
+  ImGui::Text("Hit Type");
+  const char* items[] = { "Low", "Mid", "High" };
+  static const char* current_item = type == HitType::Low ? "Low" : type == HitType::Mid ? "Mid" : "High";
+  auto func = [this](const std::string& i)
+  {
+    type = FromString(i);
+  };
+  DropDown::Show(current_item, items, 3, func);
+  ImGui::EndGroup();
 }

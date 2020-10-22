@@ -39,6 +39,8 @@ public:
   int AddImguiWindowFunction(const std::string& window, const std::string& category, std::function<void()> function);
   void RemoveImguiWindowFunction(const std::string& window, const std::string& category, int index);
 
+  void AddMenuItem(const std::string& menuName, const std::string& itemName, std::function<void()> onPress);
+
 private:
   GUIController() = default;
   GUIController(const GUIController&) = delete;
@@ -61,6 +63,8 @@ private:
   typedef std::unordered_map<std::string, WindowFn> WindowGrouping;
 
   std::unordered_map<std::string, WindowGrouping> _imguiWindows;
+  
+  std::unordered_map<std::string, std::vector<std::pair<std::string, std::function<void()>>>> _menuFunctions;
 };
 
 struct DropDown

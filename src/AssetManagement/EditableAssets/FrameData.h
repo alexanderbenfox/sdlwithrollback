@@ -24,9 +24,9 @@ struct FrameData : public IJsonLoadable
   //
   HitType type = HitType::Mid;
 
-  void DisplayEditableData();
-
   virtual void Load(const Json::Value& json) override;
 
   virtual void Write(Json::Value& json) const override;
+
+  virtual void DisplayInEditor() override;
 };

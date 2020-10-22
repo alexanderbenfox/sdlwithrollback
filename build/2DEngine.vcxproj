@@ -30,6 +30,7 @@
     <ClCompile Include="..\src\AssetManagement\Animation.cpp" />
     <ClCompile Include="..\src\AssetManagement\AnimationEvent.cpp" />
     <ClCompile Include="..\src\AssetManagement\EditableAssets\ActionAsset.cpp" />
+    <ClCompile Include="..\src\AssetManagement\EditableAssets\AnimationAsset.cpp" />
     <ClCompile Include="..\src\AssetManagement\EditableAssets\CharacterConfiguration.cpp" />
     <ClCompile Include="..\src\AssetManagement\EditableAssets\Editor\AnimationEditor.cpp" />
     <ClCompile Include="..\src\AssetManagement\EditableAssets\FrameData.cpp" />

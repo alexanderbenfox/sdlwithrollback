@@ -130,6 +130,22 @@ void GUIController::MainLoop()
       }
       ImGui::EndMenu();
     }
+
+    for (auto& menu : _menuFunctions)
+    {
+      if (ImGui::BeginMenu(menu.first.c_str()))
+      {
+        for (auto& function : menu.second)
+        {
+          if (ImGui::MenuItem(function.first.c_str(), ""))
+          {
+            function.second();
+          }
+        }
+        ImGui::EndMenu();
+      }
+    }
+
     ImGui::EndMainMenuBar();
   }
 
@@ -204,6 +220,16 @@ void GUIController::RemoveImguiWindowFunction(const std::string& window, const s
       }
     }
   }
+}
+
+void GUIController::AddMenuItem(const std::string& menuName, const std::string& itemName, std::function<void()> onPress)
+{
+  auto menu = _menuFunctions.find(menuName);
+  if (menu == _menuFunctions.end())
+  {
+    _menuFunctions.insert(std::make_pair(menuName, std::vector<std::pair<std::string, std::function<void()>>>()));
+  }
+  _menuFunctions[menuName].push_back(std::make_pair(itemName, onPress));
 }
 
 void GUIController::RenderFrame()
