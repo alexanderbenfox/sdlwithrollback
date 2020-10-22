@@ -14,30 +14,7 @@ class AnimationCollection;
 class CharacterConfiguration
 {
 public:
-  CharacterConfiguration(const std::string& pathToResourceFolder) : _resourcePath(pathToResourceFolder)
-  {
-    FilePath p(pathToResourceFolder);
-    _characterIdentifier = p.GetLast();
-
-    LoadAssetFile("spritesheets.json", _spriteSheets);
-
-    // remove this once the data is saved in the json...
-    for (auto& item : _spriteSheets)
-    {
-      item.second.GenerateSheetInfo();
-    }
-
-    LoadAssetFile("animations.json", _animations);
-
-    LoadAssetFile("actions.json", _actions);
-    // get the "sheetToAnimFrame" data and store it so this doesnt have to be tied to the collection
-    /*for (auto& item : _actions)
-    {
-      _actionEventLookupers[item.first] = AnimationEventHelper::ParseAnimationEventList(item.second.eventData, item.second.frameData, _animations[item.first].frames);
-    }*/
-
-    AddToMenu();
-  }
+  CharacterConfiguration(const std::string& pathToResourceFolder);
 
   void AddToMenu();
 

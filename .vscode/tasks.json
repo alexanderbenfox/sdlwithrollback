@@ -14,7 +14,8 @@
         "-Ibuild/external/jsoncpp_mac/include",
         "src/*.cpp",
         "src/AssetManagement/*.cpp",
-        "src/AssetManagement/StaticAssets/*.cpp",
+        "src/AssetManagement/EditableAssets/*.cpp",
+        "src/AssetManagement/EditableAssets/Editor/*.cpp",
         "src/Components/*.cpp",
         "src/Components/Actors/*.cpp",
         "src/Components/AIPrograms/*.cpp",
@@ -27,6 +28,7 @@
         "src/Core/Math/*.cpp",
         "src/Core/Prefab/*.cpp",
         "src/Core/Utility/*.cpp",
+        /*"src/Core/FightingGameTypes/*.cpp",*/
         "src/DebugGUI/*.cpp",
         "src/GameState/*.cpp",
         "src/Managers/*.cpp",

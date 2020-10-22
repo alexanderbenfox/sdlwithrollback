@@ -156,7 +156,7 @@ void GUIController::MainLoop()
       ImGui::Begin(window.first.c_str());
       for(auto& category : window.second)
       {
-        ImGui::Text(category.first.c_str());
+        ImGui::Text("%s", category.first.c_str());
         for (auto it : category.second.fns)
         {
           it.second();
