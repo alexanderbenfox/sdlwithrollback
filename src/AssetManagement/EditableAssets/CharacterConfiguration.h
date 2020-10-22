@@ -6,6 +6,8 @@
 #include "AnimationAsset.h"
 #include "ActionAsset.h"
 
+//#include "AssetManagement/AnimationEvent.h"
+
 class Animation;
 class AnimationCollection;
 
@@ -23,7 +25,13 @@ public:
     }
 
     LoadAssetFile("animations.json", _animations);
+
     LoadAssetFile("actions.json", _actions);
+    // get the "sheetToAnimFrame" data and store it so this doesnt have to be tied to the collection
+    /*for (auto& item : _actions)
+    {
+      _actionEventLookupers[item.first] = AnimationEventHelper::ParseAnimationEventList(item.second.eventData, item.second.frameData, _animations[item.first].frames);
+    }*/
   }
 
   std::unordered_map<std::string, SpriteSheet> const& GetAssociatedSpriteSheets() const { return _spriteSheets; }
@@ -44,11 +52,14 @@ private:
     json.LoadContentsIntoMap(map);
   }
 
-  void DisplayFrameHitbox(Animation* animation, ActionAsset& data, int animationFrame);
+  void DisplayFrameHitbox(const std::string& animName, Animation* animation, ActionAsset& data, int animationFrame);
 
   const FilePath _resourcePath;
 
   std::unordered_map<std::string, SpriteSheet> _spriteSheets;
   std::unordered_map<std::string, AnimationAsset> _animations;
   std::unordered_map<std::string, ActionAsset> _actions;
+
+  //!......
+  //std::unordered_map<std::string, EventBuilderDictionary> _actionEventLookupers;
 };

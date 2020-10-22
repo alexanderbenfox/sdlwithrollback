@@ -269,6 +269,9 @@
     <ClCompile Include="..\src\AssetManagement\EditableAssets\CharacterConfiguration.cpp">
       <Filter>Source Files\AssetManagement\EditableAssets</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\AssetManagement\EditableAssets\Editor\AnimationEditor.cpp">
+      <Filter>Source Files\AssetManagement\EditableAssets\Editor</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\imgui\imconfig.h">

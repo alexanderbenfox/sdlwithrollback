@@ -195,6 +195,12 @@ void GUIController::RemoveImguiWindowFunction(const std::string& window, const s
       {
         //reset fn counter as a silly work around for now
         it->second.fnCount = 0;
+
+        // if this is the last function for this window, delete it
+        if (_imguiWindows[window].size() == 1)
+        {
+          _imguiWindows.erase(windowsIt);
+        }
       }
     }
   }

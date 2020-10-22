@@ -103,13 +103,11 @@ struct ActionAsset : public IJsonLoadable
 {
   ActionAsset() = default;
   ActionAsset(FrameData fData) : frameData(fData) {}
-  std::string animationName;
   FrameData frameData;
   std::vector<EventData> eventData;
 
   virtual void Load(const Json::Value& json) override
   {
-    animationName = json["animation"].asString();
     frameData.Load(json);
     if (!json["events"].isNull() && json["events"].isArray())
     {
@@ -123,7 +121,6 @@ struct ActionAsset : public IJsonLoadable
 
   virtual void Write(Json::Value& json) const override
   {
-    json["animation"] = animationName;
     frameData.Write(json);
 
     if (json["events"].isNull())
