@@ -49,7 +49,7 @@ void SpriteSheet::Load(const Json::Value& json)
 //______________________________________________________________________________
 void SpriteSheet::Write(Json::Value& json) const
 {
-  json["sheet_location"] = src;
+  json["sheet_location"] = (std::string)src;
   json["rows"] = rows;
   json["columns"] = columns;
   json["frameSize"]["x"] = frameSize.x;
@@ -61,23 +61,19 @@ void SpriteSheet::Write(Json::Value& json) const
 //______________________________________________________________________________
 void SpriteSheet::DisplayInEditor()
 {
-  bool somethingChanged = false;
-  ImGui::BeginGroup();
-
-  const size_t bSize = 256;
-  char filePath[bSize];
-  if (ImGui::InputText("File Path (Relative To Resource Folder)", filePath, bSize))
+  if (ImGui::CollapsingHeader(static_cast<std::string>(src).c_str()))
   {
-    somethingChanged = true;
-    src = std::string(filePath);
-  }
+    bool somethingChanged = false;
+    ImGui::BeginGroup();
 
-  somethingChanged |= ImGui::InputInt("Columns: ", &columns);
-  somethingChanged |= ImGui::InputInt("Rows: ", &rows);
+    src.DisplayEditable("File Path (Relative To Resource Folder)");
+    somethingChanged |= ImGui::InputInt("Columns: ", &columns);
+    somethingChanged |= ImGui::InputInt("Rows: ", &rows);
 
-  if (somethingChanged)
-  {
-    GenerateSheetInfo();
+    if (somethingChanged)
+    {
+      GenerateSheetInfo();
+    }
+    ImGui::EndGroup();
   }
-  ImGui::EndGroup();
 }

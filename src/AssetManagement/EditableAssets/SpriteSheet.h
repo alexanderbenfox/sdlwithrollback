@@ -1,6 +1,7 @@
 #pragma once
 #include "IJsonLoadable.h"
 #include "Core/Math/Vector2.h"
+#include "DebugGUI/EditorString.h"
 
 struct SpriteSheet : public IJsonLoadable
 {
@@ -10,7 +11,7 @@ struct SpriteSheet : public IJsonLoadable
 
   void GenerateSheetInfo();
   //!
-  std::string src;
+  EditorString src;
   //!
   Vector2<int> frameSize;
   Vector2<int> sheetSize;
@@ -20,4 +21,8 @@ struct SpriteSheet : public IJsonLoadable
   virtual void Load(const Json::Value& json) override;
   virtual void Write(Json::Value& json) const override;
   virtual void DisplayInEditor() override;
+
+
+
 };
+

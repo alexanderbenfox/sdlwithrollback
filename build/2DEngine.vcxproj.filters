@@ -275,6 +275,9 @@
     <ClCompile Include="..\src\AssetManagement\EditableAssets\AnimationAsset.cpp">
       <Filter>Source Files\AssetManagement\EditableAssets</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\DebugGUI\EditorString.cpp">
+      <Filter>Source Files\DebugGUI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\imgui\imconfig.h">
@@ -621,6 +624,9 @@
     </ClInclude>
     <ClInclude Include="..\src\Managers\AnimationCollectionManager.h">
       <Filter>Source Files\Managers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\DebugGUI\EditorString.h">
+      <Filter>Source Files\DebugGUI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

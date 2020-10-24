@@ -1,5 +1,6 @@
 #pragma once
 #include "IJsonLoadable.h"
+#include "DebugGUI/EditorString.h"
 
 enum class AnchorPoint
 {
@@ -10,7 +11,7 @@ struct AnimationAsset : public IJsonLoadable
 {
   AnimationAsset() = default;
   AnimationAsset(const std::string& sheetName, int startIndex, int nFrames, AnchorPoint anch) : sheetName(sheetName), startIndexOnSheet(startIndex), frames(nFrames), anchor(anch) {}
-  std::string sheetName;
+  EditorString sheetName;
   int startIndexOnSheet;
   int frames;
   AnchorPoint anchor;

@@ -33,7 +33,7 @@ void AnimationAsset::Load(const Json::Value& json)
 //______________________________________________________________________________
 void AnimationAsset::Write(Json::Value& json) const
 {
-  json["sheet_name"] = sheetName;
+  json["sheet_name"] = (std::string)sheetName;
   json["startFrame"] = startIndexOnSheet;
   json["totalFrames"] = frames;
   json["anchor"] = anchor == AnchorPoint::TL ? "TL" : anchor == AnchorPoint::TR ? "TR" : anchor == AnchorPoint::BL ? "BL" : "BR";
@@ -43,15 +43,7 @@ void AnimationAsset::Write(Json::Value& json) const
 void AnimationAsset::DisplayInEditor()
 {
   ImGui::BeginGroup();
-
-  const size_t bSize = 256;
-  char textBuffer[bSize];
-
-  if (ImGui::InputText("Name Of SpriteSheet", textBuffer, bSize))
-  {
-    sheetName = std::string(textBuffer);
-  }
-
+  sheetName.DisplayEditable("Name of SpriteSheet");
   ImGui::InputInt("Start Index ", &startIndexOnSheet);
   ImGui::InputInt("Total Animation Frames: ", &frames);
 
