@@ -167,6 +167,7 @@
     <ClInclude Include="..\src\Core\Utility\TypeTraits.h" />
     <ClInclude Include="..\src\DebugGUI\EditorString.h" />
     <ClInclude Include="..\src\DebugGUI\GUIController.h" />
+    <ClInclude Include="..\src\DebugGUI\Window.h" />
     <ClInclude Include="..\src\GameState\BattleScene.h" />
     <ClInclude Include="..\src\GameState\MatchScene.h" />
     <ClInclude Include="..\src\GameState\Scene.h" />

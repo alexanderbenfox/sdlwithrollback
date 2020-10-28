@@ -29,8 +29,8 @@ public:
       Vector2<float> targetPos(transform.position.x + renderOffset.x * transform.scale.x, transform.position.y + renderOffset.y * transform.scale.y);
 
       displayOp->targetRect = DrawRect<float>(targetPos.x, targetPos.y,
-        renderer.sourceRect.w * transform.scale.x,
-        renderer.sourceRect.h * transform.scale.y);
+        renderer.sourceRect.w * transform.scale.x * properties.renderScaling.x,
+        renderer.sourceRect.h * transform.scale.y * properties.renderScaling.y);
 
       // set properties
       displayOp->flip = properties.horizontalFlip ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;

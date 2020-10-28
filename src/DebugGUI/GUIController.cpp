@@ -153,14 +153,18 @@ void GUIController::MainLoop()
   {
     for (auto& window : _imguiWindows)
     {
-      ImGui::Begin(window.first.c_str());
-      for(auto& category : window.second)
+      window.second.DisplayWindow();
+    }
+
+    if (_popup.display && _popup.onClose)
+    {
+      ImGui::Begin("Popup");
+      _popup.display();
+      if (ImGui::Button("Close"))
       {
-        ImGui::Text("%s", category.first.c_str());
-        for (auto it : category.second.fns)
-        {
-          it.second();
-        }
+        _popup.onClose();
+        _popup.display = nullptr;
+        _popup.onClose = nullptr;
       }
       ImGui::End();
     }
@@ -175,50 +179,35 @@ void GUIController::CleanUp()
   ImGui::DestroyContext();
 }
 
-
 int GUIController::AddImguiWindowFunction(const std::string& window, const std::string& category, std::function<void()> function)
+{
+  return AddImguiWindowFunction("Windows", window, category, function);
+}
+
+int GUIController::AddImguiWindowFunction(const std::string& mainMenu, const std::string& window, const std::string& category, std::function<void()> function)
 {
   auto windowsIt = _imguiWindows.find(window);
   if (windowsIt == _imguiWindows.end())
   {
-    _imguiWindows.emplace(window, WindowGrouping());
-  }
-  auto categoryIt = _imguiWindows[window].find(category);
-  if (categoryIt == _imguiWindows[window].end())
-  {
-    _imguiWindows[window].emplace(category, WindowFn());
+    _imguiWindows.emplace(window, window.c_str());
+    AddMenuItem(mainMenu, window, [this, window]()
+      {
+        if (!_imguiWindows[window].BeingViewed())
+          _imguiWindows[window].OpenWindow();
+        else
+          _imguiWindows[window].CloseWindow();
+      });
   }
 
-  // this number will eventually get very high... need to swap ids
-  int debugID = _imguiWindows[window][category].fnCount;
-  _imguiWindows[window][category].fns[debugID] = function;
-  _imguiWindows[window][category].fnCount++;
-
-  // return the index of the new item
-  return debugID;
+  return _imguiWindows[window].AddFn(category.c_str(), function);
 }
 
-void GUIController::RemoveImguiWindowFunction(const std::string& window, const std::string& category, int index)
+void GUIController::RemoveImguiWindowFunction(const std::string& window, int index)
 {
   auto windowsIt = _imguiWindows.find(window);
   if (windowsIt != _imguiWindows.end())
   {
-    auto it = _imguiWindows[window].find(category);
-    if (it != _imguiWindows[window].end())
-    {
-      it->second.fns.erase(index);
-      if (it->second.fns.empty())
-      {
-        //reset fn counter as a silly work around for now
-        it->second.fnCount = 0;
-
-        // if this is the last function for this window, delete it
-        if (_imguiWindows[window].size() == 1)
-        {
-          _imguiWindows.erase(windowsIt);
-        }
-      }
-    }
+    _imguiWindows[window].RemoveFn(index);
   }
 }
 

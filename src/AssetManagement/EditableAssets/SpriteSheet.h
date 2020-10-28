@@ -13,10 +13,11 @@ struct SpriteSheet : public IJsonLoadable
   //!
   EditorString src;
   //!
-  Vector2<int> frameSize;
-  Vector2<int> sheetSize;
+  Vector2<int> frameSize = Vector2<int>::Zero;
+  Vector2<int> sheetSize = Vector2<int>::Zero;
   //!
-  int rows, columns;
+  int rows = 0;
+  int columns = 0;
 
   virtual void Load(const Json::Value& json) override;
   virtual void Write(Json::Value& json) const override;

@@ -45,6 +45,15 @@ public:
   }
 
   template <typename T = IJsonLoadable>
+  void SaveContentsIntoMap(const std::unordered_map<std::string, T>& map)
+  {
+    for (auto& item : map)
+    {
+      OverwriteMemberInFile(item.first, item.second);
+    }
+  }
+
+  template <typename T = IJsonLoadable>
   void OverwriteMemberInFile(const std::string& memberName, const T& data)
   {
     std::fstream dataFile;

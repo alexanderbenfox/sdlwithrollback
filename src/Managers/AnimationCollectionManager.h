@@ -20,6 +20,17 @@ public:
   AnimationCollection& GetCollection(unsigned int ID);
   //! Shortcut for getting animation data from collection
   Animation* GetAnimationData(unsigned int collectionID, std::string_view animationName);
+  //!
+  void AddNewCharacter(const std::string& characterName);
+
+  int GetNCharacter() { return static_cast<int>(_characters.size()); }
+  std::vector<std::string> GetCharacters()
+  {
+    std::vector<std::string> c;
+    for (auto& chara : _characters)
+      c.push_back(chara.first);
+    return c;
+  }
 
   // remove this for a better way later
   //void ReloadRyuAnimation() {}
@@ -45,8 +56,10 @@ private:
 
   //! Should definitely move this later
   std::unordered_map<std::string, CharacterConfiguration> _characters;
+  //!
+  FilePath _characterDir;
 
   //!
-  static void RegisterAnimationToCollection(const std::string& name, const AnimationAsset& data, const std::unordered_map<std::string, SpriteSheet>& sheets, AnimationCollection& collection);
+  static void RegisterAnimationToCollection(const std::string& name, const AnimationAsset& data, const SpriteSheet& sheet, AnimationCollection& collection);
 
 };

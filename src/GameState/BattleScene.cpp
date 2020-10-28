@@ -43,8 +43,10 @@ IScene* SceneHelper::CreateScene(SceneType type)
   {
     case SceneType::START:
       return new StartScene;
+    case SceneType::BATTLEMODE:
+      return new BattleModeSelect;
     case SceneType::CSELECT:
-      return new CharacterSelectScene;
+      return new CharacterSelect;
     case SceneType::MATCH:
       return new MatchScene;
     case SceneType::RESULTS:
@@ -186,7 +188,7 @@ void BattleScene::InitCharacter(Vector2<float> position, std::shared_ptr<Entity>
   const Vector2<float> p2UIOffset(-200 - healthBarOffset.x * 2, 0);
 
   // set up non-ui components
-  CharacterConstructor::InitSpatialComponents(player, position);
+  CharacterConstructor::InitSpatialComponents(player, player->GetComponent<SelectedCharacterComponent>()->characterIdentifier, position);
   if (isPlayer1)
     player->GetComponent<TeamComponent>()->team = TeamComponent::Team::TeamA;
   else

@@ -28,95 +28,52 @@ CharacterConfiguration::CharacterConfiguration(const std::string& pathToResource
     _actionEventLookupers[item.first] = AnimationEventHelper::ParseAnimationEventList(item.second.eventData, item.second.frameData, _animations[item.first].frames);
   }*/
 
-  AddToMenu();
-}
-
-void CharacterConfiguration::AddToMenu()
-{
-  GUIController::Get().AddMenuItem("Characters", _characterIdentifier.c_str(), [this]()
-  {
-  GameManager::Get().TriggerEndOfFrame([this]()
-    {
-      GUIController::Get().AddImguiWindowFunction("Edit Character", "Assets", [this]()
-        {
-          ImGui::Text("Sprite Sheets");
-          for (auto& item : _spriteSheets)
-          {
-            item.second.DisplayInEditor();
-          }
-
-          ImGui::Text("Animations");
-          for (auto& item : _animations)
-          {
-            item.second.DisplayInEditor();
-          }
-
-          ImGui::Text("Actions");
-          for (auto& item : _actions)
-          {
-            item.second.DisplayInEditor();
-          }
-        });
-    });
-
-  });
+  AddCharacterDisplay();
 }
 
 void CharacterConfiguration::CreateDebugMenuActions(AnimationCollection* collection)
 {
-  for (auto& action : _actions)
+  std::function<void()> ModFrameData = [this, collection]()
   {
-    std::string animName = action.first;
-    ActionAsset& data = action.second;
-
-    std::function<void()> ModFrameData = [this, animName, &data, collection]()
+    for (auto& action : _actions)
     {
+      std::string animName = action.first;
+      ActionAsset& data = action.second;
       if (ImGui::CollapsingHeader(animName.c_str()))
       {
         // This just shows frame data right now
         data.DisplayInEditor();
 
-        // want to eventually move this into the DisplayInEditor code for the event data
-        static bool viewingHitboxes = false;
-        if (!viewingHitboxes)
+        if (ImGui::Button("View/Edit Hitboxes"))
         {
-          if (ImGui::Button("View/Edit Hitboxes"))
-          {
-            GameManager::Get().TriggerEndOfFrame([this, animName, collection, &data]()
-              {
-                GUIController::Get().AddImguiWindowFunction("View Hitboxes", "View",
-                  [this, animName, collection, &data]()
+          GameManager::Get().TriggerEndOfFrame([this, animName, collection, &data]()
+            {
+              if (GUIController::Get().HasWindow("View Hitboxes"))
+                GUIController::Get().RemoveImguiWindowFunction("View Hitboxes", 0);
+
+              GUIController::Get().AddImguiWindowFunction("View Hitboxes", "View",
+                [this, animName, collection, &data]()
+                {
+                  static int frame = 0;
+                  int nFrames = collection->GetAnimation(animName)->GetFrameCount();
+                  ImGui::BeginGroup();
+                  if (ImGui::Button("Back"))
                   {
-                    static int frame = 0;
-                    int nFrames = collection->GetAnimation(animName)->GetFrameCount();
-                    ImGui::BeginGroup();
-                    if (ImGui::Button("Back"))
-                    {
-                      frame = frame == 0 ? nFrames - 1 : frame - 1;
-                    }
-                    ImGui::SameLine();
-                    if (ImGui::Button("Forward"))
-                    {
-                      frame = (frame + 1) % nFrames;
-                    }
-                    ImGui::SameLine();
-                    ImGui::Text("%d", frame);
-                    ImGui::EndGroup();
+                    frame = frame == 0 ? nFrames - 1 : frame - 1;
+                  }
+                  ImGui::SameLine();
+                  if (ImGui::Button("Forward"))
+                  {
+                    frame = (frame + 1) % nFrames;
+                  }
+                  ImGui::SameLine();
+                  ImGui::Text("%d", frame);
+                  ImGui::EndGroup();
 
-                    if (ImGui::Button("Close"))
-                    {
-                      viewingHitboxes = false;
-                      GameManager::Get().TriggerEndOfFrame([]()
-                      {
-                        GUIController::Get().RemoveImguiWindowFunction("View Hitboxes", "View", 0);
-                      });
-                    }
-
-                    DisplayFrameHitbox(animName, collection->GetAnimation(animName), data, frame);
-                  });
-                viewingHitboxes = true;
-              });
-          }
+                  DisplayFrameHitbox(animName, collection->GetAnimation(animName), data, frame);
+                });
+              GUIController::Get().GetWindow("View Hitboxes").OpenWindow();
+            });
         }
 
 
@@ -155,9 +112,9 @@ void CharacterConfiguration::CreateDebugMenuActions(AnimationCollection* collect
           json.OverwriteMemberInFile(animName, data);
         }
       }
-    };
-    GUIController::Get().AddImguiWindowFunction("Ryu Character Data", "Attack Animations", ModFrameData);
-  }
+    }
+  };
+  GUIController::Get().AddImguiWindowFunction("Ryu Character Data", "Attack Animations", ModFrameData);
 }
 
 //______________________________________________________________________________
@@ -210,4 +167,79 @@ void CharacterConfiguration::DisplayFrameHitbox(const std::string& animName, Ani
 
     ImGui::EndChild();
   }
+}
+
+//______________________________________________________________________________
+void CharacterConfiguration::AddCharacterDisplay()
+{
+  GUIController::Get().AddImguiWindowFunction("Characters", _characterIdentifier, "Assets", [this]()
+    {
+      ImGui::Text("Sprite Sheets");
+      unsigned int counter = 0;
+      for (auto& item : _spriteSheets)
+      {
+        std::string name = "##item:" + std::to_string(counter++);
+        ImGui::BeginChild(name.c_str(), ImVec2(500, 70), true);
+        item.second.DisplayInEditor();
+        ImGui::EndChild();
+      }
+      ImGui::Text("New Sprite Sheet");
+      newSheetName.DisplayEditable("Sprite Sheet Label");
+      newSheet.DisplayInEditor();
+      if (ImGui::Button("Add SS"))
+      {
+        _spriteSheets.insert(std::make_pair((std::string)newSheetName, newSheet));
+      }
+
+      if (ImGui::Button("Save SS"))
+      {
+        SaveAssetFile("spritesheets.json", _spriteSheets);
+      }
+
+      ImGui::Text("Animations");
+      for (auto& item : _animations)
+      {
+        std::string name = "##item:" + std::to_string(counter++);
+        ImGui::BeginChild(name.c_str(), ImVec2(500, 70), true);
+        ImGui::Text("%s", item.first.c_str());
+        item.second.DisplayInEditor();
+        ImGui::EndChild();
+      }
+      ImGui::Text("New Animation");
+
+      animName.DisplayEditable("New Animation Name");
+      newAnimation.DisplayInEditor();
+      if (ImGui::Button("Add Anim"))
+      {
+        _animations.insert(std::make_pair((std::string)animName, newAnimation));
+      }
+
+      if (ImGui::Button("Save Animations"))
+      {
+        SaveAssetFile("animations.json", _animations);
+      }
+
+      ImGui::Text("Actions");
+      for (auto& item : _actions)
+      {
+        std::string name = "##item:" + std::to_string(counter++);
+        ImGui::BeginChild(name.c_str(), ImVec2(500, 70), true);
+        ImGui::Text("%s", item.first.c_str());
+        item.second.DisplayInEditor();
+        ImGui::EndChild();
+      }
+      ImGui::Text("New Action");
+
+      actionName.DisplayEditable("New Action Name");
+      newAction.DisplayInEditor();
+      if (ImGui::Button("Add Action"))
+      {
+        _actions.insert(std::make_pair((std::string)actionName, newAction));
+      }
+
+      if (ImGui::Button("Save Actions"))
+      {
+        SaveAssetFile("actions.json", _actions);
+      }
+    });
 }

@@ -1,6 +1,11 @@
 #pragma once
 #include "Core/ECS/IComponent.h"
 
+struct SelectedCharacterComponent : public IComponent
+{
+  std::string characterIdentifier = "";
+};
+
 //! marks the entity as the loser of the round
 struct LoserComponent : public IComponent {};
 

@@ -95,6 +95,7 @@ class RenderProperties : public IComponent, ISerializable
 public:
   RenderProperties();
 
+  Vector2<float> renderScaling = Vector2<float>(1.0f, 1.0f);
   //! inherent offset added to any display from this entity
   Vector2<int> baseRenderOffset;
   //! Display offset from top left of texture to top left of transform

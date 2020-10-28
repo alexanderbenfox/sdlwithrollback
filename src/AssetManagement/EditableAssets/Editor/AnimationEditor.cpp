@@ -1,4 +1,5 @@
 #include "AnimationEditor.h"
+#include "DebugGUI/GUIController.h"
 
 void ActionEditor::EditHitboxExtentsInDisplay(Vector2<double> displaySize, Vector2<double> srcSize, Vector2<double> clickPos, Rect<double>& hitbox)
 {
@@ -30,4 +31,24 @@ void ActionEditor::EditHitboxExtentsInDisplay(Vector2<double> displaySize, Vecto
       hitbox.end = Vector2<double>(drawEnd.x * srcSize.x / displaySize.x, drawEnd.y * srcSize.y / displaySize.y);
     }
   }
+}
+
+#include "Managers/GameManagement.h"
+
+void CharacterEditor::AddCreateNewCharacterButton()
+{
+  static EditorString characterName;
+  GUIController::Get().AddMenuItem("Characters", "Add New", []()
+  {
+    GUIController::Get().CreatePopup(
+    []()
+    {
+      characterName.DisplayEditable("New Character Folder Name");
+    },
+    []()
+    {
+      AnimationCollectionManager::Get().AddNewCharacter((std::string)characterName);
+    });
+  });
+
 }

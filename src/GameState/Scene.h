@@ -29,7 +29,7 @@ protected:
 
 enum class SceneType
 {
-  START, CSELECT, MATCH, RESULTS
+  START, BATTLEMODE, CSELECT, MATCH, RESULTS
 };
 
 // eventually use this for initiating different battle scene types
@@ -65,16 +65,28 @@ protected:
 
 };
 
-class CharacterSelectScene : public IScene
+class BattleModeSelect : public IScene
 {
 public:
-  virtual ~CharacterSelectScene();
+  virtual ~BattleModeSelect();
   virtual void Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2) final;
   virtual void Update(float deltaTime) final;
   
 protected:
   std::shared_ptr<Entity> _p1, _p2;
   std::shared_ptr<Entity> _uiCamera;
+
+};
+
+class CharacterSelect : public IScene
+{
+public:
+  virtual ~CharacterSelect();
+  virtual void Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2) final;
+  virtual void Update(float deltaTime) final;
+
+protected:
+  std::shared_ptr<Entity> _p1, _p2;
 
 };
 

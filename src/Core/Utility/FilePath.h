@@ -67,6 +67,11 @@ public:
     return directories;
   }
 
+  bool Create() const
+  {
+    return std::filesystem::create_directory(_path);
+  }
+
 private:
   std::string _path;
 };

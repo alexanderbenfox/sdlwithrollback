@@ -17,6 +17,14 @@ Animation* AnimationCollectionManager::GetAnimationData(unsigned int collectionI
   return GetCollection(collectionID).GetAnimation(animationName.data());
 }
 
+void AnimationCollectionManager::AddNewCharacter(const std::string& characterName)
+{
+  FilePath path = _characterDir;
+  path.Append(characterName.c_str());
+  path.Create();
+  _characters.emplace(characterName, path.GetPath());
+}
+
 AnimationCollectionManager::AnimationCollectionManager() : _livingCollectionCount(0)
 {
   FilePath jsonDir(ResourceManager::Get().GetResourcePath() + "json");
@@ -39,15 +47,15 @@ AnimationCollectionManager::AnimationCollectionManager() : _livingCollectionCoun
   unsigned int generalID = RegisterNewCollection("General");
   for (const auto& animation : generalAnimations)
   {
-    RegisterAnimationToCollection(animation.first, animation.second, generalSpriteSheets, _collections[generalID]);
+    RegisterAnimationToCollection(animation.first, animation.second, generalSpriteSheets.at(animation.second.sheetName), _collections[generalID]);
   }
 
   //! load more complex character collections
-  FilePath characterDir = jsonDir;
-  characterDir.Append("characters");
+  _characterDir = jsonDir;
+  _characterDir.Append("characters");
 
   // get all characters from folder
-  auto characters = characterDir.GetSubDirectories();
+  auto characters = _characterDir.GetSubDirectories();
   for (const auto& path : characters)
   {
     std::string characterName = path.GetLast();
@@ -78,7 +86,7 @@ unsigned int AnimationCollectionManager::RegisterCharacterCollection(const std::
 
   for (const auto& animation : configFiles.GetAnimationConfig())
   {
-    RegisterAnimationToCollection(animation.first, animation.second, configFiles.GetAssociatedSpriteSheets(), newCollection);
+    RegisterAnimationToCollection(animation.first, animation.second, configFiles.GetAssociatedSpriteSheets().at(animation.second.sheetName), newCollection);
   }
 
   for (const auto& action : configFiles.GetActionConfig())
@@ -101,9 +109,9 @@ unsigned int AnimationCollectionManager::RegisterNewCollection(const std::string
   return assignedID;
 }
 
-void AnimationCollectionManager::RegisterAnimationToCollection(const std::string& name, const AnimationAsset& data, const std::unordered_map<std::string, SpriteSheet>& sheets, AnimationCollection& collection)
+void AnimationCollectionManager::RegisterAnimationToCollection(const std::string& name, const AnimationAsset& data, const SpriteSheet& sheet, AnimationCollection& collection)
 {
-  collection.RegisterAnimation(name, sheets.at(data.sheetName), data.startIndexOnSheet, data.frames, data.anchor);
+  collection.RegisterAnimation(name, sheet, data.startIndexOnSheet, data.frames, data.anchor);
   // make sure this gets loaded into the resource manager
-  ResourceManager::Get().GetAsset<RenderType>(sheets.at(data.sheetName).src);
+  ResourceManager::Get().GetAsset<RenderType>(sheet.src);
 }

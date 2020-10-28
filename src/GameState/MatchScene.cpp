@@ -47,8 +47,8 @@ void PreMatchScene::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2)
   _p1 = p1;
   _p2 = p2;
 
-  CharacterConstructor::InitSpatialComponents(_p1, Vector2<int>(100, 0));
-  CharacterConstructor::InitSpatialComponents(_p2, Vector2<int>(400, 0));
+  CharacterConstructor::InitSpatialComponents(_p1, _p1->GetComponent<SelectedCharacterComponent>()->characterIdentifier, Vector2<int>(100, 0));
+  CharacterConstructor::InitSpatialComponents(_p2, _p2->GetComponent<SelectedCharacterComponent>()->characterIdentifier, Vector2<int>(400, 0));
 
   _p1->GetComponent<TeamComponent>()->team = TeamComponent::Team::TeamA;
   _p2->GetComponent<TeamComponent>()->team = TeamComponent::Team::TeamB;

@@ -1,0 +1,227 @@
+{
+	"Blocks" : 
+	{
+		"columns" : 4,
+		"frameSize" : 
+		{
+			"x" : 100,
+			"y" : 114
+		},
+		"rows" : 4,
+		"sheetSize" : 
+		{
+			"x" : 400,
+			"y" : 456
+		},
+		"sheet_location" : "spritesheets\\blocks.png"
+	},
+	"Crouching" : 
+	{
+		"columns" : 5,
+		"frameSize" : 
+		{
+			"x" : 88,
+			"y" : 109
+		},
+		"rows" : 4,
+		"sheetSize" : 
+		{
+			"x" : 440,
+			"y" : 436
+		},
+		"sheet_location" : "spritesheets\\crouching.png"
+	},
+	"Dashes" : 
+	{
+		"columns" : 3,
+		"frameSize" : 
+		{
+			"x" : 118,
+			"y" : 105
+		},
+		"rows" : 4,
+		"sheetSize" : 
+		{
+			"x" : 354,
+			"y" : 420
+		},
+		"sheet_location" : "spritesheets\\dashes.png"
+	},
+	"GroundedAttacks" : 
+	{
+		"columns" : 10,
+		"frameSize" : 
+		{
+			"x" : 176,
+			"y" : 207
+		},
+		"rows" : 8,
+		"sheetSize" : 
+		{
+			"x" : 1760,
+			"y" : 1656
+		},
+		"sheet_location" : "spritesheets\\grounded_attacks.png"
+	},
+	"HanAttacks" : 
+	{
+		"columns" : 14,
+		"frameSize" : 
+		{
+			"x" : 357,
+			"y" : 271
+		},
+		"rows" : 1,
+		"sheetSize" : 
+		{
+			"x" : 5000,
+			"y" : 271
+		},
+		"sheet_location" : "spritesheets\\hanvelsing.png"
+	},
+	"HanIdleAttacks" : 
+	{
+		"columns" : 40,
+		"frameSize" : 
+		{
+			"x" : 0,
+			"y" : 0
+		},
+		"rows" : 1,
+		"sheetSize" : 
+		{
+			"x" : 0,
+			"y" : 0
+		},
+		"sheet_location" : "spritesheets\\hanwalkingandattacks.png"
+	},
+	"Hitstun" : 
+	{
+		"columns" : 7,
+		"frameSize" : 
+		{
+			"x" : 142,
+			"y" : 112
+		},
+		"rows" : 9,
+		"sheetSize" : 
+		{
+			"x" : 994,
+			"y" : 1008
+		},
+		"sheet_location" : "spritesheets\\hitstun_standing&crouching.png"
+	},
+	"IdleAndWalking" : 
+	{
+		"columns" : 6,
+		"frameSize" : 
+		{
+			"x" : 112,
+			"y" : 113
+		},
+		"rows" : 6,
+		"sheetSize" : 
+		{
+			"x" : 672,
+			"y" : 678
+		},
+		"sheet_location" : "spritesheets\\idle_and_walking.png"
+	},
+	"JumpFall" : 
+	{
+		"columns" : 10,
+		"frameSize" : 
+		{
+			"x" : 112,
+			"y" : 138
+		},
+		"rows" : 8,
+		"sheetSize" : 
+		{
+			"x" : 1120,
+			"y" : 1104
+		},
+		"sheet_location" : "spritesheets\\idle_walking_jab_jump_crouch.png"
+	},
+	"JumpingAttacks" : 
+	{
+		"columns" : 5,
+		"frameSize" : 
+		{
+			"x" : 144,
+			"y" : 127
+		},
+		"rows" : 5,
+		"sheetSize" : 
+		{
+			"x" : 720,
+			"y" : 635
+		},
+		"sheet_location" : "spritesheets\\jumping_attacks.png"
+	},
+	"Knockdowns" : 
+	{
+		"columns" : 6,
+		"frameSize" : 
+		{
+			"x" : 178,
+			"y" : 120
+		},
+		"rows" : 9,
+		"sheetSize" : 
+		{
+			"x" : 1068,
+			"y" : 1080
+		},
+		"sheet_location" : "spritesheets\\knockdowns.png"
+	},
+	"SpecialMoves" : 
+	{
+		"columns" : 8,
+		"frameSize" : 
+		{
+			"x" : 180,
+			"y" : 160
+		},
+		"rows" : 10,
+		"sheetSize" : 
+		{
+			"x" : 1440,
+			"y" : 1600
+		},
+		"sheet_location" : "spritesheets\\special_moves.png"
+	},
+	"Throws" : 
+	{
+		"columns" : 5,
+		"frameSize" : 
+		{
+			"x" : 194,
+			"y" : 109
+		},
+		"rows" : 8,
+		"sheetSize" : 
+		{
+			"x" : 970,
+			"y" : 872
+		},
+		"sheet_location" : "spritesheets\\throws.png"
+	},
+	"WinLoseEntrance" : 
+	{
+		"columns" : 6,
+		"frameSize" : 
+		{
+			"x" : 177,
+			"y" : 134
+		},
+		"rows" : 7,
+		"sheetSize" : 
+		{
+			"x" : 1062,
+			"y" : 938
+		},
+		"sheet_location" : "spritesheets\\winloseentrance.png"
+	}
+}
+

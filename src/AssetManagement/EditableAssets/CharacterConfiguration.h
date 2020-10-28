@@ -16,13 +16,12 @@ class CharacterConfiguration
 public:
   CharacterConfiguration(const std::string& pathToResourceFolder);
 
-  void AddToMenu();
-
   std::unordered_map<std::string, SpriteSheet> const& GetAssociatedSpriteSheets() const { return _spriteSheets; }
   std::unordered_map<std::string, AnimationAsset> const& GetAnimationConfig() const { return _animations; }
   std::unordered_map<std::string, ActionAsset> const& GetActionConfig() const { return _actions; }
 
   void CreateDebugMenuActions(AnimationCollection* collection);
+  void AddCharacterDisplay();
 
 private:
 
@@ -36,6 +35,16 @@ private:
     json.LoadContentsIntoMap(map);
   }
 
+  template <typename T = IJsonLoadable>
+  void SaveAssetFile(const char* file, std::unordered_map<std::string, T>& map) const
+  {
+    FilePath path = _resourcePath;
+    path.Append(file);
+
+    JsonFile json(path.GetPath());
+    json.SaveContentsIntoMap(map);
+  }
+
   void DisplayFrameHitbox(const std::string& animName, Animation* animation, ActionAsset& data, int animationFrame);
 
   const FilePath _resourcePath;
@@ -44,6 +53,14 @@ private:
   std::unordered_map<std::string, SpriteSheet> _spriteSheets;
   std::unordered_map<std::string, AnimationAsset> _animations;
   std::unordered_map<std::string, ActionAsset> _actions;
+
+  //! Stuff for editor display
+  EditorString newSheetName;
+  SpriteSheet newSheet;
+  EditorString animName;
+  AnimationAsset newAnimation;
+  EditorString actionName;
+  ActionAsset newAction;
 
   //!......
   //std::unordered_map<std::string, EventBuilderDictionary> _actionEventLookupers;

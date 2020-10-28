@@ -15,7 +15,7 @@
 #include "Systems/TimerSystem/TimerSystem.h"
 
 //______________________________________________________________________________
-void CharacterConstructor::InitSpatialComponents(std::shared_ptr<Entity> player, Vector2<float> position)
+void CharacterConstructor::InitSpatialComponents(std::shared_ptr<Entity> player, const std::string& character, Vector2<float> position)
 {
   Vector2<int> textureSize = ResourceManager::Get().GetTextureWidthAndHeight("spritesheets\\ryu.png");
   Vector2<double> entitySize(static_cast<double>(textureSize.x) * .75, static_cast<double>(textureSize.y) * .95);
@@ -27,7 +27,9 @@ void CharacterConstructor::InitSpatialComponents(std::shared_ptr<Entity> player,
   player->AddComponents<Transform, GameInputComponent, Animator, RenderComponent<RenderType>, RenderProperties, Rigidbody, Gravity, GameActor, DynamicCollider, Hurtbox, StateComponent, TeamComponent>();
 
   player->GetComponent<Gravity>()->force = GlobalVars::Gravity;
-  player->GetComponent<Animator>()->animCollectionID = GAnimArchive.GetCollectionID("Ryu");
+  player->GetComponent<Animator>()->animCollectionID = GAnimArchive.GetCollectionID(character);
+
+  
 
   player->GetComponent<Transform>()->SetWidthAndHeight(entitySize.x, entitySize.y);
   player->GetComponent<RenderProperties>()->baseRenderOffset = ((-1.0 / 2.0) * entitySize);
@@ -47,6 +49,12 @@ void CharacterConstructor::InitSpatialComponents(std::shared_ptr<Entity> player,
   // sets this as the player entity to distinguish between fireballs (which are on the same team) from the player
   player->GetComponent<TeamComponent>()->playerEntity = true;
 
+
+  auto mySize = GAnimArchive.GetCollection(player->GetComponent<Animator>()->animCollectionID).GetAnimation("Idle")->GetFrameWH();
+  auto basisSize = GAnimArchive.GetCollection(GAnimArchive.GetCollectionID("Ryu")).GetAnimation("Idle")->GetFrameWH();
+  float verticalScaling = (float)basisSize.y / (float)mySize.y;
+  player->GetComponent<RenderProperties>()->renderScaling = Vector2<float>(verticalScaling, verticalScaling);
+  //player->GetComponent<RenderProperties>()->baseRenderOffset *= player->GetComponent<RenderProperties>()->renderScaling;
 }
 
 //______________________________________________________________________________

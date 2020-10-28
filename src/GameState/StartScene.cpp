@@ -29,7 +29,7 @@ void StartScene::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2)
   _p1->AddComponent<MenuState>();
 
   MenuButtonArray menu(1, 1, 0.3f);
-  menu.CreateMenuOption("PRESS BTN1 TO START", [](){ GameManager::Get().RequestSceneChange(SceneType::CSELECT); }, Vector2<int>(0, 0));
+  menu.CreateMenuOption("PRESS BTN1 TO START", [](){ GameManager::Get().RequestSceneChange(SceneType::BATTLEMODE); }, Vector2<int>(0, 0));
 
   // set up camera
   _uiCamera = GameManager::Get().CreateEntity<Camera, Transform>();
@@ -48,19 +48,13 @@ void StartScene::Update(float deltaTime)
   MoveSystemCamera::DoTick(deltaTime);
 }
 
-CharacterSelectScene::~CharacterSelectScene()
+BattleModeSelect::~BattleModeSelect()
 {
   GameManager::Get().DestroyEntity(_uiCamera);
   _p1->RemoveComponent<MenuState>();
-
-  // clear input buffer before battlescene
-  ComponentArray<GameInputComponent>::Get().ForEach([](GameInputComponent& source)
-  {
-    source.Clear();
-  });
 }
 
-void CharacterSelectScene::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2)
+void BattleModeSelect::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2)
 {
   _p1 = p1;
   _p2 = p2;
@@ -68,9 +62,9 @@ void CharacterSelectScene::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Enti
   _p1->AddComponent<MenuState>();
 
   MenuButtonArray menu(2, 2, 0.2f);
-  menu.CreateMenuOption("TRAINING", []() { GameManager::Get().SetBattleType(BattleType::Training); GameManager::Get().RequestSceneChange(SceneType::MATCH); }, Vector2<int>(0, 0));
-  menu.CreateMenuOption("FIRST TO 2", [](){ GameManager::Get().SetBattleType(BattleType::BestOf3); GameManager::Get().RequestSceneChange(SceneType::MATCH); }, Vector2<int>(1, 0));
-  menu.CreateMenuOption("FIRST TO 3", [](){ GameManager::Get().SetBattleType(BattleType::BestOf5); GameManager::Get().RequestSceneChange(SceneType::MATCH); }, Vector2<int>(0, 1));
+  menu.CreateMenuOption("TRAINING", []() { GameManager::Get().SetBattleType(BattleType::Training); GameManager::Get().RequestSceneChange(SceneType::CSELECT); }, Vector2<int>(0, 0));
+  menu.CreateMenuOption("FIRST TO 2", [](){ GameManager::Get().SetBattleType(BattleType::BestOf3); GameManager::Get().RequestSceneChange(SceneType::CSELECT); }, Vector2<int>(1, 0));
+  menu.CreateMenuOption("FIRST TO 3", [](){ GameManager::Get().SetBattleType(BattleType::BestOf5); GameManager::Get().RequestSceneChange(SceneType::CSELECT); }, Vector2<int>(0, 1));
   menu.CreateMenuOption("Press To Go Back", [](){ GameManager::Get().RequestSceneChange(SceneType::START); }, Vector2<int>(1, 1));
 
   // set up camera
@@ -79,7 +73,55 @@ void CharacterSelectScene::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Enti
   GRenderer.EstablishCamera(RenderLayer::UI, _uiCamera->GetComponent<Camera>());
 }
 
-void CharacterSelectScene::Update(float deltaTime)
+void BattleModeSelect::Update(float deltaTime)
+{
+  UIPositionUpdateSystem::DoTick(deltaTime);
+  // menu movement and selection
+  MenuInputSystem::DoTick(deltaTime);
+  // change button highlight and callback if selected
+  UpdateMenuStateSystem::DoTick(deltaTime);
+
+  MoveSystemCamera::DoTick(deltaTime);
+}
+
+CharacterSelect::~CharacterSelect()
+{
+  _p1->RemoveComponent<MenuState>();
+
+  // clear input buffer before battlescene
+  ComponentArray<GameInputComponent>::Get().ForEach([](GameInputComponent& source)
+    {
+      source.Clear();
+    });
+}
+
+void CharacterSelect::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2)
+{
+  _p1 = p1;
+  _p2 = p2;
+
+  _p1->AddComponent<MenuState>();
+
+  int nCharacters = GAnimArchive.GetNCharacter();
+  MenuButtonArray menu(nCharacters, 1, 0.2f);
+  auto characterString = GAnimArchive.GetCharacters();
+  for (int i = 0; i < characterString.size(); i++)
+  {
+    menu.CreateMenuOption(characterString[i].c_str(), 
+      [characterString, i, this]()
+      {
+        // for now just do the same cause im lazy
+        _p1->AddComponent<SelectedCharacterComponent>();
+        _p1->GetComponent<SelectedCharacterComponent>()->characterIdentifier = characterString[i];
+        _p2->AddComponent<SelectedCharacterComponent>();
+        _p2->GetComponent<SelectedCharacterComponent>()->characterIdentifier = characterString[i];
+        GameManager::Get().RequestSceneChange(SceneType::MATCH);
+      }
+    , Vector2<int>(i, 0));
+  }
+}
+
+void CharacterSelect::Update(float deltaTime)
 {
   UIPositionUpdateSystem::DoTick(deltaTime);
   // menu movement and selection

@@ -11,6 +11,8 @@
 #include <functional>
 #include <unordered_map>
 
+#include "Window.h"
+
 class GLTexture;
 
 // nano gui singleton
@@ -35,11 +37,15 @@ public:
   void CleanUp();
 
 
-
+  void CreatePopup(std::function<void()> display, std::function<void()> onClose) { _popup.display = display; _popup.onClose = onClose; }
   int AddImguiWindowFunction(const std::string& window, const std::string& category, std::function<void()> function);
-  void RemoveImguiWindowFunction(const std::string& window, const std::string& category, int index);
+  int AddImguiWindowFunction(const std::string& mainMenu, const std::string& window, const std::string& category, std::function<void()> function);
+  void RemoveImguiWindowFunction(const std::string& window, int index);
 
   void AddMenuItem(const std::string& menuName, const std::string& itemName, std::function<void()> onPress);
+
+  bool HasWindow(const std::string& window) const { return _imguiWindows.find(window) != _imguiWindows.end(); }
+  GUIWindow& GetWindow(const std::string& window) { return _imguiWindows[window]; }
 
 private:
   GUIController() = default;
@@ -50,21 +56,18 @@ private:
   SDL_GLContext _glContext = nullptr;
 
   bool _ownsWindow = false;
-
   bool _drawComponentDebug = true;
-
   bool _init = false;
 
-  struct WindowFn
-  {
-    std::unordered_map<int, std::function<void()>> fns;
-    int fnCount = 0;
-  };
-  typedef std::unordered_map<std::string, WindowFn> WindowGrouping;
-
-  std::unordered_map<std::string, WindowGrouping> _imguiWindows;
-  
+  std::unordered_map<std::string, GUIWindow> _imguiWindows;
   std::unordered_map<std::string, std::vector<std::pair<std::string, std::function<void()>>>> _menuFunctions;
+
+  struct Popup
+  {
+    std::function<void()> display;
+    std::function<void()> onClose;
+  };
+  Popup _popup;
 };
 
 struct DropDown

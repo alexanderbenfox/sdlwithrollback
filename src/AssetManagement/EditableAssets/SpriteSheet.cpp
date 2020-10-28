@@ -61,19 +61,9 @@ void SpriteSheet::Write(Json::Value& json) const
 //______________________________________________________________________________
 void SpriteSheet::DisplayInEditor()
 {
-  if (ImGui::CollapsingHeader(static_cast<std::string>(src).c_str()))
-  {
-    bool somethingChanged = false;
-    ImGui::BeginGroup();
+  src.DisplayEditable("File Path (Relative To Resource Folder)");
+  ImGui::InputInt("Columns: ", &columns);
+  ImGui::InputInt("Rows: ", &rows);
 
-    src.DisplayEditable("File Path (Relative To Resource Folder)");
-    somethingChanged |= ImGui::InputInt("Columns: ", &columns);
-    somethingChanged |= ImGui::InputInt("Rows: ", &rows);
-
-    if (somethingChanged)
-    {
-      GenerateSheetInfo();
-    }
-    ImGui::EndGroup();
-  }
+  if (ImGui::Button("Generate")) { GenerateSheetInfo(); }
 }

@@ -628,6 +628,9 @@
     <ClInclude Include="..\src\DebugGUI\EditorString.h">
       <Filter>Source Files\DebugGUI</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\DebugGUI\Window.h">
+      <Filter>Source Files\DebugGUI</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
