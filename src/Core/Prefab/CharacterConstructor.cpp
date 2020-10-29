@@ -29,8 +29,6 @@ void CharacterConstructor::InitSpatialComponents(std::shared_ptr<Entity> player,
   player->GetComponent<Gravity>()->force = GlobalVars::Gravity;
   player->GetComponent<Animator>()->animCollectionID = GAnimArchive.GetCollectionID(character);
 
-  
-
   player->GetComponent<Transform>()->SetWidthAndHeight(entitySize.x, entitySize.y);
   player->GetComponent<RenderProperties>()->baseRenderOffset = ((-1.0 / 2.0) * entitySize);
   player->GetComponent<RenderProperties>()->baseRenderOffset.y -= (static_cast<double>(textureSize.y) * .05);
@@ -104,8 +102,7 @@ std::shared_ptr<Entity> CharacterConstructor::InitUIComponents(std::shared_ptr<E
 
   // set the ui data transfer callback 
   playerUIContainerComponent->uiUpdaters.push_back(
-  UIContainer::Updater{ comboTextEntity,
-  [](std::shared_ptr<Entity> entity, const StateComponent* lastState, const StateComponent* newState)
+  UIContainer::Updater{ comboTextEntity, [](std::shared_ptr<Entity> entity, const StateComponent* lastState, const StateComponent* newState)
   {
     if (lastState->hitting && newState->comboCounter > 1)
     {

@@ -30,6 +30,7 @@ public:
 
     _windowSectionNames[id] = "";
     _windowSections[id] = nullptr;
+    return true;
   }
 
   void OpenWindow()

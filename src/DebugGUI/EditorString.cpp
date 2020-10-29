@@ -4,19 +4,19 @@
 EditorString::EditorString(const std::string& str)
 {
   _string = str;
-  strcpy_s<bSize>(_textBuffer, str.c_str());
+  CPY(_textBuffer, str.c_str());
 }
 
 EditorString::EditorString(std::string&& str)
 {
   _string = str;
-  strcpy_s<bSize>(_textBuffer, str.c_str());
+  CPY(_textBuffer, str.c_str());
 }
 
 EditorString::EditorString(const char* str)
 {
   _string = str;
-  strcpy_s<bSize>(_textBuffer, str);
+  CPY(_textBuffer, str);
 }
 
 void EditorString::DisplayEditable(const char* label)

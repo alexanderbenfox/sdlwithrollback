@@ -56,7 +56,7 @@ public:
   read_directories(_path, dirNames);
   for (const std::string& dir : dirNames)
   {
-    if(dir != "." && dir != "..")
+    if(dir[0] != '.' && dir != "..")
     {
       FilePath fp(_path);
       fp.Append(dir.c_str());
@@ -69,7 +69,11 @@ public:
 
   bool Create() const
   {
+#ifdef _WIN32
     return std::filesystem::create_directory(_path);
+#else
+    return false;
+#endif
   }
 
 private:

@@ -115,8 +115,8 @@
 	{
 		"anchor" : "TL",
 		"sheet_name" : "HanIdleAttacks",
-		"startFrame" : 0,
-		"totalFrames" : 4
+		"startFrame" : 1,
+		"totalFrames" : 3
 	},
 	"Jumping" : 
 	{

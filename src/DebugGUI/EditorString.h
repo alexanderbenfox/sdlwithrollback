@@ -4,6 +4,12 @@
 struct EditorString
 {
 public:
+#ifdef _WIN32
+  #define CPY(a, b) strcpy_s<bSize>(a, b);
+#else
+  #define CPY(a, b) strcpy(a, b);
+#endif
+
   EditorString() = default;
   EditorString(const std::string& str);
   EditorString(std::string&& str);
