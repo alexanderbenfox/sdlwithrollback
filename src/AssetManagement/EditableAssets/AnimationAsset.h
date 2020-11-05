@@ -1,7 +1,7 @@
 #pragma once
 #include "IJsonLoadable.h"
 #include "DebugGUI/EditorString.h"
-#include "DebugGUI/EditorRect.h""
+#include "DebugGUI/EditorRect.h"
 #include "DebugGUI/DisplayImage.h"
 
 #include "SpriteSheet.h"

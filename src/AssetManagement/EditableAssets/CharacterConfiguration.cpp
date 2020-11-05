@@ -180,8 +180,9 @@ void CharacterConfiguration::AddCharacterDisplay()
         ImGui::Text("Animations");
         for (auto& item : _animations)
         {
+          const int fieldHeight = 25;
           std::string name = "##item:" + std::to_string(counter++);
-          ImGui::BeginChild(name.c_str(), ImVec2(500, 70), true);
+          ImGui::BeginChild(name.c_str(), ImVec2(500, 6 * fieldHeight), true);
           ImGui::Text("%s", item.first.c_str());
           item.second.DisplayInEditor();
           ImGui::EndChild();
