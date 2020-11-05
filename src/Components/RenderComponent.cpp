@@ -50,8 +50,8 @@ std::vector<GLDrawOperation> TextRenderer::GetRenderOps()
 }
 
 RenderProperties::RenderProperties() :
-  baseRenderOffset(0, 0),
-  offset(0, 0),
+  offsetOfAnchorFromCenter(0, 0),
+  offsetFromAnchor(0, 0),
   horizontalFlip(false),
   _displayColor{ 255, 255, 255, SDL_ALPHA_OPAQUE },
   IComponent()
@@ -71,7 +71,15 @@ SDL_Color RenderProperties::GetDisplayColor() const
   return _displayColor;
 }
 
-Vector2<int> RenderProperties::Offset() const
+Vector2<float> RenderProperties::Offset() const
 {
-  return baseRenderOffset + offset;
+  //return -offsetOfAnchorFromCenter + offsetFromAnchor * renderScaling;
+  if (horizontalFlip)
+  {
+    Vector2<float> off = -offsetOfAnchorFromCenter + offsetFromAnchor * renderScaling;
+    off.x = offsetFromAnchor.x * renderScaling.x + offsetOfAnchorFromCenter.x;
+    return off;
+  }
+  else
+    return -offsetOfAnchorFromCenter - offsetFromAnchor * renderScaling;
 }

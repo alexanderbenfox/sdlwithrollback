@@ -278,6 +278,12 @@
     <ClCompile Include="..\src\DebugGUI\EditorString.cpp">
       <Filter>Source Files\DebugGUI</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\DebugGUI\EditorRect.cpp">
+      <Filter>Source Files\DebugGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\DebugGUI\DisplayImage.cpp">
+      <Filter>Source Files\DebugGUI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\imgui\imconfig.h">
@@ -629,6 +635,15 @@
       <Filter>Source Files\DebugGUI</Filter>
     </ClInclude>
     <ClInclude Include="..\src\DebugGUI\Window.h">
+      <Filter>Source Files\DebugGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\DebugGUI\EditorRect.h">
+      <Filter>Source Files\DebugGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\DebugGUI\DisplayImage.h">
+      <Filter>Source Files\DebugGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\DebugGUI\EditingCanvas.h">
       <Filter>Source Files\DebugGUI</Filter>
     </ClInclude>
   </ItemGroup>

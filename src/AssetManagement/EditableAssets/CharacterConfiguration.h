@@ -6,10 +6,28 @@
 #include "AnimationAsset.h"
 #include "ActionAsset.h"
 
+#include "DebugGUI/EditorRect.h"
+
 //#include "AssetManagement/AnimationEvent.h"
 
 class Animation;
 class AnimationCollection;
+
+class HitboxEditor
+{
+public:
+  void OpenEditor(Animation* anim, ActionAsset& data, const SpriteSheet& sheet);
+
+private:
+  void ChangeDisplay(Animation* anim, int frame, ActionAsset& data, const SpriteSheet& sheet);
+
+  void CommitRectChange(Animation* anim, int frame, ActionAsset& data, const SpriteSheet& sheet);
+
+  void ShowHitboxEditor();
+
+  DisplayImage frameDisplay;
+  EditorRect displayRect;
+};
 
 class CharacterConfiguration
 {
@@ -20,7 +38,7 @@ public:
   std::unordered_map<std::string, AnimationAsset> const& GetAnimationConfig() const { return _animations; }
   std::unordered_map<std::string, ActionAsset> const& GetActionConfig() const { return _actions; }
 
-  void CreateDebugMenuActions(AnimationCollection* collection);
+  void ReloadActionDebug(const std::string& actionName, ActionAsset& data);
   void AddCharacterDisplay();
 
 private:
@@ -44,8 +62,6 @@ private:
     JsonFile json(path.GetPath());
     json.SaveContentsIntoMap(map);
   }
-
-  void DisplayFrameHitbox(const std::string& animName, Animation* animation, ActionAsset& data, int animationFrame);
 
   const FilePath _resourcePath;
   std::string _characterIdentifier;

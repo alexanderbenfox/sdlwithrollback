@@ -163,7 +163,7 @@ void OpenGLRenderer::RenderQuad2D(GLTexture* texture, const DrawRect<float>& src
 }
 
 //______________________________________________________________________________
-void OpenGLRenderer::RenderLines2D(const SDL_Point* points, const int nPoints, const SDL_Color color)
+void OpenGLRenderer::RenderLines2D(const Vector2<float>* points, const int nPoints, const SDL_Color color)
 {
   for (int i = 0; i < nPoints; ++i)
   {

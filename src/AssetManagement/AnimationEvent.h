@@ -54,7 +54,7 @@ struct EventBuilderDictionary
 
 struct AnimationEventHelper
 {
-  static EventList BuildEventList(const Vector2<int> offset, const std::vector<EventData>& animEventData, const FrameData& frameData, int totalSheetFrames, std::vector<int>& animFrameToSheetFrame);
+  static EventList BuildEventList(const Vector2<float>& textureScalingFactor, const Vector2<float> texToCornerOffset, const std::vector<EventData>& animEventData, const FrameData& frameData, int totalSheetFrames, std::vector<int>& animFrameToSheetFrame, AnchorPoint animAnchorPt);
   //! Translates the animation in sprite sheet to variable frame data values
   static EventBuilderDictionary ParseAnimationEventList(const std::vector<EventData>& animEventData, const FrameData& frameData, int totalSheetFrames);
 };

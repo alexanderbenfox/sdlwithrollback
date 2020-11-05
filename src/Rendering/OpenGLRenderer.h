@@ -35,7 +35,7 @@ public:
   //! Renders to the current openGL context
   static void RenderQuad2D(const DrawRect<float>& dstRect, const double angle, const Vector2<float>* center, const SDL_Color color);
   static void RenderQuad2D(GLTexture* texture, const DrawRect<float>& srcRect, const DrawRect<float>& dstRect, const double angle, const Vector2<float>* center, const SDL_RendererFlip flip, const SDL_Color color);
-  static void RenderLines2D(const SDL_Point* points, const int nPoints, const SDL_Color color);
+  static void RenderLines2D(const Vector2<float>* points, const int nPoints, const SDL_Color color);
 
   //! draws quad facing up centered at position
   static void RenderQuad3D(const SDL_Color color, const Vector2<float>& size, const Vector3<float>& position, const Vector3<float>& scale);

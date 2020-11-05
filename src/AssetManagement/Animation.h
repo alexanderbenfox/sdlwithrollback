@@ -12,6 +12,8 @@
 #include <functional>
 #include <unordered_map>
 
+#include "DebugGUI/DisplayImage.h"
+
 //!
 
 const float gameFramePerAnimationFrame = (1.0f / secPerFrame) / animation_fps;
@@ -22,7 +24,7 @@ class Animation
 public:
   Animation(const SpriteSheet& sheet, int startIndexOnSheet, int frames, AnchorPoint anchor);
 
-  EventList GenerateEvents(const std::vector<EventData>& attackInfo, FrameData frameData);
+  EventList GenerateEvents(const std::vector<EventData>& attackInfo, FrameData frameData, const Vector2<float>& textureScalingFactor);
 
   //! Translates anim frame to the frame on spritesheet
   DrawRect<float> GetFrameSrcRect(int animFrame) const;
@@ -33,27 +35,19 @@ public:
   //!
   template <typename Texture>
   Resource<Texture>& GetSheetTexture() const;
-  //! Gets first non-transparent pixel from the top left and bottom left
-  Vector2<int> FindAnchorPoint(AnchorPoint anchorType, bool fromFirstFrame) const;
   //!
   std::pair<AnchorPoint, Vector2<int>> const& GetMainAnchor() const { return _anchorPoint; }
   //!
-  Vector2<int> GetAttachedOffset() { return Vector2<int>(_lMargin, _tMargin); }
+  Vector2<int> GetAttachedOffset() const { return Vector2<int>(_lMargin, _tMargin); }
 
-  struct ImGuiDisplayParams
-  {
-    void* ptr;
-    Vector2<int> displaySize;
-    Vector2<float> uv0;
-    Vector2<float> uv1;
-
-  };
-  ImGuiDisplayParams GetUVCoordsForFrame(int displayHeight, int animFrame);
+  DisplayImage GetGUIDisplayImage(int displayHeight, int animFrame);
 
   // NEED TO REMOVE THIS ASAP
   std::vector<EventData> animationEvents;
 
   int AnimFrameToSheet(int index) const { return _animFrameToSheetFrame[index]; }
+
+  Vector2<int> anchorPoints[(const int)AnchorPoint::Size];
 
 protected:
   //!
@@ -69,7 +63,6 @@ protected:
   std::pair<AnchorPoint, Vector2<int>> _anchorPoint;
   //! finding margin from the bottom right now
   int _lMargin, _rMargin, _tMargin;
-
 };
 
 //______________________________________________________________________________
@@ -88,7 +81,10 @@ public:
   void RegisterAnimation(const std::string& animationName, const SpriteSheet& sheet, int startIndexOnSheet, int frames, AnchorPoint anchor);
   void SetAnimationEvents(const std::string& animationName, const std::vector<EventData>& eventData, const FrameData& frameData);
 
-  Vector2<int> GetRenderOffset(const std::string& animationName, bool flipped, int transformWidth) const;
+
+  Vector2<float> textureScalingFactor;
+
+  Vector2<float> GetRenderOffset(const std::string& animationName, bool flipped) const;
   //! Getters
   Animation* GetAnimation(const std::string& name)
   {

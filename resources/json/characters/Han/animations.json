@@ -113,9 +113,9 @@
 	},
 	"Idle" : 
 	{
-		"anchor" : "TL",
+		"anchor" : "BL",
 		"sheet_name" : "HanIdleAttacks",
-		"startFrame" : 1,
+		"startFrame" : 0,
 		"totalFrames" : 3
 	},
 	"Jumping" : 

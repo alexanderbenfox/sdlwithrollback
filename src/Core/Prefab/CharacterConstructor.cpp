@@ -18,7 +18,7 @@
 void CharacterConstructor::InitSpatialComponents(std::shared_ptr<Entity> player, const std::string& character, Vector2<float> position)
 {
   Vector2<int> textureSize = ResourceManager::Get().GetTextureWidthAndHeight("spritesheets\\ryu.png");
-  Vector2<double> entitySize(static_cast<double>(textureSize.x) * .75, static_cast<double>(textureSize.y) * .95);
+  Vector2<double> entitySize(m_characterWidth, m_characterHeight);
   position.y = static_cast<float>(m_nativeHeight) - static_cast<float>(entitySize.y);
 
   // quick hack to make the debug stuff for attacks work... need to remove eventually
@@ -30,9 +30,11 @@ void CharacterConstructor::InitSpatialComponents(std::shared_ptr<Entity> player,
   player->GetComponent<Animator>()->animCollectionID = GAnimArchive.GetCollectionID(character);
 
   player->GetComponent<Transform>()->SetWidthAndHeight(entitySize.x, entitySize.y);
-  player->GetComponent<RenderProperties>()->baseRenderOffset = ((-1.0 / 2.0) * entitySize);
-  player->GetComponent<RenderProperties>()->baseRenderOffset.y -= (static_cast<double>(textureSize.y) * .05);
-  player->GetComponent<RenderProperties>()->unscaledRenderWidth = entitySize.x;
+  auto rp = player->GetComponent<RenderProperties>();
+
+
+  
+  rp->unscaledRenderWidth = entitySize.x;
 
   player->GetComponent<DynamicCollider>()->Init(Vector2<double>::Zero, entitySize);
   player->GetComponent<Hurtbox>()->Init(Vector2<double>::Zero, entitySize);
@@ -47,12 +49,18 @@ void CharacterConstructor::InitSpatialComponents(std::shared_ptr<Entity> player,
   // sets this as the player entity to distinguish between fireballs (which are on the same team) from the player
   player->GetComponent<TeamComponent>()->playerEntity = true;
 
-
   auto mySize = GAnimArchive.GetCollection(player->GetComponent<Animator>()->animCollectionID).GetAnimation("Idle")->GetFrameWH();
-  auto basisSize = GAnimArchive.GetCollection(GAnimArchive.GetCollectionID("Ryu")).GetAnimation("Idle")->GetFrameWH();
-  float verticalScaling = (float)basisSize.y / (float)mySize.y;
-  player->GetComponent<RenderProperties>()->renderScaling = Vector2<float>(verticalScaling, verticalScaling);
+  float verticalScaling = (float)m_frameHeight / (float)mySize.y;
+  float horizontalScaling = (float)m_frameWidth / (float)mySize.x;
+  rp->renderScaling = Vector2<float>(horizontalScaling, verticalScaling);
   //player->GetComponent<RenderProperties>()->baseRenderOffset *= player->GetComponent<RenderProperties>()->renderScaling;
+  //rp->offsetOfAnchorFromCenter.x *= horizontalScaling;
+
+    //add offset of corner to center of render space
+  rp->offsetOfAnchorFromCenter = ((1.0 / 2.0) * entitySize);
+  // add additional offset from corner of render space to corner of texture space
+  rp->offsetOfAnchorFromCenter += (GAnimArchive.GetCollection(GAnimArchive.GetCollectionID(character)).GetAnimation("Idle")->GetMainAnchor().second * rp->renderScaling);
+  //rp->renderingRect.y -= (static_cast<double>(textureSize.y) * .05);
 }
 
 //______________________________________________________________________________

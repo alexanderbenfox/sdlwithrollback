@@ -97,9 +97,9 @@ public:
 
   Vector2<float> renderScaling = Vector2<float>(1.0f, 1.0f);
   //! inherent offset added to any display from this entity
-  Vector2<int> baseRenderOffset;
+  Vector2<float> offsetOfAnchorFromCenter;
   //! Display offset from top left of texture to top left of transform
-  Vector2<int> offset;
+  Vector2<float> offsetFromAnchor;
   //! Should the display be flipped horizontally
   bool horizontalFlip;
   //! Size of horizontal segment within an image defines the part that is to be displayed (used for flipping horizontally)
@@ -108,20 +108,20 @@ public:
   virtual void SetDisplayColor(Uint8 r, Uint8 g, Uint8 b);
   virtual void SetDisplayColor(Uint8 r, Uint8 g, Uint8 b, Uint8 a);
   virtual SDL_Color GetDisplayColor() const;
-  Vector2<int> Offset() const;
+  Vector2<float> Offset() const;
 
   void Serialize(std::ostream& os) const override
   {
-    os << baseRenderOffset;
-    os << offset;
+    os << offsetOfAnchorFromCenter;
+    os << offsetFromAnchor;
     Serializer<bool>::Serialize(os, horizontalFlip);
     Serializer<SDL_Color>::Serialize(os, _displayColor);
   }
 
   void Deserialize(std::istream& is) override
   {
-    is >> baseRenderOffset;
-    is >> offset;
+    is >> offsetOfAnchorFromCenter;
+    is >> offsetFromAnchor;
     Serializer<bool>::Deserialize(is, horizontalFlip);
     Serializer<SDL_Color>::Deserialize(is, _displayColor);
   }
@@ -130,8 +130,8 @@ public:
   {
     std::stringstream ss;
     ss << "RenderProperties: \n";
-    ss << "\tBase Render Offset: " << baseRenderOffset.x << " " << baseRenderOffset.y << "\n";
-    ss << "\tOffset: " << offset.x << " " << offset.y << "\n";
+    ss << "\tBase Render Offset: " << offsetOfAnchorFromCenter.x << " " << offsetOfAnchorFromCenter.y << "\n";
+    ss << "\tOffset: " << offsetFromAnchor.x << " " << offsetFromAnchor.y << "\n";
     ss << "\tHorizontal flip: " << horizontalFlip << "\n";
     ss << "\tColor: " << _displayColor.r << " " << _displayColor.g << " " << _displayColor.b << " " << _displayColor.a << "\n";
     return ss.str();
@@ -152,7 +152,7 @@ template <> struct ComponentInitParams<RenderProperties>
   Uint8 a = 255;
   static void Init(RenderProperties& component, const ComponentInitParams<RenderProperties>& params)
   {
-    component.baseRenderOffset = params.offsetFromCenter;
+    component.offsetOfAnchorFromCenter = params.offsetFromCenter;
     component.SetDisplayColor(params.r, params.g, params.b, params.a);
   }
 };

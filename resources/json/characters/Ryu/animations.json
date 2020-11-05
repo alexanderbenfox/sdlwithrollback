@@ -3,7 +3,7 @@
     "sheet_name": "IdleAndWalking",
     "startFrame": 0,
     "totalFrames": 10,
-    "anchor" : "TL"
+    "anchor" : "BL"
   },
   "WalkF" : {
     "sheet_name": "IdleAndWalking",

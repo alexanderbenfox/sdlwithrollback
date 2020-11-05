@@ -20,6 +20,7 @@ struct DrawRect
 template <typename T>
 struct Rect
 {
+  typedef T DataType;
   typedef Vector2<T> PointType;
 
   Vector2<T> beg;

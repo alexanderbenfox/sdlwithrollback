@@ -42,7 +42,7 @@ void SFXComponent::ShowHitSparks(bool directionRight)
   _sfxEntity->AddComponent<RenderProperties>();
   _sfxEntity->GetComponent<RenderProperties>()->horizontalFlip = !directionRight;
   int flipModifier = !directionRight ? -1 : 1;
-  _sfxEntity->GetComponent<RenderProperties>()->offset = Vector2<int>(flipModifier * 40, 0);
+  _sfxEntity->GetComponent<RenderProperties>()->offsetOfAnchorFromCenter = Vector2<int>(flipModifier * 40, 0);
 
   // set action timer
   _subroutine = std::shared_ptr<ActionTimer>(new SimpleActionTimer(
@@ -65,7 +65,7 @@ void SFXComponent::ShowBlockSparks(bool directionRight)
   _sfxEntity->AddComponent<RenderProperties>();
   _sfxEntity->GetComponent<RenderProperties>()->horizontalFlip = !directionRight;
   int flipModifier = !directionRight ? -1 : 1;
-  _sfxEntity->GetComponent<RenderProperties>()->offset = Vector2<int>(flipModifier * 110, 0);
+  _sfxEntity->GetComponent<RenderProperties>()->offsetOfAnchorFromCenter = Vector2<int>(flipModifier * 110, 0);
 
   // set action timer
   _subroutine = std::shared_ptr<ActionTimer>(new SimpleActionTimer(

@@ -91,9 +91,9 @@ struct PlayAnimation : public CutsceneAction, public IAnimatorListener
     renderer->sourceRect = actionAnimation->GetFrameSrcRect(0);
 
     // figure out a better way to do offsets lol
-    properties->offset = -GAnimArchive.GetCollection(animator->animCollectionID).GetRenderOffset(anim, properties->horizontalFlip, (int)std::floor(properties->unscaledRenderWidth));
+    properties->offsetFromAnchor = GAnimArchive.GetCollection(animator->animCollectionID).GetRenderOffset(anim, properties->horizontalFlip);
     if (properties->horizontalFlip)
-      properties->offset.x *= properties->renderScaling.x;
+      properties->offsetFromAnchor.x *= properties->renderScaling.x;
   }
   void OnComplete() override {}
   virtual bool CheckEndConditions() override { return animFinished; }

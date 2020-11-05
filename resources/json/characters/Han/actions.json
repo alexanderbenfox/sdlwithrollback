@@ -257,27 +257,26 @@
 	},
 	"CrouchingMedium" : 
 	{
-		"anchor" : "BL",
 		"events" : 
 		[
 			{},
-      {},
+			{},
 			{
 				"hitbox" : 
 				{
 					"position" : 
 					{
-						"x" : 0.0,
-						"y" : 176.0
+						"x" : 114.45527766002544,
+						"y" : 190.546875
 					},
 					"size" : 
 					{
-						"x" : 164.0,
-						"y" : 29.0
+						"x" : 157.376006782535,
+						"y" : 61.927734375
 					}
 				}
 			},
-      {},
+			{},
 			{}
 		],
 		"framedata" : 
@@ -291,14 +290,12 @@
 				"x" : 120.0,
 				"y" : -600.0
 			},
+			"knockdown" : false,
 			"onblock" : 0,
 			"onhit" : 5,
 			"recovery" : 13,
 			"startup" : 10
-		},
-		"numFrames" : 5,
-		"spritesheet" : "spritesheets\\grounded_attacks.png",
-		"startIndex" : 16
+		}
 	},
 	"ForwardThrow" : 
 	{
@@ -1365,7 +1362,6 @@
 	},
 	"StandingHeavy" : 
 	{
-		"anchor" : "BL",
 		"events" : 
 		[
 			{},
@@ -1386,7 +1382,21 @@
 				}
 			},
 			{},
-			{},
+			{
+				"hitbox" : 
+				{
+					"position" : 
+					{
+						"x" : 113.41586073500967,
+						"y" : 52.400390625
+					},
+					"size" : 
+					{
+						"x" : 156.34429400386847,
+						"y" : 139.734375
+					}
+				}
+			},
 			{},
 			{}
 		],
@@ -1395,23 +1405,21 @@
 			"active" : 3,
 			"damage" : 10,
 			"hitstop" : 10,
+			"hittype" : "Mid",
 			"knockback" : 
 			{
 				"x" : 210.0,
 				"y" : -400.0
 			},
+			"knockdown" : false,
 			"onblock" : -6,
 			"onhit" : 7,
 			"recovery" : 20,
 			"startup" : 8
-		},
-		"numFrames" : 7,
-		"spritesheet" : "spritesheets\\grounded_attacks.png",
-		"startIndex" : 53
+		}
 	},
 	"StandingLight" : 
 	{
-		"anchor" : "BL",
 		"events" : 
 		[
 			{},
@@ -1422,13 +1430,13 @@
 				{
 					"position" : 
 					{
-						"x" : 73.0,
-						"y" : 112.0
+						"x" : 182.84332688588009,
+						"y" : 101.095703125
 					},
 					"size" : 
 					{
-						"x" : 14.0,
-						"y" : 22.0
+						"x" : 63.067698259187608,
+						"y" : -38.638671875
 					}
 				}
 			},
@@ -1440,26 +1448,23 @@
 			"active" : 3,
 			"damage" : 4,
 			"hitstop" : 10,
+			"hittype" : "Mid",
 			"knockback" : 
 			{
 				"x" : 180.0,
 				"y" : -100.0
 			},
+			"knockdown" : false,
 			"onblock" : -2,
 			"onhit" : 3,
 			"recovery" : 7,
 			"startup" : 3
-		},
-		"numFrames" : 6,
-		"spritesheet" : "spritesheets\\grounded_attacks.png",
-		"startIndex" : 38
+		}
 	},
 	"StandingMedium" : 
 	{
-		"anchor" : "BL",
 		"events" : 
 		[
-			{},
 			{},
 			{},
 			{},
@@ -1468,36 +1473,50 @@
 				{
 					"position" : 
 					{
-						"x" : 78.0,
-						"y" : 116.0
+						"x" : 153.69439071566731,
+						"y" : 47.107421875
 					},
 					"size" : 
 					{
-						"x" : 45.0,
-						"y" : 22.0
+						"x" : 88.506769825918752,
+						"y" : 63.515625
 					}
 				}
 			},
-      {}
+			{
+				"hitbox" : 
+				{
+					"position" : 
+					{
+						"x" : 193.97292069632496,
+						"y" : 78.3359375
+					},
+					"size" : 
+					{
+						"x" : 45.578336557059941,
+						"y" : -42.873046875
+					}
+				}
+			},
+			{}
 		],
 		"framedata" : 
 		{
 			"active" : 3,
 			"damage" : 10,
 			"hitstop" : 10,
+			"hittype" : "Mid",
 			"knockback" : 
 			{
 				"x" : 180.0,
 				"y" : -100.0
 			},
+			"knockdown" : false,
 			"onblock" : 1,
 			"onhit" : 7,
 			"recovery" : 10,
 			"startup" : 5
-		},
-		"numFrames" : 6,
-		"spritesheet" : "spritesheets\\grounded_attacks.png",
-		"startIndex" : 45
+		}
 	}
 }
 

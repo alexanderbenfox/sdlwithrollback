@@ -1,6 +1,10 @@
 #pragma once
 #include "IJsonLoadable.h"
 #include "DebugGUI/EditorString.h"
+#include "DebugGUI/EditorRect.h""
+#include "DebugGUI/DisplayImage.h"
+
+#include "SpriteSheet.h"
 
 enum class AnchorPoint
 {
@@ -14,11 +18,22 @@ struct AnimationAsset : public IJsonLoadable
   EditorString sheetName;
   int startIndexOnSheet = 0;
   int frames = 0;
-  AnchorPoint anchor;
+  AnchorPoint anchor = AnchorPoint::TL;
+  //Vector2<int> anchorPoints[(const int)AnchorPoint::Size];
+  EditorPoint anchorPoints[(const int)AnchorPoint::Size];
 
   virtual void Load(const Json::Value& json) override;
 
   virtual void Write(Json::Value& json) const override;
 
   virtual void DisplayInEditor() override;
+
+  void DisplayAnchorPointEditor(const SpriteSheet& animSpriteSheet);
+
+  DisplayImage anchorEditBackground;
+  bool anchorEditBackgroundInit = false;
+
+  //! Gets first non-transparent pixel from the top left and bottom left
+  static Vector2<int> FindAnchorPoint(AnchorPoint anchorType, const SpriteSheet& spriteSheet, int startIdx, bool fromFirstFrame);
+
 };

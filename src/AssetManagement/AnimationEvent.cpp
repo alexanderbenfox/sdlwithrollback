@@ -32,8 +32,30 @@ void AnimationEvent::EndEntitySpawnEvent(EntityID entity)
 }
 
 //______________________________________________________________________________
-EventList AnimationEventHelper::BuildEventList(const Vector2<int> offset, const std::vector<EventData>& animEventData, const FrameData& frameData, int totalSheetFrames, std::vector<int>& animFrameToSheetFrame)
+EventList AnimationEventHelper::BuildEventList(const Vector2<float>& textureScalingFactor, const Vector2<float> texToCornerOffset, const std::vector<EventData>& animEventData, const FrameData& frameData, int totalSheetFrames, std::vector<int>& animFrameToSheetFrame, AnchorPoint animAnchorPt)
 {
+  Vector2<float> offset(texToCornerOffset.x + m_characterWidth / 2.0f, texToCornerOffset.y + m_characterHeight / 2.0f);
+
+  if (animAnchorPt == AnchorPoint::TL)
+  {
+
+  }
+  else if (animAnchorPt == AnchorPoint::BL)
+  {
+    offset.x = texToCornerOffset.x + m_characterWidth / 2.0f;
+    offset.y = texToCornerOffset.y - m_characterHeight / 2.0f;
+  }
+  else if (animAnchorPt == AnchorPoint::TR)
+  {
+    offset.x = texToCornerOffset.x - m_characterWidth / 2.0f;
+    offset.y = texToCornerOffset.y + m_characterHeight / 2.0f;
+  }
+  else
+  {
+    offset.x = texToCornerOffset.x - m_characterWidth / 2.0f;
+    offset.y = texToCornerOffset.y - m_characterHeight / 2.0f;
+  }
+
   auto DespawnHitbox = [](EntityID entity) { GameManager::Get().GetEntityByID(entity)->RemoveComponent<Hitbox>(); };
   auto DespawnThrowStuff = [](EntityID entity)
   {
@@ -132,7 +154,10 @@ EventList AnimationEventHelper::BuildEventList(const Vector2<int> offset, const 
 
   for (int i = 0; i < animFrames; i++)
   {
-    const Rect<double>& hitbox = animEventData[i].hitbox;
+    Rect<double> hitbox = animEventData[i].hitbox;
+    hitbox.beg *= textureScalingFactor;
+    hitbox.end *= textureScalingFactor;
+
     bool hitboxCondition = hitbox.Area() != 0;
 
     if (frameData.isThrow)
@@ -142,9 +167,7 @@ EventList AnimationEventHelper::BuildEventList(const Vector2<int> offset, const 
       {
         GameManager::Get().GetEntityByID(entity)->AddComponent<Throwbox>();
         GameManager::Get().GetEntityByID(entity)->GetComponent<Throwbox>()->Init(frameData);
-
-        auto rect = GameManager::Get().GetEntityByID(entity)->GetComponent<Hurtbox>()->unscaledRect;
-        GameManager::Get().GetEntityByID(entity)->GetComponent<Throwbox>()->MoveDataBoxAroundTransform(rect, trans, hitbox, offset, state->onLeftSide);
+        GameManager::Get().GetEntityByID(entity)->GetComponent<Throwbox>()->MoveDataBoxAroundTransform(trans, hitbox, offset, state->onLeftSide);
 
         state->triedToThrowThisFrame = true;
       };
@@ -163,8 +186,7 @@ EventList AnimationEventHelper::BuildEventList(const Vector2<int> offset, const 
         if (throwSuccess)
         {
           GameManager::Get().GetEntityByID(entity)->GetComponent<ThrowFollower>()->Init(frameData);
-          auto rect = GameManager::Get().GetEntityByID(entity)->GetComponent<Hurtbox>()->unscaledRect;
-          GameManager::Get().GetEntityByID(entity)->GetComponent<ThrowFollower>()->MoveDataBoxAroundTransform(rect, trans, hitbox, offset, GameManager::Get().GetEntityByID(entity)->GetComponent<ThrowFollower>()->startSideLeft);
+          GameManager::Get().GetEntityByID(entity)->GetComponent<ThrowFollower>()->MoveDataBoxAroundTransform(trans, hitbox, offset, GameManager::Get().GetEntityByID(entity)->GetComponent<ThrowFollower>()->startSideLeft);
         }
       };
       eventCheck(i, DespawnThrowStuff, throwUpdate, hitboxCondition, AnimationEvent::Type::Throwbox, &throwInitiate);
@@ -176,8 +198,7 @@ EventList AnimationEventHelper::BuildEventList(const Vector2<int> offset, const 
       {
         GameManager::Get().GetEntityByID(entity)->AddComponent<Hitbox>();
         GameManager::Get().GetEntityByID(entity)->GetComponent<Hitbox>()->Init(frameData);
-        auto rect = GameManager::Get().GetEntityByID(entity)->GetComponent<Hurtbox>()->unscaledRect;
-        GameManager::Get().GetEntityByID(entity)->GetComponent<Hitbox>()->MoveDataBoxAroundTransform(rect, trans, hitbox, offset, state->onLeftSide);
+        GameManager::Get().GetEntityByID(entity)->GetComponent<Hitbox>()->MoveDataBoxAroundTransform(trans, hitbox, offset, state->onLeftSide);
       };
 
       eventCheck(i, DespawnHitbox, hitboxUpdateFunc, hitboxCondition, AnimationEvent::Type::Hitbox);

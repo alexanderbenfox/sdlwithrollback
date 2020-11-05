@@ -25,7 +25,7 @@ public:
       displayOp->srcRect = renderer.sourceRect;
       displayOp->textureResource = renderer.GetRenderResource();
 
-      Vector2<int> renderOffset = properties.Offset();
+      Vector2<float> renderOffset = properties.Offset();
       Vector2<float> targetPos(transform.position.x + renderOffset.x * transform.scale.x, transform.position.y + renderOffset.y * transform.scale.y);
 
       displayOp->targetRect = DrawRect<float>(targetPos.x, targetPos.y,

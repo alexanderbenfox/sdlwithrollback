@@ -61,10 +61,6 @@ AnimationCollectionManager::AnimationCollectionManager() : _livingCollectionCoun
     std::string characterName = path.GetLast();
     _characters.emplace(characterName, path.GetPath());
     unsigned int id = RegisterCharacterCollection(characterName, _characters.at(characterName));
-
-    // set up debug menu for editing frame data
-    auto it = _characters.find(characterName);
-    it->second.CreateDebugMenuActions(&_collections[id]);
   }
 }
 
@@ -81,7 +77,11 @@ unsigned int AnimationCollectionManager::RegisterCharacterCollection(const std::
 
   //hack cause i suck
   auto it = configFiles.GetAnimationConfig().find("Idle");
+
+  // set up texture scaling factor for offsets and hitbox offsets based on the texture size of the original image
   const SpriteSheet& sheet = configFiles.GetAssociatedSpriteSheets().at(it->second.sheetName);
+  newCollection.textureScalingFactor = Vector2<float>((float)m_frameWidth / (float)sheet.frameSize.x, (float)m_frameHeight / (float)sheet.frameSize.y);
+
   newCollection.RegisterAnimation("Idle", sheet, it->second.startIndexOnSheet, it->second.frames, it->second.anchor);
 
   for (const auto& animation : configFiles.GetAnimationConfig())
