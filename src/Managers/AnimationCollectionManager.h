@@ -59,7 +59,4 @@ private:
   //!
   FilePath _characterDir;
 
-  //!
-  static void RegisterAnimationToCollection(const std::string& name, const AnimationAsset& data, const SpriteSheet& sheet, AnimationCollection& collection);
-
 };

@@ -26,9 +26,9 @@ struct EnactAnimationActionSystem : public ISystem<EnactActionComponent, Animate
 
       Animation* actionAnimation = animator.Play(action.animation, action.isLoopedAnimation, action.playSpeed, action.forceAnimRestart);
       properties.horizontalFlip = !action.isFacingRight;
-      properties.offsetFromAnchor = GAnimArchive.GetCollection(animator.animCollectionID).GetRenderOffset(action.animation, !action.isFacingRight);
-      if (properties.horizontalFlip)
-        properties.offsetFromAnchor.x *= properties.renderScaling.x;
+      properties.anchor = actionAnimation->GetMainAnchor().first;
+      properties.offset = actionAnimation->GetMainAnchor().second;
+      properties.renderScaling = actionAnimation->GetRenderScaling();
       if (actionAnimation)
       {
         // render from the sheet of the new animation

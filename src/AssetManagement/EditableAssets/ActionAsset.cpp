@@ -141,11 +141,6 @@ void EntityCreationData::AddComponents(EntityID creatorID, const Transform* crea
   entity->AddComponent<TeamComponent>();
   entity->GetComponent<TeamComponent>()->team = GameManager::Get().GetEntityByID(creatorID)->GetComponent<TeamComponent>()->team;
 
-  if (entity->GetComponent<RenderProperties>())
-  {
-    entity->GetComponent<RenderProperties>()->unscaledRenderWidth = entityWidth;
-  }
-
   // set the scale
   entity->SetScale(scale);
 

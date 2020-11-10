@@ -99,6 +99,7 @@
     <ClInclude Include="..\src\AssetManagement\BlitOperation.h" />
     <ClInclude Include="..\src\AssetManagement\EditableAssets\AnimationAsset.h" />
     <ClInclude Include="..\src\AssetManagement\EditableAssets\ActionAsset.h" />
+    <ClInclude Include="..\src\AssetManagement\EditableAssets\AssetLibrary.h" />
     <ClInclude Include="..\src\AssetManagement\EditableAssets\CharacterConfiguration.h" />
     <ClInclude Include="..\src\AssetManagement\EditableAssets\Editor\AnimationEditor.h" />
     <ClInclude Include="..\src\AssetManagement\EditableAssets\FrameData.h" />

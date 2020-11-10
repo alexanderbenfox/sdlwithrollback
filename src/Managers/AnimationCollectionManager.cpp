@@ -31,23 +31,16 @@ AnimationCollectionManager::AnimationCollectionManager() : _livingCollectionCoun
 
   // Load general animations like sfx
   JsonFile gSpritesFile(StringUtils::CorrectPath(jsonDir.GetPath() + "/general/spritesheets.json"));
+  AssetLibrary<SpriteSheet>::LoadJsonData(gSpritesFile);
+  
   JsonFile gAnimsFile(StringUtils::CorrectPath(jsonDir.GetPath() + "/general/animations.json"));
-
-  std::unordered_map<std::string, SpriteSheet> generalSpriteSheets;
-  for (auto& item : generalSpriteSheets)
-  {
-    item.second.GenerateSheetInfo();
-  }
-
   std::unordered_map<std::string, AnimationAsset> generalAnimations;
-
-  gSpritesFile.LoadContentsIntoMap(generalSpriteSheets);
   gAnimsFile.LoadContentsIntoMap(generalAnimations);
 
   unsigned int generalID = RegisterNewCollection("General");
   for (const auto& animation : generalAnimations)
   {
-    RegisterAnimationToCollection(animation.first, animation.second, generalSpriteSheets.at(animation.second.sheetName), _collections[generalID]);
+    _collections[generalID].RegisterAnimation(animation.first, animation.second);
   }
 
   //! load more complex character collections
@@ -75,18 +68,10 @@ unsigned int AnimationCollectionManager::RegisterCharacterCollection(const std::
   // clear collection before assigning animations
   newCollection.Clear();
 
-  //hack cause i suck
-  auto it = configFiles.GetAnimationConfig().find("Idle");
-
-  // set up texture scaling factor for offsets and hitbox offsets based on the texture size of the original image
-  const SpriteSheet& sheet = configFiles.GetAssociatedSpriteSheets().at(it->second.sheetName);
-  newCollection.textureScalingFactor = Vector2<float>((float)m_frameWidth / (float)sheet.frameSize.x, (float)m_frameHeight / (float)sheet.frameSize.y);
-
-  newCollection.RegisterAnimation("Idle", sheet, it->second.startIndexOnSheet, it->second.frames, it->second.anchor);
-
+  // register all animations and actions as events
   for (const auto& animation : configFiles.GetAnimationConfig())
   {
-    RegisterAnimationToCollection(animation.first, animation.second, configFiles.GetAssociatedSpriteSheets().at(animation.second.sheetName), newCollection);
+    newCollection.RegisterAnimation(animation.first, animation.second);
   }
 
   for (const auto& action : configFiles.GetActionConfig())
@@ -107,11 +92,4 @@ unsigned int AnimationCollectionManager::RegisterNewCollection(const std::string
   _idLookupTable[lookUpString] = assignedID;
 
   return assignedID;
-}
-
-void AnimationCollectionManager::RegisterAnimationToCollection(const std::string& name, const AnimationAsset& data, const SpriteSheet& sheet, AnimationCollection& collection)
-{
-  collection.RegisterAnimation(name, sheet, data.startIndexOnSheet, data.frames, data.anchor);
-  // make sure this gets loaded into the resource manager
-  ResourceManager::Get().GetAsset<RenderType>(sheet.src);
 }

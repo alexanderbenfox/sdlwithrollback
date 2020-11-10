@@ -16,7 +16,7 @@ class AnimationCollection;
 class HitboxEditor
 {
 public:
-  void OpenEditor(Animation* anim, ActionAsset& data, const SpriteSheet& sheet);
+  void OpenEditor(Animation* anim, ActionAsset& data, const std::string& spriteSheetID);
 
 private:
   void ChangeDisplay(Animation* anim, int frame, ActionAsset& data, const SpriteSheet& sheet);
@@ -33,8 +33,6 @@ class CharacterConfiguration
 {
 public:
   CharacterConfiguration(const std::string& pathToResourceFolder);
-
-  std::unordered_map<std::string, SpriteSheet> const& GetAssociatedSpriteSheets() const { return _spriteSheets; }
   std::unordered_map<std::string, AnimationAsset> const& GetAnimationConfig() const { return _animations; }
   std::unordered_map<std::string, ActionAsset> const& GetActionConfig() const { return _actions; }
 
@@ -42,7 +40,6 @@ public:
   void AddCharacterDisplay();
 
 private:
-
   template <typename T = IJsonLoadable>
   void LoadAssetFile(const char* file, std::unordered_map<std::string, T>& map)
   {
@@ -66,7 +63,6 @@ private:
   const FilePath _resourcePath;
   std::string _characterIdentifier;
 
-  std::unordered_map<std::string, SpriteSheet> _spriteSheets;
   std::unordered_map<std::string, AnimationAsset> _animations;
   std::unordered_map<std::string, ActionAsset> _actions;
 

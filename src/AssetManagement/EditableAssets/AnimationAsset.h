@@ -11,8 +11,18 @@ enum class AnchorPoint
   TL, TR, BL, BR, Size
 };
 
-struct AnimationAsset : public IJsonLoadable
+namespace std
 {
+  string to_string(AnchorPoint value);
+}
+
+AnchorPoint APFromString(const std::string i);
+
+Vector2<float> CalculateRenderOffset(AnchorPoint anchor, const Vector2<float>& textureRenderOffset, const Vector2<float>& rectTransform);
+
+class AnimationAsset : public IJsonLoadable
+{
+public:
   AnimationAsset() = default;
   AnimationAsset(const std::string& sheetName, int startIndex, int nFrames, AnchorPoint anch) : sheetName(sheetName), startIndexOnSheet(startIndex), frames(nFrames), anchor(anch) {}
   EditorString sheetName;
@@ -28,12 +38,20 @@ struct AnimationAsset : public IJsonLoadable
 
   virtual void DisplayInEditor() override;
 
-  void DisplayAnchorPointEditor(const SpriteSheet& animSpriteSheet);
+  //! General utility functions used to get extrapolated information
 
-  DisplayImage anchorEditBackground;
-  bool anchorEditBackgroundInit = false;
+  //! Displays anchor point editor using imgui
+  void DisplayAnchorPointEditor();
+  //! Gets position of anchor point relative to top left corner of first frame
+  Vector2<float> GetAnchorPosition() const;
+
 
   //! Gets first non-transparent pixel from the top left and bottom left
-  static Vector2<int> FindAnchorPoint(AnchorPoint anchorType, const SpriteSheet& spriteSheet, int startIdx, bool fromFirstFrame);
+  static Vector2<int> GenerateAnchorPoint(AnchorPoint anchorType, const SpriteSheet& spriteSheet, int startIdx, bool fromFirstFrame);
+
+private:
+  DisplayImage _anchorEditBackground;
+  bool _anchorEditBackgroundInit = false;
+  bool _editorWindowDisplayed = false;
 
 };

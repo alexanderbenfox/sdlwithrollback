@@ -646,6 +646,9 @@
     <ClInclude Include="..\src\DebugGUI\EditingCanvas.h">
       <Filter>Source Files\DebugGUI</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\AssetManagement\EditableAssets\AssetLibrary.h">
+      <Filter>Source Files\AssetManagement\EditableAssets</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

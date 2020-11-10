@@ -18,12 +18,12 @@ struct SpriteSheet : public IJsonLoadable
   //!
   int rows = 0;
   int columns = 0;
+  //!
+  Vector2<double> renderScalingFactor = Vector2<double>(1.0, 1.0);
 
   virtual void Load(const Json::Value& json) override;
   virtual void Write(Json::Value& json) const override;
   virtual void DisplayInEditor() override;
-
-
 
 };
 

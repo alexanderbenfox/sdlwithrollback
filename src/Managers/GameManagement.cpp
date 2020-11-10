@@ -33,6 +33,7 @@
 #include "Managers/GGPOManager.h"
 
 #include "AssetManagement/EditableAssets/Editor/AnimationEditor.h"
+#include "AssetManagement/EditableAssets/AssetLibrary.h"
 
 #include <sstream>
 
@@ -426,6 +427,13 @@ void GameManager::BeginGameLoop()
 #endif
 
   CharacterEditor::Get().AddCreateNewCharacterButton();
+
+  GUIController::Get().AddImguiWindowFunction("Assets", "Sprite Sheets", []()
+  {
+    ImGui::BeginGroup();
+    AssetLibrary<SpriteSheet>::DisplayInGUI();
+    ImGui::EndGroup();
+  });
 
   //start the timer at 60 fps
   _clock.Start(60);

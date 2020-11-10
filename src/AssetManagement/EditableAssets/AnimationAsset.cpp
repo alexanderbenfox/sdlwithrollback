@@ -3,9 +3,61 @@
 #include "DebugGUI/DisplayImage.h"
 
 #include "AssetManagement/Animation.h"
+#include "AssetLibrary.h"
 
 // this is for the find anchor
 #include "Managers/GameManagement.h"
+
+//______________________________________________________________________________
+namespace std
+{
+  string to_string(AnchorPoint value)
+  {
+    switch (value)
+    {
+    case AnchorPoint::BL: return "BL";
+    case AnchorPoint::TL: return "TL";
+    case AnchorPoint::BR: return "BR";
+    case AnchorPoint::TR: return "TL";
+    default: return "NaN";
+    }
+  }
+}
+
+//______________________________________________________________________________
+AnchorPoint APFromString(const std::string i)
+{
+  if (i == "TL")
+    return AnchorPoint::TL;
+  else if (i == "TR")
+    return AnchorPoint::TR;
+  else if (i == "BL")
+    return AnchorPoint::BL;
+  else
+    return AnchorPoint::BR;
+}
+
+//______________________________________________________________________________
+Vector2<float> CalculateRenderOffset(AnchorPoint anchor, const Vector2<float>& textureRenderOffset, const Vector2<float>& rectTransform)
+{
+  Vector2<float> offset = textureRenderOffset;
+
+  if (anchor == AnchorPoint::TL) {}
+  else if (anchor == AnchorPoint::BL)
+  {
+    offset.y -= rectTransform.y;
+  }
+  else if (anchor == AnchorPoint::TR)
+  {
+    offset.x -= rectTransform.x;
+  }
+  else
+  {
+    offset -= rectTransform;
+  }
+
+  return -rectTransform / 2.0f - offset;
+}
 
 //______________________________________________________________________________
 void AnimationAsset::Load(const Json::Value& json)
@@ -52,7 +104,11 @@ void AnimationAsset::Write(Json::Value& json) const
   json["totalFrames"] = frames;
   json["anchor"] = anchor == AnchorPoint::TL ? "TL" : anchor == AnchorPoint::TR ? "TR" : anchor == AnchorPoint::BL ? "BL" : "BR";
 
-  auto ap = json["anchorPoints"] = Json::Value(Json::objectValue);
+  auto& ap = json["anchorPoints"] = Json::Value(Json::objectValue);
+  /*ap["TL"] = Json::Value(Json::objectValue);
+  ap["TR"] = Json::Value(Json::objectValue);
+  ap["BR"] = Json::Value(Json::objectValue);
+  ap["BL"] = Json::Value(Json::objectValue);*/
   anchorPoints[(int)AnchorPoint::TL].Write(ap["TL"]);
   anchorPoints[(int)AnchorPoint::TR].Write(ap["TR"]);
   anchorPoints[(int)AnchorPoint::BL].Write(ap["BL"]);
@@ -69,71 +125,89 @@ void AnimationAsset::DisplayInEditor()
 
   ImGui::Text("Anchor Position");
   const char* items[] = { "TL", "TR", "BL", "BR" };
-  static const char* current_item = anchor == AnchorPoint::TL ? "TL" : anchor == AnchorPoint::TR ? "TR" : anchor == AnchorPoint::BL ? "BL" : "BR";
-  auto func = [this](const std::string& i)
-  {
-    if (i == "TL")
-      anchor = AnchorPoint::TL;
-    else if (i == "TR")
-      anchor = AnchorPoint::TR;
-    else if (i == "BL")
-      anchor = AnchorPoint::BL;
-    else
-      anchor = AnchorPoint::BR;
-  };
+  static const char* current_item = std::to_string(anchor).c_str();
+  auto func = [this](const std::string& i) { anchor = APFromString(i); };
   DropDown::Show(current_item, items, 4, func);
+
+  DisplayAnchorPointEditor();
 
   ImGui::EndGroup();
 }
 
 //______________________________________________________________________________
-void AnimationAsset::DisplayAnchorPointEditor(const SpriteSheet& animSpriteSheet)
+void AnimationAsset::DisplayAnchorPointEditor()
 {
-  if (!anchorEditBackgroundInit)
+  if (_editorWindowDisplayed)
   {
-    Vector2<float> frameSize = animSpriteSheet.frameSize;
-
-    int x = startIndexOnSheet % animSpriteSheet.columns;
-    int y = startIndexOnSheet / animSpriteSheet.columns;
-    Vector2<float> tlPos(x * frameSize.x, y * frameSize.y);
-
-    anchorEditBackground = DisplayImage(animSpriteSheet.src, Rect<float>(tlPos, tlPos + frameSize), 512);
-
-    if (anchorEditBackground.ptr)
+    ImGui::Begin("Anchor Point Editor");
+    if (!_anchorEditBackgroundInit)
     {
-      for (int i = 0; i < (int)AnchorPoint::Size; i++)
+      const SpriteSheet& animSpriteSheet = AssetLibrary<SpriteSheet>::Get(sheetName);
+      Vector2<float> frameSize = animSpriteSheet.frameSize;
+
+      int x = startIndexOnSheet % animSpriteSheet.columns;
+      int y = startIndexOnSheet / animSpriteSheet.columns;
+      Vector2<float> tlPos(x * frameSize.x, y * frameSize.y);
+
+      _anchorEditBackground = DisplayImage(animSpriteSheet.src, Rect<float>(tlPos, tlPos + frameSize), 512);
+
+      if (_anchorEditBackground.ptr)
       {
-        anchorPoints[(int)i].SetCanvasSize(anchorEditBackground.displaySize);
+        for (int i = 0; i < (int)AnchorPoint::Size; i++)
+        {
+          anchorPoints[(int)i].SetCanvasSize(_anchorEditBackground.displaySize);
+        }
+        _anchorEditBackgroundInit = true;
       }
-      anchorEditBackgroundInit = true;
     }
-      
-  }
 
-
-  if (anchorEditBackground.ptr)
-  {
-    std::string anchorPtLabel = anchor == AnchorPoint::TL ? "TL" : anchor == AnchorPoint::TR ? "TR" : anchor == AnchorPoint::BL ? "BL" : "BR";
-    ImGui::Text("Displaying Anchor Point = %s", anchorPtLabel.c_str());
-
-    // display image within child
-    ImGui::BeginChild("Anchor Point Editor");
-
-    Vector2<float> position = anchorEditBackground.Show();
-    anchorPoints[(int)anchor].DisplayAtPosition(position);
-
-    ImGui::EndChild();
-
-    if (ImGui::Button("Auto Calculate Anchor Points"))
+    if (_anchorEditBackground.ptr)
     {
-      Vector2<int> anchorPos = FindAnchorPoint(anchor, animSpriteSheet, startIndexOnSheet, false);
-      anchorPoints[(int)anchor].Import(anchorPos, animSpriteSheet.frameSize);
+      std::string anchorPtLabel = anchor == AnchorPoint::TL ? "TL" : anchor == AnchorPoint::TR ? "TR" : anchor == AnchorPoint::BL ? "BL" : "BR";
+      ImGui::Text("Displaying Anchor Point = %s", anchorPtLabel.c_str());
+
+      // display image within child
+      ImGui::BeginChild("Anchor Point Editor");
+
+      Vector2<float> position = _anchorEditBackground.Show();
+      anchorPoints[(int)anchor].DisplayAtPosition(position);
+
+      ImGui::EndChild();
+
+      if (ImGui::Button("Auto Calculate Anchor Points"))
+      {
+        const SpriteSheet& animSpriteSheet = AssetLibrary<SpriteSheet>::Get(sheetName);
+        Vector2<int> anchorPos = GenerateAnchorPoint(anchor, animSpriteSheet, startIndexOnSheet, false);
+        anchorPoints[(int)anchor].Import(anchorPos, animSpriteSheet.frameSize);
+      }
+    }
+
+    if (ImGui::Button("Close"))
+    {
+      _editorWindowDisplayed = false;
+    }
+    ImGui::End();
+  }
+  else
+  {
+    if (ImGui::Button("Edit Anchor Points"))
+    {
+      _editorWindowDisplayed = true;
     }
   }
+
 }
 
 //______________________________________________________________________________
-Vector2<int> AnimationAsset::FindAnchorPoint(AnchorPoint anchorType, const SpriteSheet& spriteSheet, int startIdx, bool fromFirstFrame)
+Vector2<float> AnimationAsset::GetAnchorPosition() const
+{
+  const SpriteSheet& animSpriteSheet = AssetLibrary<SpriteSheet>::Get(sheetName);
+  Vector2<double> const& anchPos = anchorPoints[(int)anchor].Export(animSpriteSheet.frameSize);
+  return static_cast<Vector2<float>>(anchPos);
+}
+
+//______________________________________________________________________________
+Vector2<int> AnimationAsset::GenerateAnchorPoint(AnchorPoint anchorType, const SpriteSheet& spriteSheet, int startIdx, bool fromFirstFrame)
 {
   Resource<SDL_Texture>& sheetTexture = ResourceManager::Get().GetAsset<SDL_Texture>(spriteSheet.src);
   // Get the window format

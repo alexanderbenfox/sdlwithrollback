@@ -32,10 +32,6 @@ void CharacterConstructor::InitSpatialComponents(std::shared_ptr<Entity> player,
   player->GetComponent<Transform>()->SetWidthAndHeight(entitySize.x, entitySize.y);
   auto rp = player->GetComponent<RenderProperties>();
 
-
-  
-  rp->unscaledRenderWidth = entitySize.x;
-
   player->GetComponent<DynamicCollider>()->Init(Vector2<double>::Zero, entitySize);
   player->GetComponent<Hurtbox>()->Init(Vector2<double>::Zero, entitySize);
 
@@ -49,18 +45,8 @@ void CharacterConstructor::InitSpatialComponents(std::shared_ptr<Entity> player,
   // sets this as the player entity to distinguish between fireballs (which are on the same team) from the player
   player->GetComponent<TeamComponent>()->playerEntity = true;
 
-  auto mySize = GAnimArchive.GetCollection(player->GetComponent<Animator>()->animCollectionID).GetAnimation("Idle")->GetFrameWH();
-  float verticalScaling = (float)m_frameHeight / (float)mySize.y;
-  float horizontalScaling = (float)m_frameWidth / (float)mySize.x;
-  rp->renderScaling = Vector2<float>(horizontalScaling, verticalScaling);
-  //player->GetComponent<RenderProperties>()->baseRenderOffset *= player->GetComponent<RenderProperties>()->renderScaling;
-  //rp->offsetOfAnchorFromCenter.x *= horizontalScaling;
-
-    //add offset of corner to center of render space
-  rp->offsetOfAnchorFromCenter = ((1.0 / 2.0) * entitySize);
-  // add additional offset from corner of render space to corner of texture space
-  rp->offsetOfAnchorFromCenter += (GAnimArchive.GetCollection(GAnimArchive.GetCollectionID(character)).GetAnimation("Idle")->GetMainAnchor().second * rp->renderScaling);
-  //rp->renderingRect.y -= (static_cast<double>(textureSize.y) * .05);
+  //add offset of corner to center of render space
+  rp->rectTransform = entitySize;
 }
 
 //______________________________________________________________________________

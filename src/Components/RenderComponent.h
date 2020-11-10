@@ -6,6 +6,7 @@
 
 #include "Transform.h"
 #include "AssetManagement/Text.h"
+#include "AssetManagement/EditableAssets/AnimationAsset.h"
 
 #include <functional>
 #include <cmath>
@@ -96,32 +97,35 @@ public:
   RenderProperties();
 
   Vector2<float> renderScaling = Vector2<float>(1.0f, 1.0f);
-  //! inherent offset added to any display from this entity
-  Vector2<float> offsetOfAnchorFromCenter;
-  //! Display offset from top left of texture to top left of transform
-  Vector2<float> offsetFromAnchor;
+  //! Defines the anchor points on the rendered image
+  Vector2<float> rectTransform;
+  //! Display offset from top left of texture to anchor point of the rect transform
+  Vector2<float> offset;
+  //! 
+  AnchorPoint anchor = AnchorPoint::TL;
   //! Should the display be flipped horizontally
   bool horizontalFlip;
-  //! Size of horizontal segment within an image defines the part that is to be displayed (used for flipping horizontally)
-  float unscaledRenderWidth;
 
   virtual void SetDisplayColor(Uint8 r, Uint8 g, Uint8 b);
   virtual void SetDisplayColor(Uint8 r, Uint8 g, Uint8 b, Uint8 a);
   virtual SDL_Color GetDisplayColor() const;
-  Vector2<float> Offset() const;
 
   void Serialize(std::ostream& os) const override
   {
-    os << offsetOfAnchorFromCenter;
-    os << offsetFromAnchor;
+    os << renderScaling;
+    os << rectTransform;
+    os << offset;
+    Serializer<AnchorPoint>::Serialize(os, anchor);
     Serializer<bool>::Serialize(os, horizontalFlip);
     Serializer<SDL_Color>::Serialize(os, _displayColor);
   }
 
   void Deserialize(std::istream& is) override
   {
-    is >> offsetOfAnchorFromCenter;
-    is >> offsetFromAnchor;
+    is >> renderScaling;
+    is >> rectTransform;
+    is >> offset;
+    Serializer<AnchorPoint>::Deserialize(is, anchor);
     Serializer<bool>::Deserialize(is, horizontalFlip);
     Serializer<SDL_Color>::Deserialize(is, _displayColor);
   }
@@ -130,8 +134,10 @@ public:
   {
     std::stringstream ss;
     ss << "RenderProperties: \n";
-    ss << "\tBase Render Offset: " << offsetOfAnchorFromCenter.x << " " << offsetOfAnchorFromCenter.y << "\n";
-    ss << "\tOffset: " << offsetFromAnchor.x << " " << offsetFromAnchor.y << "\n";
+    ss << "\tRender Scaling: " << renderScaling.x << " " << renderScaling.y << "\n";
+    ss << "\tRect Transform Bounds: " << rectTransform.x << " " << rectTransform.y << "\n";
+    ss << "\tOffset: " << offset.x << " " << offset.y << "\n";
+    ss << "\tAnchor: " << std::to_string(anchor) << "\n";
     ss << "\tHorizontal flip: " << horizontalFlip << "\n";
     ss << "\tColor: " << _displayColor.r << " " << _displayColor.g << " " << _displayColor.b << " " << _displayColor.a << "\n";
     return ss.str();
@@ -152,7 +158,7 @@ template <> struct ComponentInitParams<RenderProperties>
   Uint8 a = 255;
   static void Init(RenderProperties& component, const ComponentInitParams<RenderProperties>& params)
   {
-    component.offsetOfAnchorFromCenter = params.offsetFromCenter;
+    component.offset = params.offsetFromCenter;
     component.SetDisplayColor(params.r, params.g, params.b, params.a);
   }
 };

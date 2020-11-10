@@ -38,9 +38,9 @@ public:
   IEditorGeometryCanvas() = default;
   IEditorGeometryCanvas(Vector2<T> canvas) : _canvasSize(canvas) {}
 
-  void Import(const Geometry<T>& geom, const Vector2<T>& srcCanvasSize) { _geom = EditableTraits<Geometry, T>::F::Scale(geom, srcCanvasSize, _canvasSize); }
+  void Import(const Geometry<T>& geom, const Vector2<T>& srcCanvasSize) { _geom = EditableTraits<Geometry, T>::F::Scale(geom, srcCanvasSize, _storedSize); }
 
-  Geometry<T> Export(const Vector2<T>& dstCanvasSize) const { return EditableTraits<Geometry, T>::F::Scale(_geom, _canvasSize, dstCanvasSize); }
+  Geometry<T> Export(const Vector2<T>& dstCanvasSize) const { return EditableTraits<Geometry, T>::F::Scale(_geom, _storedSize, dstCanvasSize); }
 
   void ClearGeometry() { EditableTraits<Geometry, T>::F::Clear(_geom); }
   bool UserDataExists() const { return EditableTraits<Geometry, T>::F::HasData(_geom); }
@@ -52,6 +52,7 @@ public:
 protected:
   Geometry<T> _geom;
   Vector2<T> _canvasSize;
+  Vector2<T> _storedSize = Vector2<T>(100.0, 100.0);
 
 };
 
@@ -146,7 +147,10 @@ template <typename T>
 inline Vector2<T> EditablePointTraits<T>::Scale(const Vector2<T>& pt, const Vector2<T>& srcCanvas, const Vector2<T>& dstCanvas)
 {
   const Vector2<T> scaler = dstCanvas / srcCanvas;
-  return pt * scaler;
+  Vector2<T> scaled = pt;
+  scaled.x *= scaler.x;
+  scaled.y *= scaler.y;
+  return scaled;
 }
 
 //______________________________________________________________________________
@@ -176,6 +180,7 @@ inline void IEditorGeometryCanvas<T, Geometry>::DisplayAtPosition(Vector2<float>
     // check if its inside the canvas
     if (!(cursorPos.x < 0 || cursorPos.y < 0 || cursorPos.x > _canvasSize.x || cursorPos.y > _canvasSize.y))
     {
+      cursorPos = EditablePointTraits<T>::Scale(cursorPos, _canvasSize, _storedSize);
       EditableTraits<Geometry, T>::F::OnClick(_geom, cursorPos);
     }
   }
@@ -184,7 +189,8 @@ inline void IEditorGeometryCanvas<T, Geometry>::DisplayAtPosition(Vector2<float>
     EditableTraits<Geometry, T>::F::Clear(_geom);
   }
 
-  // draw hitbox if it exists and check for clicks
-  EditableTraits<Geometry, T>::F::DrawGeometry(_geom, windowPosition);
+  // draw geom scaled to canvas
+  Geometry<T> drawnGeom = EditableTraits<Geometry, T>::F::Scale(_geom, _storedSize, _canvasSize);
+  EditableTraits<Geometry, T>::F::DrawGeometry(drawnGeom, windowPosition);
 
 }

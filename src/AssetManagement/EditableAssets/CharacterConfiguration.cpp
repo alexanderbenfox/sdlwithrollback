@@ -9,8 +9,10 @@
 #include "DebugGUI/DisplayImage.h"
 #include "DebugGUI/EditorRect.h"
 
-void HitboxEditor::OpenEditor(Animation* anim, ActionAsset& data, const SpriteSheet& sheet)
+//______________________________________________________________________________
+void HitboxEditor::OpenEditor(Animation* anim, ActionAsset& data, const std::string& spriteSheetID)
 {
+  const SpriteSheet& sheet = AssetLibrary<SpriteSheet>::Get(spriteSheetID);
   GameManager::Get().TriggerEndOfFrame([this, anim, &sheet, &data]()
     {
       static int frame = 0;
@@ -100,32 +102,25 @@ void HitboxEditor::ShowHitboxEditor()
   ImGui::EndChild();
 }
 
+//______________________________________________________________________________
 CharacterConfiguration::CharacterConfiguration(const std::string& pathToResourceFolder) : _resourcePath(pathToResourceFolder)
 {
   FilePath p(pathToResourceFolder);
   _characterIdentifier = p.GetLast();
 
-  LoadAssetFile("spritesheets.json", _spriteSheets);
-
-  // remove this once the data is saved in the json...
-  for (auto& item : _spriteSheets)
-  {
-    item.second.GenerateSheetInfo();
-  }
+  //LoadAssetFile("spritesheets.json", _spriteSheets);
+  // should move sprite sheets out of character folders - remove this once that is done
+  FilePath path = _resourcePath;
+  path.Append("spritesheets.json");
+  JsonFile json(path.GetPath());
+  AssetLibrary<SpriteSheet>::LoadJsonData(json);
 
   LoadAssetFile("animations.json", _animations);
-
   LoadAssetFile("actions.json", _actions);
-  // get the "sheetToAnimFrame" data and store it so this doesnt have to be tied to the collection
-  /*for (auto& item : _actions)
-  {
-    _actionEventLookupers[item.first] = AnimationEventHelper::ParseAnimationEventList(item.second.eventData, item.second.frameData, _animations[item.first].frames);
-  }*/
 
   AddCharacterDisplay();
 }
 
-//______________________________________________________________________________
 void CharacterConfiguration::ReloadActionDebug(const std::string& actionName, ActionAsset& data)
 {
   // hitbox editor window
@@ -135,7 +130,7 @@ void CharacterConfiguration::ReloadActionDebug(const std::string& actionName, Ac
 
   if (ImGui::Button("View/Edit Hitboxes"))
   {
-    hitboxEditor.OpenEditor(collection.GetAnimation(actionName), data, _spriteSheets[_animations[actionName].sheetName]);
+    hitboxEditor.OpenEditor(collection.GetAnimation(actionName), data, _animations[actionName].sheetName);
   }
 
   if (ImGui::Button("Set Frame Data"))
@@ -151,7 +146,7 @@ void CharacterConfiguration::AddCharacterDisplay()
   GUIController::Get().AddImguiWindowFunction("Characters", _characterIdentifier, "Assets", [this]()
     {
       unsigned int counter = 0;
-      if (ImGui::CollapsingHeader("Sprite Sheets"))
+      /*if (ImGui::CollapsingHeader("Sprite Sheets"))
       {
         ImGui::Text("Sprite Sheets");
         for (auto& item : _spriteSheets)
@@ -173,7 +168,7 @@ void CharacterConfiguration::AddCharacterDisplay()
         {
           SaveAssetFile("spritesheets.json", _spriteSheets);
         }
-      }
+      }*/
 
       if (ImGui::CollapsingHeader("Animations"))
       {
@@ -185,16 +180,24 @@ void CharacterConfiguration::AddCharacterDisplay()
           ImGui::BeginChild(name.c_str(), ImVec2(500, 6 * fieldHeight), true);
           ImGui::Text("%s", item.first.c_str());
           item.second.DisplayInEditor();
-          ImGui::EndChild();
-
-          std::string anchorPointEdit = item.first + " Edit Anchor";
-          if (ImGui::CollapsingHeader(anchorPointEdit.c_str()))
+          if (ImGui::Button("Set Anchor In-Game"))
           {
-            // display offset/anchor point stuff
-            const SpriteSheet& animSpriteSheet = _spriteSheets[item.second.sheetName];
-            item.second.DisplayAnchorPointEditor(animSpriteSheet);
+            GAnimArchive.GetCollection(GAnimArchive.GetCollectionID(_characterIdentifier)).GetAnimation(item.first)->anchorPoint = std::make_pair(item.second.anchor, item.second.GetAnchorPosition());
+          }
+          ImGui::EndChild();
+        }
+
+        if (ImGui::Button("Auto Generate Offset For Animations "))
+        {
+          for (auto& item : _animations)
+          {
+            const SpriteSheet& animSpriteSheet = AssetLibrary<SpriteSheet>::Get(item.second.sheetName);
+            Vector2<int> anchorPos = AnimationAsset::GenerateAnchorPoint(item.second.anchor, animSpriteSheet, item.second.startIndexOnSheet, false);
+            item.second.anchorPoints[(int)item.second.anchor].Import(anchorPos, animSpriteSheet.frameSize);
+            GAnimArchive.GetCollection(GAnimArchive.GetCollectionID(_characterIdentifier)).GetAnimation(item.first)->anchorPoint = std::make_pair(item.second.anchor, item.second.GetAnchorPosition());
           }
         }
+
         ImGui::Text("New Animation");
 
         animName.DisplayEditable("New Animation Name");

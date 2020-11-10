@@ -44,6 +44,17 @@ public:
     }
   }
 
+  //! Specializer for something that might have to be done on load
+  template <typename T = IJsonLoadable>
+  void LoadContentsIntoMap(std::unordered_map<std::string, T>& map, void (*onLoad)(T&)) const
+  {
+    for (auto& item : _obj.getMemberNames())
+    {
+      map[item].Load(_obj[item]);
+      onLoad(map[item]);
+    }
+  }
+
   template <typename T = IJsonLoadable>
   void SaveContentsIntoMap(const std::unordered_map<std::string, T>& map)
   {

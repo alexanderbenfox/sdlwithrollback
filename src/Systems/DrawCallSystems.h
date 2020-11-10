@@ -25,7 +25,13 @@ public:
       displayOp->srcRect = renderer.sourceRect;
       displayOp->textureResource = renderer.GetRenderResource();
 
-      Vector2<float> renderOffset = properties.Offset();
+      // get scaled rect transform to scale between texture space and game space
+      Vector2<float> scaledRectTransform = properties.rectTransform / properties.renderScaling;
+      Vector2<float> renderOffset = CalculateRenderOffset(properties.anchor, properties.offset, scaledRectTransform);
+      if (properties.horizontalFlip)
+        renderOffset.x = -renderer.sourceRect.w - renderOffset.x;// +scaledRectTransform.x;
+
+      renderOffset *= properties.renderScaling;
       Vector2<float> targetPos(transform.position.x + renderOffset.x * transform.scale.x, transform.position.y + renderOffset.y * transform.scale.y);
 
       displayOp->targetRect = DrawRect<float>(targetPos.x, targetPos.y,
@@ -65,7 +71,7 @@ public:
         displayOp->textureResource = drawOp.texture;
 
         Vector2<int> drawOffset(drawOp.x, drawOp.y);
-        Vector2<int> renderOffset = properties.Offset() + drawOffset;
+        Vector2<int> renderOffset = CalculateRenderOffset(properties.anchor, properties.offset, properties.rectTransform) + drawOffset;
 
         displayOp->targetRect = DrawRect<float>(displayPosition.x + renderOffset.x * transform.scale.x,
           displayPosition.y + renderOffset.y * transform.scale.y,
