@@ -63,42 +63,47 @@
 		},
 		"sheet_location" : "spritesheets\\grounded_attacks.png"
 	},
-	"HanAttacks" : 
+	"HanBlockAttackCrouching" : 
 	{
-		"columns" : 14,
+		"columns" : 6,
 		"frameSize" : 
 		{
-			"x" : 357,
-			"y" : 271
+			"x" : 1334,
+			"y" : 1013
 		},
-		"rows" : 1,
+		"rows" : 8,
 		"sheetSize" : 
 		{
-			"x" : 5000,
-			"y" : 271
-		},
-		"sheet_location" : "spritesheets\\hanvelsing.png"
-	},
-	"HanIdleAttacks" : 
-	{
-		"columns" : 40,
-		"frameSize" : 
-		{
-			"x" : 0,
-			"y" : 0
-		},
-		"rows" : 1,
-		"sheetSize" : 
-		{
-			"x" : 0,
-			"y" : 0
+			"x" : 8004,
+			"y" : 8001
 		},
     "renderScalingFactor" : 
 		{
-			"x" : 0.55,
-			"y" : 0.5
+			"x" : 0.13,
+			"y" : 0.13
 		},
-		"sheet_location" : "spritesheets\\hanwalkingandattacks.png"
+		"sheet_location" : "spritesheets\\han-block&attacks.png"
+	},
+	"HanJumpIdleWalk" : 
+	{
+		"columns" : 5,
+		"frameSize" : 
+		{
+			"x" : 1024,
+			"y" : 1013
+		},
+		"rows" : 5,
+		"sheetSize" : 
+		{
+			"x" : 5120,
+			"y" : 5065
+		},
+    "renderScalingFactor" : 
+		{
+			"x" : 0.13,
+			"y" : 0.13
+		},
+		"sheet_location" : "spritesheets\\han-jump&idle.png"
 	},
 	"Hitstun" : 
 	{

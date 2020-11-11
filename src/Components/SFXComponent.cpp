@@ -3,9 +3,10 @@
 #include "Systems/TimerSystem/TimerContainer.h"
 
 #include "Managers/AnimationCollectionManager.h"
+#include "Systems/ActionSystems/EnactActionSystem.h"
 
 // for hit block sparks sprite sheet data... stupid but ill fix later
-SpriteSheet hitblockSparksInfo("sfx\\hitblocksparks.png", 8, 7, true);
+//SpriteSheet hitblockSparksInfo("sfx\\hitblocksparks.png", 8, 7, true);
 
 
 void SFXComponent::OnAdd(const EntityID& entity)
@@ -14,13 +15,6 @@ void SFXComponent::OnAdd(const EntityID& entity)
   _sfxEntity->SetScale(Vector2<float>(0.75, 0.75f));
 
   _sfxEntity->GetComponent<Animator>()->animCollectionID = AnimationCollectionManager::Get().GetCollectionID("General");
-
-  static bool SSDataGenerated = false;
-  if (!SSDataGenerated)
-  {
-    hitblockSparksInfo.GenerateSheetInfo();
-    SSDataGenerated = true;
-  }
 }
 
 void SFXComponent::OnRemove(const EntityID& entity)
@@ -33,16 +27,13 @@ void SFXComponent::ShowHitSparks(bool directionRight)
   if (_subroutine)
     _subroutine->Cancel();
 
-  Vector2<float> size = (Vector2<float>)hitblockSparksInfo.frameSize * _sfxEntity->GetComponent<Transform>()->scale;
+  //Vector2<float> size = (Vector2<float>)hitblockSparksInfo.frameSize * _sfxEntity->GetComponent<Transform>()->scale;
 
-  _sfxEntity->GetComponent<Transform>()->position = Vector2<float>(showLocation.x - size.x / 2, showLocation.y - size.y / 2);
-  _sfxEntity->GetComponent<Animator>()->Play("HitSparks", false, 2.5f, true);
+  _sfxEntity->GetComponent<Transform>()->position = showLocation;//Vector2<float>(showLocation.x - size.x / 2, showLocation.y - size.y / 2);
 
   // add render properties so that the render system shows it
   _sfxEntity->AddComponent<RenderProperties>();
-  _sfxEntity->GetComponent<RenderProperties>()->horizontalFlip = !directionRight;
-  int flipModifier = !directionRight ? -1 : 1;
-  _sfxEntity->GetComponent<RenderProperties>()->offset = Vector2<int>(flipModifier * 40, 0);
+  EnactAnimationActionSystem::PlayAnimation(_sfxEntity->GetID(), "HitSparks", false, 2.5f, true, directionRight);
 
   // set action timer
   _subroutine = std::shared_ptr<ActionTimer>(new SimpleActionTimer(
@@ -56,16 +47,13 @@ void SFXComponent::ShowBlockSparks(bool directionRight)
   if (_subroutine)
     _subroutine->Cancel();
 
-  Vector2<float> size = (Vector2<float>)hitblockSparksInfo.frameSize * _sfxEntity->GetComponent<Transform>()->scale;
+  //Vector2<float> size = (Vector2<float>)hitblockSparksInfo.frameSize * _sfxEntity->GetComponent<Transform>()->scale;
   
-  _sfxEntity->GetComponent<Transform>()->position = Vector2<float>(showLocation.x - size.x / 2, showLocation.y - size.y / 2);
-  _sfxEntity->GetComponent<Animator>()->Play("BlockSparks", false, 2.5f, true);
+  _sfxEntity->GetComponent<Transform>()->position = showLocation;//Vector2<float>(showLocation.x - size.x / 2, showLocation.y - size.y / 2);
+  _sfxEntity->AddComponent<RenderProperties>();
+  EnactAnimationActionSystem::PlayAnimation(_sfxEntity->GetID(), "BlockSparks", false, 2.5f, true, directionRight);
 
   // add render properties so that the render system shows it
-  _sfxEntity->AddComponent<RenderProperties>();
-  _sfxEntity->GetComponent<RenderProperties>()->horizontalFlip = !directionRight;
-  int flipModifier = !directionRight ? -1 : 1;
-  _sfxEntity->GetComponent<RenderProperties>()->offset = Vector2<int>(flipModifier * 110, 0);
 
   // set action timer
   _subroutine = std::shared_ptr<ActionTimer>(new SimpleActionTimer(

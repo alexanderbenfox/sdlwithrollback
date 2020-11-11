@@ -34,27 +34,7 @@ void AnimationEvent::EndEntitySpawnEvent(EntityID entity)
 //______________________________________________________________________________
 EventList AnimationEventHelper::BuildEventList(const Vector2<float>& textureScalingFactor, const Vector2<float> texToCornerOffset, const std::vector<EventData>& animEventData, const FrameData& frameData, int totalSheetFrames, std::vector<int>& animFrameToSheetFrame, AnchorPoint animAnchorPt)
 {
-  Vector2<float> offset(texToCornerOffset.x + m_characterWidth / 2.0f, texToCornerOffset.y + m_characterHeight / 2.0f);
-
-  if (animAnchorPt == AnchorPoint::TL)
-  {
-
-  }
-  else if (animAnchorPt == AnchorPoint::BL)
-  {
-    offset.x = texToCornerOffset.x + m_characterWidth / 2.0f;
-    offset.y = texToCornerOffset.y - m_characterHeight / 2.0f;
-  }
-  else if (animAnchorPt == AnchorPoint::TR)
-  {
-    offset.x = texToCornerOffset.x - m_characterWidth / 2.0f;
-    offset.y = texToCornerOffset.y + m_characterHeight / 2.0f;
-  }
-  else
-  {
-    offset.x = texToCornerOffset.x - m_characterWidth / 2.0f;
-    offset.y = texToCornerOffset.y - m_characterHeight / 2.0f;
-  }
+  Vector2<float> offset = -CalculateRenderOffset(animAnchorPt, texToCornerOffset, Vector2<float>(m_characterWidth, m_characterHeight));
 
   auto DespawnHitbox = [](EntityID entity) { GameManager::Get().GetEntityByID(entity)->RemoveComponent<Hitbox>(); };
   auto DespawnThrowStuff = [](EntityID entity)

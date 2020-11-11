@@ -32,8 +32,7 @@ public:
     return c;
   }
 
-  // remove this for a better way later
-  //void ReloadRyuAnimation() {}
+  void EditGeneralAnimations();
 
 private:
   //! Loads all animation collections currently
@@ -58,5 +57,7 @@ private:
   std::unordered_map<std::string, CharacterConfiguration> _characters;
   //!
   FilePath _characterDir;
+  //! General animation list
+  std::unordered_map<std::string, AnimationAsset> _generalAnimations;
 
 };

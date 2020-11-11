@@ -198,14 +198,16 @@ void CharacterConfiguration::AddCharacterDisplay()
           }
         }
 
-        ImGui::Text("New Animation");
-
-        animName.DisplayEditable("New Animation Name");
-        newAnimation.DisplayInEditor();
-        if (ImGui::Button("Add Anim"))
+        if (ImGui::CollapsingHeader("Create New Animation"))
         {
-          _animations.insert(std::make_pair((std::string)animName, newAnimation));
+          animName.DisplayEditable("New Animation Name");
+          newAnimation.DisplayInEditor();
+          if (ImGui::Button("Add Anim"))
+          {
+            _animations.insert(std::make_pair((std::string)animName, newAnimation));
+          }
         }
+
 
         if (ImGui::Button("Save Animations"))
         {
@@ -224,13 +226,15 @@ void CharacterConfiguration::AddCharacterDisplay()
             ReloadActionDebug(item.first, item.second);
           }
         }
-        ImGui::Text("New Action");
 
-        actionName.DisplayEditable("New Action Name");
-        newAction.DisplayInEditor();
-        if (ImGui::Button("Add Action"))
+        if (ImGui::CollapsingHeader("Create New Action"))
         {
-          _actions.insert(std::make_pair((std::string)actionName, newAction));
+          actionName.DisplayEditable("New Action Name");
+          newAction.DisplayInEditor();
+          if (ImGui::Button("Add Action"))
+          {
+            _actions.insert(std::make_pair((std::string)actionName, newAction));
+          }
         }
 
         if (ImGui::Button("Save Actions"))

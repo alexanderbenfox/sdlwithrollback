@@ -34,11 +34,10 @@ AnimationCollectionManager::AnimationCollectionManager() : _livingCollectionCoun
   AssetLibrary<SpriteSheet>::LoadJsonData(gSpritesFile);
   
   JsonFile gAnimsFile(StringUtils::CorrectPath(jsonDir.GetPath() + "/general/animations.json"));
-  std::unordered_map<std::string, AnimationAsset> generalAnimations;
-  gAnimsFile.LoadContentsIntoMap(generalAnimations);
+  gAnimsFile.LoadContentsIntoMap(_generalAnimations);
 
   unsigned int generalID = RegisterNewCollection("General");
-  for (const auto& animation : generalAnimations)
+  for (const auto& animation : _generalAnimations)
   {
     _collections[generalID].RegisterAnimation(animation.first, animation.second);
   }
@@ -92,4 +91,31 @@ unsigned int AnimationCollectionManager::RegisterNewCollection(const std::string
   _idLookupTable[lookUpString] = assignedID;
 
   return assignedID;
+}
+
+void AnimationCollectionManager::EditGeneralAnimations()
+{
+  static int gAnimCounter = 0;
+  for (auto& item : _generalAnimations)
+  {
+    const int fieldHeight = 25;
+    std::string name = "##item:" + std::to_string(gAnimCounter++);
+    ImGui::BeginChild(name.c_str(), ImVec2(500, 6 * fieldHeight), true);
+    ImGui::Text("%s", item.first.c_str());
+    item.second.DisplayInEditor();
+    if (ImGui::Button("Set Anchor In-Game"))
+    {
+      GAnimArchive.GetCollection(GetCollectionID("General")).GetAnimation(item.first)->anchorPoint = std::make_pair(item.second.anchor, item.second.GetAnchorPosition());
+    }
+    ImGui::EndChild();
+  }
+
+  if (ImGui::Button("Save General Animations"))
+  {
+    FilePath jsonDir(ResourceManager::Get().GetResourcePath() + "json");
+    JsonFile gAnimsFile(StringUtils::CorrectPath(jsonDir.GetPath() + "/general/animations.json"));
+    gAnimsFile.SaveContentsIntoFile(_generalAnimations);
+  }
+
+  gAnimCounter = 0;
 }

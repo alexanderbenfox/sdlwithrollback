@@ -8,7 +8,7 @@
 
 enum class AnchorPoint
 {
-  TL, TR, BL, BR, Size
+  TL, TR, BL, BR, Center, Size
 };
 
 namespace std
@@ -53,5 +53,7 @@ private:
   DisplayImage _anchorEditBackground;
   bool _anchorEditBackgroundInit = false;
   bool _editorWindowDisplayed = false;
+
+  std::string _anchorDropDownCurrentItem;
 
 };

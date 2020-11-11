@@ -14,6 +14,11 @@
 				"x" : 0.0,
 				"y" : 0.0
 			},
+			"Center" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
 			"TL" : 
 			{
 				"x" : 0.0,
@@ -44,6 +49,11 @@
 				"x" : 0.0,
 				"y" : 0.0
 			},
+			"Center" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
 			"TL" : 
 			{
 				"x" : 0.0,
@@ -66,10 +76,15 @@
 		{
 			"BL" : 
 			{
-				"x" : 13.0,
-				"y" : 99.122810363769531
+				"x" : 27.744806289672852,
+				"y" : 95.703125
 			},
 			"BR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"Center" : 
 			{
 				"x" : 0.0,
 				"y" : 0.0
@@ -85,9 +100,9 @@
 				"y" : 0.0
 			}
 		},
-		"sheet_name" : "Blocks",
-		"startFrame" : 9,
-		"totalFrames" : 6
+		"sheet_name" : "HanBlockAttackCrouching",
+		"startFrame" : 0,
+		"totalFrames" : 4
 	},
 	"BlockLow" : 
 	{
@@ -100,6 +115,11 @@
 				"y" : 99.122810363769531
 			},
 			"BR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"Center" : 
 			{
 				"x" : 0.0,
 				"y" : 0.0
@@ -134,6 +154,11 @@
 				"x" : 0.0,
 				"y" : 0.0
 			},
+			"Center" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
 			"TL" : 
 			{
 				"x" : 0.0,
@@ -145,21 +170,26 @@
 				"y" : 0.0
 			}
 		},
-		"sheet_name" : "Blocks",
-		"startFrame" : 5,
+		"sheet_name" : "HanBlockAttackCrouching",
+		"startFrame" : 0,
 		"totalFrames" : 4
 	},
 	"Crouch" : 
 	{
-		"anchor" : "BL",
+		"anchor" : "BR",
 		"anchorPoints" : 
 		{
 			"BL" : 
 			{
-				"x" : 2.2727272510528564,
-				"y" : 99.082565307617188
+				"x" : 16.172107696533203,
+				"y" : 96.2890625
 			},
 			"BR" : 
+			{
+				"x" : 45.54896142433234,
+				"y" : 96.484375
+			},
+			"Center" : 
 			{
 				"x" : 0.0,
 				"y" : 0.0
@@ -175,21 +205,26 @@
 				"y" : 0.0
 			}
 		},
-		"sheet_name" : "Crouching",
-		"startFrame" : 12,
-		"totalFrames" : 5
+		"sheet_name" : "HanBlockAttackCrouching",
+		"startFrame" : 24,
+		"totalFrames" : 1
 	},
 	"Crouching" : 
 	{
-		"anchor" : "BL",
+		"anchor" : "BR",
 		"anchorPoints" : 
 		{
 			"BL" : 
 			{
-				"x" : 3.4090909957885742,
-				"y" : 98.165138244628906
+				"x" : 22.10682487487793,
+				"y" : 96.09375
 			},
 			"BR" : 
+			{
+				"x" : 46.587537091988125,
+				"y" : 94.7265625
+			},
+			"Center" : 
 			{
 				"x" : 0.0,
 				"y" : 0.0
@@ -205,8 +240,8 @@
 				"y" : 0.0
 			}
 		},
-		"sheet_name" : "Crouching",
-		"startFrame" : 0,
+		"sheet_name" : "HanBlockAttackCrouching",
+		"startFrame" : 21,
 		"totalFrames" : 4
 	},
 	"CrouchingHeavy" : 
@@ -216,10 +251,15 @@
 		{
 			"BL" : 
 			{
-				"x" : 25.770307540893555,
-				"y" : 98.892990112304688
+				"x" : 18.10089111328125,
+				"y" : 97.8515625
 			},
 			"BR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"Center" : 
 			{
 				"x" : 0.0,
 				"y" : 0.0
@@ -235,8 +275,8 @@
 				"y" : 0.0
 			}
 		},
-		"sheet_name" : "HanAttacks",
-		"startFrame" : 4,
+		"sheet_name" : "HanBlockAttackCrouching",
+		"startFrame" : 5,
 		"totalFrames" : 6
 	},
 	"CrouchingHitstun" : 
@@ -250,6 +290,11 @@
 				"y" : 99.107139587402344
 			},
 			"BR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"Center" : 
 			{
 				"x" : 0.0,
 				"y" : 0.0
@@ -284,6 +329,11 @@
 				"x" : 0.0,
 				"y" : 0.0
 			},
+			"Center" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
 			"TL" : 
 			{
 				"x" : 0.0,
@@ -295,9 +345,9 @@
 				"y" : 0.0
 			}
 		},
-		"sheet_name" : "HanAttacks",
-		"startFrame" : 10,
-		"totalFrames" : 4
+		"sheet_name" : "HanBlockAttackCrouching",
+		"startFrame" : 11,
+		"totalFrames" : 5
 	},
 	"CrouchingMedium" : 
 	{
@@ -314,6 +364,11 @@
 				"x" : 0.0,
 				"y" : 0.0
 			},
+			"Center" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
 			"TL" : 
 			{
 				"x" : 0.0,
@@ -325,8 +380,8 @@
 				"y" : 0.0
 			}
 		},
-		"sheet_name" : "HanAttacks",
-		"startFrame" : 0,
+		"sheet_name" : "HanBlockAttackCrouching",
+		"startFrame" : 17,
 		"totalFrames" : 4
 	},
 	"Entrance" : 
@@ -340,6 +395,11 @@
 				"y" : 98.507461547851563
 			},
 			"BR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"Center" : 
 			{
 				"x" : 0.0,
 				"y" : 0.0
@@ -374,6 +434,11 @@
 				"x" : 0.0,
 				"y" : 0.0
 			},
+			"Center" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
 			"TL" : 
 			{
 				"x" : 0.0,
@@ -385,9 +450,9 @@
 				"y" : 0.0
 			}
 		},
-		"sheet_name" : "JumpFall",
-		"startFrame" : 60,
-		"totalFrames" : 13
+		"sheet_name" : "HanJumpIdleWalk",
+		"startFrame" : 11,
+		"totalFrames" : 5
 	},
 	"ForwardDash" : 
 	{
@@ -400,6 +465,11 @@
 				"y" : 99.047622680664063
 			},
 			"BR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"Center" : 
 			{
 				"x" : 0.0,
 				"y" : 0.0
@@ -434,6 +504,11 @@
 				"x" : 0.0,
 				"y" : 0.0
 			},
+			"Center" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
 			"TL" : 
 			{
 				"x" : 0.0,
@@ -464,6 +539,11 @@
 				"x" : 0.0,
 				"y" : 0.0
 			},
+			"Center" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
 			"TL" : 
 			{
 				"x" : 0.0,
@@ -481,7 +561,7 @@
 	},
 	"Idle" : 
 	{
-		"anchor" : "BL",
+		"anchor" : "BR",
 		"anchorPoints" : 
 		{
 			"BL" : 
@@ -491,6 +571,11 @@
 			},
 			"BR" : 
 			{
+				"x" : 61.50870406189555,
+				"y" : 95.703125
+			},
+			"Center" : 
+			{
 				"x" : 0.0,
 				"y" : 0.0
 			},
@@ -505,13 +590,13 @@
 				"y" : 0.0
 			}
 		},
-		"sheet_name" : "HanIdleAttacks",
+		"sheet_name" : "HanJumpIdleWalk",
 		"startFrame" : 0,
 		"totalFrames" : 3
 	},
 	"Jumping" : 
 	{
-		"anchor" : "BL",
+		"anchor" : "BR",
 		"anchorPoints" : 
 		{
 			"BL" : 
@@ -521,6 +606,11 @@
 			},
 			"BR" : 
 			{
+				"x" : 50.290135396518373,
+				"y" : 91.796875
+			},
+			"Center" : 
+			{
 				"x" : 0.0,
 				"y" : 0.0
 			},
@@ -535,9 +625,9 @@
 				"y" : 0.0
 			}
 		},
-		"sheet_name" : "JumpFall",
-		"startFrame" : 41,
-		"totalFrames" : 19
+		"sheet_name" : "HanJumpIdleWalk",
+		"startFrame" : 3,
+		"totalFrames" : 13
 	},
 	"JumpingHeavy" : 
 	{
@@ -550,6 +640,11 @@
 				"y" : 0.0
 			},
 			"BR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"Center" : 
 			{
 				"x" : 0.0,
 				"y" : 0.0
@@ -584,6 +679,11 @@
 				"x" : 0.0,
 				"y" : 0.0
 			},
+			"Center" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
 			"TL" : 
 			{
 				"x" : 29.166666030883789,
@@ -610,6 +710,11 @@
 				"y" : 0.0
 			},
 			"BR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"Center" : 
 			{
 				"x" : 0.0,
 				"y" : 0.0
@@ -644,6 +749,11 @@
 				"x" : 0.0,
 				"y" : 0.0
 			},
+			"Center" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
 			"TL" : 
 			{
 				"x" : 0.0,
@@ -673,6 +783,11 @@
 			{
 				"x" : 37.078651428222656,
 				"y" : 94.166664123535156
+			},
+			"Center" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
 			},
 			"TL" : 
 			{
@@ -704,6 +819,11 @@
 				"x" : 41.573032379150391,
 				"y" : 95.0
 			},
+			"Center" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
 			"TL" : 
 			{
 				"x" : 0.0,
@@ -733,6 +853,11 @@
 			{
 				"x" : 51.685394287109375,
 				"y" : 95.0
+			},
+			"Center" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
 			},
 			"TL" : 
 			{
@@ -764,6 +889,11 @@
 				"x" : 38.202247619628906,
 				"y" : 86.666664123535156
 			},
+			"Center" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
 			"TL" : 
 			{
 				"x" : 0.0,
@@ -794,6 +924,11 @@
 				"x" : 83.146064758300781,
 				"y" : 98.333335876464844
 			},
+			"Center" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
 			"TL" : 
 			{
 				"x" : 0.0,
@@ -820,6 +955,11 @@
 				"y" : 99.107139587402344
 			},
 			"BR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"Center" : 
 			{
 				"x" : 0.0,
 				"y" : 0.0
@@ -854,6 +994,11 @@
 				"x" : 0.0,
 				"y" : 0.0
 			},
+			"Center" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
 			"TL" : 
 			{
 				"x" : 0.0,
@@ -880,6 +1025,11 @@
 				"y" : 99.107139587402344
 			},
 			"BR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"Center" : 
 			{
 				"x" : 0.0,
 				"y" : 0.0
@@ -914,6 +1064,11 @@
 				"x" : 0.0,
 				"y" : 0.0
 			},
+			"Center" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
 			"TL" : 
 			{
 				"x" : 0.0,
@@ -940,6 +1095,11 @@
 				"y" : 99.375
 			},
 			"BR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"Center" : 
 			{
 				"x" : 0.0,
 				"y" : 0.0
@@ -974,6 +1134,11 @@
 				"x" : 0.0,
 				"y" : 0.0
 			},
+			"Center" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
 			"TL" : 
 			{
 				"x" : 0.0,
@@ -1004,6 +1169,11 @@
 				"x" : 0.0,
 				"y" : 0.0
 			},
+			"Center" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
 			"TL" : 
 			{
 				"x" : 0.0,
@@ -1021,15 +1191,20 @@
 	},
 	"StandingHeavy" : 
 	{
-		"anchor" : "BL",
+		"anchor" : "BR",
 		"anchorPoints" : 
 		{
 			"BL" : 
 			{
-				"x" : 13.34622859954834,
-				"y" : 96.6796875
+				"x" : 20.889747619628906,
+				"y" : 97.0703125
 			},
 			"BR" : 
+			{
+				"x" : 48.664688427299701,
+				"y" : 95.8984375
+			},
+			"Center" : 
 			{
 				"x" : 0.0,
 				"y" : 0.0
@@ -1045,13 +1220,13 @@
 				"y" : 0.0
 			}
 		},
-		"sheet_name" : "HanIdleAttacks",
-		"startFrame" : 4,
+		"sheet_name" : "HanBlockAttackCrouching",
+		"startFrame" : 26,
 		"totalFrames" : 7
 	},
 	"StandingLight" : 
 	{
-		"anchor" : "BL",
+		"anchor" : "BR",
 		"anchorPoints" : 
 		{
 			"BL" : 
@@ -1061,6 +1236,11 @@
 			},
 			"BR" : 
 			{
+				"x" : 46.142433234421361,
+				"y" : 94.7265625
+			},
+			"Center" : 
+			{
 				"x" : 0.0,
 				"y" : 0.0
 			},
@@ -1075,13 +1255,13 @@
 				"y" : 0.0
 			}
 		},
-		"sheet_name" : "HanIdleAttacks",
-		"startFrame" : 12,
+		"sheet_name" : "HanBlockAttackCrouching",
+		"startFrame" : 34,
 		"totalFrames" : 6
 	},
 	"StandingMedium" : 
 	{
-		"anchor" : "BL",
+		"anchor" : "BR",
 		"anchorPoints" : 
 		{
 			"BL" : 
@@ -1091,6 +1271,11 @@
 			},
 			"BR" : 
 			{
+				"x" : 43.620178041543021,
+				"y" : 95.1171875
+			},
+			"Center" : 
+			{
 				"x" : 0.0,
 				"y" : 0.0
 			},
@@ -1105,8 +1290,8 @@
 				"y" : 0.0
 			}
 		},
-		"sheet_name" : "HanIdleAttacks",
-		"startFrame" : 19,
+		"sheet_name" : "HanBlockAttackCrouching",
+		"startFrame" : 41,
 		"totalFrames" : 6
 	},
 	"ThrowMiss" : 
@@ -1120,6 +1305,11 @@
 				"y" : 99.082565307617188
 			},
 			"BR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"Center" : 
 			{
 				"x" : 0.0,
 				"y" : 0.0
@@ -1154,6 +1344,11 @@
 				"x" : 0.0,
 				"y" : 0.0
 			},
+			"Center" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
 			"TL" : 
 			{
 				"x" : 0.0,
@@ -1171,15 +1366,20 @@
 	},
 	"WalkF" : 
 	{
-		"anchor" : "BL",
+		"anchor" : "BR",
 		"anchorPoints" : 
 		{
 			"BL" : 
 			{
-				"x" : 29.206963249516438,
+				"x" : 29.206962585449219,
 				"y" : 95.8984375
 			},
 			"BR" : 
+			{
+				"x" : 56.67311411992263,
+				"y" : 93.75
+			},
+			"Center" : 
 			{
 				"x" : 0.0,
 				"y" : 0.0
@@ -1195,8 +1395,8 @@
 				"y" : 0.0
 			}
 		},
-		"sheet_name" : "HanIdleAttacks",
-		"startFrame" : 25,
+		"sheet_name" : "HanJumpIdleWalk",
+		"startFrame" : 16,
 		"totalFrames" : 8
 	},
 	"Win" : 
@@ -1210,6 +1410,11 @@
 				"y" : 99.253730773925781
 			},
 			"BR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"Center" : 
 			{
 				"x" : 0.0,
 				"y" : 0.0

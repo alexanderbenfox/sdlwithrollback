@@ -19,6 +19,7 @@ namespace std
     case AnchorPoint::TL: return "TL";
     case AnchorPoint::BR: return "BR";
     case AnchorPoint::TR: return "TL";
+    case AnchorPoint::Center: return "Center";
     default: return "NaN";
     }
   }
@@ -33,8 +34,10 @@ AnchorPoint APFromString(const std::string i)
     return AnchorPoint::TR;
   else if (i == "BL")
     return AnchorPoint::BL;
-  else
+  else if (i == "BR")
     return AnchorPoint::BR;
+  else
+    return AnchorPoint::Center;
 }
 
 //______________________________________________________________________________
@@ -51,9 +54,13 @@ Vector2<float> CalculateRenderOffset(AnchorPoint anchor, const Vector2<float>& t
   {
     offset.x -= rectTransform.x;
   }
-  else
+  else if (anchor == AnchorPoint::BR)
   {
     offset -= rectTransform;
+  }
+  else if (anchor == AnchorPoint::Center)
+  {
+    offset -= (rectTransform / 2.0f);
   }
 
   return -rectTransform / 2.0f - offset;
@@ -76,15 +83,7 @@ void AnimationAsset::Load(const Json::Value& json)
   }
   if (!json["anchor"].isNull())
   {
-    std::string anch = json["anchor"].asString();
-    if (anch == "TL")
-      anchor = AnchorPoint::TL;
-    else if (anch == "TR")
-      anchor = AnchorPoint::TR;
-    else if (anch == "BL")
-      anchor = AnchorPoint::BL;
-    else
-      anchor = AnchorPoint::BR;
+    anchor = APFromString(json["anchor"].asString());
   }
   if (!json["anchorPoints"].isNull())
   {
@@ -93,6 +92,7 @@ void AnimationAsset::Load(const Json::Value& json)
     anchorPoints[(int)AnchorPoint::TR].Load(ap["TR"]);
     anchorPoints[(int)AnchorPoint::BL].Load(ap["BL"]);
     anchorPoints[(int)AnchorPoint::BR].Load(ap["BR"]);
+    anchorPoints[(int)AnchorPoint::Center].Load(ap["Center"]);
   }
 }
 
@@ -102,17 +102,15 @@ void AnimationAsset::Write(Json::Value& json) const
   json["sheet_name"] = (std::string)sheetName;
   json["startFrame"] = startIndexOnSheet;
   json["totalFrames"] = frames;
-  json["anchor"] = anchor == AnchorPoint::TL ? "TL" : anchor == AnchorPoint::TR ? "TR" : anchor == AnchorPoint::BL ? "BL" : "BR";
+  json["anchor"] = std::to_string(anchor);
 
   auto& ap = json["anchorPoints"] = Json::Value(Json::objectValue);
-  /*ap["TL"] = Json::Value(Json::objectValue);
-  ap["TR"] = Json::Value(Json::objectValue);
-  ap["BR"] = Json::Value(Json::objectValue);
-  ap["BL"] = Json::Value(Json::objectValue);*/
+
   anchorPoints[(int)AnchorPoint::TL].Write(ap["TL"]);
   anchorPoints[(int)AnchorPoint::TR].Write(ap["TR"]);
   anchorPoints[(int)AnchorPoint::BL].Write(ap["BL"]);
   anchorPoints[(int)AnchorPoint::BR].Write(ap["BR"]);
+  anchorPoints[(int)AnchorPoint::Center].Write(ap["Center"]);
 }
 
 //______________________________________________________________________________
@@ -124,10 +122,10 @@ void AnimationAsset::DisplayInEditor()
   ImGui::InputInt("Total Animation Frames: ", &frames);
 
   ImGui::Text("Anchor Position");
-  const char* items[] = { "TL", "TR", "BL", "BR" };
-  static const char* current_item = std::to_string(anchor).c_str();
+  const char* items[] = { "TL", "TR", "BL", "BR", "Center" };
+  _anchorDropDownCurrentItem = std::to_string(anchor);
   auto func = [this](const std::string& i) { anchor = APFromString(i); };
-  DropDown::Show(current_item, items, 4, func);
+  DropDown::Show(_anchorDropDownCurrentItem.c_str(), items, 5, func);
 
   DisplayAnchorPointEditor();
 
@@ -163,7 +161,7 @@ void AnimationAsset::DisplayAnchorPointEditor()
 
     if (_anchorEditBackground.ptr)
     {
-      std::string anchorPtLabel = anchor == AnchorPoint::TL ? "TL" : anchor == AnchorPoint::TR ? "TR" : anchor == AnchorPoint::BL ? "BL" : "BR";
+      std::string anchorPtLabel = std::to_string(anchor);
       ImGui::Text("Displaying Anchor Point = %s", anchorPtLabel.c_str());
 
       // display image within child

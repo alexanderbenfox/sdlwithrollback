@@ -20,21 +20,26 @@ struct EnactAnimationActionSystem : public ISystem<EnactActionComponent, Animate
     for (const EntityID& entity : Registered)
     {
       AnimatedActionComponent& action = ComponentArray<AnimatedActionComponent>::Get().GetComponent(entity);
-      Animator& animator = ComponentArray<Animator>::Get().GetComponent(entity);
-      RenderProperties& properties = ComponentArray<RenderProperties>::Get().GetComponent(entity);
-      RenderComponent<RenderType>& renderer = ComponentArray<RenderComponent<RenderType>>::Get().GetComponent(entity);
+      PlayAnimation(entity, action.animation, action.isLoopedAnimation, action.playSpeed, action.forceAnimRestart, action.isFacingRight);
+    }
+  }
 
-      Animation* actionAnimation = animator.Play(action.animation, action.isLoopedAnimation, action.playSpeed, action.forceAnimRestart);
-      properties.horizontalFlip = !action.isFacingRight;
-      properties.anchor = actionAnimation->GetMainAnchor().first;
-      properties.offset = actionAnimation->GetMainAnchor().second;
-      properties.renderScaling = actionAnimation->GetRenderScaling();
-      if (actionAnimation)
-      {
-        // render from the sheet of the new animation
-        renderer.SetRenderResource(actionAnimation->GetSheetTexture<RenderType>());
-        renderer.sourceRect = actionAnimation->GetFrameSrcRect(0);
-      }
+  static void PlayAnimation(EntityID entity, const std::string& animation, bool looped, float playSpeed, bool forceAnimRestart, bool facingRight)
+  {
+    Animator& animator = ComponentArray<Animator>::Get().GetComponent(entity);
+    RenderProperties& properties = ComponentArray<RenderProperties>::Get().GetComponent(entity);
+    RenderComponent<RenderType>& renderer = ComponentArray<RenderComponent<RenderType>>::Get().GetComponent(entity);
+
+    Animation* actionAnimation = animator.Play(animation, looped, playSpeed, forceAnimRestart);
+    properties.horizontalFlip = !facingRight;
+    properties.anchor = actionAnimation->GetMainAnchor().first;
+    properties.offset = actionAnimation->GetMainAnchor().second;
+    properties.renderScaling = actionAnimation->GetRenderScaling();
+    if (actionAnimation)
+    {
+      // render from the sheet of the new animation
+      renderer.SetRenderResource(actionAnimation->GetSheetTexture<RenderType>());
+      renderer.sourceRect = actionAnimation->GetFrameSrcRect(0);
     }
   }
 };

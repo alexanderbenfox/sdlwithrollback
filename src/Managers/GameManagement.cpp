@@ -430,10 +430,23 @@ void GameManager::BeginGameLoop()
 
   GUIController::Get().AddImguiWindowFunction("Assets", "Sprite Sheets", []()
   {
-    ImGui::BeginGroup();
-    AssetLibrary<SpriteSheet>::DisplayInGUI();
-    ImGui::EndGroup();
+      if (ImGui::CollapsingHeader("Sprite Sheets"))
+      {
+        ImGui::BeginGroup();
+        AssetLibrary<SpriteSheet>::DisplayInGUI();
+        ImGui::EndGroup();
+      }
   });
+
+  GUIController::Get().AddImguiWindowFunction("Assets", "General Animations", []()
+    {
+      if (ImGui::CollapsingHeader("General Animations"))
+      {
+        ImGui::BeginGroup();
+        GAnimArchive.EditGeneralAnimations();
+        ImGui::EndGroup();
+      }
+    });
 
   //start the timer at 60 fps
   _clock.Start(60);

@@ -57,7 +57,7 @@ private:
     path.Append(file);
 
     JsonFile json(path.GetPath());
-    json.SaveContentsIntoMap(map);
+    json.SaveContentsIntoFile(map);
   }
 
   const FilePath _resourcePath;

@@ -56,7 +56,7 @@ public:
   }
 
   template <typename T = IJsonLoadable>
-  void SaveContentsIntoMap(const std::unordered_map<std::string, T>& map)
+  void SaveContentsIntoFile(const std::unordered_map<std::string, T>& map)
   {
     for (auto& item : map)
     {
