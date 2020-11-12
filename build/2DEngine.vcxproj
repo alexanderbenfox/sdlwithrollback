@@ -38,6 +38,7 @@
     <ClCompile Include="..\src\AssetManagement\LetterCase.cpp" />
     <ClCompile Include="..\src\AssetManagement\Resource.cpp" />
     <ClCompile Include="..\src\AssetManagement\Text.cpp" />
+    <ClCompile Include="..\src\Components\Actors\CutsceneActor.cpp" />
     <ClCompile Include="..\src\Components\Actors\GameActor.cpp" />
     <ClCompile Include="..\src\Components\AIPrograms\AIPrograms.cpp" />
     <ClCompile Include="..\src\Components\Animator.cpp" />
@@ -79,6 +80,7 @@
     <ClCompile Include="..\src\Rendering\OpenGLRenderer.cpp" />
     <ClCompile Include="..\src\Rendering\RenderManager.cpp" />
     <ClCompile Include="..\src\Systems\ActionSystems\ActionHandleInputSystem.cpp" />
+    <ClCompile Include="..\src\Systems\ActionSystems\EnactActionSystem.cpp" />
     <ClCompile Include="..\src\Systems\Physics.cpp" />
     <ClCompile Include="..\src\Systems\TimerSystem\ActionTimer.cpp" />
     <ClCompile Include="..\src\Systems\WallPush\WallPushSystem.cpp" />

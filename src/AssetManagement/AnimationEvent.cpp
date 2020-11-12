@@ -55,8 +55,8 @@ EventList AnimationEventHelper::BuildEventList(const Vector2<float>& textureScal
   }
 
   animFrameToSheetFrame = animationData.realFrameToSheetFrame;
-  int animFrames = animEventData.size();
-  int realFrames = animationData.realFrameToSheetFrame.size();
+  int animFrames = static_cast<int>(animEventData.size());
+  int realFrames = static_cast<int>(animationData.realFrameToSheetFrame.size());
 
   EventList eventList;
   eventList.resize(realFrames);
@@ -199,7 +199,8 @@ EventList AnimationEventHelper::BuildEventList(const Vector2<float>& textureScal
         auto move = movement;
         if (!state->onLeftSide)
           move.x *= -1.0f;
-        rb->velocity += move;
+        rb->velocity.x += move.x;
+        rb->velocity.y = move.y;
       }
     };
 

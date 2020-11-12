@@ -25,7 +25,7 @@ struct ApplyGravitySystem : public ISystem<Rigidbody, Gravity>
 class PhysicsSystem : public ISystem<DynamicCollider, Rigidbody, Transform>
 {
 public:
-  friend class Rigidbody;
+  friend struct Rigidbody;
   static void DoTick(float dt);
 
 private:

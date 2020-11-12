@@ -2,6 +2,7 @@
 #include "DebugGUI/GUIController.h"
 
 #include "Managers/GameManagement.h"
+#include "Managers/AnimationCollectionManager.h"
 
 void CharacterEditor::AddCreateNewCharacterButton()
 {

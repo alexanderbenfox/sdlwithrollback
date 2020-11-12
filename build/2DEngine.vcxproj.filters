@@ -284,6 +284,12 @@
     <ClCompile Include="..\src\DebugGUI\DisplayImage.cpp">
       <Filter>Source Files\DebugGUI</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\Components\Actors\CutsceneActor.cpp">
+      <Filter>Source Files\Components\Actors</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Systems\ActionSystems\EnactActionSystem.cpp">
+      <Filter>Source Files\Systems\ActionSystems</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\imgui\imconfig.h">

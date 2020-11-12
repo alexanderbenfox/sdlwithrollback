@@ -87,6 +87,9 @@ public:
 
 protected:
   std::shared_ptr<Entity> _p1, _p2;
+  std::shared_ptr<Entity> _headerLabel;
+  bool _firstCharacter = false;
+  bool _secondCharacter = false;
 
 };
 

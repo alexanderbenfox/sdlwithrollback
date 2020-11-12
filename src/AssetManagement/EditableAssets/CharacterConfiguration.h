@@ -8,10 +8,7 @@
 
 #include "DebugGUI/EditorRect.h"
 
-//#include "AssetManagement/AnimationEvent.h"
-
 class Animation;
-class AnimationCollection;
 
 class HitboxEditor
 {

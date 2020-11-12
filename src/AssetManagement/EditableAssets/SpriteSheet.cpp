@@ -1,12 +1,8 @@
 #include "SpriteSheet.h"
-#include "AssetLibrary.h"
 #include "Managers/ResourceManager.h"
 #include "Managers/GameManagement.h"
 #include "../imgui/imgui.h"
-
-//______________________________________________________________________________
-template <typename T>
-std::unordered_map<std::string, T> AssetLibrary<T>::_library;
+#include "AssetLibrary.h"
 
 //______________________________________________________________________________
 template <> void AssetLoaderFn::OnLoad(SpriteSheet& asset)

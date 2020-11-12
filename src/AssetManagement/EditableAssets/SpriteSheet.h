@@ -3,6 +3,7 @@
 #include "Core/Math/Vector2.h"
 #include "DebugGUI/EditorString.h"
 
+//______________________________________________________________________________
 struct SpriteSheet : public IJsonLoadable
 {
   SpriteSheet() = default;
@@ -26,4 +27,3 @@ struct SpriteSheet : public IJsonLoadable
   virtual void DisplayInEditor() override;
 
 };
-

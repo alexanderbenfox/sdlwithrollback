@@ -94,12 +94,7 @@ void PreMatchScene::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2)
 
   // play idle before going into cutscene actions
   _p1->GetComponent<Animator>()->Play("Idle", true, 1.0f, true);
-
-  // 
-  Animation* anim = _p2->GetComponent<Animator>()->Play("Idle", true, 1.0f, true);
-  RenderProperties& properties = *_p2->GetComponent<RenderProperties>();
-  Animator& animator = *_p2->GetComponent<Animator>();
-  properties.offset = GAnimArchive.GetCollection(animator.animCollectionID).GetRenderOffset("Idle", true);
+  _p2->GetComponent<Animator>()->Play("Idle", true, 1.0f, true);
 }
 
 void PreMatchScene::Update(float deltaTime)

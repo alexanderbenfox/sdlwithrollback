@@ -1,4 +1,5 @@
 #include "Managers/AnimationCollectionManager.h"
+#include "AssetManagement/EditableAssets/AssetLibrary.h"
 #include "Core/Utility/FilePath.h"
 #include "Core/Utility/JsonFile.h"
 

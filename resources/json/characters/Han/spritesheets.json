@@ -79,8 +79,8 @@
 		},
     "renderScalingFactor" : 
 		{
-			"x" : 0.13,
-			"y" : 0.13
+			"x" : 0.155,
+			"y" : 0.155
 		},
 		"sheet_location" : "spritesheets\\han-block&attacks.png"
 	},
@@ -100,8 +100,8 @@
 		},
     "renderScalingFactor" : 
 		{
-			"x" : 0.13,
-			"y" : 0.13
+			"x" : 0.155,
+			"y" : 0.155
 		},
 		"sheet_location" : "spritesheets\\han-jump&idle.png"
 	},

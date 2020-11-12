@@ -9,7 +9,7 @@ const Rect<float> ScreenRect(0, 0, m_nativeWidth, m_nativeHeight);
 class UIPositionUpdateSystem : public ISystem<UITransform>
 {
 public:
-  static void CalcScreenPos(UITransform* transform, Rect<float> parentRect, int x, int y)
+  static void CalcScreenPos(UITransform* transform, Rect<float> parentRect, float x, float y)
   {
     switch(transform->anchor)
     {

@@ -4,6 +4,9 @@
 
 #include "../imgui/imgui.h"
 
+#include <string>
+#include <unordered_map>
+
 struct AssetLoaderFn
 {
   template <typename T> static void OnLoad(T& asset);
@@ -44,3 +47,7 @@ private:
   static std::unordered_map<std::string, T> _library;
 
 };
+
+//______________________________________________________________________________
+template <typename T>
+std::unordered_map<std::string, T> AssetLibrary<T>::_library;

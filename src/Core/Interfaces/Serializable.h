@@ -28,7 +28,7 @@ template <> struct Serializer<std::string>
   static void Serialize(std::ostream& os, const std::string& item)
   {
     // write out string size first
-    int strSize = item.size();
+    int strSize = static_cast<int>(item.size());
     Serializer<int>::Serialize(os, strSize);
 
     // write out the actual contents of the string

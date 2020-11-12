@@ -1,6 +1,7 @@
 #pragma once
 #include "Core/ECS/ISystem.h"
 #include "Components/Animator.h"
+#include "Components/RenderComponent.h"
 #include "Components/StateComponents/AttackStateComponent.h"
 #include "Components/StateComponent.h"
 

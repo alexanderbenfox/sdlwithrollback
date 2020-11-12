@@ -117,7 +117,9 @@ inline void EditableRectTraits<T>::DrawGeometry(const Rect<T>& rect, const Vecto
   if (rect.Area() != 0)
   {
     ImDrawList* draws = ImGui::GetWindowDrawList();
-    draws->AddRect(ImVec2(windowPosition.x + rect.beg.x, windowPosition.y + rect.beg.y), ImVec2(windowPosition.x + rect.end.x, windowPosition.y + rect.end.y), IM_COL32(255, 0, 0, 255));
+    draws->AddRect(ImVec2(windowPosition.x + static_cast<float>(rect.beg.x), windowPosition.y + static_cast<float>(rect.beg.y)),
+      ImVec2(windowPosition.x + static_cast<float>(rect.end.x), windowPosition.y + static_cast<float>(rect.end.y)),
+      IM_COL32(255, 0, 0, 255));
   }
 }
 

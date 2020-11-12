@@ -9,6 +9,8 @@
 #include "Components/Hurtbox.h"
 #include "Components/StateComponent.h"
 #include "Components/MetaGameComponents.h"
+
+#include "Managers/AnimationCollectionManager.h"
 #include "Managers/GameManagement.h"
 
 #include "Systems/ActionSystems/EnactActionSystem.h"

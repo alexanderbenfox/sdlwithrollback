@@ -1,6 +1,11 @@
 #pragma once
-#include "AssetManagement/Animation.h"
+#include <unordered_map>
+
+#include "AssetManagement/EditableAssets/AnimationAsset.h"
 #include "AssetManagement/EditableAssets/CharacterConfiguration.h"
+#include "AssetManagement/EditableAssets/SpriteSheet.h"
+#include "AssetManagement/Animation.h"
+
 
 //! Easy access macro cause name is long :(
 #define GAnimArchive AnimationCollectionManager::Get()

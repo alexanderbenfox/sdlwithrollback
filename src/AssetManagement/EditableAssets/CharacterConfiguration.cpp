@@ -2,6 +2,7 @@
 #include "DebugGUI/GUIController.h"
 #include "AssetManagement/Animation.h"
 
+#include "Managers/AnimationCollectionManager.h"
 #include "Managers/GameManagement.h"
 
 #include "AssetManagement/EditableAssets/Editor/AnimationEditor.h"
