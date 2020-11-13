@@ -24,6 +24,8 @@ public:
   //!
   int frame;
   //!
+  bool reverse;
+  //!
   std::string currentAnimationName;
   //! multiplier for speed of animation to play at
   float playSpeed = 1.0f;

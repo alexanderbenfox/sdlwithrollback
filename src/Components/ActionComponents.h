@@ -21,6 +21,8 @@ struct AnimatedActionComponent : public IComponent, ISerializable
   //!
   float playSpeed = 1.0f;
   //!
+  bool playReverse = false;
+  //!
   std::string animation = "";
 
   //! State of this action

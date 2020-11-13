@@ -94,6 +94,10 @@ void AnimationAsset::Load(const Json::Value& json)
     anchorPoints[(int)AnchorPoint::BR].Load(ap["BR"]);
     anchorPoints[(int)AnchorPoint::Center].Load(ap["Center"]);
   }
+  if (!json["reverse"].isNull())
+  {
+    reverse = json["reverse"].asBool();
+  }
 }
 
 //______________________________________________________________________________
@@ -111,6 +115,8 @@ void AnimationAsset::Write(Json::Value& json) const
   anchorPoints[(int)AnchorPoint::BL].Write(ap["BL"]);
   anchorPoints[(int)AnchorPoint::BR].Write(ap["BR"]);
   anchorPoints[(int)AnchorPoint::Center].Write(ap["Center"]);
+
+  json["reverse"] = reverse;
 }
 
 //______________________________________________________________________________
@@ -128,6 +134,8 @@ void AnimationAsset::DisplayInEditor()
   DropDown::Show(_anchorDropDownCurrentItem.c_str(), items, 5, func);
 
   DisplayAnchorPointEditor();
+
+  ImGui::Checkbox("Play Reverse", &reverse);
 
   ImGui::EndGroup();
 }

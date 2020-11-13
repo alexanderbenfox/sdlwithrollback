@@ -9,8 +9,8 @@
 #include <json/json.h>
 
 //______________________________________________________________________________
-Animation::Animation(const std::string& sheet, int startIndexOnSheet, int frames, AnchorPoint anchor, const Vector2<float>& anchorPt) : _startIdx(startIndexOnSheet), _frames(frames),
-  _spriteSheetName(sheet), anchorPoint(std::make_pair(anchor, anchorPt))
+Animation::Animation(const std::string& sheet, int startIndexOnSheet, int frames, AnchorPoint anchor, const Vector2<float>& anchorPt, bool reverse) : _startIdx(startIndexOnSheet), _frames(frames),
+  _spriteSheetName(sheet), anchorPoint(std::make_pair(anchor, anchorPt)), reverse(reverse)
 {
   // initialize animation to play each sprite sheet frame 
   int gameFrames = (int)std::ceil(frames * gameFramePerAnimationFrame);
@@ -72,7 +72,7 @@ void AnimationCollection::RegisterAnimation(const std::string& animationName, co
 {
   if (_animations.find(animationName) == _animations.end())
   {
-    _animations.emplace(std::make_pair(animationName, Animation(animationData.sheetName, animationData.startIndexOnSheet, animationData.frames, animationData.anchor, animationData.GetAnchorPosition())));
+    _animations.emplace(std::make_pair(animationName, Animation(animationData.sheetName, animationData.startIndexOnSheet, animationData.frames, animationData.anchor, animationData.GetAnchorPosition(), animationData.reverse)));
   }
 }
 

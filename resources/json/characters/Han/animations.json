@@ -6,8 +6,8 @@
 		{
 			"BL" : 
 			{
-				"x" : 0.8474576473236084,
-				"y" : 99.047622680664063
+				"x" : 33.655705996131523,
+				"y" : 94.921875
 			},
 			"BR" : 
 			{
@@ -30,9 +30,10 @@
 				"y" : 0.0
 			}
 		},
-		"sheet_name" : "Dashes",
+		"reverse" : false,
+		"sheet_name" : "HanDashHit",
 		"startFrame" : 0,
-		"totalFrames" : 6
+		"totalFrames" : 2
 	},
 	"BackThrow" : 
 	{
@@ -65,13 +66,14 @@
 				"y" : 0.0
 			}
 		},
+		"reverse" : false,
 		"sheet_name" : "Throws",
 		"startFrame" : 23,
 		"totalFrames" : 14
 	},
 	"BlockHigh" : 
 	{
-		"anchor" : "BL",
+		"anchor" : "BR",
 		"anchorPoints" : 
 		{
 			"BL" : 
@@ -81,8 +83,8 @@
 			},
 			"BR" : 
 			{
-				"x" : 0.0,
-				"y" : 0.0
+				"x" : 46.290801186943618,
+				"y" : 95.703125
 			},
 			"Center" : 
 			{
@@ -100,6 +102,7 @@
 				"y" : 0.0
 			}
 		},
+		"reverse" : false,
 		"sheet_name" : "HanBlockAttackCrouching",
 		"startFrame" : 0,
 		"totalFrames" : 4
@@ -135,13 +138,14 @@
 				"y" : 0.0
 			}
 		},
+		"reverse" : false,
 		"sheet_name" : "Blocks",
 		"startFrame" : 0,
 		"totalFrames" : 5
 	},
 	"BlockMid" : 
 	{
-		"anchor" : "BL",
+		"anchor" : "BR",
 		"anchorPoints" : 
 		{
 			"BL" : 
@@ -151,8 +155,8 @@
 			},
 			"BR" : 
 			{
-				"x" : 0.0,
-				"y" : 0.0
+				"x" : 46.290801186943618,
+				"y" : 95.1171875
 			},
 			"Center" : 
 			{
@@ -170,6 +174,7 @@
 				"y" : 0.0
 			}
 		},
+		"reverse" : false,
 		"sheet_name" : "HanBlockAttackCrouching",
 		"startFrame" : 0,
 		"totalFrames" : 4
@@ -205,6 +210,7 @@
 				"y" : 0.0
 			}
 		},
+		"reverse" : false,
 		"sheet_name" : "HanBlockAttackCrouching",
 		"startFrame" : 24,
 		"totalFrames" : 1
@@ -240,6 +246,7 @@
 				"y" : 0.0
 			}
 		},
+		"reverse" : false,
 		"sheet_name" : "HanBlockAttackCrouching",
 		"startFrame" : 21,
 		"totalFrames" : 4
@@ -256,7 +263,7 @@
 			},
 			"BR" : 
 			{
-				"x" : 47.47774480712166,
+				"x" : 47.477745056152344,
 				"y" : 99.609375
 			},
 			"Center" : 
@@ -275,13 +282,14 @@
 				"y" : 0.0
 			}
 		},
+		"reverse" : false,
 		"sheet_name" : "HanBlockAttackCrouching",
 		"startFrame" : 5,
 		"totalFrames" : 6
 	},
 	"CrouchingHitstun" : 
 	{
-		"anchor" : "BL",
+		"anchor" : "BR",
 		"anchorPoints" : 
 		{
 			"BL" : 
@@ -291,8 +299,8 @@
 			},
 			"BR" : 
 			{
-				"x" : 0.0,
-				"y" : 0.0
+				"x" : 63.249516441005795,
+				"y" : 81.640625
 			},
 			"Center" : 
 			{
@@ -310,9 +318,10 @@
 				"y" : 0.0
 			}
 		},
-		"sheet_name" : "Hitstun",
-		"startFrame" : 56,
-		"totalFrames" : 11
+		"reverse" : false,
+		"sheet_name" : "HanDashHit",
+		"startFrame" : 6,
+		"totalFrames" : 2
 	},
 	"CrouchingLight" : 
 	{
@@ -345,6 +354,7 @@
 				"y" : 0.0
 			}
 		},
+		"reverse" : false,
 		"sheet_name" : "HanBlockAttackCrouching",
 		"startFrame" : 11,
 		"totalFrames" : 5
@@ -380,6 +390,7 @@
 				"y" : 0.0
 			}
 		},
+		"reverse" : false,
 		"sheet_name" : "HanBlockAttackCrouching",
 		"startFrame" : 17,
 		"totalFrames" : 4
@@ -415,6 +426,7 @@
 				"y" : 0.0
 			}
 		},
+		"reverse" : false,
 		"sheet_name" : "WinLoseEntrance",
 		"startFrame" : 24,
 		"totalFrames" : 18
@@ -450,24 +462,25 @@
 				"y" : 0.0
 			}
 		},
+		"reverse" : false,
 		"sheet_name" : "HanJumpIdleWalk",
 		"startFrame" : 11,
 		"totalFrames" : 5
 	},
 	"ForwardDash" : 
 	{
-		"anchor" : "BL",
+		"anchor" : "BR",
 		"anchorPoints" : 
 		{
 			"BL" : 
 			{
-				"x" : 0.8474576473236084,
-				"y" : 99.047622680664063
+				"x" : 37.911026000976563,
+				"y" : 94.140625
 			},
 			"BR" : 
 			{
-				"x" : 0.0,
-				"y" : 0.0
+				"x" : 54.158607350096709,
+				"y" : 95.703125
 			},
 			"Center" : 
 			{
@@ -485,9 +498,10 @@
 				"y" : 0.0
 			}
 		},
-		"sheet_name" : "Dashes",
-		"startFrame" : 6,
-		"totalFrames" : 6
+		"reverse" : false,
+		"sheet_name" : "HanDashHit",
+		"startFrame" : 2,
+		"totalFrames" : 2
 	},
 	"ForwardThrow" : 
 	{
@@ -520,6 +534,7 @@
 				"y" : 0.0
 			}
 		},
+		"reverse" : false,
 		"sheet_name" : "Throws",
 		"startFrame" : 6,
 		"totalFrames" : 17
@@ -555,6 +570,7 @@
 				"y" : 0.0
 			}
 		},
+		"reverse" : false,
 		"sheet_name" : "Hitstun",
 		"startFrame" : 24,
 		"totalFrames" : 7
@@ -590,6 +606,7 @@
 				"y" : 0.0
 			}
 		},
+		"reverse" : false,
 		"sheet_name" : "HanJumpIdleWalk",
 		"startFrame" : 0,
 		"totalFrames" : 3
@@ -625,6 +642,7 @@
 				"y" : 0.0
 			}
 		},
+		"reverse" : false,
 		"sheet_name" : "HanJumpIdleWalk",
 		"startFrame" : 3,
 		"totalFrames" : 13
@@ -660,6 +678,7 @@
 				"y" : 0.0
 			}
 		},
+		"reverse" : false,
 		"sheet_name" : "JumpingAttacks",
 		"startFrame" : 17,
 		"totalFrames" : 8
@@ -695,6 +714,7 @@
 				"y" : 0.0
 			}
 		},
+		"reverse" : false,
 		"sheet_name" : "JumpingAttacks",
 		"startFrame" : 0,
 		"totalFrames" : 8
@@ -730,6 +750,7 @@
 				"y" : 0.0
 			}
 		},
+		"reverse" : false,
 		"sheet_name" : "JumpingAttacks",
 		"startFrame" : 9,
 		"totalFrames" : 9
@@ -765,6 +786,7 @@
 				"y" : 0.0
 			}
 		},
+		"reverse" : false,
 		"sheet_name" : "WinLoseEntrance",
 		"startFrame" : 6,
 		"totalFrames" : 17
@@ -800,6 +822,7 @@
 				"y" : 0.0
 			}
 		},
+		"reverse" : false,
 		"sheet_name" : "Knockdowns",
 		"startFrame" : 25,
 		"totalFrames" : 16
@@ -835,6 +858,7 @@
 				"y" : 0.0
 			}
 		},
+		"reverse" : false,
 		"sheet_name" : "Knockdowns",
 		"startFrame" : 41,
 		"totalFrames" : 5
@@ -870,6 +894,7 @@
 				"y" : 0.0
 			}
 		},
+		"reverse" : false,
 		"sheet_name" : "Knockdowns",
 		"startFrame" : 0,
 		"totalFrames" : 8
@@ -905,6 +930,7 @@
 				"y" : 0.0
 			}
 		},
+		"reverse" : false,
 		"sheet_name" : "Knockdowns",
 		"startFrame" : 8,
 		"totalFrames" : 11
@@ -940,13 +966,14 @@
 				"y" : 0.0
 			}
 		},
+		"reverse" : false,
 		"sheet_name" : "Knockdowns",
 		"startFrame" : 19,
 		"totalFrames" : 6
 	},
 	"LightHitstun" : 
 	{
-		"anchor" : "BL",
+		"anchor" : "BR",
 		"anchorPoints" : 
 		{
 			"BL" : 
@@ -956,8 +983,8 @@
 			},
 			"BR" : 
 			{
-				"x" : 0.0,
-				"y" : 0.0
+				"x" : 59.187620889748544,
+				"y" : 97.0703125
 			},
 			"Center" : 
 			{
@@ -975,13 +1002,14 @@
 				"y" : 0.0
 			}
 		},
-		"sheet_name" : "Hitstun",
-		"startFrame" : 0,
-		"totalFrames" : 3
+		"reverse" : false,
+		"sheet_name" : "HanDashHit",
+		"startFrame" : 4,
+		"totalFrames" : 2
 	},
 	"MedHitstun" : 
 	{
-		"anchor" : "BL",
+		"anchor" : "BR",
 		"anchorPoints" : 
 		{
 			"BL" : 
@@ -991,8 +1019,8 @@
 			},
 			"BR" : 
 			{
-				"x" : 0.0,
-				"y" : 0.0
+				"x" : 58.607350096711798,
+				"y" : 96.484375
 			},
 			"Center" : 
 			{
@@ -1010,9 +1038,10 @@
 				"y" : 0.0
 			}
 		},
-		"sheet_name" : "Hitstun",
+		"reverse" : false,
+		"sheet_name" : "HanDashHit",
 		"startFrame" : 4,
-		"totalFrames" : 11
+		"totalFrames" : 2
 	},
 	"MedHitstun2" : 
 	{
@@ -1045,9 +1074,10 @@
 				"y" : 0.0
 			}
 		},
-		"sheet_name" : "Hitstun",
-		"startFrame" : 14,
-		"totalFrames" : 10
+		"reverse" : false,
+		"sheet_name" : "HanDashHit",
+		"startFrame" : 4,
+		"totalFrames" : 2
 	},
 	"SpecialMove1" : 
 	{
@@ -1080,6 +1110,7 @@
 				"y" : 0.0
 			}
 		},
+		"reverse" : false,
 		"sheet_name" : "SpecialMoves",
 		"startFrame" : 0,
 		"totalFrames" : 14
@@ -1115,6 +1146,7 @@
 				"y" : 0.0
 			}
 		},
+		"reverse" : false,
 		"sheet_name" : "SpecialMoves",
 		"startFrame" : 41,
 		"totalFrames" : 17
@@ -1150,6 +1182,7 @@
 				"y" : 0.0
 			}
 		},
+		"reverse" : false,
 		"sheet_name" : "SpecialMoves",
 		"startFrame" : 58,
 		"totalFrames" : 15
@@ -1185,6 +1218,7 @@
 				"y" : 0.0
 			}
 		},
+		"reverse" : false,
 		"sheet_name" : "SpecialMoves",
 		"startFrame" : 14,
 		"totalFrames" : 27
@@ -1220,6 +1254,7 @@
 				"y" : 0.0
 			}
 		},
+		"reverse" : false,
 		"sheet_name" : "HanBlockAttackCrouching",
 		"startFrame" : 26,
 		"totalFrames" : 7
@@ -1255,6 +1290,7 @@
 				"y" : 0.0
 			}
 		},
+		"reverse" : false,
 		"sheet_name" : "HanBlockAttackCrouching",
 		"startFrame" : 34,
 		"totalFrames" : 6
@@ -1290,6 +1326,7 @@
 				"y" : 0.0
 			}
 		},
+		"reverse" : false,
 		"sheet_name" : "HanBlockAttackCrouching",
 		"startFrame" : 41,
 		"totalFrames" : 6
@@ -1325,13 +1362,14 @@
 				"y" : 0.0
 			}
 		},
+		"reverse" : false,
 		"sheet_name" : "Throws",
 		"startFrame" : 2,
 		"totalFrames" : 4
 	},
 	"WalkB" : 
 	{
-		"anchor" : "TL",
+		"anchor" : "BR",
 		"anchorPoints" : 
 		{
 			"BL" : 
@@ -1341,8 +1379,8 @@
 			},
 			"BR" : 
 			{
-				"x" : 0.0,
-				"y" : 0.0
+				"x" : 59.574466705322266,
+				"y" : 93.5546875
 			},
 			"Center" : 
 			{
@@ -1360,9 +1398,10 @@
 				"y" : 5.3097343444824219
 			}
 		},
-		"sheet_name" : "IdleAndWalking",
-		"startFrame" : 22,
-		"totalFrames" : 11
+		"reverse" : true,
+		"sheet_name" : "HanJumpIdleWalk",
+		"startFrame" : 16,
+		"totalFrames" : 8
 	},
 	"WalkF" : 
 	{
@@ -1395,6 +1434,7 @@
 				"y" : 0.0
 			}
 		},
+		"reverse" : false,
 		"sheet_name" : "HanJumpIdleWalk",
 		"startFrame" : 16,
 		"totalFrames" : 8
@@ -1430,6 +1470,7 @@
 				"y" : 0.0
 			}
 		},
+		"reverse" : false,
 		"sheet_name" : "WinLoseEntrance",
 		"startFrame" : 0,
 		"totalFrames" : 6

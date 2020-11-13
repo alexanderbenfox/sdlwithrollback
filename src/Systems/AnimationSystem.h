@@ -130,8 +130,9 @@ public:
           if (nextFrame != animator.frame)
           {
             animator.frame = nextFrame;
+            int currFrame = animator.reverse ? (totalAnimFrames - 1) - nextFrame : nextFrame;
             renderer.SetRenderResource(GAnimArchive.GetAnimationData(animator.animCollectionID, animator.currentAnimationName)->GetSheetTexture<RenderType>());
-            renderer.sourceRect = GAnimArchive.GetAnimationData(animator.animCollectionID, animator.currentAnimationName)->GetFrameSrcRect(animator.frame);
+            renderer.sourceRect = GAnimArchive.GetAnimationData(animator.animCollectionID, animator.currentAnimationName)->GetFrameSrcRect(currFrame);
           }
 
           // 

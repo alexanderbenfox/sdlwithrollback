@@ -105,6 +105,27 @@
 		},
 		"sheet_location" : "spritesheets\\han-jump&idle.png"
 	},
+  "HanDashHit" : 
+	{
+		"columns" : 3,
+		"frameSize" : 
+		{
+			"x" : 1035,
+			"y" : 1024
+		},
+		"rows" : 3,
+		"sheetSize" : 
+		{
+			"x" : 3105,
+			"y" : 3072
+		},
+    "renderScalingFactor" : 
+		{
+			"x" : 0.155,
+			"y" : 0.155
+		},
+		"sheet_location" : "spritesheets\\han_hit&dash.png"
+	},
 	"Hitstun" : 
 	{
 		"columns" : 7,

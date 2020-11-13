@@ -31,6 +31,7 @@ public:
   AnchorPoint anchor = AnchorPoint::TL;
   //Vector2<int> anchorPoints[(const int)AnchorPoint::Size];
   EditorPoint anchorPoints[(const int)AnchorPoint::Size];
+  bool reverse = false;
 
   virtual void Load(const Json::Value& json) override;
 

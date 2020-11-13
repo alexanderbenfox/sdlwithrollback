@@ -22,7 +22,7 @@ const float gameFramePerAnimationFrame = (1.0f / secPerFrame) / animation_fps;
 class Animation
 {
 public:
-  Animation(const std::string& sheet, int startIndexOnSheet, int frames, AnchorPoint anchor, const Vector2<float>& anchorPt);
+  Animation(const std::string& sheet, int startIndexOnSheet, int frames, AnchorPoint anchor, const Vector2<float>& anchorPt, bool reverse);
 
   EventList GenerateEvents(const std::vector<EventData>& attackInfo, FrameData frameData, const Vector2<float>& textureScalingFactor);
 
@@ -51,6 +51,8 @@ public:
   //!
   Vector2<double> GetRenderScaling() const;
 
+  bool PlayReverse() const { return reverse; }
+
 protected:
   //!
   //SpriteSheet _spriteSheet;
@@ -61,6 +63,8 @@ protected:
   //Vector2<int> _anchorPoints[(const int)AnchorPoint::Size];
   //!
   std::vector<int> _animFrameToSheetFrame;
+
+  bool reverse = false;
 
 };
 
