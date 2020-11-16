@@ -153,7 +153,7 @@ void AnimationAsset::DisplayAnchorPointEditor()
 
       int x = startIndexOnSheet % animSpriteSheet.columns;
       int y = startIndexOnSheet / animSpriteSheet.columns;
-      Vector2<float> tlPos(x * frameSize.x, y * frameSize.y);
+      Vector2<float> tlPos(animSpriteSheet.offset.x + x * frameSize.x, animSpriteSheet.offset.y + y * frameSize.y);
 
       _anchorEditBackground = DisplayImage(animSpriteSheet.src, Rect<float>(tlPos, tlPos + frameSize), 512);
 
@@ -199,6 +199,7 @@ void AnimationAsset::DisplayAnchorPointEditor()
     if (ImGui::Button("Edit Anchor Points"))
     {
       _editorWindowDisplayed = true;
+      _anchorEditBackgroundInit = false;
     }
   }
 

@@ -261,6 +261,8 @@ EventBuilderDictionary AnimationEventHelper::ParseAnimationEventList(const std::
       {
         startUpFrames = i;
         activeFrames = i - startUpFrames + 1;
+        if (startUpFrames == 0)
+          startUpFrames = 1;
       }
     }
   }

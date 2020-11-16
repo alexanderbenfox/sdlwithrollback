@@ -11,11 +11,13 @@ struct SpriteSheet : public IJsonLoadable
   SpriteSheet(const char* src, int rows, int columns, bool dontLoad) : src(src), rows(rows), columns(columns) {}
 
   void GenerateSheetInfo();
+  void ShowSpriteSheetLines();
   //!
   EditorString src;
   //!
   Vector2<int> frameSize = Vector2<int>::Zero;
   Vector2<int> sheetSize = Vector2<int>::Zero;
+  Vector2<int> offset = Vector2<int>::Zero;
   //!
   int rows = 0;
   int columns = 0;

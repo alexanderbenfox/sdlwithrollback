@@ -42,7 +42,7 @@ DrawRect<float> Animation::GetFrameSrcRect(int animFrame) const
 
   int x = (_startIdx + frame) % spriteSheet.columns;
   int y = (_startIdx + frame) / spriteSheet.columns;
-  Vector2<float> pos(static_cast<float>(x * spriteSheet.frameSize.x), static_cast<float>(y * spriteSheet.frameSize.y));
+  Vector2<float> pos(static_cast<float>(spriteSheet.offset.x + x * spriteSheet.frameSize.x), static_cast<float>(spriteSheet.offset.y + y * spriteSheet.frameSize.y));
   return DrawRect<float>(pos.x, pos.y, static_cast<float>(spriteSheet.frameSize.x), static_cast<float>(spriteSheet.frameSize.y) );
 }
 

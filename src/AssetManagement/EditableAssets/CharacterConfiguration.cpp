@@ -67,8 +67,8 @@ void HitboxEditor::ChangeDisplay(Animation* anim, int frame, ActionAsset& data, 
   {
     Rect<double>& hitbox = data.eventData[evtFrame].hitbox;
 
-    double srcW = static_cast<double>(sheet.sheetSize.x) / static_cast<double>(sheet.columns);
-    double srcH = static_cast<double>(sheet.sheetSize.y) / static_cast<double>(sheet.rows);
+    double srcW = static_cast<double>(sheet.frameSize.x);
+    double srcH = static_cast<double>(sheet.frameSize.y);
     Vector2<double> srcSize(srcW, srcH);
 
     displayRect.Import(hitbox, srcSize);
@@ -82,8 +82,8 @@ void HitboxEditor::CommitRectChange(Animation* anim, int frame, ActionAsset& dat
   {
     if (displayRect.UserDataExists())
     {
-      double srcW = static_cast<double>(sheet.sheetSize.x) / static_cast<double>(sheet.columns);
-      double srcH = static_cast<double>(sheet.sheetSize.y) / static_cast<double>(sheet.rows);
+      double srcW = static_cast<double>(sheet.frameSize.x);
+      double srcH = static_cast<double>(sheet.frameSize.y);
       Vector2<double> srcSize(srcW, srcH);
 
       data.eventData[evtFrame].hitbox = displayRect.Export(srcSize);
