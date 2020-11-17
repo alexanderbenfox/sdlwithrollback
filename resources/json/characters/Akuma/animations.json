@@ -524,8 +524,8 @@
 		{
 			"BL" : 
 			{
-				"x" : 28.86598014831543,
-				"y" : 98.165138244628906
+				"x" : 18.313953399658203,
+				"y" : 91.9921875
 			},
 			"BR" : 
 			{
@@ -549,10 +549,10 @@
 			}
 		},
 		"reverse" : false,
-		"sheet_name" : "Throws",
-		"startFrame" : 6,
-		"sub_sheet_name" : "",
-		"totalFrames" : 17
+		"sheet_name" : "Akuma",
+		"startFrame" : 0,
+		"sub_sheet_name" : "FThrow",
+		"totalFrames" : 6
 	},
 	"HeavyHitstun" : 
 	{
@@ -598,8 +598,8 @@
 		{
 			"BL" : 
 			{
-				"x" : 1.7857142686843872,
-				"y" : 99.115043640136719
+				"x" : 7.5,
+				"y" : 93.1640625
 			},
 			"BR" : 
 			{
@@ -623,10 +623,10 @@
 			}
 		},
 		"reverse" : false,
-		"sheet_name" : "IdleAndWalking",
+		"sheet_name" : "Akuma",
 		"startFrame" : 0,
-		"sub_sheet_name" : "",
-		"totalFrames" : 10
+		"sub_sheet_name" : "Idle",
+		"totalFrames" : 4
 	},
 	"Jumping" : 
 	{
@@ -1264,8 +1264,8 @@
 		{
 			"BL" : 
 			{
-				"x" : 1.1363636255264282,
-				"y" : 99.51690673828125
+				"x" : 3.070175438596491,
+				"y" : 90.0390625
 			},
 			"BR" : 
 			{
@@ -1289,10 +1289,10 @@
 			}
 		},
 		"reverse" : false,
-		"sheet_name" : "GroundedAttacks",
-		"startFrame" : 53,
-		"sub_sheet_name" : "",
-		"totalFrames" : 12
+		"sheet_name" : "Akuma",
+		"startFrame" : 0,
+		"sub_sheet_name" : "StandingH",
+		"totalFrames" : 5
 	},
 	"StandingLight" : 
 	{
@@ -1326,10 +1326,10 @@
 			}
 		},
 		"reverse" : false,
-		"sheet_name" : "GroundedAttacks",
-		"startFrame" : 38,
-		"sub_sheet_name" : "",
-		"totalFrames" : 7
+		"sheet_name" : "Akuma",
+		"startFrame" : 0,
+		"sub_sheet_name" : "Jab",
+		"totalFrames" : 2
 	},
 	"StandingMedium" : 
 	{
@@ -1363,10 +1363,10 @@
 			}
 		},
 		"reverse" : false,
-		"sheet_name" : "GroundedAttacks",
-		"startFrame" : 45,
-		"sub_sheet_name" : "",
-		"totalFrames" : 9
+		"sheet_name" : "Akuma",
+		"startFrame" : 0,
+		"sub_sheet_name" : "StandM",
+		"totalFrames" : 5
 	},
 	"ThrowMiss" : 
 	{
@@ -1449,8 +1449,8 @@
 		{
 			"BL" : 
 			{
-				"x" : 0.39447731755424065,
-				"y" : 97.65625
+				"x" : 18.540433883666992,
+				"y" : 96.875
 			},
 			"BR" : 
 			{

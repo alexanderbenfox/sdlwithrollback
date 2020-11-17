@@ -18,6 +18,7 @@ public:
   //! Overload typecast operator
   operator std::string() const { return _string; }
   std::string const& str() { return _string; }
+  void clear();
 
   void DisplayEditable(const char* label);
 

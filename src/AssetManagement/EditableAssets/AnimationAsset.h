@@ -24,8 +24,8 @@ class AnimationAsset : public IJsonLoadable
 {
 public:
   AnimationAsset() = default;
-  AnimationAsset(const std::string& sheetName, int startIndex, int nFrames, AnchorPoint anch) : sheetName(sheetName), startIndexOnSheet(startIndex), frames(nFrames), anchor(anch) {}
-  EditorString sheetName;
+  EditorString sheetName = "";
+  EditorString subSheetName = "";
   int startIndexOnSheet = 0;
   int frames = 0;
   AnchorPoint anchor = AnchorPoint::TL;

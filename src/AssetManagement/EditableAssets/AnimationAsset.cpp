@@ -67,11 +67,18 @@ Vector2<float> CalculateRenderOffset(AnchorPoint anchor, const Vector2<float>& t
 }
 
 //______________________________________________________________________________
+template <> void AssetLoaderFn::OnLoad(AnimationAsset& asset) {}
+
+//______________________________________________________________________________
 void AnimationAsset::Load(const Json::Value& json)
 {
   if (!json["sheet_name"].isNull())
   {
     sheetName = json["sheet_name"].asString();
+  }
+  if (!json["sub_sheet_name"].isNull())
+  {
+    subSheetName = json["sub_sheet_name"].asString();
   }
   if (!json["startFrame"].isNull())
   {
@@ -104,6 +111,7 @@ void AnimationAsset::Load(const Json::Value& json)
 void AnimationAsset::Write(Json::Value& json) const
 {
   json["sheet_name"] = (std::string)sheetName;
+  json["sub_sheet_name"] = (std::string)subSheetName;
   json["startFrame"] = startIndexOnSheet;
   json["totalFrames"] = frames;
   json["anchor"] = std::to_string(anchor);
@@ -124,6 +132,7 @@ void AnimationAsset::DisplayInEditor()
 {
   ImGui::BeginGroup();
   sheetName.DisplayEditable("Name of SpriteSheet");
+  subSheetName.DisplayEditable("Name of Sub Sheet");
   ImGui::InputInt("Start Index ", &startIndexOnSheet);
   ImGui::InputInt("Total Animation Frames: ", &frames);
 
@@ -148,12 +157,13 @@ void AnimationAsset::DisplayAnchorPointEditor()
     ImGui::Begin("Anchor Point Editor");
     if (!_anchorEditBackgroundInit)
     {
-      const SpriteSheet& animSpriteSheet = AssetLibrary<SpriteSheet>::Get(sheetName);
-      Vector2<float> frameSize = animSpriteSheet.frameSize;
+      const SpriteSheet& animSpriteSheet = ResourceManager::Get().gSpriteSheets.Get(sheetName);
+      const SpriteSheet::Section& ssSection = animSpriteSheet.GetSubSection(subSheetName);
+      Vector2<float> frameSize = ssSection.frameSize;
 
-      int x = startIndexOnSheet % animSpriteSheet.columns;
-      int y = startIndexOnSheet / animSpriteSheet.columns;
-      Vector2<float> tlPos(animSpriteSheet.offset.x + x * frameSize.x, animSpriteSheet.offset.y + y * frameSize.y);
+      int x = startIndexOnSheet % ssSection.columns;
+      int y = startIndexOnSheet / ssSection.columns;
+      Vector2<float> tlPos(ssSection.offset.x + x * frameSize.x, ssSection.offset.y + y * frameSize.y);
 
       _anchorEditBackground = DisplayImage(animSpriteSheet.src, Rect<float>(tlPos, tlPos + frameSize), 512);
 
@@ -182,9 +192,11 @@ void AnimationAsset::DisplayAnchorPointEditor()
 
       if (ImGui::Button("Auto Calculate Anchor Points"))
       {
-        const SpriteSheet& animSpriteSheet = AssetLibrary<SpriteSheet>::Get(sheetName);
+        const SpriteSheet& animSpriteSheet = ResourceManager::Get().gSpriteSheets.Get(sheetName);
+        const SpriteSheet::Section& ssSection = animSpriteSheet.GetSubSection(subSheetName);
+
         Vector2<int> anchorPos = GenerateAnchorPoint(anchor, animSpriteSheet, startIndexOnSheet, false);
-        anchorPoints[(int)anchor].Import(anchorPos, animSpriteSheet.frameSize);
+        anchorPoints[(int)anchor].Import(anchorPos, ssSection.frameSize);
       }
     }
 
@@ -208,8 +220,10 @@ void AnimationAsset::DisplayAnchorPointEditor()
 //______________________________________________________________________________
 Vector2<float> AnimationAsset::GetAnchorPosition() const
 {
-  const SpriteSheet& animSpriteSheet = AssetLibrary<SpriteSheet>::Get(sheetName);
-  Vector2<double> const& anchPos = anchorPoints[(int)anchor].Export(animSpriteSheet.frameSize);
+  const SpriteSheet& animSpriteSheet = ResourceManager::Get().gSpriteSheets.Get(sheetName);
+  const SpriteSheet::Section& ssSection = animSpriteSheet.GetSubSection(subSheetName);
+
+  Vector2<double> const& anchPos = anchorPoints[(int)anchor].Export(ssSection.frameSize);
   return static_cast<Vector2<float>>(anchPos);
 }
 
@@ -230,7 +244,9 @@ Vector2<int> AnimationAsset::GenerateAnchorPoint(AnchorPoint anchorType, const S
   upixels = (Uint32*)sheetTexture.GetInfo().pixels.get();
 #endif
 
-  auto findAnchor = [&spriteSheet, &upixels, &sheetTexture, &format](bool reverseX, bool reverseY, int startX, int startY)
+  const SpriteSheet::Section& ssSection = spriteSheet.mainSection;
+
+  auto findAnchor = [&ssSection, &upixels, &sheetTexture, &format](bool reverseX, bool reverseY, int startX, int startY)
   {
 #ifdef _WIN32
     Uint32 transparent = sheetTexture.GetInfo().transparent;
@@ -239,16 +255,16 @@ Vector2<int> AnimationAsset::GenerateAnchorPoint(AnchorPoint anchorType, const S
     int strY = startY;
     startX = reverseX ? startX - 1 : startX + 1;
     startY = reverseY ? startY - 1 : startY + 1;
-    for (int yValue = startY; yValue < startY + spriteSheet.frameSize.y; yValue++)
+    for (int yValue = startY; yValue < startY + ssSection.frameSize.y; yValue++)
     {
-      for (int xValue = startX; xValue < startX + spriteSheet.frameSize.x; xValue++)
+      for (int xValue = startX; xValue < startX + ssSection.frameSize.x; xValue++)
       {
         int y = yValue;
         if (reverseY)
-          y = startY + spriteSheet.frameSize.y - (yValue - startY);
+          y = startY + ssSection.frameSize.y - (yValue - startY);
         int x = xValue;
         if (reverseX)
-          x = startX + spriteSheet.frameSize.x - (xValue - startX);
+          x = startX + ssSection.frameSize.x - (xValue - startX);
 
         Uint32 pixel = upixels[sheetTexture.GetInfo().mWidth * y + x];
 #ifdef _WIN32
@@ -264,8 +280,8 @@ Vector2<int> AnimationAsset::GenerateAnchorPoint(AnchorPoint anchorType, const S
     return Vector2<int>(0, 0);
   };
 
-  int startX = (startIdx % spriteSheet.columns) * spriteSheet.frameSize.x;
-  int startY = (startIdx / spriteSheet.columns) * spriteSheet.frameSize.y;
+  int startX = (startIdx % ssSection.columns) * ssSection.frameSize.x;
+  int startY = (startIdx / ssSection.columns) * ssSection.frameSize.y;
   bool reverseX = anchorType == AnchorPoint::TR || anchorType == AnchorPoint::BR;
   bool reverseY = anchorType == AnchorPoint::BR || anchorType == AnchorPoint::BL;
   if (fromFirstFrame)

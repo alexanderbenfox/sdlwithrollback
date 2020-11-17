@@ -16,6 +16,9 @@
 #include "Systems/ActionSystems/EnactActionSystem.h"
 
 //______________________________________________________________________________
+template <> void AssetLoaderFn::OnLoad(ActionAsset& asset) {}
+
+//______________________________________________________________________________
 void EntityCreationData::AddComponents(EntityID creatorID, const Transform* creator, const StateComponent* creatorState, std::shared_ptr<Entity> entity) const
 {
   float entityWidth = 0.0f;

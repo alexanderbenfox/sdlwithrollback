@@ -35,7 +35,7 @@ Animation* Animator::Play(const std::string& name, bool isLooped, float speed, b
     looping = isLooped;
     playSpeed = speed;
 
-    reverse = animation->second.PlayReverse();
+    reverse = animation->second.playReverse;
   }
   return collection.GetAnimation(currentAnimationName);
 }

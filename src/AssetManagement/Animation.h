@@ -22,7 +22,7 @@ const float gameFramePerAnimationFrame = (1.0f / secPerFrame) / animation_fps;
 class Animation
 {
 public:
-  Animation(const std::string& sheet, int startIndexOnSheet, int frames, AnchorPoint anchor, const Vector2<float>& anchorPt, bool reverse);
+  Animation(const std::string& sheet, const std::string& subSheet, int startIndexOnSheet, int frames, AnchorPoint anchor, const Vector2<float>& anchorPt, bool reverse);
 
   EventList GenerateEvents(const std::vector<EventData>& attackInfo, FrameData frameData, const Vector2<float>& textureScalingFactor);
 
@@ -51,12 +51,15 @@ public:
   //!
   Vector2<double> GetRenderScaling() const;
 
-  bool PlayReverse() const { return reverse; }
+  std::string GetSubSheet() const { return _subSheetName; }
+
+  bool playReverse = false;
 
 protected:
   //!
   //SpriteSheet _spriteSheet;
   std::string _spriteSheetName;
+  std::string _subSheetName;
   //!
   int _frames, _startIdx;
   //! stores the bottom left and top left reference pixels
@@ -64,15 +67,13 @@ protected:
   //!
   std::vector<int> _animFrameToSheetFrame;
 
-  bool reverse = false;
-
 };
 
 //______________________________________________________________________________
 template <typename Texture>
 inline Resource<Texture>& Animation::GetSheetTexture() const
 {
-  return ResourceManager::Get().GetAsset<Texture>(AssetLibrary<SpriteSheet>::Get(_spriteSheetName).src);
+  return ResourceManager::Get().GetAsset<Texture>(ResourceManager::Get().gSpriteSheets.Get(_spriteSheetName).src);
 }
 
 //______________________________________________________________________________

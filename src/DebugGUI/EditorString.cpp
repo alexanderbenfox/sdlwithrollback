@@ -19,6 +19,12 @@ EditorString::EditorString(const char* str)
   CPY(_textBuffer, str);
 }
 
+void EditorString::clear()
+{
+  _string.clear();
+  CPY(_textBuffer, _string.c_str());
+}
+
 void EditorString::DisplayEditable(const char* label)
 {
   if (ImGui::InputText(label, _textBuffer, bSize))

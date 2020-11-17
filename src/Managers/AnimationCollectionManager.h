@@ -39,6 +39,8 @@ public:
 
   void EditGeneralAnimations();
 
+  void ReloadAnimationCollection(const std::string& id, const CharacterConfiguration& configFiles);
+
 private:
   //! Loads all animation collections currently
   AnimationCollectionManager();

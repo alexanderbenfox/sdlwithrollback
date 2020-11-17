@@ -433,7 +433,8 @@ void GameManager::BeginGameLoop()
       if (ImGui::CollapsingHeader("Sprite Sheets"))
       {
         ImGui::BeginGroup();
-        AssetLibrary<SpriteSheet>::DisplayInGUI();
+        ResourceManager::Get().gSpriteSheets.DisplayInGUI();
+        ResourceManager::Get().gSpriteSheets.DisplaySaveButton(SpriteSheet::SaveLocation());
         ImGui::EndGroup();
       }
   });

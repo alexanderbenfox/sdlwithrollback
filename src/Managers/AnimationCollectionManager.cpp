@@ -26,13 +26,32 @@ void AnimationCollectionManager::AddNewCharacter(const std::string& characterNam
   _characters.emplace(characterName, path.GetPath());
 }
 
+void AnimationCollectionManager::ReloadAnimationCollection(const std::string& id, const CharacterConfiguration& configFiles)
+{
+  AnimationCollection& c = _collections[GetCollectionID(id)];
+
+  // clear collection before assigning animations
+  c.Clear();
+
+  // register all animations and actions as events
+  for (const auto& animation : configFiles.GetAnimationConfig())
+  {
+    c.RegisterAnimation(animation.first, animation.second);
+  }
+
+  for (const auto& action : configFiles.GetActionConfig())
+  {
+    c.SetAnimationEvents(action.first, action.second.eventData, action.second.frameData);
+  }
+}
+
 AnimationCollectionManager::AnimationCollectionManager() : _livingCollectionCount(0)
 {
   FilePath jsonDir(ResourceManager::Get().GetResourcePath() + "json");
 
   // Load general animations like sfx
   JsonFile gSpritesFile(StringUtils::CorrectPath(jsonDir.GetPath() + "/general/spritesheets.json"));
-  AssetLibrary<SpriteSheet>::LoadJsonData(gSpritesFile);
+  ResourceManager::Get().gSpriteSheets.LoadJsonData(gSpritesFile);
   
   JsonFile gAnimsFile(StringUtils::CorrectPath(jsonDir.GetPath() + "/general/animations.json"));
   gAnimsFile.LoadContentsIntoMap(_generalAnimations);

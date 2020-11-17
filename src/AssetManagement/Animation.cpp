@@ -9,8 +9,8 @@
 #include <json/json.h>
 
 //______________________________________________________________________________
-Animation::Animation(const std::string& sheet, int startIndexOnSheet, int frames, AnchorPoint anchor, const Vector2<float>& anchorPt, bool reverse) : _startIdx(startIndexOnSheet), _frames(frames),
-  _spriteSheetName(sheet), anchorPoint(std::make_pair(anchor, anchorPt)), reverse(reverse)
+Animation::Animation(const std::string& sheet, const std::string& subSheet, int startIndexOnSheet, int frames, AnchorPoint anchor, const Vector2<float>& anchorPt, bool reverse) : _startIdx(startIndexOnSheet), _frames(frames),
+  _spriteSheetName(sheet), _subSheetName(subSheet), anchorPoint(std::make_pair(anchor, anchorPt)), playReverse(reverse)
 {
   // initialize animation to play each sprite sheet frame 
   int gameFrames = (int)std::ceil(frames * gameFramePerAnimationFrame);
@@ -38,18 +38,14 @@ DrawRect<float> Animation::GetFrameSrcRect(int animFrame) const
   if (frame >= _frames || frame < 0)
     return { 0, 0, 0, 0 };
 
-  const SpriteSheet& spriteSheet = AssetLibrary<SpriteSheet>::Get(_spriteSheetName);
-
-  int x = (_startIdx + frame) % spriteSheet.columns;
-  int y = (_startIdx + frame) / spriteSheet.columns;
-  Vector2<float> pos(static_cast<float>(spriteSheet.offset.x + x * spriteSheet.frameSize.x), static_cast<float>(spriteSheet.offset.y + y * spriteSheet.frameSize.y));
-  return DrawRect<float>(pos.x, pos.y, static_cast<float>(spriteSheet.frameSize.x), static_cast<float>(spriteSheet.frameSize.y) );
+  const SpriteSheet& spriteSheet = ResourceManager::Get().gSpriteSheets.Get(_spriteSheetName);
+  return spriteSheet.GetSubSection(_subSheetName).GetFrame(_startIdx + frame);
 }
 
 //______________________________________________________________________________
 Vector2<int> Animation::GetFrameWH() const
 {
-  return AssetLibrary<SpriteSheet>::Get(_spriteSheetName).frameSize;
+  return ResourceManager::Get().gSpriteSheets.Get(_spriteSheetName).GetSubSection(_subSheetName).frameSize;
 }
 
 //______________________________________________________________________________
@@ -58,13 +54,13 @@ DisplayImage Animation::GetGUIDisplayImage(int displayHeight, int animFrame)
   //int frame = _animFrameToSheetFrame[animFrame];
   auto srcRect = GetFrameSrcRect(animFrame);
 
-  return DisplayImage(AssetLibrary<SpriteSheet>::Get(_spriteSheetName).src, Rect<float>(srcRect.x, srcRect.y, srcRect.x + srcRect.w, srcRect.y + srcRect.h), displayHeight);
+  return DisplayImage(ResourceManager::Get().gSpriteSheets.Get(_spriteSheetName).src, Rect<float>(srcRect.x, srcRect.y, srcRect.x + srcRect.w, srcRect.y + srcRect.h), displayHeight);
 }
 
 //______________________________________________________________________________
 Vector2<double> Animation::GetRenderScaling() const
 {
-  return AssetLibrary<SpriteSheet>::Get(_spriteSheetName).renderScalingFactor;
+  return ResourceManager::Get().gSpriteSheets.Get(_spriteSheetName).renderScalingFactor;
 }
 
 //______________________________________________________________________________
@@ -72,7 +68,7 @@ void AnimationCollection::RegisterAnimation(const std::string& animationName, co
 {
   if (_animations.find(animationName) == _animations.end())
   {
-    _animations.emplace(std::make_pair(animationName, Animation(animationData.sheetName, animationData.startIndexOnSheet, animationData.frames, animationData.anchor, animationData.GetAnchorPosition(), animationData.reverse)));
+    _animations.emplace(std::make_pair(animationName, Animation(animationData.sheetName, animationData.subSheetName, animationData.startIndexOnSheet, animationData.frames, animationData.anchor, animationData.GetAnchorPosition(), animationData.reverse)));
   }
 }
 

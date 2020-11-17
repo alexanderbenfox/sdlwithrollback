@@ -1,4 +1,108 @@
 {
+	"Akuma" : 
+	{
+		"SubSections" : 
+		{
+			"FThrow" : 
+			{
+				"columns" : 30,
+				"frameSize" : 
+				{
+					"x" : 86,
+					"y" : 128
+				},
+				"offset" : 
+				{
+					"x" : 8,
+					"y" : 1271
+				},
+				"rows" : 10
+			},
+			"Idle" : 
+			{
+				"columns" : 30,
+				"frameSize" : 
+				{
+					"x" : 70,
+					"y" : 128
+				},
+				"offset" : 
+				{
+					"x" : 346,
+					"y" : 40
+				},
+				"rows" : 10
+			},
+			"Jab" : 
+			{
+				"columns" : 30,
+				"frameSize" : 
+				{
+					"x" : 90,
+					"y" : 128
+				},
+				"offset" : 
+				{
+					"x" : 60,
+					"y" : 356
+				},
+				"rows" : 10
+			},
+			"StandM" : 
+			{
+				"columns" : 30,
+				"frameSize" : 
+				{
+					"x" : 104,
+					"y" : 128
+				},
+				"offset" : 
+				{
+					"x" : 768,
+					"y" : 358
+				},
+				"rows" : 10
+			},
+			"StandingH" : 
+			{
+				"columns" : 30,
+				"frameSize" : 
+				{
+					"x" : 114,
+					"y" : 128
+				},
+				"offset" : 
+				{
+					"x" : 1572,
+					"y" : 355
+				},
+				"rows" : 10
+			}
+		},
+		"columns" : 30,
+		"frameSize" : 
+		{
+			"x" : 114,
+			"y" : 128
+		},
+		"offset" : 
+		{
+			"x" : 1572,
+			"y" : 355
+		},
+		"renderScalingFactor" : 
+		{
+			"x" : 1.0,
+			"y" : 1.0
+		},
+		"rows" : 10,
+		"sheetSize" : 
+		{
+			"x" : 3584,
+			"y" : 2448
+		},
+		"sheet_location" : "spritesheets\\akuma.png"
+	},
 	"Blocks" : 
 	{
 		"columns" : 4,
@@ -622,6 +726,50 @@
 			"y" : 872
 		},
 		"sheet_location" : "spritesheets\\throws.png"
+	},
+	"Venom" : 
+	{
+		"SubSections" : 
+		{
+			"Entrance" : 
+			{
+				"columns" : 9,
+				"frameSize" : 
+				{
+					"x" : 140,
+					"y" : 168
+				},
+				"offset" : 
+				{
+					"x" : 0,
+					"y" : 0
+				},
+				"rows" : 40
+			}
+		},
+		"columns" : 9,
+		"frameSize" : 
+		{
+			"x" : 140,
+			"y" : 168
+		},
+		"offset" : 
+		{
+			"x" : 0,
+			"y" : 0
+		},
+		"renderScalingFactor" : 
+		{
+			"x" : 1.0,
+			"y" : 1.0
+		},
+		"rows" : 40,
+		"sheetSize" : 
+		{
+			"x" : 1200,
+			"y" : 7612
+		},
+		"sheet_location" : "spritesheets\\mvc-venom.png"
 	},
 	"WinLoseEntrance" : 
 	{
