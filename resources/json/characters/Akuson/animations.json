@@ -1,0 +1,1520 @@
+{
+	"BackDash" : 
+	{
+		"anchor" : "BL",
+		"anchorPoints" : 
+		{
+			"BL" : 
+			{
+				"x" : 0.8474576473236084,
+				"y" : 99.047622680664063
+			},
+			"BR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"Center" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"TL" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"TR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			}
+		},
+		"reverse" : true,
+		"sheet_name" : "MBison",
+		"startFrame" : 0,
+		"sub_sheet_name" : "BDash",
+		"totalFrames" : 2
+	},
+	"BackThrow" : 
+	{
+		"anchor" : "BL",
+		"anchorPoints" : 
+		{
+			"BL" : 
+			{
+				"x" : 28.350515365600586,
+				"y" : 97.247703552246094
+			},
+			"BR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"Center" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"TL" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"TR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			}
+		},
+		"reverse" : false,
+		"sheet_name" : "Throws",
+		"startFrame" : 23,
+		"sub_sheet_name" : "",
+		"totalFrames" : 14
+	},
+	"BlockHigh" : 
+	{
+		"anchor" : "BL",
+		"anchorPoints" : 
+		{
+			"BL" : 
+			{
+				"x" : 20.168067932128906,
+				"y" : 97.0703125
+			},
+			"BR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"Center" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"TL" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"TR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			}
+		},
+		"reverse" : true,
+		"sheet_name" : "MBison",
+		"startFrame" : 0,
+		"sub_sheet_name" : "BlockMid",
+		"totalFrames" : 2
+	},
+	"BlockLow" : 
+	{
+		"anchor" : "BL",
+		"anchorPoints" : 
+		{
+			"BL" : 
+			{
+				"x" : 30.246189117431641,
+				"y" : 95.8984375
+			},
+			"BR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"Center" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"TL" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"TR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			}
+		},
+		"reverse" : true,
+		"sheet_name" : "MBison",
+		"startFrame" : 0,
+		"sub_sheet_name" : "BlockLow",
+		"totalFrames" : 2
+	},
+	"BlockMid" : 
+	{
+		"anchor" : "BL",
+		"anchorPoints" : 
+		{
+			"BL" : 
+			{
+				"x" : 20.168067932128906,
+				"y" : 97.0703125
+			},
+			"BR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"Center" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"TL" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"TR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			}
+		},
+		"reverse" : true,
+		"sheet_name" : "MBison",
+		"startFrame" : 0,
+		"sub_sheet_name" : "BlockMid",
+		"totalFrames" : 2
+	},
+	"Crouch" : 
+	{
+		"anchor" : "BL",
+		"anchorPoints" : 
+		{
+			"BL" : 
+			{
+				"x" : 25.221799850463867,
+				"y" : 96.2890625
+			},
+			"BR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"Center" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"TL" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"TR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			}
+		},
+		"reverse" : true,
+		"sheet_name" : "MBison",
+		"startFrame" : 0,
+		"sub_sheet_name" : "Crouch",
+		"totalFrames" : 1
+	},
+	"Crouching" : 
+	{
+		"anchor" : "BL",
+		"anchorPoints" : 
+		{
+			"BL" : 
+			{
+				"x" : 27.34375,
+				"y" : 98.2421875
+			},
+			"BR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"Center" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"TL" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"TR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			}
+		},
+		"reverse" : true,
+		"sheet_name" : "MBison",
+		"startFrame" : 0,
+		"sub_sheet_name" : "Crouching",
+		"totalFrames" : 3
+	},
+	"CrouchingHeavy" : 
+	{
+		"anchor" : "BL",
+		"anchorPoints" : 
+		{
+			"BL" : 
+			{
+				"x" : 18.202502844141069,
+				"y" : 97.65625
+			},
+			"BR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"Center" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"TL" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"TR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			}
+		},
+		"reverse" : true,
+		"sheet_name" : "MBison",
+		"startFrame" : 0,
+		"sub_sheet_name" : "CH",
+		"totalFrames" : 3
+	},
+	"CrouchingHitstun" : 
+	{
+		"anchor" : "BL",
+		"anchorPoints" : 
+		{
+			"BL" : 
+			{
+				"x" : 28.169013977050781,
+				"y" : 99.107139587402344
+			},
+			"BR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"Center" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"TL" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"TR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			}
+		},
+		"reverse" : false,
+		"sheet_name" : "Hitstun",
+		"startFrame" : 56,
+		"sub_sheet_name" : "",
+		"totalFrames" : 11
+	},
+	"CrouchingLight" : 
+	{
+		"anchor" : "BL",
+		"anchorPoints" : 
+		{
+			"BL" : 
+			{
+				"x" : 1.1363636255264282,
+				"y" : 99.51690673828125
+			},
+			"BR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"Center" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"TL" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"TR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			}
+		},
+		"reverse" : false,
+		"sheet_name" : "GroundedAttacks",
+		"startFrame" : 9,
+		"sub_sheet_name" : "",
+		"totalFrames" : 7
+	},
+	"CrouchingMedium" : 
+	{
+		"anchor" : "BL",
+		"anchorPoints" : 
+		{
+			"BL" : 
+			{
+				"x" : 2.2727272510528564,
+				"y" : 99.51690673828125
+			},
+			"BR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"Center" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"TL" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"TR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			}
+		},
+		"reverse" : false,
+		"sheet_name" : "GroundedAttacks",
+		"startFrame" : 16,
+		"sub_sheet_name" : "",
+		"totalFrames" : 11
+	},
+	"Entrance" : 
+	{
+		"anchor" : "BR",
+		"anchorPoints" : 
+		{
+			"BL" : 
+			{
+				"x" : 0.73964494466781616,
+				"y" : 5.46875
+			},
+			"BR" : 
+			{
+				"x" : 42.751480102539063,
+				"y" : 98.046875
+			},
+			"Center" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"TL" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"TR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			}
+		},
+		"reverse" : false,
+		"sheet_name" : "WinLoseEntrance",
+		"startFrame" : 24,
+		"sub_sheet_name" : "",
+		"totalFrames" : 18
+	},
+	"Falling" : 
+	{
+		"anchor" : "TL",
+		"anchorPoints" : 
+		{
+			"BL" : 
+			{
+				"x" : 28.674697875976563,
+				"y" : 2.1484375
+			},
+			"BR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"Center" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"TL" : 
+			{
+				"x" : 16.626506805419922,
+				"y" : 13.0859375
+			},
+			"TR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			}
+		},
+		"reverse" : false,
+		"sheet_name" : "JumpFall",
+		"startFrame" : 60,
+		"sub_sheet_name" : "",
+		"totalFrames" : 13
+	},
+	"ForwardDash" : 
+	{
+		"anchor" : "BL",
+		"anchorPoints" : 
+		{
+			"BL" : 
+			{
+				"x" : 0.8474576473236084,
+				"y" : 99.047622680664063
+			},
+			"BR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"Center" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"TL" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"TR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			}
+		},
+		"reverse" : true,
+		"sheet_name" : "MBison",
+		"startFrame" : 0,
+		"sub_sheet_name" : "FDash",
+		"totalFrames" : 3
+	},
+	"ForwardThrow" : 
+	{
+		"anchor" : "BL",
+		"anchorPoints" : 
+		{
+			"BL" : 
+			{
+				"x" : 18.313953399658203,
+				"y" : 91.9921875
+			},
+			"BR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"Center" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"TL" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"TR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			}
+		},
+		"reverse" : false,
+		"sheet_name" : "Akuma",
+		"startFrame" : 0,
+		"sub_sheet_name" : "FThrow",
+		"totalFrames" : 6
+	},
+	"HeavyHitstun" : 
+	{
+		"anchor" : "BL",
+		"anchorPoints" : 
+		{
+			"BL" : 
+			{
+				"x" : 29.577465057373047,
+				"y" : 99.107139587402344
+			},
+			"BR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"Center" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"TL" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"TR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			}
+		},
+		"reverse" : false,
+		"sheet_name" : "Hitstun",
+		"startFrame" : 24,
+		"sub_sheet_name" : "",
+		"totalFrames" : 7
+	},
+	"Idle" : 
+	{
+		"anchor" : "BL",
+		"anchorPoints" : 
+		{
+			"BL" : 
+			{
+				"x" : 17.377567291259766,
+				"y" : 98.2421875
+			},
+			"BR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"Center" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"TL" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"TR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			}
+		},
+		"reverse" : true,
+		"sheet_name" : "MBison",
+		"startFrame" : 0,
+		"sub_sheet_name" : "Idle",
+		"totalFrames" : 10
+	},
+	"Jumping" : 
+	{
+		"anchor" : "TL",
+		"anchorPoints" : 
+		{
+			"BL" : 
+			{
+				"x" : 32.142856597900391,
+				"y" : 99.275360107421875
+			},
+			"BR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"Center" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"TL" : 
+			{
+				"x" : 30.303030303030305,
+				"y" : 40.8203125
+			},
+			"TR" : 
+			{
+				"x" : 88.095237731933594,
+				"y" : 39.6484375
+			}
+		},
+		"reverse" : true,
+		"sheet_name" : "MBison",
+		"startFrame" : 0,
+		"sub_sheet_name" : "Jump",
+		"totalFrames" : 5
+	},
+	"JumpingHeavy" : 
+	{
+		"anchor" : "TL",
+		"anchorPoints" : 
+		{
+			"BL" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"BR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"Center" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"TL" : 
+			{
+				"x" : 14.482758522033691,
+				"y" : 16.6015625
+			},
+			"TR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			}
+		},
+		"reverse" : false,
+		"sheet_name" : "JumpingAttacks",
+		"startFrame" : 17,
+		"sub_sheet_name" : "",
+		"totalFrames" : 8
+	},
+	"JumpingLight" : 
+	{
+		"anchor" : "TL",
+		"anchorPoints" : 
+		{
+			"BL" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"BR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"Center" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"TL" : 
+			{
+				"x" : 8.4482755661010742,
+				"y" : 16.015625
+			},
+			"TR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			}
+		},
+		"reverse" : false,
+		"sheet_name" : "JumpingAttacks",
+		"startFrame" : 0,
+		"sub_sheet_name" : "",
+		"totalFrames" : 8
+	},
+	"JumpingMedium" : 
+	{
+		"anchor" : "TL",
+		"anchorPoints" : 
+		{
+			"BL" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"BR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"Center" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"TL" : 
+			{
+				"x" : 7.7586207389831543,
+				"y" : 22.265625
+			},
+			"TR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			}
+		},
+		"reverse" : false,
+		"sheet_name" : "JumpingAttacks",
+		"startFrame" : 9,
+		"sub_sheet_name" : "",
+		"totalFrames" : 9
+	},
+	"KO" : 
+	{
+		"anchor" : "BL",
+		"anchorPoints" : 
+		{
+			"BL" : 
+			{
+				"x" : 1.1299434900283813,
+				"y" : 99.253730773925781
+			},
+			"BR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"Center" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"TL" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"TR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			}
+		},
+		"reverse" : false,
+		"sheet_name" : "WinLoseEntrance",
+		"startFrame" : 6,
+		"sub_sheet_name" : "",
+		"totalFrames" : 17
+	},
+	"Knockdown2_Air" : 
+	{
+		"anchor" : "BL",
+		"anchorPoints" : 
+		{
+			"BL" : 
+			{
+				"x" : 28.19499397277832,
+				"y" : 96.875
+			},
+			"BR" : 
+			{
+				"x" : 37.078651428222656,
+				"y" : 94.166664123535156
+			},
+			"Center" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"TL" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"TR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			}
+		},
+		"reverse" : false,
+		"sheet_name" : "Knockdowns",
+		"startFrame" : 25,
+		"sub_sheet_name" : "",
+		"totalFrames" : 16
+	},
+	"Knockdown2_HitGround" : 
+	{
+		"anchor" : "BL",
+		"anchorPoints" : 
+		{
+			"BL" : 
+			{
+				"x" : 28.590250015258789,
+				"y" : 95.5078125
+			},
+			"BR" : 
+			{
+				"x" : 88.801055908203125,
+				"y" : 91.2109375
+			},
+			"Center" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"TL" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"TR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			}
+		},
+		"reverse" : false,
+		"sheet_name" : "Knockdowns",
+		"startFrame" : 41,
+		"sub_sheet_name" : "",
+		"totalFrames" : 5
+	},
+	"Knockdown_Air" : 
+	{
+		"anchor" : "BR",
+		"anchorPoints" : 
+		{
+			"BL" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"BR" : 
+			{
+				"x" : 73.6495361328125,
+				"y" : 99.21875
+			},
+			"Center" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"TL" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"TR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			}
+		},
+		"reverse" : false,
+		"sheet_name" : "Knockdowns",
+		"startFrame" : 0,
+		"sub_sheet_name" : "",
+		"totalFrames" : 8
+	},
+	"Knockdown_HitGround" : 
+	{
+		"anchor" : "BL",
+		"anchorPoints" : 
+		{
+			"BL" : 
+			{
+				"x" : 29.117259979248047,
+				"y" : 87.5
+			},
+			"BR" : 
+			{
+				"x" : 60.210803985595703,
+				"y" : 91.40625
+			},
+			"Center" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"TL" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"TR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			}
+		},
+		"reverse" : false,
+		"sheet_name" : "Knockdowns",
+		"startFrame" : 8,
+		"sub_sheet_name" : "",
+		"totalFrames" : 11
+	},
+	"Knockdown_OnGround" : 
+	{
+		"anchor" : "BL",
+		"anchorPoints" : 
+		{
+			"BL" : 
+			{
+				"x" : 29.776021957397461,
+				"y" : 95.3125
+			},
+			"BR" : 
+			{
+				"x" : 83.146064758300781,
+				"y" : 98.333335876464844
+			},
+			"Center" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"TL" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"TR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			}
+		},
+		"reverse" : false,
+		"sheet_name" : "Knockdowns",
+		"startFrame" : 19,
+		"sub_sheet_name" : "",
+		"totalFrames" : 6
+	},
+	"LightHitstun" : 
+	{
+		"anchor" : "BL",
+		"anchorPoints" : 
+		{
+			"BL" : 
+			{
+				"x" : 28.873239517211914,
+				"y" : 99.107139587402344
+			},
+			"BR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"Center" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"TL" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"TR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			}
+		},
+		"reverse" : false,
+		"sheet_name" : "Hitstun",
+		"startFrame" : 0,
+		"sub_sheet_name" : "",
+		"totalFrames" : 3
+	},
+	"MedHitstun" : 
+	{
+		"anchor" : "BL",
+		"anchorPoints" : 
+		{
+			"BL" : 
+			{
+				"x" : 26.760562896728516,
+				"y" : 99.107139587402344
+			},
+			"BR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"Center" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"TL" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"TR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			}
+		},
+		"reverse" : false,
+		"sheet_name" : "Hitstun",
+		"startFrame" : 4,
+		"sub_sheet_name" : "",
+		"totalFrames" : 11
+	},
+	"MedHitstun2" : 
+	{
+		"anchor" : "BL",
+		"anchorPoints" : 
+		{
+			"BL" : 
+			{
+				"x" : 28.873239517211914,
+				"y" : 99.107139587402344
+			},
+			"BR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"Center" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"TL" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"TR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			}
+		},
+		"reverse" : false,
+		"sheet_name" : "Hitstun",
+		"startFrame" : 14,
+		"sub_sheet_name" : "",
+		"totalFrames" : 10
+	},
+	"SpecialMove1" : 
+	{
+		"anchor" : "BL",
+		"anchorPoints" : 
+		{
+			"BL" : 
+			{
+				"x" : 17.777778625488281,
+				"y" : 99.375
+			},
+			"BR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"Center" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"TL" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"TR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			}
+		},
+		"reverse" : false,
+		"sheet_name" : "SpecialMoves",
+		"startFrame" : 0,
+		"sub_sheet_name" : "",
+		"totalFrames" : 14
+	},
+	"SpecialMove2" : 
+	{
+		"anchor" : "BL",
+		"anchorPoints" : 
+		{
+			"BL" : 
+			{
+				"x" : 19.44444465637207,
+				"y" : 99.375
+			},
+			"BR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"Center" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"TL" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"TR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			}
+		},
+		"reverse" : false,
+		"sheet_name" : "SpecialMoves",
+		"startFrame" : 41,
+		"sub_sheet_name" : "",
+		"totalFrames" : 17
+	},
+	"SpecialMove3" : 
+	{
+		"anchor" : "BL",
+		"anchorPoints" : 
+		{
+			"BL" : 
+			{
+				"x" : 11.666666984558105,
+				"y" : 98.75
+			},
+			"BR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"Center" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"TL" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"TR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			}
+		},
+		"reverse" : false,
+		"sheet_name" : "SpecialMoves",
+		"startFrame" : 58,
+		"sub_sheet_name" : "",
+		"totalFrames" : 15
+	},
+	"SpecialMove4" : 
+	{
+		"anchor" : "BL",
+		"anchorPoints" : 
+		{
+			"BL" : 
+			{
+				"x" : 16.666666030883789,
+				"y" : 99.375
+			},
+			"BR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"Center" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"TL" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"TR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			}
+		},
+		"reverse" : false,
+		"sheet_name" : "SpecialMoves",
+		"startFrame" : 14,
+		"sub_sheet_name" : "",
+		"totalFrames" : 27
+	},
+	"StandingHeavy" : 
+	{
+		"anchor" : "BL",
+		"anchorPoints" : 
+		{
+			"BL" : 
+			{
+				"x" : 3.0701754093170166,
+				"y" : 90.0390625
+			},
+			"BR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"Center" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"TL" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"TR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			}
+		},
+		"reverse" : false,
+		"sheet_name" : "Akuma",
+		"startFrame" : 0,
+		"sub_sheet_name" : "StandingH",
+		"totalFrames" : 5
+	},
+	"StandingLight" : 
+	{
+		"anchor" : "BL",
+		"anchorPoints" : 
+		{
+			"BL" : 
+			{
+				"x" : 1.7045454978942871,
+				"y" : 99.51690673828125
+			},
+			"BR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"Center" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"TL" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"TR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			}
+		},
+		"reverse" : false,
+		"sheet_name" : "Akuma",
+		"startFrame" : 0,
+		"sub_sheet_name" : "Jab",
+		"totalFrames" : 2
+	},
+	"StandingMedium" : 
+	{
+		"anchor" : "BL",
+		"anchorPoints" : 
+		{
+			"BL" : 
+			{
+				"x" : 2.2727272510528564,
+				"y" : 99.51690673828125
+			},
+			"BR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"Center" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"TL" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"TR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			}
+		},
+		"reverse" : false,
+		"sheet_name" : "Akuma",
+		"startFrame" : 0,
+		"sub_sheet_name" : "StandM",
+		"totalFrames" : 5
+	},
+	"ThrowMiss" : 
+	{
+		"anchor" : "BL",
+		"anchorPoints" : 
+		{
+			"BL" : 
+			{
+				"x" : 29.381443023681641,
+				"y" : 99.082565307617188
+			},
+			"BR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"Center" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"TL" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"TR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			}
+		},
+		"reverse" : false,
+		"sheet_name" : "Throws",
+		"startFrame" : 2,
+		"sub_sheet_name" : "",
+		"totalFrames" : 4
+	},
+	"WalkB" : 
+	{
+		"anchor" : "BL",
+		"anchorPoints" : 
+		{
+			"BL" : 
+			{
+				"x" : 34.432991027832031,
+				"y" : 87.3046875
+			},
+			"BR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"Center" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"TL" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"TR" : 
+			{
+				"x" : 57.142856597900391,
+				"y" : 5.3097343444824219
+			}
+		},
+		"reverse" : true,
+		"sheet_name" : "MBison",
+		"startFrame" : 0,
+		"sub_sheet_name" : "WalkB",
+		"totalFrames" : 2
+	},
+	"WalkF" : 
+	{
+		"anchor" : "BL",
+		"anchorPoints" : 
+		{
+			"BL" : 
+			{
+				"x" : 35.058822631835938,
+				"y" : 87.109375
+			},
+			"BR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"Center" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"TL" : 
+			{
+				"x" : 57.142856597900391,
+				"y" : 5.3097343444824219
+			},
+			"TR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			}
+		},
+		"reverse" : true,
+		"sheet_name" : "MBison",
+		"startFrame" : 0,
+		"sub_sheet_name" : "WalkF",
+		"totalFrames" : 2
+	},
+	"Win" : 
+	{
+		"anchor" : "BL",
+		"anchorPoints" : 
+		{
+			"BL" : 
+			{
+				"x" : 2.8248586654663086,
+				"y" : 99.253730773925781
+			},
+			"BR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"Center" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"TL" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"TR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			}
+		},
+		"reverse" : false,
+		"sheet_name" : "WinLoseEntrance",
+		"startFrame" : 0,
+		"sub_sheet_name" : "",
+		"totalFrames" : 6
+	}
+}
+
