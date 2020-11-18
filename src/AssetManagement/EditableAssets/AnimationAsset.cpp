@@ -75,6 +75,9 @@ template <> ImVec2 AssetLoaderFn::GetDisplaySize<AnimationAsset>()
   return ImVec2(500, 6 * fieldHeight);
 }
 
+template <> std::string AssetLoaderFn::GUIHeaderLabel<AnimationAsset> = "Animations";
+template <> std::string AssetLoaderFn::GUIItemLabel<AnimationAsset> = "Animation";
+
 //______________________________________________________________________________
 void AnimationAsset::Load(const Json::Value& json)
 {
@@ -195,9 +198,10 @@ void AnimationAsset::DisplayAnchorPointEditor()
       {
         const SpriteSheet& animSpriteSheet = ResourceManager::Get().gSpriteSheets.Get(sheetName);
         const SpriteSheet::Section& ssSection = animSpriteSheet.GetSubSection(subSheetName);
+        DrawRect<float> frameRect = ssSection.GetFrame(startIndexOnSheet);
 
         Vector2<int> anchorPos = GenerateAnchorPoint(anchor, animSpriteSheet, startIndexOnSheet, false);
-        anchorPoints[(int)anchor].Import(anchorPos, ssSection.frameSize);
+        anchorPoints[(int)anchor].Import(anchorPos, Vector2<double>(frameRect.w, frameRect.h));
       }
     }
 

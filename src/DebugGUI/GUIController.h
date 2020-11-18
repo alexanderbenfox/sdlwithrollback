@@ -90,4 +90,6 @@ struct DropDown
   static void DisplayList(const std::vector<std::string>& list, std::string& selection);
   static void DisplayList(const std::vector<std::string>& list, std::string& selection, std::function<void()> onSelect);
   static void Show(const char* currentItem, const char* items[], int nItems, std::function<void(const std::string&)> callback);
+
+  static int activeDropDowns;
 };

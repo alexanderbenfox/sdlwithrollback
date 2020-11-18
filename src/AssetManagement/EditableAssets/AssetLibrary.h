@@ -16,6 +16,8 @@ struct AssetLoaderFn
 {
   template <typename T> static void OnLoad(T& asset);
   template <typename T> static ImVec2 GetDisplaySize();
+  template <typename T> static std::string GUIHeaderLabel;
+  template <typename T> static std::string GUIItemLabel;
 };
 
 //______________________________________________________________________________
@@ -69,40 +71,49 @@ inline void AssetLibrary<T>::SaveDataJson(JsonFile& file) const
 template <typename T>
 inline void AssetLibrary<T>::DisplayInGUI()
 {
-  static int counter = 0;
-  std::pair<bool, std::string> deleteCall = std::make_pair(false, "");
   std::vector<std::string> itemNames;
-
-  for (auto& item : _library)
+  if (ImGui::CollapsingHeader(AssetLoaderFn::GUIHeaderLabel<T>.c_str()))
   {
-    itemNames.push_back(item.first);
-    std::string name = "##item:" + std::to_string(counter++);
-    ImGui::BeginChild(name.c_str(), AssetLoaderFn::GetDisplaySize<T>(), true);
+    static int counter = 0;
+    std::pair<bool, std::string> deleteCall = std::make_pair(false, "");
+
+    for (auto& item : _library)
     {
-      ImGui::Text("%s", item.first.c_str());
-      ImGui::SameLine();
-      if (ImGui::Button("Rename"))
-        OnRename(item.first);
-      ImGui::SameLine();
-      if (ImGui::Button("Copy"))
-        OnCopy(item.first);
-      ImGui::SameLine();
-      if (ImGui::Button("Delete"))
-        deleteCall = std::make_pair(true, item.first);
+      itemNames.push_back(item.first);
+      std::string name = "##item:" + std::to_string(counter++);
+      ImGui::BeginChild(name.c_str(), AssetLoaderFn::GetDisplaySize<T>(), true);
+      {
+        ImGui::Text("%s", item.first.c_str());
+        ImGui::SameLine();
+        if (ImGui::Button("Rename"))
+          OnRename(item.first);
+        ImGui::SameLine();
+        if (ImGui::Button("Copy"))
+          OnCopy(item.first);
+        ImGui::SameLine();
+        if (ImGui::Button("Delete"))
+          deleteCall = std::make_pair(true, item.first);
+      }
+
+      item.second.DisplayInEditor();
+      ImGui::EndChild();
     }
 
-    item.second.DisplayInEditor();
-    ImGui::EndChild();
+    if (deleteCall.first)
+      OnDelete(deleteCall.second);
+
+    counter = 0;
   }
-
-  if(deleteCall.first)
-    OnDelete(deleteCall.second);
-
-  counter = 0;
+  else
+  {
+    for (auto& item : _library)
+      itemNames.push_back(item.first);
+  }
 
   ImGui::BeginGroup();
   ImGui::Spacing();
-  ImGui::Text("Edit Item: ");
+  std::string editItemTxt = "Edit " + AssetLoaderFn::GUIItemLabel<T> +": ";
+  ImGui::Text(editItemTxt.c_str());
   ImGui::SameLine();
   DropDown::DisplayList(itemNames, _dropdownSelection,
   [this]()
@@ -122,7 +133,8 @@ inline void AssetLibrary<T>::DisplayInGUI()
   ImGui::Spacing();
   ImGui::EndGroup();
 
-  if (ImGui::CollapsingHeader("Create New"))
+  std::string createNewItemTxt = "Create New " + AssetLoaderFn::GUIItemLabel<T>;
+  if (ImGui::CollapsingHeader(createNewItemTxt.c_str()))
   {
     _newItemName.DisplayEditable("New Item Name");
     _newItem.DisplayInEditor();

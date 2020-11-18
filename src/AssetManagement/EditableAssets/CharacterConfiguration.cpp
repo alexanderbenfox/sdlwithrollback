@@ -66,14 +66,13 @@ void HitboxEditor::ChangeDisplay(Animation* anim, int frame, ActionAsset& data, 
   frameDisplay = anim->GetGUIDisplayImage(512, frame);
   displayRect = EditorRect(frameDisplay.displaySize);
 
-  int evtFrame = anim->AnimFrameToSheet(frame);
+  int evtFrame = anim->AnimFrameToIndexOffset(frame);
   if (evtFrame < data.eventData.size())
   {
     Rect<double>& hitbox = data.eventData[evtFrame].hitbox;
 
-    double srcW = static_cast<double>(sheet.frameSize.x);
-    double srcH = static_cast<double>(sheet.frameSize.y);
-    Vector2<double> srcSize(srcW, srcH);
+    auto canvasRect = sheet.GetFrame(anim->AnimFrameToSheetIndex(frame));
+    Vector2<double> srcSize(canvasRect.w, canvasRect.h);
 
     displayRect.Import(hitbox, srcSize);
   }
@@ -81,14 +80,13 @@ void HitboxEditor::ChangeDisplay(Animation* anim, int frame, ActionAsset& data, 
 
 void HitboxEditor::CommitRectChange(Animation* anim, int frame, ActionAsset& data, const SpriteSheet::Section& sheet)
 {
-  int evtFrame = anim->AnimFrameToSheet(frame);
+  int evtFrame = anim->AnimFrameToIndexOffset(frame);
   if (evtFrame < data.eventData.size())
   {
     if (displayRect.UserDataExists())
     {
-      double srcW = static_cast<double>(sheet.frameSize.x);
-      double srcH = static_cast<double>(sheet.frameSize.y);
-      Vector2<double> srcSize(srcW, srcH);
+      auto canvasRect = sheet.GetFrame(anim->AnimFrameToSheetIndex(frame));
+      Vector2<double> srcSize(canvasRect.w, canvasRect.h);
 
       data.eventData[evtFrame].hitbox = displayRect.Export(srcSize);
     }
@@ -144,42 +142,28 @@ void CharacterConfiguration::ReloadActionDebug(const std::string& actionName, Ac
 void CharacterConfiguration::AddCharacterDisplay()
 {
   GUIController::Get().AddImguiWindowFunction("Characters", _characterIdentifier, "Assets", [this]()
-    {
-      if (ImGui::CollapsingHeader("Animations"))
-      {
-        _animations.DisplayInGUI();
-        if (ImGui::Button("Save Animations"))
-          SaveAssetFile("animations.json", _animations);
-      }
-      if (ImGui::CollapsingHeader("Actions"))
-      {
-        _actions.DisplayInGUI();
-        if (ImGui::Button("Save Actions"))
-          SaveAssetFile("actions.json", _actions);
-      }
+  {
+    _animations.DisplayInGUI();
+    if (ImGui::Button("Save Animations"))
+      SaveAssetFile("animations.json", _animations);
+    _actions.DisplayInGUI();
+    if (ImGui::Button("Save Actions"))
+      SaveAssetFile("actions.json", _actions);
 
-      static std::string selectedAction = "";
-      std::vector<std::string> actionNames;
-      for (const auto& action : _actions.GetLibrary())
-      {
-        actionNames.push_back(action.first);
-      }
+    static std::string selectedAction = "";
+    std::vector<std::string> actionNames;
+    for (const auto& action : _actions.GetLibrary())
+      actionNames.push_back(action.first);
 
-      ImGui::BeginGroup();
-      ImGui::Text("Modify Action: ");
-      ImGui::SameLine();
-      DropDown::DisplayList(actionNames, selectedAction, [this]()
-      {
-        if (!selectedAction.empty())
-        {
-          ReloadActionDebug(selectedAction, _actions.GetModifiable(selectedAction));
-        }
-      });
-      ImGui::EndGroup();
+    ImGui::BeginGroup();
+    ImGui::Text("Modify Action: ");
+    ImGui::SameLine();
+    DropDown::DisplayList(actionNames, selectedAction);
+    if (!selectedAction.empty())
+      ReloadActionDebug(selectedAction, _actions.GetModifiable(selectedAction));
+    ImGui::EndGroup();
 
-      if (ImGui::Button("Reload Animation Collection"))
-      {
-        AnimationCollectionManager::Get().ReloadAnimationCollection(_characterIdentifier, *this);
-      }
-    });
+    if (ImGui::Button("Reload Animation Collection"))
+      AnimationCollectionManager::Get().ReloadAnimationCollection(_characterIdentifier, *this);
+  });
 }

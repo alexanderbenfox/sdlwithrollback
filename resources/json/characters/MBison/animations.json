@@ -265,8 +265,8 @@
 		{
 			"BL" : 
 			{
-				"x" : 0.87623220682144165,
-				"y" : 98.046875
+				"x" : 13.07420539855957,
+				"y" : 87.890625
 			},
 			"BR" : 
 			{
@@ -289,10 +289,10 @@
 				"y" : 0.0
 			}
 		},
-		"reverse" : true,
-		"sheet_name" : "MBison",
-		"startFrame" : 0,
-		"sub_sheet_name" : "CH",
+		"reverse" : false,
+		"sheet_name" : "MBisonVar",
+		"startFrame" : 51,
+		"sub_sheet_name" : "",
 		"totalFrames" : 3
 	},
 	"CrouchingHitstun" : 
@@ -598,8 +598,8 @@
 		{
 			"BL" : 
 			{
-				"x" : 0.78125,
-				"y" : 99.609375
+				"x" : 13.92,
+				"y" : 99.0234375
 			},
 			"BR" : 
 			{
@@ -1301,8 +1301,8 @@
 		{
 			"BL" : 
 			{
-				"x" : 1.7045454978942871,
-				"y" : 99.51690673828125
+				"x" : 13.905325443786984,
+				"y" : 96.09375
 			},
 			"BR" : 
 			{
@@ -1326,10 +1326,10 @@
 			}
 		},
 		"reverse" : false,
-		"sheet_name" : "Akuma",
-		"startFrame" : 0,
-		"sub_sheet_name" : "Jab",
-		"totalFrames" : 2
+		"sheet_name" : "MBisonVar",
+		"startFrame" : 34,
+		"sub_sheet_name" : "",
+		"totalFrames" : 3
 	},
 	"StandingMedium" : 
 	{
@@ -1338,8 +1338,8 @@
 		{
 			"BL" : 
 			{
-				"x" : 2.2727272510528564,
-				"y" : 99.51690673828125
+				"x" : 0.9505703422053231,
+				"y" : 99.4140625
 			},
 			"BR" : 
 			{
@@ -1363,10 +1363,10 @@
 			}
 		},
 		"reverse" : false,
-		"sheet_name" : "Akuma",
-		"startFrame" : 0,
-		"sub_sheet_name" : "StandM",
-		"totalFrames" : 5
+		"sheet_name" : "MBisonVar",
+		"startFrame" : 44,
+		"sub_sheet_name" : "",
+		"totalFrames" : 7
 	},
 	"ThrowMiss" : 
 	{

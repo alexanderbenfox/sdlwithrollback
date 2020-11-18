@@ -172,6 +172,9 @@ void GUIController::MainLoop()
       ImGui::End();
     }
   }
+
+  // reset active drop downs on end of main loop (clean up)
+  DropDown::activeDropDowns = 0;
 }
 
 void GUIController::CleanUp()
@@ -254,6 +257,8 @@ void GUIController::RenderFrame()
     SDL_GL_SwapWindow(_window);
 }
 
+//! Init to 0
+int DropDown::activeDropDowns = 0;
 
 void DropDown::DisplayList(const std::vector<std::string>& list, std::string& selection)
 {
@@ -278,7 +283,8 @@ void DropDown::DisplayList(const std::vector<std::string>& list, std::string& se
 
 void DropDown::Show(const char* currentItem, const char* items[], int nItems, std::function<void(const std::string&)> callback)
 {
-  if (ImGui::BeginCombo("##combo", currentItem))
+  std::string ddName = "##combo" + std::to_string(activeDropDowns++);
+  if (ImGui::BeginCombo(ddName.c_str(), currentItem))
   {
     for (int n = 0; n < nItems; n++)
     {

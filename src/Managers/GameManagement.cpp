@@ -430,13 +430,10 @@ void GameManager::BeginGameLoop()
 
   GUIController::Get().AddImguiWindowFunction("Assets", "Sprite Sheets", []()
   {
-      if (ImGui::CollapsingHeader("Sprite Sheets"))
-      {
-        ImGui::BeginGroup();
-        ResourceManager::Get().gSpriteSheets.DisplayInGUI();
-        ResourceManager::Get().gSpriteSheets.DisplaySaveButton(SpriteSheet::SaveLocation());
-        ImGui::EndGroup();
-      }
+    ImGui::BeginGroup();
+    ResourceManager::Get().gSpriteSheets.DisplayInGUI();
+    ResourceManager::Get().gSpriteSheets.DisplaySaveButton(SpriteSheet::SaveLocation());
+    ImGui::EndGroup();
   });
 
   GUIController::Get().AddImguiWindowFunction("Assets", "General Animations", []()

@@ -18,6 +18,9 @@ template <> ImVec2 AssetLoaderFn::GetDisplaySize<SpriteSheet>()
   return ImVec2(700, 8 * fieldHeight);
 }
 
+template <> std::string AssetLoaderFn::GUIHeaderLabel<SpriteSheet> = "Sprite Sheets";
+template <> std::string AssetLoaderFn::GUIItemLabel<SpriteSheet> = "Sprite Sheet";
+
 //______________________________________________________________________________
 std::string SpriteSheet::SaveLocation()
 {
@@ -395,7 +398,6 @@ void SpriteSheet::Section::ShowVariableFrames(bool switchShown)
       if (ImGui::Button("Remove Frame"))
       {
         deleteCall = { true, i };
-        break;
       }
 
       if (i != 0)
@@ -404,7 +406,6 @@ void SpriteSheet::Section::ShowVariableFrames(bool switchShown)
         if (ImGui::ArrowButton(arrowIDUp.c_str(), ImGuiDir_Up))
         {
           swapOperation = { true, i, i - 1 };
-          break;
         }
       }
 
@@ -414,7 +415,6 @@ void SpriteSheet::Section::ShowVariableFrames(bool switchShown)
         if (ImGui::ArrowButton(arrowIDDown.c_str(), ImGuiDir_Down))
         {
           swapOperation = { true, i, i + 1 };
-          break;
         }
       }
       ImGui::SameLine();

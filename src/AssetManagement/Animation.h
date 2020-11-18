@@ -41,7 +41,10 @@ public:
   // NEED TO REMOVE THIS ASAP
   std::vector<EventData> animationEvents;
 
-  int AnimFrameToSheet(int index) const { return _animFrameToSheetFrame[index]; }
+  //! Gets index on spritesheet that corresponds to this frame of animation
+  int AnimFrameToSheetIndex(int frame) const { return _startIdx + _animFrameToSheetFrame[frame]; }
+  //! Gets index offset from start index on sprite sheet to this frame of animation
+  int AnimFrameToIndexOffset(int frame) const { return _animFrameToSheetFrame[frame]; }
 
   //!
   std::pair<AnchorPoint, Vector2<float>> anchorPoint;

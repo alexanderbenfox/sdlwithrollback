@@ -24,6 +24,9 @@ template <> ImVec2 AssetLoaderFn::GetDisplaySize<ActionAsset>()
   return ImVec2(500, 6 * fieldHeight);
 }
 
+template <> std::string AssetLoaderFn::GUIHeaderLabel<ActionAsset> = "Actions";
+template <> std::string AssetLoaderFn::GUIItemLabel<ActionAsset> = "Action";
+
 //______________________________________________________________________________
 void EntityCreationData::AddComponents(EntityID creatorID, const Transform* creator, const StateComponent* creatorState, std::shared_ptr<Entity> entity) const
 {
