@@ -51,6 +51,8 @@ private:
   T _newItem;
   std::string _dropdownSelection = "";
 
+  bool _showItemList = false;
+
 };
 
 //______________________________________________________________________________
@@ -71,8 +73,11 @@ inline void AssetLibrary<T>::SaveDataJson(JsonFile& file) const
 template <typename T>
 inline void AssetLibrary<T>::DisplayInGUI()
 {
+  std::string showCheckboxLabel = "Show " + AssetLoaderFn::GUIHeaderLabel<T> +" List";
+  ImGui::Checkbox(showCheckboxLabel.c_str(), &_showItemList);
+
   std::vector<std::string> itemNames;
-  if (ImGui::CollapsingHeader(AssetLoaderFn::GUIHeaderLabel<T>.c_str()))
+  if (_showItemList && ImGui::CollapsingHeader(AssetLoaderFn::GUIHeaderLabel<T>.c_str()))
   {
     static int counter = 0;
     std::pair<bool, std::string> deleteCall = std::make_pair(false, "");
@@ -123,7 +128,7 @@ inline void AssetLibrary<T>::DisplayInGUI()
       std::string popupItem = _dropdownSelection;
       _dropdownSelection = "";
 
-      GUIController::Get().CreatePopup(
+      GUIController::Get().CreatePopup("Edit " + AssetLoaderFn::GUIItemLabel<T>,
       [this, popupItem]()
       {
         _library[popupItem].DisplayInEditor();
@@ -175,7 +180,9 @@ inline void AssetLibrary<T>::OnRename(const std::string& item)
 {
   static EditorString popupStr;
   popupStr = item;
-  GUIController::Get().CreatePopup([]()
+  std::string label = "Rename " + AssetLoaderFn::GUIItemLabel<T>;
+  GUIController::Get().CreatePopup(label,
+    []()
     {
       popupStr.DisplayEditable("New Name");
     },
@@ -196,7 +203,9 @@ inline void AssetLibrary<T>::OnCopy(const std::string& item)
 {
   static EditorString copyStr;
   copyStr = item;
-  GUIController::Get().CreatePopup([]()
+  std::string label = "Copy " + AssetLoaderFn::GUIItemLabel<T>;
+  GUIController::Get().CreatePopup(label,
+    []()
     {
       copyStr.DisplayEditable("New Name");
     },

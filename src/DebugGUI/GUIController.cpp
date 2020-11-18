@@ -156,21 +156,27 @@ void GUIController::MainLoop()
       window.second.DisplayWindow();
     }
 
-    if (_popup.display && _popup.onClose)
+    std::pair<bool, int> closeOperation = { false, 0 };
+    for (int i = 0; i < _activePopups; i++)
     {
-      if (_popup.setPopupSize)
-        ImGui::SetNextWindowSize(_popup.popupSize);
-
-      ImGui::Begin("Popup");
-      _popup.display();
-      if (ImGui::Button("Close"))
+      if (_popup[i].display && _popup[i].onClose)
       {
-        _popup.onClose();
-        _popup.display = nullptr;
-        _popup.onClose = nullptr;
+        if (_popup[i].setPopupSize)
+          ImGui::SetNextWindowSize(_popup[i].popupSize);
+
+        std::string label = "Popup: " + _popup[i].label;
+        ImGui::Begin(label.c_str());
+        _popup[i].display();
+        if (ImGui::Button("Close")) { closeOperation = { true, i }; }
+        ImGui::End();
       }
-      ImGui::End();
     }
+    if (closeOperation.first)
+    {
+      _popup[closeOperation.second].onClose();
+      ClosePopup(closeOperation.second);
+    }
+
   }
 
   // reset active drop downs on end of main loop (clean up)

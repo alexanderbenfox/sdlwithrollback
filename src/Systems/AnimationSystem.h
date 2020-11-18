@@ -79,7 +79,7 @@ public:
   }
 };
 
-class AnimationSystem : public ISystem<Animator, RenderComponent<RenderType>>
+class AnimationSystem : public ISystem<Animator, RenderComponent<RenderType>, RenderProperties>
 {
 public:
 
@@ -104,6 +104,7 @@ public:
     {
       Animator& animator = ComponentArray<Animator>::Get().GetComponent(entity);
       RenderComponent<RenderType>& renderer = ComponentArray<RenderComponent<RenderType>>::Get().GetComponent(entity);
+      RenderProperties& properties = ComponentArray<RenderProperties>::Get().GetComponent(entity);
 
       // if playing, do advance time and update frame
       if (animator.playing)
@@ -131,8 +132,11 @@ public:
           {
             animator.frame = nextFrame;
             int currFrame = animator.reverse ? (totalAnimFrames - 1) - nextFrame : nextFrame;
-            renderer.SetRenderResource(GAnimArchive.GetAnimationData(animator.animCollectionID, animator.currentAnimationName)->GetSheetTexture<RenderType>());
-            renderer.sourceRect = GAnimArchive.GetAnimationData(animator.animCollectionID, animator.currentAnimationName)->GetFrameSrcRect(currFrame);
+
+            Animation* animation = GAnimArchive.GetAnimationData(animator.animCollectionID, animator.currentAnimationName);
+            renderer.SetRenderResource(animation->GetSheetTexture<RenderType>());
+            renderer.sourceRect = animation->GetFrameSrcRect(currFrame);
+            properties.offset = animation->GetAnchorForAnimFrame(currFrame).second;
           }
 
           // 

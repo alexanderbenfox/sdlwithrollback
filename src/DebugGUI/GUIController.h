@@ -36,19 +36,62 @@ public:
   void RenderFrame();
   void CleanUp();
 
+  int GetPopupIndex(const std::string& label)
+  {
+    int replaceIndex = 0;
+    bool replaceOnType = false;
+    for (int i = 0; i < _activePopups; i++)
+    {
+      if (_popup[i].label == label)
+      {
+        replaceIndex = i;
+        replaceOnType = true;
+        break;
+      }
+    }
 
-  void CreatePopup(std::function<void()> display, std::function<void()> onClose)
-  {
-    _popup.display = display;
-    _popup.onClose = onClose;
-    _popup.setPopupSize = false;
+    if (replaceOnType || _activePopups == _maxPopups)
+    {
+      if (_popup[replaceIndex].display != nullptr)
+        ClosePopup(replaceIndex);
+    }
+
+    if (_activePopups < _maxPopups)
+      _activePopups++;
+    return _activePopups - 1;
   }
-  void CreatePopup(std::function<void()> display, std::function<void()> onClose, float xSize, float ySize)
+
+  void CreatePopup(std::string label, std::function<void()> display, std::function<void()> onClose)
   {
-    _popup.display = display;
-    _popup.onClose = onClose;
-    _popup.setPopupSize = true;
-    _popup.popupSize = ImVec2(xSize, ySize);
+    int idx = GetPopupIndex(label);
+    _popup[idx].label = label;
+    _popup[idx].display = display;
+    _popup[idx].onClose = onClose;
+    _popup[idx].setPopupSize = false;
+  }
+  void CreatePopup(std::string label, std::function<void()> display, std::function<void()> onClose, float xSize, float ySize)
+  {
+    int idx = GetPopupIndex(label);
+    _popup[idx].label = label;
+    _popup[idx].display = display;
+    _popup[idx].onClose = onClose;
+    _popup[idx].setPopupSize = true;
+    _popup[idx].popupSize = ImVec2(xSize, ySize);
+  }
+
+  void ClosePopup(int windowIndex)
+  {
+    if (windowIndex > (_activePopups - 1))
+      return;
+
+    for (int i = windowIndex; i < (_activePopups - 1); i++)
+    {
+      _popup[i] = _popup[i + 1];
+    }
+    // "delete" last index
+    _popup[_activePopups - 1].display = nullptr;
+    _popup[_activePopups - 1].onClose = nullptr;
+    _activePopups--;
   }
 
   int AddImguiWindowFunction(const std::string& window, const std::string& category, std::function<void()> function);
@@ -77,12 +120,16 @@ private:
 
   struct Popup
   {
+    std::string label;
     bool setPopupSize;
     ImVec2 popupSize;
     std::function<void()> display;
     std::function<void()> onClose;
   };
-  Popup _popup;
+
+  static constexpr int _maxPopups = 3;
+  int _activePopups = 0;
+  Popup _popup[_maxPopups];
 };
 
 struct DropDown

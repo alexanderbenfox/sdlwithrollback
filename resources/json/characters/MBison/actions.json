@@ -122,7 +122,7 @@
 			{
 				"movement" : 
 				{
-					"x" : 100.0,
+					"x" : 80.0,
 					"y" : 0.0
 				}
 			},
@@ -156,7 +156,7 @@
 		],
 		"framedata" : 
 		{
-			"active" : 5,
+			"active" : 4,
 			"damage" : 10,
 			"hitstop" : 10,
 			"hittype" : "Mid",
@@ -172,49 +172,31 @@
 			"startup" : 8
 		}
 	},
-	"CrouchingLight" : 
+	"CrouchingMedium" : 
 	{
 		"events" : 
 		[
 			{},
-			{},
 			{
 				"hitbox" : 
 				{
 					"position" : 
 					{
-						"x" : 68.0,
-						"y" : 140.0
+						"x" : 118.31298527443106,
+						"y" : 52.221093750000001
 					},
 					"size" : 
 					{
-						"x" : 52.0,
-						"y" : 23.0
+						"x" : 60.514323962516741,
+						"y" : 25.052343749999999
 					}
 				}
 			},
-			{
-				"hitbox" : 
-				{
-					"position" : 
-					{
-						"x" : 63.0,
-						"y" : 140.0
-					},
-					"size" : 
-					{
-						"x" : 52.0,
-						"y" : 23.0
-					}
-				}
-			},
-			{},
-			{},
 			{}
 		],
 		"framedata" : 
 		{
-			"active" : 3,
+			"active" : 2,
 			"damage" : 10,
 			"hitstop" : 10,
 			"hittype" : "Mid",
@@ -226,16 +208,14 @@
 			"knockdown" : false,
 			"onblock" : 3,
 			"onhit" : 4,
-			"recovery" : 8,
-			"startup" : 4
+			"recovery" : 10,
+			"startup" : 6
 		}
 	},
-	"CrouchingMedium" : 
+	"CrouchingLight" : 
 	{
 		"events" : 
 		[
-			{},
-			{},
 			{},
 			{},
 			{
@@ -243,13 +223,13 @@
 				{
 					"position" : 
 					{
-						"x" : 77.0,
-						"y" : 176.0
+						"x" : 102.97772567409145,
+						"y" : 76.359375
 					},
 					"size" : 
 					{
-						"x" : 98.0,
-						"y" : 27.0
+						"x" : 70.902696365767881,
+						"y" : 31.21875
 					}
 				}
 			},
@@ -269,14 +249,11 @@
 				}
 			},
 			{},
-			{},
-			{},
-			{},
 			{}
 		],
 		"framedata" : 
 		{
-			"active" : 3,
+			"active" : 4,
 			"damage" : 10,
 			"hitstop" : 10,
 			"hittype" : "Low",
@@ -288,8 +265,8 @@
 			"knockdown" : false,
 			"onblock" : 0,
 			"onhit" : 5,
-			"recovery" : 13,
-			"startup" : 10
+			"recovery" : 8,
+			"startup" : 4
 		}
 	},
 	"ForwardThrow" : 
@@ -1217,19 +1194,7 @@
 			},
 			{},
 			{
-				"hitbox" : 
-				{
-					"position" : 
-					{
-						"x" : 45.649999999999984,
-						"y" : 25.050000000000001
-					},
-					"size" : 
-					{
-						"x" : 62.599999999999788,
-						"y" : 32.700000000000003
-					}
-				}
+				"active" : true
 			},
 			{
 				"movement" : 
@@ -1239,7 +1204,19 @@
 				}
 			},
 			{
-				"active" : true
+				"hitbox" : 
+				{
+					"position" : 
+					{
+						"x" : 99.728840125391855,
+						"y" : 0.78515625
+					},
+					"size" : 
+					{
+						"x" : 38.739811912225719,
+						"y" : 74.06640625
+					}
+				}
 			},
 			{}
 		],
@@ -1257,8 +1234,8 @@
 			"knockdown" : false,
 			"onblock" : -6,
 			"onhit" : 7,
-			"recovery" : 14,
-			"startup" : 18
+			"recovery" : 16,
+			"startup" : 14
 		}
 	},
 	"StandingLight" : 

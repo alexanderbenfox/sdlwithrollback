@@ -223,11 +223,11 @@ void AnimationAsset::DisplayAnchorPointEditor()
 }
 
 //______________________________________________________________________________
-Vector2<float> AnimationAsset::GetAnchorPosition() const
+Vector2<float> AnimationAsset::GetAnchorPosition(int animationFrame) const
 {
   const SpriteSheet& animSpriteSheet = ResourceManager::Get().gSpriteSheets.Get(sheetName);
   const SpriteSheet::Section& ssSection = animSpriteSheet.GetSubSection(subSheetName);
-  DrawRect<float> rect = ssSection.GetFrame(startIndexOnSheet);
+  DrawRect<float> rect = ssSection.GetFrame(startIndexOnSheet + animationFrame);
 
   Vector2<double> const& anchPos = anchorPoints[(int)anchor].Export(Vector2<double>(rect.w, rect.h));
   return static_cast<Vector2<float>>(anchPos);

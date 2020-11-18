@@ -134,7 +134,7 @@ void SpriteSheet::Section::ShowSpriteSheetLines(const SpriteSheet& srcSheet)
   ImGui::Begin("SpriteEditorSidePanel");
   if (ImGui::Button("Switch to Frame View"))
   {
-    GUIController::Get().CreatePopup([this, &srcSheet]() { DisplayFrameInternal(srcSheet, showFrame); }, []() {});
+    GUIController::Get().CreatePopup("Sprite Sheet Editor", [this, &srcSheet]() { DisplayFrameInternal(srcSheet, showFrame); }, []() {});
   }
 
   ImGui::InputInt("Show Frame", &showFrame);
@@ -231,7 +231,7 @@ void SpriteSheet::Section::DisplayFrame(const SpriteSheet& srcSheet, int frame)
 
   if (ImGui::Button("Switch to Sheet View"))
   {
-    GUIController::Get().CreatePopup([this, &srcSheet]() { ShowSpriteSheetLines(srcSheet); }, []() {});
+    GUIController::Get().CreatePopup("Sprite Sheet Editor", [this, &srcSheet]() { ShowSpriteSheetLines(srcSheet); }, []() {});
   }
   ImGui::EndChild();
 }
@@ -368,7 +368,7 @@ void SpriteSheet::Section::DisplayInEditor(SpriteSheet& srcSheet)
 
   if (ImGui::Button("Show"))
   {
-    GUIController::Get().CreatePopup([this, &srcSheet]() { DisplayFrameInternal(srcSheet, showFrame); }, []() {});
+    GUIController::Get().CreatePopup("Sprite Sheet Editor", [this, &srcSheet]() { DisplayFrameInternal(srcSheet, showFrame); }, []() {});
   }
   ImGui::SameLine();
   ImGui::PushItemWidth(70.0f);
@@ -377,7 +377,7 @@ void SpriteSheet::Section::DisplayInEditor(SpriteSheet& srcSheet)
   ImGui::SameLine();
   if (ImGui::Button("Show Sheet Lines"))
   {
-    GUIController::Get().CreatePopup([this, &srcSheet]() { ShowSpriteSheetLines(srcSheet); }, []() {});
+    GUIController::Get().CreatePopup("Sprite Sheet Editor", [this, &srcSheet]() { ShowSpriteSheetLines(srcSheet); }, []() {});
   }
 }
 
@@ -521,7 +521,7 @@ void SpriteSheet::DisplayInEditor()
     if (ImGui::Button("Add As Subsection"))
     {
       static EditorString subsectionString;
-      GUIController::Get().CreatePopup(
+      GUIController::Get().CreatePopup("Sprite Sheet Subsection",
         []()
         {
           subsectionString.DisplayEditable("Subsection Name");
@@ -530,7 +530,7 @@ void SpriteSheet::DisplayInEditor()
         {
           subSections[(std::string)subsectionString] = mainSection;
           subsectionString.clear();
-        });
+        }, 350, 4 * fieldHeight);
     }
   }
     

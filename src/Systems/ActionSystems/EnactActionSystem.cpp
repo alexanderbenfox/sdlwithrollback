@@ -24,15 +24,12 @@ void EnactAnimationActionSystem::PlayAnimation(EntityID entity, const std::strin
 
   Animation* actionAnimation = animator.Play(animation, looped, playSpeed, forceAnimRestart);
   properties.horizontalFlip = !facingRight;
-  properties.anchor = actionAnimation->GetMainAnchor().first;
-  properties.offset = actionAnimation->GetMainAnchor().second;
+  properties.anchor = actionAnimation->GetAnchorForAnimFrame(0).first;
+  properties.offset = actionAnimation->GetAnchorForAnimFrame(0).second;
   properties.renderScaling = actionAnimation->GetRenderScaling();
-  if (actionAnimation)
-  {
-    // render from the sheet of the new animation
-    renderer.SetRenderResource(actionAnimation->GetSheetTexture<RenderType>());
-    renderer.sourceRect = actionAnimation->GetFrameSrcRect(0);
-  }
+
+  renderer.SetRenderResource(actionAnimation->GetSheetTexture<RenderType>());
+  renderer.sourceRect = actionAnimation->GetFrameSrcRect(0);
 }
 
 

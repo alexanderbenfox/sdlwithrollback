@@ -33,8 +33,6 @@ public:
   //!
   template <typename Texture>
   Resource<Texture>& GetSheetTexture() const;
-  //!
-  std::pair<AnchorPoint, Vector2<float>> const& GetMainAnchor() const { return anchorPoint; }
 
   DisplayImage GetGUIDisplayImage(int displayHeight, int animFrame);
 
@@ -45,9 +43,8 @@ public:
   int AnimFrameToSheetIndex(int frame) const { return _startIdx + _animFrameToSheetFrame[frame]; }
   //! Gets index offset from start index on sprite sheet to this frame of animation
   int AnimFrameToIndexOffset(int frame) const { return _animFrameToSheetFrame[frame]; }
-
   //!
-  std::pair<AnchorPoint, Vector2<float>> anchorPoint;
+  std::pair<AnchorPoint, Vector2<float>> GetAnchorForAnimFrame(int animFrame) const;
 
   //!
   Vector2<double> GetRenderScaling() const;
@@ -55,6 +52,8 @@ public:
   std::string GetSubSheet() const { return _subSheetName; }
 
   bool playReverse = false;
+
+  void SetAnchorPoint(AnchorPoint pt, Vector2<float> pos) { _anchorPoint = { pt, pos }; }
 
 protected:
   //!
@@ -67,6 +66,8 @@ protected:
   //Vector2<int> _anchorPoints[(const int)AnchorPoint::Size];
   //!
   std::vector<int> _animFrameToSheetFrame;
+
+  std::pair<AnchorPoint, Vector2<float>> _anchorPoint;
 
 };
 

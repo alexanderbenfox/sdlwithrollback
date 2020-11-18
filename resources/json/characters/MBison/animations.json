@@ -6,8 +6,8 @@
 		{
 			"BL" : 
 			{
-				"x" : 0.8474576473236084,
-				"y" : 99.047622680664063
+				"x" : 21.378339767456055,
+				"y" : 95.5078125
 			},
 			"BR" : 
 			{
@@ -31,10 +31,10 @@
 			}
 		},
 		"reverse" : true,
-		"sheet_name" : "MBison",
-		"startFrame" : 0,
-		"sub_sheet_name" : "BDash",
-		"totalFrames" : 2
+		"sheet_name" : "MBisonVar",
+		"startFrame" : 12,
+		"sub_sheet_name" : "",
+		"totalFrames" : 3
 	},
 	"BackThrow" : 
 	{
@@ -265,8 +265,8 @@
 		{
 			"BL" : 
 			{
-				"x" : 13.07420539855957,
-				"y" : 87.890625
+				"x" : 12.941176470588236,
+				"y" : 99.4140625
 			},
 			"BR" : 
 			{
@@ -332,43 +332,6 @@
 		"sub_sheet_name" : "",
 		"totalFrames" : 11
 	},
-	"CrouchingLight" : 
-	{
-		"anchor" : "BL",
-		"anchorPoints" : 
-		{
-			"BL" : 
-			{
-				"x" : 1.1363636255264282,
-				"y" : 99.51690673828125
-			},
-			"BR" : 
-			{
-				"x" : 0.0,
-				"y" : 0.0
-			},
-			"Center" : 
-			{
-				"x" : 0.0,
-				"y" : 0.0
-			},
-			"TL" : 
-			{
-				"x" : 0.0,
-				"y" : 0.0
-			},
-			"TR" : 
-			{
-				"x" : 0.0,
-				"y" : 0.0
-			}
-		},
-		"reverse" : false,
-		"sheet_name" : "GroundedAttacks",
-		"startFrame" : 9,
-		"sub_sheet_name" : "",
-		"totalFrames" : 7
-	},
 	"CrouchingMedium" : 
 	{
 		"anchor" : "BL",
@@ -376,8 +339,8 @@
 		{
 			"BL" : 
 			{
-				"x" : 2.2727272510528564,
-				"y" : 99.51690673828125
+				"x" : 24.625623960066555,
+				"y" : 97.65625
 			},
 			"BR" : 
 			{
@@ -401,10 +364,47 @@
 			}
 		},
 		"reverse" : false,
-		"sheet_name" : "GroundedAttacks",
-		"startFrame" : 16,
+		"sheet_name" : "MBisonVar",
+		"startFrame" : 61,
 		"sub_sheet_name" : "",
-		"totalFrames" : 11
+		"totalFrames" : 3
+	},
+	"CrouchingLight" : 
+	{
+		"anchor" : "BL",
+		"anchorPoints" : 
+		{
+			"BL" : 
+			{
+				"x" : 25.380710659898476,
+				"y" : 99.609375
+			},
+			"BR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"Center" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"TL" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"TR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			}
+		},
+		"reverse" : false,
+		"sheet_name" : "MBisonVar",
+		"startFrame" : 64,
+		"sub_sheet_name" : "",
+		"totalFrames" : 5
 	},
 	"Entrance" : 
 	{
@@ -482,7 +482,7 @@
 	},
 	"ForwardDash" : 
 	{
-		"anchor" : "BL",
+		"anchor" : "BR",
 		"anchorPoints" : 
 		{
 			"BL" : 
@@ -492,8 +492,8 @@
 			},
 			"BR" : 
 			{
-				"x" : 0.0,
-				"y" : 0.0
+				"x" : 72.615036010742188,
+				"y" : 94.7265625
 			},
 			"Center" : 
 			{
@@ -512,9 +512,9 @@
 			}
 		},
 		"reverse" : true,
-		"sheet_name" : "MBison",
-		"startFrame" : 0,
-		"sub_sheet_name" : "FDash",
+		"sheet_name" : "MBisonVar",
+		"startFrame" : 15,
+		"sub_sheet_name" : "",
 		"totalFrames" : 3
 	},
 	"ForwardThrow" : 
@@ -598,7 +598,7 @@
 		{
 			"BL" : 
 			{
-				"x" : 13.92,
+				"x" : 13.920000076293945,
 				"y" : 99.0234375
 			},
 			"BR" : 
@@ -650,20 +650,20 @@
 			},
 			"TL" : 
 			{
-				"x" : 20.776699066162109,
-				"y" : 31.4453125
+				"x" : 18.367347717285156,
+				"y" : 42.1875
 			},
 			"TR" : 
 			{
-				"x" : 88.095237731933594,
-				"y" : 39.6484375
+				"x" : 78.7755126953125,
+				"y" : 42.578125
 			}
 		},
 		"reverse" : true,
-		"sheet_name" : "MBison",
-		"startFrame" : 0,
-		"sub_sheet_name" : "Jump",
-		"totalFrames" : 5
+		"sheet_name" : "MBisonVar",
+		"startFrame" : 22,
+		"sub_sheet_name" : "",
+		"totalFrames" : 9
 	},
 	"JumpingHeavy" : 
 	{
@@ -1264,8 +1264,8 @@
 		{
 			"BL" : 
 			{
-				"x" : 3.0701754093170166,
-				"y" : 90.0390625
+				"x" : 18.894008636474609,
+				"y" : 99.0234375
 			},
 			"BR" : 
 			{
@@ -1289,10 +1289,10 @@
 			}
 		},
 		"reverse" : false,
-		"sheet_name" : "Akuma",
-		"startFrame" : 0,
-		"sub_sheet_name" : "StandingH",
-		"totalFrames" : 5
+		"sheet_name" : "MBisonVar",
+		"startFrame" : 54,
+		"sub_sheet_name" : "",
+		"totalFrames" : 7
 	},
 	"StandingLight" : 
 	{
@@ -1301,8 +1301,8 @@
 		{
 			"BL" : 
 			{
-				"x" : 13.905325443786984,
-				"y" : 96.09375
+				"x" : 13.461538314819336,
+				"y" : 99.8046875
 			},
 			"BR" : 
 			{
@@ -1338,7 +1338,7 @@
 		{
 			"BL" : 
 			{
-				"x" : 0.9505703422053231,
+				"x" : 0.95057034492492676,
 				"y" : 99.4140625
 			},
 			"BR" : 

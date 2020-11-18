@@ -125,7 +125,7 @@ void AnimationCollectionManager::EditGeneralAnimations()
     item.second.DisplayInEditor();
     if (ImGui::Button("Set Anchor In-Game"))
     {
-      GAnimArchive.GetCollection(GetCollectionID("General")).GetAnimation(item.first)->anchorPoint = std::make_pair(item.second.anchor, item.second.GetAnchorPosition());
+      GAnimArchive.GetCollection(GetCollectionID("General")).GetAnimation(item.first)->SetAnchorPoint(item.second.anchor, item.second.GetAnchorPosition(0));
     }
     ImGui::EndChild();
   }

@@ -9,7 +9,7 @@ void CharacterEditor::AddCreateNewCharacterButton()
   static EditorString characterName;
   GUIController::Get().AddMenuItem("Characters", "Add New", []()
   {
-    GUIController::Get().CreatePopup(
+    GUIController::Get().CreatePopup("New Character",
     []()
     {
       characterName.DisplayEditable("New Character Folder Name");
