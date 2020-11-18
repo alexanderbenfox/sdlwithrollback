@@ -139,7 +139,9 @@ void SpriteSheet::Section::ShowSpriteSheetLines(const SpriteSheet& srcSheet)
   {
     if (!frameRects.empty())
     {
-      if (showFrame > (int)frameRects.size() || showFrame < 0)
+      if (showFrame >= (int)frameRects.size())
+        showFrame = (int)frameRects.size() - 1;
+      else if (showFrame < 0)
         showFrame = 0;
       DrawRect<int>& currFrameRect = frameRects[showFrame];
       ImGui::DragInt2("Top Left Position", &currFrameRect.x, 1.0f, -4096, 4096);
@@ -148,16 +150,44 @@ void SpriteSheet::Section::ShowSpriteSheetLines(const SpriteSheet& srcSheet)
     if (ImGui::Button("Add New Empty Frame")) { frameRects.emplace_back(); }
     if (!frameRects.empty())
     {
-      ImGui::SameLine();
-      if (ImGui::Button("Copy Last Frame")) { frameRects.emplace_back(frameRects.back()); }
-      ImGui::SameLine();
-      if (ImGui::Button("Copy Last Frame (with X Offset)"))
+      auto CopyFrameRect = [this]()
       {
-        frameRects.emplace_back(frameRects.back());
-        frameRects.back().x += frameRects.back().w;
-        showFrame++;
+        DrawRect<int> toCopy = frameRects[showFrame];
+        frameRects.emplace_back(toCopy);
+        showFrame = frameRects.size() - 1;
+        return Vector2<int>(toCopy.w, toCopy.h);
+      };
+
+      ImGui::SameLine();
+      if (ImGui::Button("Copy Shown Frame")) { CopyFrameRect(); }
+
+      ImGui::Text("Copy Shown Frame with Offset");
+      ImGui::SameLine();
+      if (ImGui::ArrowButton("##sheetArrow_Left", ImGuiDir_Left))
+      {
+        auto size = CopyFrameRect();
+        frameRects.back().x -= size.x;
+      }
+      ImGui::SameLine();
+      if (ImGui::ArrowButton("##sheetArrow_Right", ImGuiDir_Right))
+      {
+        auto size = CopyFrameRect();
+        frameRects.back().x += size.x;
+      }
+      ImGui::SameLine();
+      if (ImGui::ArrowButton("##sheetArrow_Up", ImGuiDir_Up))
+      {
+        auto size = CopyFrameRect();
+        frameRects.back().y -= size.y;
+      }
+      ImGui::SameLine();
+      if (ImGui::ArrowButton("##sheetArrow_Down", ImGuiDir_Down))
+      {
+        auto size = CopyFrameRect();
+        frameRects.back().y += size.y;
       }
     }
+    ShowVariableFrames(true);
   }
   else
   {
@@ -248,26 +278,26 @@ void SpriteSheet::Section::LoadJson(const Json::Value& json)
 
     // set these for the sprite sheet viewer?
     rows = 1;
-    columns = 1;
+columns = 1;
   }
   else
   {
-    if (!json["rows"].isNull())
-    {
-      rows = json["rows"].asInt();
-    }
-    if (!json["columns"].isNull())
-    {
-      columns = json["columns"].asInt();
-    }
-    if (!json["frameSize"].isNull())
-    {
-      frameSize = Vector2<int>(json["frameSize"]["x"].asInt(), json["frameSize"]["y"].asInt());
-    }
-    if (!json["offset"].isNull())
-    {
-      offset = Vector2<int>(json["offset"]["x"].asInt(), json["offset"]["y"].asInt());
-    }
+  if (!json["rows"].isNull())
+  {
+    rows = json["rows"].asInt();
+  }
+  if (!json["columns"].isNull())
+  {
+    columns = json["columns"].asInt();
+  }
+  if (!json["frameSize"].isNull())
+  {
+    frameSize = Vector2<int>(json["frameSize"]["x"].asInt(), json["frameSize"]["y"].asInt());
+  }
+  if (!json["offset"].isNull())
+  {
+    offset = Vector2<int>(json["offset"]["x"].asInt(), json["offset"]["y"].asInt());
+  }
   }
 }
 
@@ -324,31 +354,7 @@ void SpriteSheet::Section::DisplayInEditor(SpriteSheet& srcSheet)
   }
   else
   {
-    if (ImGui::CollapsingHeader("Frame Sizes"))
-    {
-      std::pair<bool, int> deleteCall = std::make_pair(false, 0);
-      for (int i = 0; i < frameRects.size(); i++)
-      {
-        auto frameStr = std::to_string(i);
-        ImGui::Dummy(ImVec2(10.0f, 0.0f));
-        ImGui::SameLine();
-        if (ImGui::Button("Delete")) { deleteCall = { true, i }; break; }
-        ImGui::SameLine();
-        if (ImGui::CollapsingHeader(frameStr.c_str()))
-        {
-          auto& currFrameRect = frameRects[i];
-          ImGui::Dummy(ImVec2(50.0f, 0.0f));
-          ImGui::SameLine();
-          ImGui::DragInt2("Top Left Position", &currFrameRect.x, 1.0f, -4096, 4096);
-          ImGui::Dummy(ImVec2(50.0f, 0.0f));
-          ImGui::SameLine();
-          ImGui::DragInt2("Size", &currFrameRect.w);
-        }
-      }
-      if (deleteCall.first)
-        frameRects.erase(frameRects.begin() + deleteCall.second);
-    }
-
+    ShowVariableFrames(false);
     if(ImGui::Button("Add New Empty Frame")) { frameRects.emplace_back(); }
     if (!frameRects.empty())
     {
@@ -369,6 +375,73 @@ void SpriteSheet::Section::DisplayInEditor(SpriteSheet& srcSheet)
   if (ImGui::Button("Show Sheet Lines"))
   {
     GUIController::Get().CreatePopup([this, &srcSheet]() { ShowSpriteSheetLines(srcSheet); }, []() {});
+  }
+}
+
+void SpriteSheet::Section::ShowVariableFrames(bool switchShown)
+{
+  if (ImGui::CollapsingHeader("Frame Sizes"))
+  {
+    std::pair<bool, int> deleteCall = std::make_pair(false, 0);
+    std::tuple<bool, int, int> swapOperation = std::make_tuple(false, 0, 0);
+    for (int i = 0; i < frameRects.size(); i++)
+    {
+      auto frameStr = std::to_string(i);
+      std::string arrowIDUp = "##arrowIDUp" + frameStr;
+      std::string arrowIDDown = "##arrowIDDown" + frameStr;
+
+      ImGui::Dummy(ImVec2(10.0f, 0.0f));
+      ImGui::SameLine();
+      if (ImGui::Button("Remove Frame"))
+      {
+        deleteCall = { true, i };
+        break;
+      }
+
+      if (i != 0)
+      {
+        ImGui::SameLine();
+        if (ImGui::ArrowButton(arrowIDUp.c_str(), ImGuiDir_Up))
+        {
+          swapOperation = { true, i, i - 1 };
+          break;
+        }
+      }
+
+      if (i != (frameRects.size() - 1))
+      {
+        ImGui::SameLine();
+        if (ImGui::ArrowButton(arrowIDDown.c_str(), ImGuiDir_Down))
+        {
+          swapOperation = { true, i, i + 1 };
+          break;
+        }
+      }
+      ImGui::SameLine();
+      if (ImGui::CollapsingHeader(frameStr.c_str()))
+      {
+        auto& currFrameRect = frameRects[i];
+        ImGui::Dummy(ImVec2(50.0f, 0.0f));
+        ImGui::SameLine();
+        ImGui::DragInt2("Top Left Position", &currFrameRect.x, 1.0f, -4096, 4096);
+        ImGui::Dummy(ImVec2(50.0f, 0.0f));
+        ImGui::SameLine();
+        ImGui::DragInt2("Size", &currFrameRect.w);
+      }
+    }
+    if (deleteCall.first)
+      frameRects.erase(frameRects.begin() + deleteCall.second);
+    if (std::get<0>(swapOperation))
+    {
+      int a = std::get<1>(swapOperation);
+      int b = std::get<2>(swapOperation);
+
+      auto cpy = frameRects[a];
+      frameRects[a] = frameRects[b];
+      frameRects[b] = cpy;
+      if (switchShown)
+        showFrame = b;
+    }
   }
 }
 

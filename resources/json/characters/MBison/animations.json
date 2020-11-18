@@ -593,7 +593,7 @@
 	},
 	"Idle" : 
 	{
-		"anchor" : "BR",
+		"anchor" : "BL",
 		"anchorPoints" : 
 		{
 			"BL" : 
@@ -623,10 +623,10 @@
 			}
 		},
 		"reverse" : false,
-		"sheet_name" : "AkumaVar",
+		"sheet_name" : "MBisonVar",
 		"startFrame" : 0,
-		"sub_sheet_name" : "Idle",
-		"totalFrames" : 14
+		"sub_sheet_name" : "",
+		"totalFrames" : 12
 	},
 	"Jumping" : 
 	{

@@ -18,6 +18,7 @@ struct SpriteSheet : public IJsonLoadable
     void LoadJson(const Json::Value& json);
     void WriteJson(Json::Value& json) const;
     void DisplayInEditor(SpriteSheet& srcSheet);
+    void ShowVariableFrames(bool switchShown);
 
     //!
     bool variableSizeSprites = false;
