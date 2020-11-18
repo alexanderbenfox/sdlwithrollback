@@ -19,6 +19,12 @@
 template <> void AssetLoaderFn::OnLoad(ActionAsset& asset) {}
 
 //______________________________________________________________________________
+template <> ImVec2 AssetLoaderFn::GetDisplaySize<ActionAsset>()
+{
+  return ImVec2(500, 6 * fieldHeight);
+}
+
+//______________________________________________________________________________
 void EntityCreationData::AddComponents(EntityID creatorID, const Transform* creator, const StateComponent* creatorState, std::shared_ptr<Entity> entity) const
 {
   float entityWidth = 0.0f;

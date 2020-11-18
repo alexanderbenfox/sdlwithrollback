@@ -17,9 +17,12 @@ DisplayImage::DisplayImage(const std::string& imgPath, Rect<float> imgSubRect, i
   uv1 = uvRect.end;
 }
 
-Vector2<float> DisplayImage::Show() const
+Vector2<float> DisplayImage::Show(float offsetX, float offsetY) const
 {
   ImVec2 currPos = ImGui::GetWindowPos();
+  currPos.x += offsetX;
+  currPos.y += offsetY;
+  ImGui::SetWindowPos(currPos);
   if (ptr)
     ImGui::Image((void*)(intptr_t)ptr, ImVec2(displaySize.x, displaySize.y), ImVec2(uv0.x, uv0.y), ImVec2(uv1.x, uv1.y));
   return Vector2<float>(currPos.x, currPos.y);

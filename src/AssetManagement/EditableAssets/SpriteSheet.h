@@ -13,17 +13,24 @@ struct SpriteSheet : public IJsonLoadable
     DrawRect<float> GetFrame(int frame) const;
     void ShowSpriteSheetLines(const SpriteSheet& srcSheet);
     void DisplayFrame(const SpriteSheet& srcSheet, int frame);
+    void DisplayFrameInternal(const SpriteSheet& srcSheet, int frame);
 
     void LoadJson(const Json::Value& json);
     void WriteJson(Json::Value& json) const;
     void DisplayInEditor(SpriteSheet& srcSheet);
 
     //!
+    bool variableSizeSprites = false;
+
+    //! Only for fixed size sprites
     Vector2<int> frameSize = Vector2<int>::Zero;
     Vector2<int> offset = Vector2<int>::Zero;
-    //!
     int rows = 0;
     int columns = 0;
+
+    //! For variable size sprites
+    std::vector<DrawRect<int>> frameRects;
+
   };
 
   static std::string SaveLocation();

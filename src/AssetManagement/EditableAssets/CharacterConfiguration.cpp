@@ -51,6 +51,10 @@ void HitboxEditor::OpenEditor(Animation* anim, ActionAsset& data, const std::str
           ImGui::EndGroup();
 
           ShowHitboxEditor();
+
+          ImGui::BeginGroup();
+          data.DisplayInEditor();
+          ImGui::EndGroup();
         });
       GUIController::Get().GetWindow("View Hitboxes").OpenWindow();
     });
@@ -152,28 +156,26 @@ void CharacterConfiguration::AddCharacterDisplay()
         _actions.DisplayInGUI();
         if (ImGui::Button("Save Actions"))
           SaveAssetFile("actions.json", _actions);
+      }
 
-        static std::string selectedAction = "";
-        std::vector<std::string> actionNames;
-        for (const auto& action : _actions.GetLibrary())
-        {
-          actionNames.push_back(action.first);
-        }
-        std::vector<const char*> actionNamesCStr;
-        for (const auto& action : actionNames)
-        {
-          actionNamesCStr.push_back(action.c_str());
-        }
-        DropDown::Show(selectedAction.c_str(), actionNamesCStr.data(), static_cast<int>(actionNamesCStr.size()), [](const std::string& selected)
-        {
-          selectedAction = selected;
-        });
+      static std::string selectedAction = "";
+      std::vector<std::string> actionNames;
+      for (const auto& action : _actions.GetLibrary())
+      {
+        actionNames.push_back(action.first);
+      }
 
+      ImGui::BeginGroup();
+      ImGui::Text("Modify Action: ");
+      ImGui::SameLine();
+      DropDown::DisplayList(actionNames, selectedAction, [this]()
+      {
         if (!selectedAction.empty())
         {
           ReloadActionDebug(selectedAction, _actions.GetModifiable(selectedAction));
         }
-      }
+      });
+      ImGui::EndGroup();
 
       if (ImGui::Button("Reload Animation Collection"))
       {

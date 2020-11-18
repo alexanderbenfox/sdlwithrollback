@@ -8,10 +8,14 @@
 #include <string>
 #include <unordered_map>
 
+//! Estimated typical field height in ImGui
+const int fieldHeight = 25;
+
 //______________________________________________________________________________
 struct AssetLoaderFn
 {
   template <typename T> static void OnLoad(T& asset);
+  template <typename T> static ImVec2 GetDisplaySize();
 };
 
 //______________________________________________________________________________
@@ -43,19 +47,9 @@ private:
   //! Used to create a new item in the library
   EditorString _newItemName;
   T _newItem;
+  std::string _dropdownSelection = "";
 
 };
-
-//______________________________________________________________________________
-/*template <typename T>
-std::unordered_map<std::string, T> AssetLibrary<T>::_library;
-
-template <typename T>
-EditorString AssetLibrary<T>::_newItemName;
-
-template <typename T>
-T AssetLibrary<T>::_newItem;
-*/
 
 //______________________________________________________________________________
 template <typename T>
@@ -75,14 +69,15 @@ inline void AssetLibrary<T>::SaveDataJson(JsonFile& file) const
 template <typename T>
 inline void AssetLibrary<T>::DisplayInGUI()
 {
-  const int fieldHeight = 25;
   static int counter = 0;
   std::pair<bool, std::string> deleteCall = std::make_pair(false, "");
+  std::vector<std::string> itemNames;
+
   for (auto& item : _library)
   {
+    itemNames.push_back(item.first);
     std::string name = "##item:" + std::to_string(counter++);
-    ImGui::BeginChild(name.c_str(), ImVec2(500, 6 * fieldHeight), true);
-
+    ImGui::BeginChild(name.c_str(), AssetLoaderFn::GetDisplaySize<T>(), true);
     {
       ImGui::Text("%s", item.first.c_str());
       ImGui::SameLine();
@@ -104,6 +99,28 @@ inline void AssetLibrary<T>::DisplayInGUI()
     OnDelete(deleteCall.second);
 
   counter = 0;
+
+  ImGui::BeginGroup();
+  ImGui::Spacing();
+  ImGui::Text("Edit Item: ");
+  ImGui::SameLine();
+  DropDown::DisplayList(itemNames, _dropdownSelection,
+  [this]()
+  {
+    if (_library.find(_dropdownSelection) != _library.end())
+    {
+      std::string popupItem = _dropdownSelection;
+      _dropdownSelection = "";
+
+      GUIController::Get().CreatePopup(
+      [this, popupItem]()
+      {
+        _library[popupItem].DisplayInEditor();
+      }, []() {});
+    }
+  });
+  ImGui::Spacing();
+  ImGui::EndGroup();
 
   if (ImGui::CollapsingHeader("Create New"))
   {
@@ -158,7 +175,7 @@ inline void AssetLibrary<T>::OnRename(const std::string& item)
         _library.erase(item);
         _library[(std::string)popupStr] = cpy;
       }
-    });
+    }, 350, 4 * fieldHeight);
 }
 
 //______________________________________________________________________________
@@ -178,7 +195,7 @@ inline void AssetLibrary<T>::OnCopy(const std::string& item)
         T cpy = _library[item];
         _library[(std::string)copyStr] = cpy;
       }
-    });
+    }, 350, 4 * fieldHeight);
 }
 
 //______________________________________________________________________________

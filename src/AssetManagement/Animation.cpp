@@ -43,12 +43,6 @@ DrawRect<float> Animation::GetFrameSrcRect(int animFrame) const
 }
 
 //______________________________________________________________________________
-Vector2<int> Animation::GetFrameWH() const
-{
-  return ResourceManager::Get().gSpriteSheets.Get(_spriteSheetName).GetSubSection(_subSheetName).frameSize;
-}
-
-//______________________________________________________________________________
 DisplayImage Animation::GetGUIDisplayImage(int displayHeight, int animFrame)
 {
   //int frame = _animFrameToSheetFrame[animFrame];
@@ -60,7 +54,8 @@ DisplayImage Animation::GetGUIDisplayImage(int displayHeight, int animFrame)
 //______________________________________________________________________________
 Vector2<double> Animation::GetRenderScaling() const
 {
-  return ResourceManager::Get().gSpriteSheets.Get(_spriteSheetName).renderScalingFactor;
+  const SpriteSheet& ss = ResourceManager::Get().gSpriteSheets.Get(_spriteSheetName);
+  return ss.renderScalingFactor;
 }
 
 //______________________________________________________________________________
@@ -91,7 +86,7 @@ void AnimationCollection::SetAnimationEvents(const std::string& animationName, c
 }
 
 //______________________________________________________________________________
-Vector2<float> AnimationCollection::GetRenderOffset(const std::string& animationName, bool flipped) const
+/*Vector2<float> AnimationCollection::GetRenderOffset(const std::string& animationName, bool flipped) const
 {
   auto animIt = _animations.find(animationName);
   if(animIt == _animations.end())
@@ -105,3 +100,4 @@ Vector2<float> AnimationCollection::GetRenderOffset(const std::string& animation
 
   return offset;
 }
+*/

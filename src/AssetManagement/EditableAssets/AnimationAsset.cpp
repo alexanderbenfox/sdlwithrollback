@@ -70,6 +70,12 @@ Vector2<float> CalculateRenderOffset(AnchorPoint anchor, const Vector2<float>& t
 template <> void AssetLoaderFn::OnLoad(AnimationAsset& asset) {}
 
 //______________________________________________________________________________
+template <> ImVec2 AssetLoaderFn::GetDisplaySize<AnimationAsset>()
+{
+  return ImVec2(500, 6 * fieldHeight);
+}
+
+//______________________________________________________________________________
 void AnimationAsset::Load(const Json::Value& json)
 {
   if (!json["sheet_name"].isNull())
@@ -159,13 +165,8 @@ void AnimationAsset::DisplayAnchorPointEditor()
     {
       const SpriteSheet& animSpriteSheet = ResourceManager::Get().gSpriteSheets.Get(sheetName);
       const SpriteSheet::Section& ssSection = animSpriteSheet.GetSubSection(subSheetName);
-      Vector2<float> frameSize = ssSection.frameSize;
-
-      int x = startIndexOnSheet % ssSection.columns;
-      int y = startIndexOnSheet / ssSection.columns;
-      Vector2<float> tlPos(ssSection.offset.x + x * frameSize.x, ssSection.offset.y + y * frameSize.y);
-
-      _anchorEditBackground = DisplayImage(animSpriteSheet.src, Rect<float>(tlPos, tlPos + frameSize), 512);
+      DrawRect<float> frameRect = ssSection.GetFrame(startIndexOnSheet);
+      _anchorEditBackground = DisplayImage(animSpriteSheet.src, Rect<float>(frameRect.x, frameRect.y, frameRect.x + frameRect.w, frameRect.y + frameRect.h), 512);
 
       if (_anchorEditBackground.ptr)
       {
@@ -222,8 +223,9 @@ Vector2<float> AnimationAsset::GetAnchorPosition() const
 {
   const SpriteSheet& animSpriteSheet = ResourceManager::Get().gSpriteSheets.Get(sheetName);
   const SpriteSheet::Section& ssSection = animSpriteSheet.GetSubSection(subSheetName);
+  DrawRect<float> rect = ssSection.GetFrame(startIndexOnSheet);
 
-  Vector2<double> const& anchPos = anchorPoints[(int)anchor].Export(ssSection.frameSize);
+  Vector2<double> const& anchPos = anchorPoints[(int)anchor].Export(Vector2<double>(rect.w, rect.h));
   return static_cast<Vector2<float>>(anchPos);
 }
 

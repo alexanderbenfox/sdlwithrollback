@@ -37,7 +37,20 @@ public:
   void CleanUp();
 
 
-  void CreatePopup(std::function<void()> display, std::function<void()> onClose) { _popup.display = display; _popup.onClose = onClose; }
+  void CreatePopup(std::function<void()> display, std::function<void()> onClose)
+  {
+    _popup.display = display;
+    _popup.onClose = onClose;
+    _popup.setPopupSize = false;
+  }
+  void CreatePopup(std::function<void()> display, std::function<void()> onClose, float xSize, float ySize)
+  {
+    _popup.display = display;
+    _popup.onClose = onClose;
+    _popup.setPopupSize = true;
+    _popup.popupSize = ImVec2(xSize, ySize);
+  }
+
   int AddImguiWindowFunction(const std::string& window, const std::string& category, std::function<void()> function);
   int AddImguiWindowFunction(const std::string& mainMenu, const std::string& window, const std::string& category, std::function<void()> function);
   void RemoveImguiWindowFunction(const std::string& window, int index);
@@ -64,6 +77,8 @@ private:
 
   struct Popup
   {
+    bool setPopupSize;
+    ImVec2 popupSize;
     std::function<void()> display;
     std::function<void()> onClose;
   };
@@ -72,5 +87,7 @@ private:
 
 struct DropDown
 {
+  static void DisplayList(const std::vector<std::string>& list, std::string& selection);
+  static void DisplayList(const std::vector<std::string>& list, std::string& selection, std::function<void()> onSelect);
   static void Show(const char* currentItem, const char* items[], int nItems, std::function<void(const std::string&)> callback);
 };

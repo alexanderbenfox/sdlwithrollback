@@ -158,6 +158,9 @@ void GUIController::MainLoop()
 
     if (_popup.display && _popup.onClose)
     {
+      if (_popup.setPopupSize)
+        ImGui::SetNextWindowSize(_popup.popupSize);
+
       ImGui::Begin("Popup");
       _popup.display();
       if (ImGui::Button("Close"))
@@ -249,6 +252,28 @@ void GUIController::RenderFrame()
 
   if(_ownsWindow)
     SDL_GL_SwapWindow(_window);
+}
+
+
+void DropDown::DisplayList(const std::vector<std::string>& list, std::string& selection)
+{
+  std::vector<const char*> valuesCStr;
+  for (const auto& item : list)
+  {
+    valuesCStr.push_back(item.c_str());
+  }
+  DropDown::Show(selection.c_str(), valuesCStr.data(), static_cast<int>(valuesCStr.size()), [&selection](const std::string& selected) { selection = selected; });
+}
+
+
+void DropDown::DisplayList(const std::vector<std::string>& list, std::string& selection, std::function<void()> onSelect)
+{
+  std::vector<const char*> valuesCStr;
+  for (const auto& item : list)
+  {
+    valuesCStr.push_back(item.c_str());
+  }
+  DropDown::Show(selection.c_str(), valuesCStr.data(), static_cast<int>(valuesCStr.size()), [&selection, onSelect](const std::string& selected) { selection = selected; onSelect(); });
 }
 
 void DropDown::Show(const char* currentItem, const char* items[], int nItems, std::function<void(const std::string&)> callback)

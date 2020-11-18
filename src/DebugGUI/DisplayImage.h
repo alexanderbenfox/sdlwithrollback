@@ -9,7 +9,7 @@ struct DisplayImage
   DisplayImage(const std::string& imgPath, Rect<float> imgSubRect, int targetDisplayHeight);
 
   // returns window position of beginning (top left corner) of image
-  Vector2<float> Show() const;
+  Vector2<float> Show(float offsetX = 0.0f, float offsetY = 0.0f) const;
 
   void* ptr;
   Vector2<int> displaySize;

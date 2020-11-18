@@ -16,7 +16,8 @@
 					"x" : 8,
 					"y" : 1271
 				},
-				"rows" : 10
+				"rows" : 10,
+				"variableSizeSprites" : false
 			},
 			"Idle" : 
 			{
@@ -31,7 +32,8 @@
 					"x" : 346,
 					"y" : 40
 				},
-				"rows" : 10
+				"rows" : 10,
+				"variableSizeSprites" : false
 			},
 			"Jab" : 
 			{
@@ -46,7 +48,8 @@
 					"x" : 60,
 					"y" : 356
 				},
-				"rows" : 10
+				"rows" : 10,
+				"variableSizeSprites" : false
 			},
 			"StandM" : 
 			{
@@ -61,7 +64,8 @@
 					"x" : 768,
 					"y" : 358
 				},
-				"rows" : 10
+				"rows" : 10,
+				"variableSizeSprites" : false
 			},
 			"StandingH" : 
 			{
@@ -76,7 +80,8 @@
 					"x" : 1572,
 					"y" : 355
 				},
-				"rows" : 10
+				"rows" : 10,
+				"variableSizeSprites" : false
 			}
 		},
 		"columns" : 30,
@@ -101,7 +106,216 @@
 			"x" : 3584,
 			"y" : 2448
 		},
-		"sheet_location" : "spritesheets\\akuma.png"
+		"sheet_location" : "spritesheets\\akuma.png",
+		"variableSizeSprites" : false
+	},
+	"AkumaVar" : 
+	{
+		"SubSections" : 
+		{
+			"Idle" : 
+			{
+				"frameRects" : 
+				[
+					{
+						"h" : 128,
+						"w" : 64,
+						"x" : 351,
+						"y" : 32
+					},
+					{
+						"h" : 128,
+						"w" : 64,
+						"x" : 419,
+						"y" : 32
+					},
+					{
+						"h" : 128,
+						"w" : 64,
+						"x" : 489,
+						"y" : 31
+					},
+					{
+						"h" : 128,
+						"w" : 64,
+						"x" : 562,
+						"y" : 31
+					},
+					{
+						"h" : 128,
+						"w" : 64,
+						"x" : 630,
+						"y" : 30
+					},
+					{
+						"h" : 128,
+						"w" : 64,
+						"x" : 694,
+						"y" : 28
+					},
+					{
+						"h" : 128,
+						"w" : 64,
+						"x" : 767,
+						"y" : 27
+					},
+					{
+						"h" : 128,
+						"w" : 64,
+						"x" : 866,
+						"y" : 25
+					},
+					{
+						"h" : 128,
+						"w" : 64,
+						"x" : 945,
+						"y" : 26
+					},
+					{
+						"h" : 128,
+						"w" : 64,
+						"x" : 1017,
+						"y" : 26
+					},
+					{
+						"h" : 128,
+						"w" : 64,
+						"x" : 1087,
+						"y" : 26
+					},
+					{
+						"h" : 128,
+						"w" : 64,
+						"x" : 1157,
+						"y" : 27
+					},
+					{
+						"h" : 128,
+						"w" : 64,
+						"x" : 1221,
+						"y" : 28
+					},
+					{
+						"h" : 128,
+						"w" : 64,
+						"x" : 1295,
+						"y" : 28
+					},
+					{
+						"h" : 128,
+						"w" : 64,
+						"x" : 1374,
+						"y" : 27
+					}
+				],
+				"variableSizeSprites" : true
+			}
+		},
+		"frameRects" : 
+		[
+			{
+				"h" : 128,
+				"w" : 64,
+				"x" : 351,
+				"y" : 33
+			},
+			{
+				"h" : 128,
+				"w" : 64,
+				"x" : 419,
+				"y" : 33
+			},
+			{
+				"h" : 128,
+				"w" : 64,
+				"x" : 489,
+				"y" : 33
+			},
+			{
+				"h" : 128,
+				"w" : 64,
+				"x" : 562,
+				"y" : 33
+			},
+			{
+				"h" : 128,
+				"w" : 64,
+				"x" : 630,
+				"y" : 33
+			},
+			{
+				"h" : 128,
+				"w" : 64,
+				"x" : 694,
+				"y" : 31
+			},
+			{
+				"h" : 128,
+				"w" : 64,
+				"x" : 765,
+				"y" : 31
+			},
+			{
+				"h" : 128,
+				"w" : 64,
+				"x" : 865,
+				"y" : 31
+			},
+			{
+				"h" : 128,
+				"w" : 64,
+				"x" : 945,
+				"y" : 31
+			},
+			{
+				"h" : 128,
+				"w" : 64,
+				"x" : 1017,
+				"y" : 31
+			},
+			{
+				"h" : 128,
+				"w" : 64,
+				"x" : 1087,
+				"y" : 31
+			},
+			{
+				"h" : 128,
+				"w" : 64,
+				"x" : 1157,
+				"y" : 31
+			},
+			{
+				"h" : 128,
+				"w" : 64,
+				"x" : 1221,
+				"y" : 31
+			},
+			{
+				"h" : 128,
+				"w" : 64,
+				"x" : 1295,
+				"y" : 31
+			},
+			{
+				"h" : 128,
+				"w" : 64,
+				"x" : 1374,
+				"y" : 31
+			}
+		],
+		"renderScalingFactor" : 
+		{
+			"x" : 1.0,
+			"y" : 1.0
+		},
+		"sheetSize" : 
+		{
+			"x" : 3584,
+			"y" : 2448
+		},
+		"sheet_location" : "spritesheets\\akuma.png",
+		"variableSizeSprites" : true
 	},
 	"Blocks" : 
 	{
@@ -127,7 +341,8 @@
 			"x" : 400,
 			"y" : 456
 		},
-		"sheet_location" : "spritesheets\\blocks.png"
+		"sheet_location" : "spritesheets\\blocks.png",
+		"variableSizeSprites" : false
 	},
 	"Crouching" : 
 	{
@@ -153,7 +368,8 @@
 			"x" : 440,
 			"y" : 436
 		},
-		"sheet_location" : "spritesheets\\crouching.png"
+		"sheet_location" : "spritesheets\\crouching.png",
+		"variableSizeSprites" : false
 	},
 	"Dashes" : 
 	{
@@ -179,7 +395,8 @@
 			"x" : 354,
 			"y" : 420
 		},
-		"sheet_location" : "spritesheets\\dashes.png"
+		"sheet_location" : "spritesheets\\dashes.png",
+		"variableSizeSprites" : false
 	},
 	"Fireball" : 
 	{
@@ -205,7 +422,8 @@
 			"x" : 860,
 			"y" : 187
 		},
-		"sheet_location" : "spritesheets\\coolfireballspritesheet.png"
+		"sheet_location" : "spritesheets\\coolfireballspritesheet.png",
+		"variableSizeSprites" : false
 	},
 	"GroundedAttacks" : 
 	{
@@ -231,7 +449,8 @@
 			"x" : 1760,
 			"y" : 1656
 		},
-		"sheet_location" : "spritesheets\\grounded_attacks.png"
+		"sheet_location" : "spritesheets\\grounded_attacks.png",
+		"variableSizeSprites" : false
 	},
 	"HanBlockAttackCrouching" : 
 	{
@@ -257,7 +476,8 @@
 			"x" : 8004,
 			"y" : 8001
 		},
-		"sheet_location" : "spritesheets\\han-block&attacks.png"
+		"sheet_location" : "spritesheets\\han-block&attacks.png",
+		"variableSizeSprites" : false
 	},
 	"HanDashHit" : 
 	{
@@ -283,7 +503,8 @@
 			"x" : 3105,
 			"y" : 3072
 		},
-		"sheet_location" : "spritesheets\\han_hit&dash.png"
+		"sheet_location" : "spritesheets\\han_hit&dash.png",
+		"variableSizeSprites" : false
 	},
 	"HanJumpIdleWalk" : 
 	{
@@ -309,7 +530,8 @@
 			"x" : 5120,
 			"y" : 5065
 		},
-		"sheet_location" : "spritesheets\\han-jump&idle.png"
+		"sheet_location" : "spritesheets\\han-jump&idle.png",
+		"variableSizeSprites" : false
 	},
 	"HitblockSparks" : 
 	{
@@ -335,7 +557,8 @@
 			"x" : 3108,
 			"y" : 3256
 		},
-		"sheet_location" : "sfx\\hitblocksparks.png"
+		"sheet_location" : "sfx\\hitblocksparks.png",
+		"variableSizeSprites" : false
 	},
 	"Hitstun" : 
 	{
@@ -361,7 +584,8 @@
 			"x" : 994,
 			"y" : 1008
 		},
-		"sheet_location" : "spritesheets\\hitstun_standing&crouching.png"
+		"sheet_location" : "spritesheets\\hitstun_standing&crouching.png",
+		"variableSizeSprites" : false
 	},
 	"IdleAndWalking" : 
 	{
@@ -387,7 +611,8 @@
 			"x" : 672,
 			"y" : 678
 		},
-		"sheet_location" : "spritesheets\\idle_and_walking.png"
+		"sheet_location" : "spritesheets\\idle_and_walking.png",
+		"variableSizeSprites" : false
 	},
 	"JumpFall" : 
 	{
@@ -413,7 +638,8 @@
 			"x" : 1120,
 			"y" : 1104
 		},
-		"sheet_location" : "spritesheets\\idle_walking_jab_jump_crouch.png"
+		"sheet_location" : "spritesheets\\idle_walking_jab_jump_crouch.png",
+		"variableSizeSprites" : false
 	},
 	"JumpingAttacks" : 
 	{
@@ -439,7 +665,8 @@
 			"x" : 720,
 			"y" : 635
 		},
-		"sheet_location" : "spritesheets\\jumping_attacks.png"
+		"sheet_location" : "spritesheets\\jumping_attacks.png",
+		"variableSizeSprites" : false
 	},
 	"Knockdowns" : 
 	{
@@ -465,7 +692,230 @@
 			"x" : 1068,
 			"y" : 1080
 		},
-		"sheet_location" : "spritesheets\\knockdowns.png"
+		"sheet_location" : "spritesheets\\knockdowns.png",
+		"variableSizeSprites" : false
+	},
+	"MBison" : 
+	{
+		"SubSections" : 
+		{
+			"BDash" : 
+			{
+				"columns" : 10,
+				"frameSize" : 
+				{
+					"x" : 171,
+					"y" : 122
+				},
+				"offset" : 
+				{
+					"x" : 86,
+					"y" : 219
+				},
+				"rows" : 10,
+				"variableSizeSprites" : false
+			},
+			"BlockLow" : 
+			{
+				"columns" : 5,
+				"frameSize" : 
+				{
+					"x" : 160,
+					"y" : 96
+				},
+				"offset" : 
+				{
+					"x" : 106,
+					"y" : 834
+				},
+				"rows" : 5,
+				"variableSizeSprites" : false
+			},
+			"BlockMid" : 
+			{
+				"columns" : 5,
+				"frameSize" : 
+				{
+					"x" : 134,
+					"y" : 96
+				},
+				"offset" : 
+				{
+					"x" : 426,
+					"y" : 834
+				},
+				"rows" : 5,
+				"variableSizeSprites" : false
+			},
+			"CH" : 
+			{
+				"columns" : 10,
+				"frameSize" : 
+				{
+					"x" : 182,
+					"y" : 102
+				},
+				"offset" : 
+				{
+					"x" : 311,
+					"y" : 1643
+				},
+				"rows" : 10,
+				"variableSizeSprites" : false
+			},
+			"CLP" : 
+			{
+				"columns" : 10,
+				"frameSize" : 
+				{
+					"x" : 170,
+					"y" : 130
+				},
+				"offset" : 
+				{
+					"x" : 350,
+					"y" : 1506
+				},
+				"rows" : 10,
+				"variableSizeSprites" : false
+			},
+			"Crouch" : 
+			{
+				"columns" : 5,
+				"frameSize" : 
+				{
+					"x" : 148,
+					"y" : 128
+				},
+				"offset" : 
+				{
+					"x" : 699,
+					"y" : 824
+				},
+				"rows" : 5,
+				"variableSizeSprites" : false
+			},
+			"Crouching" : 
+			{
+				"columns" : 3,
+				"frameSize" : 
+				{
+					"x" : 144,
+					"y" : 144
+				},
+				"offset" : 
+				{
+					"x" : 195,
+					"y" : 681
+				},
+				"rows" : 1,
+				"variableSizeSprites" : false
+			},
+			"FDash" : 
+			{
+				"columns" : 10,
+				"frameSize" : 
+				{
+					"x" : 190,
+					"y" : 133
+				},
+				"offset" : 
+				{
+					"x" : 434,
+					"y" : 211
+				},
+				"rows" : 10,
+				"variableSizeSprites" : false
+			},
+			"Idle" : 
+			{
+				"columns" : 5,
+				"frameSize" : 
+				{
+					"x" : 128,
+					"y" : 105
+				},
+				"offset" : 
+				{
+					"x" : 353,
+					"y" : 0
+				},
+				"rows" : 5,
+				"variableSizeSprites" : false
+			},
+			"Jump" : 
+			{
+				"columns" : 10,
+				"frameSize" : 
+				{
+					"x" : 142,
+					"y" : 131
+				},
+				"offset" : 
+				{
+					"x" : 205,
+					"y" : 533
+				},
+				"rows" : 10,
+				"variableSizeSprites" : false
+			},
+			"WalkB" : 
+			{
+				"columns" : 10,
+				"frameSize" : 
+				{
+					"x" : 146,
+					"y" : 128
+				},
+				"offset" : 
+				{
+					"x" : 276,
+					"y" : 340
+				},
+				"rows" : 10,
+				"variableSizeSprites" : false
+			},
+			"WalkF" : 
+			{
+				"columns" : 10,
+				"frameSize" : 
+				{
+					"x" : 128,
+					"y" : 128
+				},
+				"offset" : 
+				{
+					"x" : 569,
+					"y" : 340
+				},
+				"rows" : 10,
+				"variableSizeSprites" : false
+			}
+		},
+		"columns" : 10,
+		"frameSize" : 
+		{
+			"x" : 128,
+			"y" : 105
+		},
+		"offset" : 
+		{
+			"x" : 311,
+			"y" : 1642
+		},
+		"renderScalingFactor" : 
+		{
+			"x" : 0.80000000000000004,
+			"y" : 1.0
+		},
+		"rows" : 10,
+		"sheetSize" : 
+		{
+			"x" : 1000,
+			"y" : 5152
+		},
+		"sheet_location" : "spritesheets\\mvc2-mbison.png",
+		"variableSizeSprites" : false
 	},
 	"SolBadguy" : 
 	{
@@ -491,7 +941,8 @@
 			"x" : 793,
 			"y" : 1328
 		},
-		"sheet_location" : "spritesheets\\sol.png"
+		"sheet_location" : "spritesheets\\sol.png",
+		"variableSizeSprites" : false
 	},
 	"SolBadguyAttacks" : 
 	{
@@ -517,7 +968,8 @@
 			"x" : 793,
 			"y" : 1328
 		},
-		"sheet_location" : "spritesheets\\sol.png"
+		"sheet_location" : "spritesheets\\sol.png",
+		"variableSizeSprites" : false
 	},
 	"SolBadguyAttacks2" : 
 	{
@@ -543,7 +995,8 @@
 			"x" : 793,
 			"y" : 1328
 		},
-		"sheet_location" : "spritesheets\\sol.png"
+		"sheet_location" : "spritesheets\\sol.png",
+		"variableSizeSprites" : false
 	},
 	"SolBadguyAttacks3" : 
 	{
@@ -569,7 +1022,8 @@
 			"x" : 793,
 			"y" : 1328
 		},
-		"sheet_location" : "spritesheets\\sol.png"
+		"sheet_location" : "spritesheets\\sol.png",
+		"variableSizeSprites" : false
 	},
 	"SolBadguyCrouching" : 
 	{
@@ -595,7 +1049,8 @@
 			"x" : 793,
 			"y" : 1328
 		},
-		"sheet_location" : "spritesheets\\sol.png"
+		"sheet_location" : "spritesheets\\sol.png",
+		"variableSizeSprites" : false
 	},
 	"SolBadguyIdle" : 
 	{
@@ -621,7 +1076,8 @@
 			"x" : 793,
 			"y" : 1328
 		},
-		"sheet_location" : "spritesheets\\sol.png"
+		"sheet_location" : "spritesheets\\sol.png",
+		"variableSizeSprites" : false
 	},
 	"SolBadguyJump" : 
 	{
@@ -647,7 +1103,8 @@
 			"x" : 793,
 			"y" : 1328
 		},
-		"sheet_location" : "spritesheets\\sol.png"
+		"sheet_location" : "spritesheets\\sol.png",
+		"variableSizeSprites" : false
 	},
 	"SolBadguyWalkF" : 
 	{
@@ -673,7 +1130,8 @@
 			"x" : 793,
 			"y" : 1328
 		},
-		"sheet_location" : "spritesheets\\sol.png"
+		"sheet_location" : "spritesheets\\sol.png",
+		"variableSizeSprites" : false
 	},
 	"SpecialMoves" : 
 	{
@@ -699,7 +1157,8 @@
 			"x" : 1440,
 			"y" : 1600
 		},
-		"sheet_location" : "spritesheets\\special_moves.png"
+		"sheet_location" : "spritesheets\\special_moves.png",
+		"variableSizeSprites" : false
 	},
 	"Throws" : 
 	{
@@ -725,7 +1184,8 @@
 			"x" : 970,
 			"y" : 872
 		},
-		"sheet_location" : "spritesheets\\throws.png"
+		"sheet_location" : "spritesheets\\throws.png",
+		"variableSizeSprites" : false
 	},
 	"Venom" : 
 	{
@@ -744,32 +1204,50 @@
 					"x" : 0,
 					"y" : 0
 				},
-				"rows" : 40
+				"rows" : 40,
+				"variableSizeSprites" : false
+			},
+			"Jab" : 
+			{
+				"columns" : 10,
+				"frameSize" : 
+				{
+					"x" : 218,
+					"y" : 168
+				},
+				"offset" : 
+				{
+					"x" : -52,
+					"y" : 774
+				},
+				"rows" : 10,
+				"variableSizeSprites" : false
 			}
 		},
-		"columns" : 9,
+		"columns" : 10,
 		"frameSize" : 
 		{
-			"x" : 140,
-			"y" : 168
+			"x" : 145,
+			"y" : 147
 		},
 		"offset" : 
 		{
-			"x" : 0,
-			"y" : 0
+			"x" : 33,
+			"y" : 2885
 		},
 		"renderScalingFactor" : 
 		{
 			"x" : 1.0,
 			"y" : 1.0
 		},
-		"rows" : 40,
+		"rows" : 10,
 		"sheetSize" : 
 		{
 			"x" : 1200,
 			"y" : 7612
 		},
-		"sheet_location" : "spritesheets\\mvc-venom.png"
+		"sheet_location" : "spritesheets\\mvc-venom.png",
+		"variableSizeSprites" : false
 	},
 	"WinLoseEntrance" : 
 	{
@@ -795,7 +1273,8 @@
 			"x" : 1062,
 			"y" : 938
 		},
-		"sheet_location" : "spritesheets\\winloseentrance.png"
+		"sheet_location" : "spritesheets\\winloseentrance.png",
+		"variableSizeSprites" : false
 	}
 }
 

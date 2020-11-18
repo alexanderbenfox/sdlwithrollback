@@ -30,8 +30,6 @@ public:
   DrawRect<float> GetFrameSrcRect(int animFrame) const;
 
   const int GetFrameCount() const { return static_cast<int>(_animFrameToSheetFrame.size()); }
-
-  Vector2<int> GetFrameWH() const;
   //!
   template <typename Texture>
   Resource<Texture>& GetSheetTexture() const;
@@ -85,7 +83,6 @@ public:
   void RegisterAnimation(const std::string& animationName, const AnimationAsset& animationData);
   void SetAnimationEvents(const std::string& animationName, const std::vector<EventData>& eventData, const FrameData& frameData);
 
-  Vector2<float> GetRenderOffset(const std::string& animationName, bool flipped) const;
   //! Getters
   Animation* GetAnimation(const std::string& name)
   {
