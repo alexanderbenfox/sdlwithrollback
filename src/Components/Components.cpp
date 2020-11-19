@@ -89,7 +89,7 @@ void Camera::OnDebug()
 template <typename T>
 void RectCollider<T>::Init(Vector2<T> beg, Vector2<T> end)
 {
-  rect = unscaledRect = Rect<T>(beg, end);
+  rect = Rect<T>(beg, end);
 }
 
 //______________________________________________________________________________
