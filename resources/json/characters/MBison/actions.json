@@ -878,10 +878,10 @@
 						"damage" : 10,
 						"destroyOnHit" : true,
 						"follow" : true,
-						"knockbackx" : 200,
+						"knockbackx" : 100,
 						"knockbacky" : -200,
-						"stunFramesBlock" : 2,
-						"stunFramesHit" : 10,
+						"stunFramesBlock" : 16,
+						"stunFramesHit" : 48,
 						"x" : 60.0,
 						"y" : 60.0
 					},
@@ -902,8 +902,8 @@
 					},
 					"Rigidbody" : 
 					{
-						"initVelocityX" : 200.0,
-						"initVelocityY" : -600.0,
+						"initVelocityX" : 220.0,
+						"initVelocityY" : -650.0,
 						"useGravity" : true
 					},
 					"StateComponent" : {},
@@ -914,8 +914,8 @@
 						"relative" : true,
 						"scalex" : 1.5,
 						"scaley" : 1.5,
-						"x" : 80,
-						"y" : -20
+						"x" : 85,
+						"y" : -25
 					}
 				}
       },
@@ -935,7 +935,7 @@
 		],
 		"framedata" : 
 		{
-			"active" : 45,
+			"active" : 35,
 			"damage" : 4,
 			"hitstop" : 10,
 			"hittype" : "Mid",
@@ -947,7 +947,7 @@
 			"knockdown" : true,
 			"onblock" : -45,
 			"onhit" : -30,
-			"recovery" : 34,
+			"recovery" : 25,
 			"startup" : 10
 		}
 	},
