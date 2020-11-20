@@ -330,7 +330,7 @@
 		"sheet_name" : "Hitstun",
 		"startFrame" : 56,
 		"sub_sheet_name" : "",
-		"totalFrames" : 11
+		"totalFrames" : 5
 	},
 	"CrouchingLight" : 
 	{
@@ -1449,7 +1449,7 @@
 		{
 			"BL" : 
 			{
-				"x" : 0.39447731755424065,
+				"x" : 0.39447730779647827,
 				"y" : 97.65625
 			},
 			"BR" : 

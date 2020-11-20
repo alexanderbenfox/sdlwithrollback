@@ -49,6 +49,22 @@ DrawRect<float> SpriteSheet::Section::GetFrame(int frame) const
 }
 
 //______________________________________________________________________________
+void SpriteSheet::Section::ShowSpriteAtIndex(const SpriteSheet& srcSheet, int frame, int height) const
+{
+  auto frameRect = GetFrame(frame);
+  DisplayImage img((std::string)srcSheet.src, Rect<float>(frameRect.x, frameRect.y, frameRect.x + frameRect.w, frameRect.y + frameRect.h), height);
+
+  // add padding here for some reason
+  int borderSizeX = static_cast<int>(static_cast<float>(img.displaySize.x) * 1.25f);
+  int borderSizeY = static_cast<int>(static_cast<float>(img.displaySize.y) * 1.25f);
+
+  std::string childLabel = "##SpriteSheetIndex:" + std::to_string(frame);
+  ImGui::BeginChild(childLabel.c_str(), ImVec2(borderSizeX, borderSizeY), true);
+  Vector2<float> windowPosition = img.Show();
+  ImGui::EndChild();
+}
+
+//______________________________________________________________________________
 void SpriteSheet::Section::ShowSpriteSheetLines(const SpriteSheet& srcSheet)
 {
   static float scrollFactor = 1.0f;
@@ -134,7 +150,7 @@ void SpriteSheet::Section::ShowSpriteSheetLines(const SpriteSheet& srcSheet)
   ImGui::Begin("SpriteEditorSidePanel");
   if (ImGui::Button("Switch to Frame View"))
   {
-    GUIController::Get().CreatePopup("Sprite Sheet Editor", [this, &srcSheet]() { DisplayFrameInternal(srcSheet, showFrame); }, []() {});
+    GUIController::Get().CreatePopup("Sprite Sheet Editor", [this, &srcSheet]() { DisplaySpriteEditor(srcSheet, showFrame); }, []() {});
   }
 
   ImGui::InputInt("Show Frame", &showFrame);
@@ -147,7 +163,7 @@ void SpriteSheet::Section::ShowSpriteSheetLines(const SpriteSheet& srcSheet)
       else if (showFrame < 0)
         showFrame = 0;
       DrawRect<int>& currFrameRect = frameRects[showFrame];
-      ImGui::DragInt2("Top Left Position", &currFrameRect.x, 1.0f, -4096, 4096);
+      ImGui::DragInt2("Top Left Position", &currFrameRect.x, 1.0f, -4096, 8192);
       ImGui::DragInt2("Size", &currFrameRect.w);
     }
     if (ImGui::Button("Add New Empty Frame")) { frameRects.emplace_back(); }
@@ -194,7 +210,7 @@ void SpriteSheet::Section::ShowSpriteSheetLines(const SpriteSheet& srcSheet)
   }
   else
   {
-    ImGui::DragInt2("Sheet Start Offset", &offset.x, 1.0f, -4096, 4096);
+    ImGui::DragInt2("Sheet Start Offset", &offset.x, 1.0f, -4096, 8192);
     ImGui::DragInt2("Frame Size", &frameSize.x);
   }
 
@@ -209,35 +225,7 @@ void SpriteSheet::Section::ShowSpriteSheetLines(const SpriteSheet& srcSheet)
 }
 
 //______________________________________________________________________________
-void SpriteSheet::Section::DisplayFrame(const SpriteSheet& srcSheet, int frame)
-{
-  ImGui::BeginChild("FrameDisplay");
-  ImGui::InputInt("Show Frame", &showFrame);
-  if (variableSizeSprites)
-  {
-    DrawRect<int>& currFrameRect = frameRects[frame];
-    ImGui::DragInt2("Top Left Position", &currFrameRect.x, 0.5f, -4096, 4096);
-    ImGui::DragInt2("Size", &currFrameRect.w);
-  }
-  else
-  {
-    ImGui::DragInt2("Sheet Start Offset", &offset.x, 0.5f, -4096, 4096);
-    ImGui::DragInt2("Frame Size", &frameSize.x);
-  }
-
-  auto frameRect = GetFrame(frame);
-  DisplayImage img((std::string)srcSheet.src, Rect<float>(frameRect.x, frameRect.y, frameRect.x + frameRect.w, frameRect.y + frameRect.h), 512);
-  Vector2<float> windowPosition = img.Show();
-
-  if (ImGui::Button("Switch to Sheet View"))
-  {
-    GUIController::Get().CreatePopup("Sprite Sheet Editor", [this, &srcSheet]() { ShowSpriteSheetLines(srcSheet); }, []() {});
-  }
-  ImGui::EndChild();
-}
-
-//______________________________________________________________________________
-void SpriteSheet::Section::DisplayFrameInternal(const SpriteSheet& srcSheet, int frame)
+void SpriteSheet::Section::DisplaySpriteEditor(const SpriteSheet& srcSheet, int frame)
 {
   if (variableSizeSprites)
   {
@@ -248,11 +236,11 @@ void SpriteSheet::Section::DisplayFrameInternal(const SpriteSheet& srcSheet, int
       else if (showFrame < 0)
         showFrame = 0;
 
-      DisplayFrame(srcSheet, showFrame);
+      DisplaySpriteEditorInternal(srcSheet, showFrame);
     }
   }
   else
-    DisplayFrame(srcSheet, showFrame);
+    DisplaySpriteEditorInternal(srcSheet, showFrame);
 }
 
 //______________________________________________________________________________
@@ -347,7 +335,7 @@ void SpriteSheet::Section::DisplayInEditor(SpriteSheet& srcSheet)
 
   if (!variableSizeSprites)
   {
-    ImGui::DragInt2("Sheet Start Offset", &offset.x, 1.0f, -4096, 4096);
+    ImGui::DragInt2("Sheet Start Offset", &offset.x, 1.0f, -4096, 8192);
     ImGui::DragInt2("Frame Size", &frameSize.x);
     ImGui::InputInt2("Rows & Columns: ", &rows);
     if (ImGui::Button("Generate Frame Size Based On Columns & Rows"))
@@ -368,7 +356,7 @@ void SpriteSheet::Section::DisplayInEditor(SpriteSheet& srcSheet)
 
   if (ImGui::Button("Show"))
   {
-    GUIController::Get().CreatePopup("Sprite Sheet Editor", [this, &srcSheet]() { DisplayFrameInternal(srcSheet, showFrame); }, []() {});
+    GUIController::Get().CreatePopup("Sprite Sheet Editor", [this, &srcSheet]() { DisplaySpriteEditor(srcSheet, showFrame); }, []() {});
   }
   ImGui::SameLine();
   ImGui::PushItemWidth(70.0f);
@@ -381,11 +369,12 @@ void SpriteSheet::Section::DisplayInEditor(SpriteSheet& srcSheet)
   }
 }
 
+//______________________________________________________________________________
 void SpriteSheet::Section::ShowVariableFrames(bool switchShown)
 {
   if (ImGui::CollapsingHeader("Frame Sizes"))
   {
-    std::pair<bool, int> deleteCall = std::make_pair(false, 0);
+    int deleteIdx = -1;
     std::tuple<bool, int, int> swapOperation = std::make_tuple(false, 0, 0);
     for (int i = 0; i < frameRects.size(); i++)
     {
@@ -395,9 +384,10 @@ void SpriteSheet::Section::ShowVariableFrames(bool switchShown)
 
       ImGui::Dummy(ImVec2(10.0f, 0.0f));
       ImGui::SameLine();
-      if (ImGui::Button("Remove Frame"))
+      std::string rmFrameBtn = "Remove " + std::to_string(i);
+      if (ImGui::Button(rmFrameBtn.c_str()))
       {
-        deleteCall = { true, i };
+        deleteIdx = i;
       }
 
       if (i != 0)
@@ -423,14 +413,14 @@ void SpriteSheet::Section::ShowVariableFrames(bool switchShown)
         auto& currFrameRect = frameRects[i];
         ImGui::Dummy(ImVec2(50.0f, 0.0f));
         ImGui::SameLine();
-        ImGui::DragInt2("Top Left Position", &currFrameRect.x, 1.0f, -4096, 4096);
+        ImGui::DragInt2("Top Left Position", &currFrameRect.x, 1.0f, -4096, 8192);
         ImGui::Dummy(ImVec2(50.0f, 0.0f));
         ImGui::SameLine();
         ImGui::DragInt2("Size", &currFrameRect.w);
       }
     }
-    if (deleteCall.first)
-      frameRects.erase(frameRects.begin() + deleteCall.second);
+    if (deleteIdx >= 0)
+      frameRects.erase(frameRects.begin() + deleteIdx);
     if (std::get<0>(swapOperation))
     {
       int a = std::get<1>(swapOperation);
@@ -443,6 +433,32 @@ void SpriteSheet::Section::ShowVariableFrames(bool switchShown)
         showFrame = b;
     }
   }
+}
+
+//______________________________________________________________________________
+void SpriteSheet::Section::DisplaySpriteEditorInternal(const SpriteSheet& srcSheet, int frame)
+{
+  ImGui::BeginChild("FrameDisplay");
+  ImGui::InputInt("Show Frame", &showFrame);
+  if (variableSizeSprites)
+  {
+    DrawRect<int>& currFrameRect = frameRects[frame];
+    ImGui::DragInt2("Top Left Position", &currFrameRect.x, 0.5f, -4096, 8192);
+    ImGui::DragInt2("Size", &currFrameRect.w);
+  }
+  else
+  {
+    ImGui::DragInt2("Sheet Start Offset", &offset.x, 0.5f, -4096, 8192);
+    ImGui::DragInt2("Frame Size", &frameSize.x);
+  }
+
+  ShowSpriteAtIndex(srcSheet, frame, 512);
+
+  if (ImGui::Button("Switch to Sheet View"))
+  {
+    GUIController::Get().CreatePopup("Sprite Sheet Editor", [this, &srcSheet]() { ShowSpriteSheetLines(srcSheet); }, []() {});
+  }
+  ImGui::EndChild();
 }
 
 //______________________________________________________________________________

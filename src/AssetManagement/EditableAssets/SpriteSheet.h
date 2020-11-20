@@ -8,12 +8,14 @@
 //______________________________________________________________________________
 struct SpriteSheet : public IJsonLoadable
 {
-  struct Section
+  class Section
   {
+  public:
     DrawRect<float> GetFrame(int frame) const;
+    void ShowSpriteAtIndex(const SpriteSheet& srcSheet, int frame, int height) const;
+
     void ShowSpriteSheetLines(const SpriteSheet& srcSheet);
-    void DisplayFrame(const SpriteSheet& srcSheet, int frame);
-    void DisplayFrameInternal(const SpriteSheet& srcSheet, int frame);
+    void DisplaySpriteEditor(const SpriteSheet& srcSheet, int frame);
 
     void LoadJson(const Json::Value& json);
     void WriteJson(Json::Value& json) const;
@@ -31,6 +33,8 @@ struct SpriteSheet : public IJsonLoadable
 
     //! For variable size sprites
     std::vector<DrawRect<int>> frameRects;
+  private:
+    void DisplaySpriteEditorInternal(const SpriteSheet& srcSheet, int frame);
 
   };
 

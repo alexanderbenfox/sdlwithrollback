@@ -103,6 +103,41 @@
 		"sheet_name" : "HitblockSparks",
 		"startFrame" : 0,
 		"totalFrames" : 28
+	},
+  "BisonLightning" : 
+	{
+		"anchor" : "Center",
+		"anchorPoints" : 
+		{
+			"BL" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"BR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"Center" : 
+			{
+				"x" : 40.681003584229387,
+				"y" : 54.296875
+			},
+			"TL" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"TR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			}
+		},
+		"sheet_name" : "MBisonVar",
+		"startFrame" : 203,
+		"totalFrames" : 5
 	}
 }
 

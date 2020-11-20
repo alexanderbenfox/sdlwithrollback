@@ -93,8 +93,8 @@ void PreMatchScene::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2)
   _fightText->GetComponent<RenderProperties>()->SetDisplayColor(255, 255, 255, 0);
 
   // play idle before going into cutscene actions
-  _p1->GetComponent<Animator>()->Play("Idle", true, 1.0f, true);
-  _p2->GetComponent<Animator>()->Play("Idle", true, 1.0f, true);
+  EnactAnimationActionSystem::PlayAnimation(_p1->GetID(), "Idle", true, 1.0f, true, true);
+  EnactAnimationActionSystem::PlayAnimation(_p2->GetID(), "Idle", true, 1.0f, true, false);
 }
 
 void PreMatchScene::Update(float deltaTime)

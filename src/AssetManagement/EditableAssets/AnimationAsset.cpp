@@ -78,6 +78,8 @@ template <> ImVec2 AssetLoaderFn::GetDisplaySize<AnimationAsset>()
 template <> std::string AssetLoaderFn::GUIHeaderLabel<AnimationAsset> = "Animations";
 template <> std::string AssetLoaderFn::GUIItemLabel<AnimationAsset> = "Animation";
 
+static int spriteSheetAnimationDisplayFrame = 0;
+
 //______________________________________________________________________________
 void AnimationAsset::Load(const Json::Value& json)
 {
@@ -154,6 +156,20 @@ void AnimationAsset::DisplayInEditor()
   DisplayAnchorPointEditor();
 
   ImGui::Checkbox("Play Reverse", &reverse);
+
+  static bool showAnimationFrames = false;
+  ImGui::Checkbox("Show Animation Frames", &showAnimationFrames);
+  if (showAnimationFrames)
+  {
+    const SpriteSheet& animSpriteSheet = ResourceManager::Get().gSpriteSheets.Get(sheetName);
+    const SpriteSheet::Section& ssSection = animSpriteSheet.GetSubSection(subSheetName);
+    for (int i = 0; i < frames; i++)
+    {
+      if (i != 0)
+        ImGui::SameLine();
+      ssSection.ShowSpriteAtIndex(animSpriteSheet, startIndexOnSheet + i, 64);
+    } 
+  }
 
   ImGui::EndGroup();
 }

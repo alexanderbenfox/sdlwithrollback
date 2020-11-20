@@ -241,6 +241,12 @@ void EventData::Write(Json::Value& json) const
 void EventData::DisplayInEditor()
 {
   ImGui::InputFloat2("Movement", (float*)&movement, 2);
+  if (hitbox.Area() > 0)
+  {
+    ImGui::SameLine();
+    if (ImGui::Button("Delete Hitbox"))
+      hitbox = Rect<double>(0, 0, 0, 0);
+  }
 }
 
 //______________________________________________________________________________
@@ -277,12 +283,25 @@ void ActionAsset::Write(Json::Value& json) const
 void ActionAsset::DisplayInEditor()
 {
   frameData.DisplayInEditor();
+  int deleteIdx = -1;
   for (int i = 0; i < eventData.size(); i++)
   {
+    std::string deleteLabel = "Delete Data " + std::to_string(i);
+    if (ImGui::Button(deleteLabel.c_str()))
+    {
+      deleteIdx = i;
+    }
+    ImVec2 btnSize = ImGui::GetItemRectSize();
+    ImGui::SameLine();
+
     std::string label = "Event Data for Frame " + std::to_string(i);
     if (ImGui::CollapsingHeader(label.c_str()))
     {
+      ImGui::Dummy(ImVec2(btnSize.x, 0));
       eventData[i].DisplayInEditor();
     }
   }
+
+  if (deleteIdx >= 0)
+    eventData.erase(eventData.begin() + deleteIdx);
 }

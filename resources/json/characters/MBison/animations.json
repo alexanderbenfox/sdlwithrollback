@@ -104,10 +104,10 @@
 				"y" : 0.0
 			}
 		},
-		"reverse" : true,
-		"sheet_name" : "MBison",
-		"startFrame" : 0,
-		"sub_sheet_name" : "BlockMid",
+		"reverse" : false,
+		"sheet_name" : "MBisonVar",
+		"startFrame" : 90,
+		"sub_sheet_name" : "",
 		"totalFrames" : 2
 	},
 	"BlockLow" : 
@@ -142,10 +142,10 @@
 			}
 		},
 		"reverse" : true,
-		"sheet_name" : "MBison",
-		"startFrame" : 0,
-		"sub_sheet_name" : "BlockLow",
-		"totalFrames" : 2
+		"sheet_name" : "MBisonVar",
+		"startFrame" : 98,
+		"sub_sheet_name" : "",
+		"totalFrames" : 3
 	},
 	"BlockMid" : 
 	{
@@ -178,10 +178,10 @@
 				"y" : 0.0
 			}
 		},
-		"reverse" : true,
-		"sheet_name" : "MBison",
-		"startFrame" : 0,
-		"sub_sheet_name" : "BlockMid",
+		"reverse" : false,
+		"sheet_name" : "MBisonVar",
+		"startFrame" : 96,
+		"sub_sheet_name" : "",
 		"totalFrames" : 2
 	},
 	"Crouch" : 
@@ -215,11 +215,11 @@
 				"y" : 0.0
 			}
 		},
-		"reverse" : true,
-		"sheet_name" : "MBison",
-		"startFrame" : 0,
-		"sub_sheet_name" : "Crouch",
-		"totalFrames" : 1
+		"reverse" : false,
+		"sheet_name" : "MBisonVar",
+		"startFrame" : 88,
+		"sub_sheet_name" : "",
+		"totalFrames" : 2
 	},
 	"Crouching" : 
 	{
@@ -252,11 +252,11 @@
 				"y" : 0.0
 			}
 		},
-		"reverse" : true,
-		"sheet_name" : "MBison",
-		"startFrame" : 0,
-		"sub_sheet_name" : "Crouching",
-		"totalFrames" : 3
+		"reverse" : false,
+		"sheet_name" : "MBisonVar",
+		"startFrame" : 85,
+		"sub_sheet_name" : "",
+		"totalFrames" : 5
 	},
 	"CrouchingHeavy" : 
 	{
@@ -265,7 +265,7 @@
 		{
 			"BL" : 
 			{
-				"x" : 12.941176470588236,
+				"x" : 12.941176414489746,
 				"y" : 99.4140625
 			},
 			"BR" : 
@@ -327,45 +327,8 @@
 			}
 		},
 		"reverse" : false,
-		"sheet_name" : "Hitstun",
-		"startFrame" : 56,
-		"sub_sheet_name" : "",
-		"totalFrames" : 11
-	},
-	"CrouchingMedium" : 
-	{
-		"anchor" : "BL",
-		"anchorPoints" : 
-		{
-			"BL" : 
-			{
-				"x" : 24.625623960066555,
-				"y" : 97.65625
-			},
-			"BR" : 
-			{
-				"x" : 0.0,
-				"y" : 0.0
-			},
-			"Center" : 
-			{
-				"x" : 0.0,
-				"y" : 0.0
-			},
-			"TL" : 
-			{
-				"x" : 0.0,
-				"y" : 0.0
-			},
-			"TR" : 
-			{
-				"x" : 0.0,
-				"y" : 0.0
-			}
-		},
-		"reverse" : false,
 		"sheet_name" : "MBisonVar",
-		"startFrame" : 61,
+		"startFrame" : 138,
 		"sub_sheet_name" : "",
 		"totalFrames" : 3
 	},
@@ -376,7 +339,7 @@
 		{
 			"BL" : 
 			{
-				"x" : 25.380710659898476,
+				"x" : 25.380710601806641,
 				"y" : 99.609375
 			},
 			"BR" : 
@@ -406,20 +369,20 @@
 		"sub_sheet_name" : "",
 		"totalFrames" : 5
 	},
-	"Entrance" : 
+	"CrouchingMedium" : 
 	{
-		"anchor" : "BR",
+		"anchor" : "BL",
 		"anchorPoints" : 
 		{
 			"BL" : 
 			{
-				"x" : 0.73964494466781616,
-				"y" : 5.46875
+				"x" : 24.62562370300293,
+				"y" : 97.65625
 			},
 			"BR" : 
 			{
-				"x" : 42.751480102539063,
-				"y" : 98.046875
+				"x" : 0.0,
+				"y" : 0.0
 			},
 			"Center" : 
 			{
@@ -438,10 +401,47 @@
 			}
 		},
 		"reverse" : false,
-		"sheet_name" : "WinLoseEntrance",
-		"startFrame" : 24,
+		"sheet_name" : "MBisonVar",
+		"startFrame" : 61,
 		"sub_sheet_name" : "",
-		"totalFrames" : 18
+		"totalFrames" : 3
+	},
+	"Entrance" : 
+	{
+		"anchor" : "BR",
+		"anchorPoints" : 
+		{
+			"BL" : 
+			{
+				"x" : 3.8338658809661865,
+				"y" : 98.2421875
+			},
+			"BR" : 
+			{
+				"x" : 86.581466674804688,
+				"y" : 92.578125
+			},
+			"Center" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"TL" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"TR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			}
+		},
+		"reverse" : false,
+		"sheet_name" : "MBisonVar",
+		"startFrame" : 115,
+		"sub_sheet_name" : "",
+		"totalFrames" : 13
 	},
 	"Falling" : 
 	{
@@ -465,8 +465,8 @@
 			},
 			"TL" : 
 			{
-				"x" : 16.626506805419922,
-				"y" : 13.0859375
+				"x" : 30.651340484619141,
+				"y" : 24.609375
 			},
 			"TR" : 
 			{
@@ -474,11 +474,11 @@
 				"y" : 0.0
 			}
 		},
-		"reverse" : false,
-		"sheet_name" : "JumpFall",
-		"startFrame" : 60,
+		"reverse" : true,
+		"sheet_name" : "MBisonVar",
+		"startFrame" : 24,
 		"sub_sheet_name" : "",
-		"totalFrames" : 13
+		"totalFrames" : 4
 	},
 	"ForwardDash" : 
 	{
@@ -586,10 +586,10 @@
 			}
 		},
 		"reverse" : false,
-		"sheet_name" : "Hitstun",
-		"startFrame" : 24,
+		"sheet_name" : "MBisonVar",
+		"startFrame" : 141,
 		"sub_sheet_name" : "",
-		"totalFrames" : 7
+		"totalFrames" : 6
 	},
 	"Idle" : 
 	{
@@ -687,8 +687,8 @@
 			},
 			"TL" : 
 			{
-				"x" : 14.482758522033691,
-				"y" : 16.6015625
+				"x" : 2.6515152454376221,
+				"y" : 15.234375
 			},
 			"TR" : 
 			{
@@ -697,8 +697,8 @@
 			}
 		},
 		"reverse" : false,
-		"sheet_name" : "JumpingAttacks",
-		"startFrame" : 17,
+		"sheet_name" : "MBisonVar",
+		"startFrame" : 69,
 		"sub_sheet_name" : "",
 		"totalFrames" : 8
 	},
@@ -724,8 +724,8 @@
 			},
 			"TL" : 
 			{
-				"x" : 8.4482755661010742,
-				"y" : 16.015625
+				"x" : 10.579344749450684,
+				"y" : 17.96875
 			},
 			"TR" : 
 			{
@@ -734,10 +734,10 @@
 			}
 		},
 		"reverse" : false,
-		"sheet_name" : "JumpingAttacks",
-		"startFrame" : 0,
+		"sheet_name" : "MBisonVar",
+		"startFrame" : 77,
 		"sub_sheet_name" : "",
-		"totalFrames" : 8
+		"totalFrames" : 4
 	},
 	"JumpingMedium" : 
 	{
@@ -761,8 +761,8 @@
 			},
 			"TL" : 
 			{
-				"x" : 7.7586207389831543,
-				"y" : 22.265625
+				"x" : 22.287389755249023,
+				"y" : 14.2578125
 			},
 			"TR" : 
 			{
@@ -771,10 +771,10 @@
 			}
 		},
 		"reverse" : false,
-		"sheet_name" : "JumpingAttacks",
-		"startFrame" : 9,
+		"sheet_name" : "MBisonVar",
+		"startFrame" : 81,
 		"sub_sheet_name" : "",
-		"totalFrames" : 9
+		"totalFrames" : 4
 	},
 	"KO" : 
 	{
@@ -783,8 +783,8 @@
 		{
 			"BL" : 
 			{
-				"x" : 1.1299434900283813,
-				"y" : 99.253730773925781
+				"x" : 31.024530410766602,
+				"y" : 90.625
 			},
 			"BR" : 
 			{
@@ -808,10 +808,10 @@
 			}
 		},
 		"reverse" : false,
-		"sheet_name" : "WinLoseEntrance",
-		"startFrame" : 6,
+		"sheet_name" : "MBisonVar",
+		"startFrame" : 159,
 		"sub_sheet_name" : "",
-		"totalFrames" : 17
+		"totalFrames" : 6
 	},
 	"Knockdown2_Air" : 
 	{
@@ -919,10 +919,10 @@
 			}
 		},
 		"reverse" : false,
-		"sheet_name" : "Knockdowns",
-		"startFrame" : 0,
+		"sheet_name" : "MBisonVar",
+		"startFrame" : 147,
 		"sub_sheet_name" : "",
-		"totalFrames" : 8
+		"totalFrames" : 6
 	},
 	"Knockdown_HitGround" : 
 	{
@@ -931,8 +931,8 @@
 		{
 			"BL" : 
 			{
-				"x" : 29.117259979248047,
-				"y" : 87.5
+				"x" : 24.945295333862305,
+				"y" : 91.796875
 			},
 			"BR" : 
 			{
@@ -956,10 +956,10 @@
 			}
 		},
 		"reverse" : false,
-		"sheet_name" : "Knockdowns",
-		"startFrame" : 8,
+		"sheet_name" : "MBisonVar",
+		"startFrame" : 165,
 		"sub_sheet_name" : "",
-		"totalFrames" : 11
+		"totalFrames" : 10
 	},
 	"Knockdown_OnGround" : 
 	{
@@ -993,8 +993,8 @@
 			}
 		},
 		"reverse" : false,
-		"sheet_name" : "Knockdowns",
-		"startFrame" : 19,
+		"sheet_name" : "MBisonVar",
+		"startFrame" : 175,
 		"sub_sheet_name" : "",
 		"totalFrames" : 6
 	},
@@ -1030,10 +1030,10 @@
 			}
 		},
 		"reverse" : false,
-		"sheet_name" : "Hitstun",
-		"startFrame" : 0,
+		"sheet_name" : "MBisonVar",
+		"startFrame" : 134,
 		"sub_sheet_name" : "",
-		"totalFrames" : 3
+		"totalFrames" : 4
 	},
 	"MedHitstun" : 
 	{
@@ -1067,10 +1067,10 @@
 			}
 		},
 		"reverse" : false,
-		"sheet_name" : "Hitstun",
-		"startFrame" : 4,
+		"sheet_name" : "MBisonVar",
+		"startFrame" : 134,
 		"sub_sheet_name" : "",
-		"totalFrames" : 11
+		"totalFrames" : 4
 	},
 	"MedHitstun2" : 
 	{
@@ -1141,10 +1141,10 @@
 			}
 		},
 		"reverse" : false,
-		"sheet_name" : "SpecialMoves",
-		"startFrame" : 0,
+		"sheet_name" : "MBisonVar",
+		"startFrame" : 181,
 		"sub_sheet_name" : "",
-		"totalFrames" : 14
+		"totalFrames" : 8
 	},
 	"SpecialMove2" : 
 	{
@@ -1215,10 +1215,10 @@
 			}
 		},
 		"reverse" : false,
-		"sheet_name" : "SpecialMoves",
-		"startFrame" : 58,
+		"sheet_name" : "MBisonVar",
+		"startFrame" : 106,
 		"sub_sheet_name" : "",
-		"totalFrames" : 15
+		"totalFrames" : 9
 	},
 	"SpecialMove4" : 
 	{
@@ -1252,10 +1252,10 @@
 			}
 		},
 		"reverse" : false,
-		"sheet_name" : "SpecialMoves",
-		"startFrame" : 14,
+		"sheet_name" : "MBisonVar",
+		"startFrame" : 189,
 		"sub_sheet_name" : "",
-		"totalFrames" : 27
+		"totalFrames" : 14
 	},
 	"StandingHeavy" : 
 	{
@@ -1486,8 +1486,8 @@
 		{
 			"BL" : 
 			{
-				"x" : 2.8248586654663086,
-				"y" : 99.253730773925781
+				"x" : 13.670412063598633,
+				"y" : 96.6796875
 			},
 			"BR" : 
 			{
@@ -1511,8 +1511,8 @@
 			}
 		},
 		"reverse" : false,
-		"sheet_name" : "WinLoseEntrance",
-		"startFrame" : 0,
+		"sheet_name" : "MBisonVar",
+		"startFrame" : 128,
 		"sub_sheet_name" : "",
 		"totalFrames" : 6
 	}
