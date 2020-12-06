@@ -2173,7 +2173,7 @@
 		"renderScalingFactor" : 
 		{
 			"x" : 0.80000000000000004,
-			"y" : 1.1
+			"y" : 1.1000000000000001
 		},
 		"sheetSize" : 
 		{
@@ -2455,65 +2455,33 @@
 	},
 	"Venom" : 
 	{
-		"SubSections" : 
-		{
-			"Entrance" : 
+		"frameRects" : 
+		[
 			{
-				"columns" : 9,
-				"frameSize" : 
-				{
-					"x" : 140,
-					"y" : 168
-				},
-				"offset" : 
-				{
-					"x" : 0,
-					"y" : 0
-				},
-				"rows" : 40,
-				"variableSizeSprites" : false
+				"h" : 167,
+				"w" : 132,
+				"x" : -5,
+				"y" : -5
 			},
-			"Jab" : 
 			{
-				"columns" : 10,
-				"frameSize" : 
-				{
-					"x" : 218,
-					"y" : 168
-				},
-				"offset" : 
-				{
-					"x" : -52,
-					"y" : 774
-				},
-				"rows" : 10,
-				"variableSizeSprites" : false
+				"h" : 167,
+				"w" : 132,
+				"x" : 133,
+				"y" : -5
 			}
-		},
-		"columns" : 10,
-		"frameSize" : 
-		{
-			"x" : 145,
-			"y" : 147
-		},
-		"offset" : 
-		{
-			"x" : 33,
-			"y" : 2885
-		},
+		],
 		"renderScalingFactor" : 
 		{
 			"x" : 1.0,
 			"y" : 1.0
 		},
-		"rows" : 10,
 		"sheetSize" : 
 		{
 			"x" : 1200,
 			"y" : 7612
 		},
 		"sheet_location" : "spritesheets\\mvc-venom.png",
-		"variableSizeSprites" : false
+		"variableSizeSprites" : true
 	},
 	"WinLoseEntrance" : 
 	{
