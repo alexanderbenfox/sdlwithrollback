@@ -655,6 +655,9 @@
     <ClInclude Include="..\src\AssetManagement\EditableAssets\AssetLibrary.h">
       <Filter>Source Files\AssetManagement\EditableAssets</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\Core\Utility\Profiler.h">
+      <Filter>Source Files\Core\Utility</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -35,6 +35,8 @@
 #include "AssetManagement/EditableAssets/Editor/AnimationEditor.h"
 #include "AssetManagement/EditableAssets/AssetLibrary.h"
 
+#include "Core/Utility/Profiler.h"
+
 #include <sstream>
 
 #ifdef _DEBUG
@@ -453,7 +455,9 @@ void GameManager::BeginGameLoop()
   UpdateFunction update = std::bind(&GameManager::RunFrame, this, std::placeholders::_1);
 
   int frameCount = 0;
-  for (;;)
+  _running = true;
+
+  while(_running)
   {
     if (frameCount == 0)
       tracker.Add(_clock.GetUpdateTime());
@@ -464,9 +468,6 @@ void GameManager::BeginGameLoop()
     GUIController::Get().MainLoop();
     //! render the scene
     Draw();
-
-    if (_hardwareEvents.type == SDL_QUIT)
-      break;
 
     frameCount = (++frameCount) % 10;
   }
@@ -670,6 +671,9 @@ std::string GameManager::LogGamestate()
 //______________________________________________________________________________
 void GameManager::Update(float deltaTime)
 {
+  // makes a profile for the function its contained in
+  PROFILE_FUNCTION();
+
   _currentScene->Update(_frameStopActive ? 0.0f : deltaTime);
   //! Do post update (update gui and change scene)
   PostUpdate();
@@ -697,6 +701,8 @@ void GameManager::SyncPlayerInputs(InputState* inputs)
 //______________________________________________________________________________
 void GameManager::RunFrame(float deltaTime)
 {
+  PROFILE_SCOPE("RunFrame");
+
   if (!_beginningOfFrameQueue.empty())
   {
     for (auto& func : _beginningOfFrameQueue)
@@ -789,6 +795,10 @@ SDL_Event GameManager::UpdateLocalInput()
       {
         GRenderer.ProcessResizeEvent(event);
       }
+    }
+    if (event.type == SDL_QUIT)
+    {
+      _running = false;
     }
   }
   return event;
