@@ -39,27 +39,19 @@ template <typename ... T>
 class ISystem
 {
 public:
-  //! 
+  //! Check if entity's component signature has required components
+  //! called on AddComponent and RemoveComponent
   static void Check(Entity* entity)
   {
     if(Req::MatchesSignature(entity->GetID()))
-    {
       Registered.insert(entity->GetID());
-    }
     else
-    {
       Registered.erase(entity->GetID());
-    }
   }
-
-  //!
-  //static std::map<int, std::tuple<T&...>> Tuples;
-
-    //! Set of registered entities
+  //! Set of registered entities
   static std::set<EntityID> Registered;
 
 protected:
-
   //! Required components
   using Req = Requires<T...>;
 

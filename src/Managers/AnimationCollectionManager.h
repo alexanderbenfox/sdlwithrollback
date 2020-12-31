@@ -1,5 +1,11 @@
 #pragma once
+#include <unordered_map>
+
+#include "AssetManagement/EditableAssets/AnimationAsset.h"
+#include "AssetManagement/EditableAssets/CharacterConfiguration.h"
+#include "AssetManagement/EditableAssets/SpriteSheet.h"
 #include "AssetManagement/Animation.h"
+
 
 //! Easy access macro cause name is long :(
 #define GAnimArchive AnimationCollectionManager::Get()
@@ -19,9 +25,21 @@ public:
   AnimationCollection& GetCollection(unsigned int ID);
   //! Shortcut for getting animation data from collection
   Animation* GetAnimationData(unsigned int collectionID, std::string_view animationName);
+  //!
+  void AddNewCharacter(const std::string& characterName);
 
-  // remove this for a better way later
-  //void ReloadRyuAnimation() {}
+  int GetNCharacter() { return static_cast<int>(_characters.size()); }
+  std::vector<std::string> GetCharacters()
+  {
+    std::vector<std::string> c;
+    for (auto& chara : _characters)
+      c.push_back(chara.first);
+    return c;
+  }
+
+  void EditGeneralAnimations();
+
+  void ReloadAnimationCollection(const std::string& id, const CharacterConfiguration& configFiles);
 
 private:
   //! Loads all animation collections currently
@@ -30,12 +48,7 @@ private:
   // can all of these be made static constexpr if data is known at compile time?
 
   // for now, this is just a static value so keep it private
-  void LoadCharacterCollection(const std::string& lookUpString,
-    std::unordered_map<std::string, AnimationInfo>& normalAnimations,
-    std::unordered_map<std::string, AttackAnimationData>& attackAnimations);
-
-  // loads single animation into an animation collection
-  void LoadSingleAnimation(std::string_view collection, std::string_view name, const AnimationInfo& animInfo);
+  unsigned int RegisterCharacterCollection(const std::string& lookUpString, const CharacterConfiguration& configFiles);
   //! Registers new animation or gets existing if name exists in table
   unsigned int RegisterNewCollection(const std::string& lookUpString);
 
@@ -46,5 +59,12 @@ private:
 
   //! maps name strings to index in array
   std::unordered_map<std::string, unsigned int> _idLookupTable;
+
+  //! Should definitely move this later
+  std::unordered_map<std::string, CharacterConfiguration> _characters;
+  //!
+  FilePath _characterDir;
+  //! General animation list
+  std::unordered_map<std::string, AnimationAsset> _generalAnimations;
 
 };

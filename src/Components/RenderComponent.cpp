@@ -50,7 +50,7 @@ std::vector<GLDrawOperation> TextRenderer::GetRenderOps()
 }
 
 RenderProperties::RenderProperties() :
-  baseRenderOffset(0, 0),
+  rectTransform(0, 0),
   offset(0, 0),
   horizontalFlip(false),
   _displayColor{ 255, 255, 255, SDL_ALPHA_OPAQUE },
@@ -69,9 +69,4 @@ void RenderProperties::SetDisplayColor(Uint8 r, Uint8 g, Uint8 b, Uint8 a)
 SDL_Color RenderProperties::GetDisplayColor() const
 {
   return _displayColor;
-}
-
-Vector2<int> RenderProperties::Offset() const
-{
-  return baseRenderOffset + offset;
 }

@@ -20,4 +20,8 @@ struct StringUtils
   static std::string Connect(std::vector<std::string>::iterator const& beg, std::vector<std::string>::iterator const& end, char delim);
 
   static std::string CorrectPath(std::string file);
+
+  static void AppendSubPath(std::string& path, const char* subPath);
+
+  static std::vector<std::string> SplitFilePath(const std::string& path);
 };

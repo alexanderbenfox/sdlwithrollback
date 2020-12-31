@@ -6,6 +6,8 @@
 template <typename T>
 struct Vector2
 {
+  typedef T DataType;
+
   Vector2<T>() : x(0), y(0) {}
   Vector2<T>(T x, T y) : x(x), y(y) {}
 

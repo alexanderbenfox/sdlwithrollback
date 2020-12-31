@@ -25,7 +25,6 @@ public:
 
   //!
   Rect<T> rect;
-  Rect<T> unscaledRect;
 
   virtual void Serialize(std::ostream& os) const override
   {

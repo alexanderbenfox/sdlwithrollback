@@ -32,6 +32,9 @@
 #include "Components/Actors/GameActor.h"
 #include "Managers/GGPOManager.h"
 
+#include "AssetManagement/EditableAssets/Editor/AnimationEditor.h"
+#include "AssetManagement/EditableAssets/AssetLibrary.h"
+
 #include <sstream>
 
 #ifdef _DEBUG
@@ -423,6 +426,25 @@ void GameManager::BeginGameLoop()
     });
 #endif
 
+  CharacterEditor::Get().AddCreateNewCharacterButton();
+
+  GUIController::Get().AddImguiWindowFunction("Assets", "Sprite Sheets", []()
+  {
+    ImGui::BeginGroup();
+    ResourceManager::Get().gSpriteSheets.DisplayInGUI();
+    ResourceManager::Get().gSpriteSheets.DisplaySaveButton(SpriteSheet::SaveLocation());
+    ImGui::EndGroup();
+  });
+
+  GUIController::Get().AddImguiWindowFunction("Assets", "General Animations", []()
+    {
+      if (ImGui::CollapsingHeader("General Animations"))
+      {
+        ImGui::BeginGroup();
+        GAnimArchive.EditGeneralAnimations();
+        ImGui::EndGroup();
+      }
+    });
 
   //start the timer at 60 fps
   _clock.Start(60);

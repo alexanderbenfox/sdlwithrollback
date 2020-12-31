@@ -12,6 +12,13 @@ const float secPerFrame = 1.0f / 60.0f;
 const int m_nativeWidth = 720;
 const int m_nativeHeight = 480;
 
+//! define basis character size
+const int m_frameWidth = 112;
+const int m_frameHeight = 112;
+
+const float m_characterWidth = 58.5f;
+const float m_characterHeight = 105.5f;
+
 struct ECSGlobalStatus
 {
   //! Number of registered components

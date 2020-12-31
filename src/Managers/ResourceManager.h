@@ -2,6 +2,7 @@
 #include "Core/Utility/String.h"
 #include "Core/Geometry2D/Rect.h"
 #include "AssetManagement/LetterCase.h"
+#include "AssetManagement/EditableAssets/SpriteSheet.h"
 
 #include <unordered_map>
 #include <vector>
@@ -34,6 +35,8 @@ public:
   static void CrawlTexture(Resource<SDL_Texture>& texture, Vector2<int> begin, Vector2<int> end, std::function<void(int, int, Uint32)> callback);
   static Rect<double> FindRect(Resource<SDL_Texture>& texture, Vector2<int> frameSize, Vector2<int> begPx);
   //////++++ WE NEED TO GET THIS OUTTA HERE - END
+
+  AssetLibrary<SpriteSheet> gSpriteSheets;
 
 private:
 

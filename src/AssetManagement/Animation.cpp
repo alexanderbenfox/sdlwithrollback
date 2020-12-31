@@ -9,22 +9,8 @@
 #include <json/json.h>
 
 //______________________________________________________________________________
-SpriteSheet::SpriteSheet(const char* src, int rows, int columns) : src(src), rows(rows), columns(columns),
-  sheetSize(0, 0), frameSize(0, 0)
-{
-  GenerateSheetInfo();
-}
-
-//______________________________________________________________________________
-void SpriteSheet::GenerateSheetInfo()
-{
-  sheetSize = ResourceManager::Get().GetTextureWidthAndHeight(src);
-  frameSize = Vector2<int>(sheetSize.x / columns, sheetSize.y / rows);
-}
-
-//______________________________________________________________________________
-Animation::Animation(const SpriteSheet& sheet, int startIndexOnSheet, int frames, AnchorPoint anchor) : _startIdx(startIndexOnSheet), _frames(frames),
-  _spriteSheet(sheet), _anchorPoint(std::make_pair(anchor, Vector2<int>::Zero))
+Animation::Animation(const std::string& sheet, const std::string& subSheet, int startIndexOnSheet, int frames, AnchorPoint anchor, const Vector2<float>& anchorPt, bool reverse) : _startIdx(startIndexOnSheet), _frames(frames),
+  _spriteSheetName(sheet), _subSheetName(subSheet), _anchorPoint(std::make_pair(anchor, anchorPt)), playReverse(reverse)
 {
   // initialize animation to play each sprite sheet frame 
   int gameFrames = (int)std::ceil(frames * gameFramePerAnimationFrame);
@@ -33,19 +19,15 @@ Animation::Animation(const SpriteSheet& sheet, int startIndexOnSheet, int frames
   {
     _animFrameToSheetFrame[i] = static_cast<int>(std::floor((double)i * ((double)frames / (double)gameFrames)));
   }
-
-  _lMargin = FindAnchorPoint(AnchorPoint::BL, true).x;
-  _rMargin = FindAnchorPoint(AnchorPoint::BR, true).x;
-  _tMargin = FindAnchorPoint(AnchorPoint::TL, true).y;
-
-  _anchorPoint.second = FindAnchorPoint(anchor, true);
 }
 
 //______________________________________________________________________________
-EventList Animation::GenerateEvents(const std::vector<AnimationActionEventData>& attackInfo, FrameData frameData)
+EventList Animation::GenerateEvents(const std::vector<EventData>& attackInfo, FrameData frameData, const Vector2<float>& textureScalingFactor)
 {
   animationEvents = attackInfo;
-  return AnimationEventHelper::BuildEventList(Vector2<int>(_lMargin, _tMargin), attackInfo, frameData, _frames, _animFrameToSheetFrame);
+  auto scaledOffset = static_cast<Vector2<float>>(_anchorPoint.second) * textureScalingFactor;
+  //auto scaledOffsetAnim = GetAttachedOffset() * textureScalingFactor;
+  return AnimationEventHelper::BuildEventList(textureScalingFactor, scaledOffset, attackInfo, frameData, _frames, _animFrameToSheetFrame, _anchorPoint.first);
 }
 
 //______________________________________________________________________________
@@ -56,149 +38,96 @@ DrawRect<float> Animation::GetFrameSrcRect(int animFrame) const
   if (frame >= _frames || frame < 0)
     return { 0, 0, 0, 0 };
 
-  int x = (_startIdx + frame) % _spriteSheet.columns;
-  int y = (_startIdx + frame) / _spriteSheet.columns;
-  Vector2<float> pos(x * _spriteSheet.frameSize.x, y * _spriteSheet.frameSize.y);
-  return DrawRect<float>(pos.x, pos.y, _spriteSheet.frameSize.x, _spriteSheet.frameSize.y );
-}
-
-
-//______________________________________________________________________________
-Vector2<int> Animation::FindAnchorPoint(AnchorPoint anchorType, bool fromFirstFrame) const
-{
-  Resource<SDL_Texture>& sheetTexture = ResourceManager::Get().GetAsset<SDL_Texture>(_spriteSheet.src);
-  // Get the window format
-  Uint32 windowFormat = SDL_GetWindowPixelFormat(GRenderer.GetWindow());
-  std::shared_ptr<SDL_PixelFormat> format = std::shared_ptr<SDL_PixelFormat>(SDL_AllocFormat(windowFormat), SDL_FreeFormat);
-
-  // Get the pixel data
-  Uint32* upixels;
-#ifdef _WIN32
-  unsigned char* px = sheetTexture.GetInfo().pixels.get();
-  upixels = (Uint32*)px;
-#else
-  upixels = (Uint32*)sheetTexture.GetInfo().pixels.get();
-#endif
-
-  auto findAnchor = [this, &upixels, &sheetTexture, &format](bool reverseX, bool reverseY, int startX, int startY)
-  {
-#ifdef _WIN32
-    Uint32 transparent = sheetTexture.GetInfo().transparent;
-#endif
-
-    for (int yValue = startY; yValue < startY + _spriteSheet.frameSize.y; yValue++)
-    {
-      for (int xValue = startX; xValue < startX + _spriteSheet.frameSize.x; xValue++)
-      {
-        int y = yValue;
-        if(reverseY)
-          y = startY + _spriteSheet.frameSize.y - (yValue - startY);
-        int x = xValue;
-        if(reverseX)
-          x = startX + _spriteSheet.frameSize.x - (xValue - startX);
-
-        Uint32 pixel = upixels[sheetTexture.GetInfo().mWidth * y + x];
-#ifdef _WIN32
-        if(pixel != transparent)
-#else
-        Uint8 r, g, b, a;
-        SDL_GetRGBA(pixel, format.get(), &r, &g, &b, &a);
-        if(a == 0xFF)
-#endif
-          return Vector2<int>(x - startX, y - startY);
-      }
-    }
-    return Vector2<int>(0, 0);
-  };
-
-  int startX = (_startIdx % _spriteSheet.columns) * _spriteSheet.frameSize.x;
-  int startY = (_startIdx / _spriteSheet.columns) * _spriteSheet.frameSize.y;
-  bool reverseX = anchorType == AnchorPoint::TR || anchorType == AnchorPoint::BR;
-  bool reverseY = anchorType == AnchorPoint::BR || anchorType == AnchorPoint::BL;
-  if(fromFirstFrame)
-    return findAnchor(reverseX, reverseY, 0, 0);
-  else
-    return findAnchor(reverseX, reverseY, startX, startY);
-  
+  const SpriteSheet& spriteSheet = ResourceManager::Get().gSpriteSheets.Get(_spriteSheetName);
+  return spriteSheet.GetSubSection(_subSheetName).GetFrame(_startIdx + frame);
 }
 
 //______________________________________________________________________________
-Animation::ImGuiDisplayParams Animation::GetUVCoordsForFrame(int displayHeight, int animFrame)
+DisplayImage Animation::GetGUIDisplayImage(int displayHeight, int animFrame)
 {
-  Resource<GLTexture>& texResource = ResourceManager::Get().GetAsset<GLTexture>(_spriteSheet.src);
+  //int frame = _animFrameToSheetFrame[animFrame];
+  auto srcRect = GetFrameSrcRect(animFrame);
 
+  return DisplayImage(ResourceManager::Get().gSpriteSheets.Get(_spriteSheetName).src, Rect<float>(srcRect.x, srcRect.y, srcRect.x + srcRect.w, srcRect.y + srcRect.h), displayHeight);
+}
+
+//______________________________________________________________________________
+Vector2<double> Animation::GetRenderScaling() const
+{
+  const SpriteSheet& ss = ResourceManager::Get().gSpriteSheets.Get(_spriteSheetName);
+  return ss.renderScalingFactor;
+}
+
+//______________________________________________________________________________
+std::pair<AnchorPoint, Vector2<float>> Animation::GetAnchorForAnimFrame(int animFrame) const
+{
   int frame = _animFrameToSheetFrame[animFrame];
-
-  //if invalid frame
-  if (frame >= _frames || frame < 0)
-    return ImGuiDisplayParams{ nullptr, Vector2<int>(0, 0), Vector2<float>(0, 0), Vector2<float>(0, 0) };
-
-  int x = (_startIdx + frame) % _spriteSheet.columns;
-  int y = (_startIdx + frame) / _spriteSheet.columns;
-
-  float u0 = ((float)x * (float)_spriteSheet.frameSize.x) / (float)_spriteSheet.sheetSize.x;
-  float v0 = ((float)y * (float)_spriteSheet.frameSize.y) / (float)_spriteSheet.sheetSize.y;
-  float u1 = u0 + ((float)_spriteSheet.frameSize.x / (float)_spriteSheet.sheetSize.x);
-  float v1 = v0 + ((float)_spriteSheet.frameSize.y / (float)_spriteSheet.sheetSize.y);
-
-  int displayWidth = (float)_spriteSheet.frameSize.x/(float)_spriteSheet.frameSize.y * displayHeight;
-
-  return ImGuiDisplayParams{ (void*)(intptr_t)texResource.Get()->ID(), Vector2<int>(displayWidth, displayHeight), Vector2<float>(u0, v0), Vector2<float>(u1, v1) };
-}
-
-//______________________________________________________________________________
-void AnimationCollection::RegisterAnimation(const std::string& animationName, const SpriteSheet& sheet, int startIndexOnSheet, int frames, AnchorPoint anchor)
-{
-  if (_animations.find(animationName) == _animations.end())
+  if (frame == 0 || _anchorPoint.first == AnchorPoint::TL)
+    return _anchorPoint;
+  else
   {
-    _animations.emplace(std::make_pair(animationName, Animation(sheet, startIndexOnSheet, frames, anchor)));
-    if (_animations.size() == 1)
+    const SpriteSheet& animSpriteSheet = ResourceManager::Get().gSpriteSheets.Get(_spriteSheetName);
+    const SpriteSheet::Section& ssSection = animSpriteSheet.GetSubSection(_subSheetName);
+    if (ssSection.variableSizeSprites)
     {
-      Animation& mainAnim = _animations.find(animationName)->second;
-      for(int pt = 0; pt < (int)AnchorPoint::Size; pt++)
-      {
-        _anchorPoint[pt] = mainAnim.FindAnchorPoint((AnchorPoint)pt, _useFirstSprite);
-      }
-      auto size = mainAnim.GetFrameWH();
-      _anchorRect = Rect<int>(0, 0, size.x, size.y);
+      DrawRect<float> anchorRect = ssSection.GetFrame(_startIdx);
+      DrawRect<float> targetRect = ssSection.GetFrame(_startIdx + frame);
+
+      AnchorPoint pt = _anchorPoint.first;
+      Vector2<float> anchPos = _anchorPoint.second;
+      if (pt == AnchorPoint::BL || pt == AnchorPoint::BR)
+        anchPos.y += (targetRect.h - anchorRect.h);
+      if (pt == AnchorPoint::BR || pt == AnchorPoint::TR)
+        anchPos.x += (targetRect.w - anchorRect.w);
+      return { pt, anchPos };
+    }
+    else
+    {
+      return _anchorPoint;
     }
   }
 }
 
 //______________________________________________________________________________
-void AnimationCollection::SetAnimationEvents(const std::string& animationName, const std::vector<AnimationActionEventData>& eventData, const FrameData& frameData)
+void AnimationCollection::RegisterAnimation(const std::string& animationName, const AnimationAsset& animationData)
+{
+  if (_animations.find(animationName) == _animations.end())
+  {
+    _animations.emplace(std::make_pair(animationName, Animation(animationData.sheetName, animationData.subSheetName, animationData.startIndexOnSheet, animationData.frames, animationData.anchor, animationData.GetAnchorPosition(0), animationData.reverse)));
+  }
+}
+
+//______________________________________________________________________________
+void AnimationCollection::SetAnimationEvents(const std::string& animationName, const std::vector<EventData>& eventData, const FrameData& frameData)
 {
   if (_animations.find(animationName) != _animations.end())
   {
     Animation& animation = _animations.find(animationName)->second;
     if (_events.find(animationName) == _events.end())
     {
-      _events.emplace(std::make_pair(animationName, std::make_shared<EventList>(animation.GenerateEvents(eventData, frameData))));
+      _events.emplace(std::make_pair(animationName, std::make_shared<EventList>(animation.GenerateEvents(eventData, frameData, animation.GetRenderScaling()))));
     }
     else
     {
       //for now just replace
-      _events[animationName] = std::make_shared<EventList>(animation.GenerateEvents(eventData, frameData));
+      _events[animationName] = std::make_shared<EventList>(animation.GenerateEvents(eventData, frameData, animation.GetRenderScaling()));
     }
   }
 }
 
 //______________________________________________________________________________
-Vector2<int> AnimationCollection::GetRenderOffset(const std::string& animationName, bool flipped, int transformWidth) const
+/*Vector2<float> AnimationCollection::GetRenderOffset(const std::string& animationName, bool flipped) const
 {
   auto animIt = _animations.find(animationName);
   if(animIt == _animations.end())
     return Vector2<int>::Zero;
 
   Animation const& renderedAnim = animIt->second;
-  // set offset by aligning top left non-transparent pixels of each texture
-  AnchorPoint location = renderedAnim.GetMainAnchor().first;
-  Vector2<int> anchPosition = renderedAnim.GetMainAnchor().second;
+  Vector2<float> offset = renderedAnim.GetMainAnchor().second;
 
-  Vector2<int> offset = anchPosition - _anchorPoint[(int)location];
-
-  if(flipped)
-    offset.x = (renderedAnim.GetFrameWH().x - transformWidth) - offset.x;
+  if (flipped)
+    offset.x = renderedAnim.GetFrameWH().x - offset.x;
 
   return offset;
 }
+*/

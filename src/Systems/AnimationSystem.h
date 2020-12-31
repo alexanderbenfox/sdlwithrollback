@@ -1,10 +1,11 @@
 #pragma once
 #include "Core/ECS/ISystem.h"
 #include "Components/Animator.h"
+#include "Components/RenderComponent.h"
 #include "Components/StateComponents/AttackStateComponent.h"
 #include "Components/StateComponent.h"
 
-#include "AssetManagement/AnimationCollectionManager.h"
+#include "Managers/AnimationCollectionManager.h"
 
 class AttackAnimationSystem : public ISystem<AttackStateComponent, Animator, Transform, StateComponent>
 {
@@ -78,7 +79,7 @@ public:
   }
 };
 
-class AnimationSystem : public ISystem<Animator, RenderComponent<RenderType>>
+class AnimationSystem : public ISystem<Animator, RenderComponent<RenderType>, RenderProperties>
 {
 public:
 
@@ -103,6 +104,7 @@ public:
     {
       Animator& animator = ComponentArray<Animator>::Get().GetComponent(entity);
       RenderComponent<RenderType>& renderer = ComponentArray<RenderComponent<RenderType>>::Get().GetComponent(entity);
+      RenderProperties& properties = ComponentArray<RenderProperties>::Get().GetComponent(entity);
 
       // if playing, do advance time and update frame
       if (animator.playing)
@@ -129,8 +131,12 @@ public:
           if (nextFrame != animator.frame)
           {
             animator.frame = nextFrame;
-            renderer.SetRenderResource(GAnimArchive.GetAnimationData(animator.animCollectionID, animator.currentAnimationName)->GetSheetTexture<RenderType>());
-            renderer.sourceRect = GAnimArchive.GetAnimationData(animator.animCollectionID, animator.currentAnimationName)->GetFrameSrcRect(animator.frame);
+            int currFrame = animator.reverse ? (totalAnimFrames - 1) - nextFrame : nextFrame;
+
+            Animation* animation = GAnimArchive.GetAnimationData(animator.animCollectionID, animator.currentAnimationName);
+            renderer.SetRenderResource(animation->GetSheetTexture<RenderType>());
+            renderer.sourceRect = animation->GetFrameSrcRect(currFrame);
+            properties.offset = animation->GetAnchorForAnimFrame(currFrame).second;
           }
 
           // 

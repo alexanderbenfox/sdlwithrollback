@@ -2,7 +2,10 @@
 
 #include "Managers/ResourceManager.h"
 #include "Managers/GameManagement.h"
+#include "Managers/AnimationCollectionManager.h"
 
+#include "Components/Animator.h"
+#include "Components/RenderComponent.h"
 #include "Components/UIComponents.h"
 #include "Components/Rigidbody.h"
 #include "Components/Actors/GameActor.h"
@@ -15,10 +18,10 @@
 #include "Systems/TimerSystem/TimerSystem.h"
 
 //______________________________________________________________________________
-void CharacterConstructor::InitSpatialComponents(std::shared_ptr<Entity> player, Vector2<float> position)
+void CharacterConstructor::InitSpatialComponents(std::shared_ptr<Entity> player, const std::string& character, Vector2<float> position)
 {
   Vector2<int> textureSize = ResourceManager::Get().GetTextureWidthAndHeight("spritesheets\\ryu.png");
-  Vector2<double> entitySize(static_cast<double>(textureSize.x) * .75, static_cast<double>(textureSize.y) * .95);
+  Vector2<double> entitySize(m_characterWidth, m_characterHeight);
   position.y = static_cast<float>(m_nativeHeight) - static_cast<float>(entitySize.y);
 
   // quick hack to make the debug stuff for attacks work... need to remove eventually
@@ -27,12 +30,10 @@ void CharacterConstructor::InitSpatialComponents(std::shared_ptr<Entity> player,
   player->AddComponents<Transform, GameInputComponent, Animator, RenderComponent<RenderType>, RenderProperties, Rigidbody, Gravity, GameActor, DynamicCollider, Hurtbox, StateComponent, TeamComponent>();
 
   player->GetComponent<Gravity>()->force = GlobalVars::Gravity;
-  player->GetComponent<Animator>()->animCollectionID = GAnimArchive.GetCollectionID("Ryu");
+  player->GetComponent<Animator>()->animCollectionID = GAnimArchive.GetCollectionID(character);
 
   player->GetComponent<Transform>()->SetWidthAndHeight(entitySize.x, entitySize.y);
-  player->GetComponent<RenderProperties>()->baseRenderOffset = ((-1.0 / 2.0) * entitySize);
-  player->GetComponent<RenderProperties>()->baseRenderOffset.y -= (static_cast<double>(textureSize.y) * .05);
-  player->GetComponent<RenderProperties>()->unscaledRenderWidth = entitySize.x;
+  auto rp = player->GetComponent<RenderProperties>();
 
   player->GetComponent<DynamicCollider>()->Init(Vector2<double>::Zero, entitySize);
   player->GetComponent<Hurtbox>()->Init(Vector2<double>::Zero, entitySize);
@@ -47,6 +48,8 @@ void CharacterConstructor::InitSpatialComponents(std::shared_ptr<Entity> player,
   // sets this as the player entity to distinguish between fireballs (which are on the same team) from the player
   player->GetComponent<TeamComponent>()->playerEntity = true;
 
+  //add offset of corner to center of render space
+  rp->rectTransform = entitySize;
 }
 
 //______________________________________________________________________________
@@ -96,8 +99,7 @@ std::shared_ptr<Entity> CharacterConstructor::InitUIComponents(std::shared_ptr<E
 
   // set the ui data transfer callback 
   playerUIContainerComponent->uiUpdaters.push_back(
-  UIContainer::Updater{ comboTextEntity,
-  [](std::shared_ptr<Entity> entity, const StateComponent* lastState, const StateComponent* newState)
+  UIContainer::Updater{ comboTextEntity, [](std::shared_ptr<Entity> entity, const StateComponent* lastState, const StateComponent* newState)
   {
     if (lastState->hitting && newState->comboCounter > 1)
     {

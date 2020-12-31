@@ -32,8 +32,10 @@ void AnimationEvent::EndEntitySpawnEvent(EntityID entity)
 }
 
 //______________________________________________________________________________
-EventList AnimationEventHelper::BuildEventList(const Vector2<int> offset, const std::vector<AnimationActionEventData>& animEventData, const FrameData& frameData, int totalSheetFrames, std::vector<int>& animFrameToSheetFrame)
+EventList AnimationEventHelper::BuildEventList(const Vector2<float>& textureScalingFactor, const Vector2<float> texToCornerOffset, const std::vector<EventData>& animEventData, const FrameData& frameData, int totalSheetFrames, std::vector<int>& animFrameToSheetFrame, AnchorPoint animAnchorPt)
 {
+  Vector2<float> offset = -CalculateRenderOffset(animAnchorPt, texToCornerOffset, Vector2<float>(m_characterWidth, m_characterHeight));
+
   auto DespawnHitbox = [](EntityID entity) { GameManager::Get().GetEntityByID(entity)->RemoveComponent<Hitbox>(); };
   auto DespawnThrowStuff = [](EntityID entity)
   {
@@ -53,8 +55,8 @@ EventList AnimationEventHelper::BuildEventList(const Vector2<int> offset, const 
   }
 
   animFrameToSheetFrame = animationData.realFrameToSheetFrame;
-  int animFrames = animEventData.size();
-  int realFrames = animationData.realFrameToSheetFrame.size();
+  int animFrames = static_cast<int>(animEventData.size());
+  int realFrames = static_cast<int>(animationData.realFrameToSheetFrame.size());
 
   EventList eventList;
   eventList.resize(realFrames);
@@ -82,6 +84,11 @@ EventList AnimationEventHelper::BuildEventList(const Vector2<int> offset, const 
         while (animationData.sheetFrameToRealFrame[i + finder].empty())
         {
           finder++;
+          if (i + finder == animationData.sheetFrameToRealFrame.size())
+          {
+            finder--;
+            break;
+          }
         }
         startFrame = animationData.sheetFrameToRealFrame[i + finder][0];
         if (onTrigger)
@@ -127,7 +134,10 @@ EventList AnimationEventHelper::BuildEventList(const Vector2<int> offset, const 
 
   for (int i = 0; i < animFrames; i++)
   {
-    const Rect<double>& hitbox = animEventData[i].hitbox;
+    Rect<double> hitbox = animEventData[i].hitbox;
+    hitbox.beg *= textureScalingFactor;
+    hitbox.end *= textureScalingFactor;
+
     bool hitboxCondition = hitbox.Area() != 0;
 
     if (frameData.isThrow)
@@ -137,9 +147,7 @@ EventList AnimationEventHelper::BuildEventList(const Vector2<int> offset, const 
       {
         GameManager::Get().GetEntityByID(entity)->AddComponent<Throwbox>();
         GameManager::Get().GetEntityByID(entity)->GetComponent<Throwbox>()->Init(frameData);
-
-        auto rect = GameManager::Get().GetEntityByID(entity)->GetComponent<Hurtbox>()->unscaledRect;
-        GameManager::Get().GetEntityByID(entity)->GetComponent<Throwbox>()->MoveDataBoxAroundTransform(rect, trans, hitbox, offset, state->onLeftSide);
+        GameManager::Get().GetEntityByID(entity)->GetComponent<Throwbox>()->MoveDataBoxAroundTransform(trans, hitbox, offset, state->onLeftSide);
 
         state->triedToThrowThisFrame = true;
       };
@@ -158,8 +166,7 @@ EventList AnimationEventHelper::BuildEventList(const Vector2<int> offset, const 
         if (throwSuccess)
         {
           GameManager::Get().GetEntityByID(entity)->GetComponent<ThrowFollower>()->Init(frameData);
-          auto rect = GameManager::Get().GetEntityByID(entity)->GetComponent<Hurtbox>()->unscaledRect;
-          GameManager::Get().GetEntityByID(entity)->GetComponent<ThrowFollower>()->MoveDataBoxAroundTransform(rect, trans, hitbox, offset, GameManager::Get().GetEntityByID(entity)->GetComponent<ThrowFollower>()->startSideLeft);
+          GameManager::Get().GetEntityByID(entity)->GetComponent<ThrowFollower>()->MoveDataBoxAroundTransform(trans, hitbox, offset, GameManager::Get().GetEntityByID(entity)->GetComponent<ThrowFollower>()->startSideLeft);
         }
       };
       eventCheck(i, DespawnThrowStuff, throwUpdate, hitboxCondition, AnimationEvent::Type::Throwbox, &throwInitiate);
@@ -171,8 +178,7 @@ EventList AnimationEventHelper::BuildEventList(const Vector2<int> offset, const 
       {
         GameManager::Get().GetEntityByID(entity)->AddComponent<Hitbox>();
         GameManager::Get().GetEntityByID(entity)->GetComponent<Hitbox>()->Init(frameData);
-        auto rect = GameManager::Get().GetEntityByID(entity)->GetComponent<Hurtbox>()->unscaledRect;
-        GameManager::Get().GetEntityByID(entity)->GetComponent<Hitbox>()->MoveDataBoxAroundTransform(rect, trans, hitbox, offset, state->onLeftSide);
+        GameManager::Get().GetEntityByID(entity)->GetComponent<Hitbox>()->MoveDataBoxAroundTransform(trans, hitbox, offset, state->onLeftSide);
       };
 
       eventCheck(i, DespawnHitbox, hitboxUpdateFunc, hitboxCondition, AnimationEvent::Type::Hitbox);
@@ -193,7 +199,8 @@ EventList AnimationEventHelper::BuildEventList(const Vector2<int> offset, const 
         auto move = movement;
         if (!state->onLeftSide)
           move.x *= -1.0f;
-        rb->velocity += move;
+        rb->velocity.x += move.x;
+        rb->velocity.y = move.y;
       }
     };
 
@@ -231,7 +238,7 @@ EventList AnimationEventHelper::BuildEventList(const Vector2<int> offset, const 
 }
 
 //______________________________________________________________________________
-EventBuilderDictionary AnimationEventHelper::ParseAnimationEventList(const std::vector<AnimationActionEventData>& animEventData, const FrameData& frameData, int totalSheetFrames)
+EventBuilderDictionary AnimationEventHelper::ParseAnimationEventList(const std::vector<EventData>& animEventData, const FrameData& frameData, int totalSheetFrames)
 {
   // creating a new list of frames to play to adjust for modified start up, active, and recovery values
   EventBuilderDictionary data;
@@ -253,6 +260,9 @@ EventBuilderDictionary AnimationEventHelper::ParseAnimationEventList(const std::
       else
       {
         startUpFrames = i;
+        activeFrames = i - startUpFrames + 1;
+        if (startUpFrames == 0)
+          startUpFrames = 1;
       }
     }
   }

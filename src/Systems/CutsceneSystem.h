@@ -1,8 +1,8 @@
 #pragma once
 #include "Core/ECS/ISystem.h"
-#include "Components/Animator.h"
+#include "Components/Actors/CutsceneActor.h"
 
-class CutsceneSystem : public ISystem<CutsceneActor, Animator, RenderComponent<RenderType>, RenderProperties>
+class CutsceneSystem : public ISystem<CutsceneActor>
 {
 public:
   static void DoTick(float dt)
@@ -11,9 +11,6 @@ public:
     for(const EntityID& entity : Registered)
     {
       CutsceneActor& actor = ComponentArray<CutsceneActor>::Get().GetComponent(entity);
-      Animator& animator = ComponentArray<Animator>::Get().GetComponent(entity);
-      RenderComponent<RenderType>& renderer = ComponentArray<RenderComponent<RenderType>>::Get().GetComponent(entity);
-      RenderProperties& properties = ComponentArray<RenderProperties>::Get().GetComponent(entity);
 
       CutsceneAction* action = nullptr;
       //check if actor has started yet
@@ -21,7 +18,7 @@ public:
       {
         action = actor.ActionListPop();
         if(action)
-          action->Begin(&animator, &renderer, &properties);
+          action->Begin(entity);
       }
       else
       {
@@ -43,7 +40,7 @@ public:
                 action->OnComplete();
                 action = actor.ActionListPop();
                 if (action)
-                  action->Begin(&animator, &renderer, &properties);
+                  action->Begin(entity);
                 else
                   break;
               }
@@ -57,7 +54,7 @@ public:
             action->OnComplete();
             action = actor.ActionListPop();
             if(action)
-              action->Begin(&animator, &renderer, &properties);
+              action->Begin(entity);
           }
         }
       }

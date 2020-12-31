@@ -1,6 +1,7 @@
 #pragma once
 #include "Components/Transform.h"
 #include "Components/StateComponent.h"
+#include "AssetManagement/EditableAssets/ActionAsset.h"
 
 #include <functional>
 
@@ -53,7 +54,7 @@ struct EventBuilderDictionary
 
 struct AnimationEventHelper
 {
-  static EventList BuildEventList(const Vector2<int> offset, const std::vector<AnimationActionEventData>& animEventData, const FrameData& frameData, int totalSheetFrames, std::vector<int>& animFrameToSheetFrame);
+  static EventList BuildEventList(const Vector2<float>& textureScalingFactor, const Vector2<float> texToCornerOffset, const std::vector<EventData>& animEventData, const FrameData& frameData, int totalSheetFrames, std::vector<int>& animFrameToSheetFrame, AnchorPoint animAnchorPt);
   //! Translates the animation in sprite sheet to variable frame data values
-  static EventBuilderDictionary ParseAnimationEventList(const std::vector<AnimationActionEventData>& animEventData, const FrameData& frameData, int totalSheetFrames);
+  static EventBuilderDictionary ParseAnimationEventList(const std::vector<EventData>& animEventData, const FrameData& frameData, int totalSheetFrames);
 };

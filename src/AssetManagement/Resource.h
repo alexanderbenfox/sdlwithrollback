@@ -45,9 +45,10 @@ public:
   void Unload();
 
   T* Get() { return _resource.get(); }
+  const T* GetConst() const { return _resource.get(); }
   bool IsLoaded() {return _loaded;}
 
-  ResourceTraits<T>& GetInfo() { return _info; }
+  ResourceTraits<T> const& GetInfo() const { return _info; }
 
   T* operator->() const { return _resource.get(); }
 

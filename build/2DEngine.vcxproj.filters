@@ -24,9 +24,6 @@
     <Filter Include="Source Files\DebugGUI">
       <UniqueIdentifier>{771c4c91-eeae-4b8a-8d4a-e80a39bc515e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\AssetManagement\StaticAssets">
-      <UniqueIdentifier>{d8d3905d-19a5-4f9e-8449-04f967f27ae2}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\Rendering">
       <UniqueIdentifier>{0c431a99-f5e1-486f-9e94-142a25e1fd02}</UniqueIdentifier>
     </Filter>
@@ -86,6 +83,15 @@
     </Filter>
     <Filter Include="Source Files\Components\StaticComponents">
       <UniqueIdentifier>{1992a82e-affa-4092-ab9a-dc2ae8cc576c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\AssetManagement\EditableAssets">
+      <UniqueIdentifier>{a02e5e43-fa14-482a-a35e-86f7933c1a7b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Core\FightingGameTypes">
+      <UniqueIdentifier>{424dc267-dd2d-4816-ada4-e6a578663c72}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\AssetManagement\EditableAssets\Editor">
+      <UniqueIdentifier>{3596b6af-4f77-4011-bd96-e5f8abb53612}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -149,9 +155,6 @@
     <ClCompile Include="..\src\GameState\BattleScene.cpp">
       <Filter>Source Files\GameState</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\AssetManagement\StaticAssets\StaticAssetUtils.cpp">
-      <Filter>Source Files\AssetManagement\StaticAssets</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\Core\Geometry2D\RectHelper.cpp">
       <Filter>Source Files\Core\Geometry2D</Filter>
     </ClCompile>
@@ -163,9 +166,6 @@
     </ClCompile>
     <ClCompile Include="..\src\AssetManagement\AnimationEvent.cpp">
       <Filter>Source Files\AssetManagement</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\AssetManagement\StaticAssets\AnimationAssetData.cpp">
-      <Filter>Source Files\AssetManagement\StaticAssets</Filter>
     </ClCompile>
     <ClCompile Include="..\src\Components\Transform.cpp">
       <Filter>Source Files\Components</Filter>
@@ -242,12 +242,6 @@
     <ClCompile Include="..\src\Core\ECS\ECSCoordinator.cpp">
       <Filter>Source Files\Core\ECS</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\AssetManagement\StaticAssets\AnimationAssets.cpp">
-      <Filter>Source Files\AssetManagement\StaticAssets</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\AssetManagement\AnimationCollectionManager.cpp">
-      <Filter>Source Files\AssetManagement</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\Components\Actors\GameActor.cpp">
       <Filter>Source Files\Components\Actors</Filter>
     </ClCompile>
@@ -259,6 +253,42 @@
     </ClCompile>
     <ClCompile Include="..\src\Core\Prefab\CharacterConstructor.cpp">
       <Filter>Source Files\Core\Prefab</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\AssetManagement\EditableAssets\FrameData.cpp">
+      <Filter>Source Files\AssetManagement\EditableAssets</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\AssetManagement\EditableAssets\SpriteSheet.cpp">
+      <Filter>Source Files\AssetManagement\EditableAssets</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\AssetManagement\EditableAssets\ActionAsset.cpp">
+      <Filter>Source Files\AssetManagement\EditableAssets</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Managers\AnimationCollectionManager.cpp">
+      <Filter>Source Files\Managers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\AssetManagement\EditableAssets\CharacterConfiguration.cpp">
+      <Filter>Source Files\AssetManagement\EditableAssets</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\AssetManagement\EditableAssets\Editor\AnimationEditor.cpp">
+      <Filter>Source Files\AssetManagement\EditableAssets\Editor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\AssetManagement\EditableAssets\AnimationAsset.cpp">
+      <Filter>Source Files\AssetManagement\EditableAssets</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\DebugGUI\EditorString.cpp">
+      <Filter>Source Files\DebugGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\DebugGUI\EditorRect.cpp">
+      <Filter>Source Files\DebugGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\DebugGUI\DisplayImage.cpp">
+      <Filter>Source Files\DebugGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Components\Actors\CutsceneActor.cpp">
+      <Filter>Source Files\Components\Actors</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Systems\ActionSystems\EnactActionSystem.cpp">
+      <Filter>Source Files\Systems\ActionSystems</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -505,12 +535,6 @@
     <ClInclude Include="..\src\AssetManagement\Animation.h">
       <Filter>Source Files\AssetManagement</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\AssetManagement\StaticAssets\StaticAssetUtils.h">
-      <Filter>Source Files\AssetManagement\StaticAssets</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\AssetManagement\StaticAssets\AnimationAssetData.h">
-      <Filter>Source Files\AssetManagement\StaticAssets</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\Components\DebugComponent\DebugComponent.h">
       <Filter>Source Files\Components\DebugComponent</Filter>
     </ClInclude>
@@ -559,12 +583,6 @@
     <ClInclude Include="..\src\Core\ECS\ECSCoordinator.h">
       <Filter>Source Files\Core\ECS</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\AssetManagement\AnimationCollectionManager.h">
-      <Filter>Source Files\AssetManagement</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\AssetManagement\StaticAssets\AnimationAssets.h">
-      <Filter>Source Files\AssetManagement\StaticAssets</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\Components\StaticComponents\AttackLinkMap.h">
       <Filter>Source Files\Components\StaticComponents</Filter>
     </ClInclude>
@@ -582,6 +600,60 @@
     </ClInclude>
     <ClInclude Include="..\src\Core\Prefab\CharacterConstructor.h">
       <Filter>Source Files\Core\Prefab</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\AssetManagement\EditableAssets\FrameData.h">
+      <Filter>Source Files\AssetManagement\EditableAssets</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\AssetManagement\EditableAssets\IJsonLoadable.h">
+      <Filter>Source Files\AssetManagement\EditableAssets</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Core\FightingGameTypes\HitType.h">
+      <Filter>Source Files\Core\FightingGameTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\AssetManagement\EditableAssets\SpriteSheet.h">
+      <Filter>Source Files\AssetManagement\EditableAssets</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\AssetManagement\EditableAssets\AnimationAsset.h">
+      <Filter>Source Files\AssetManagement\EditableAssets</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Core\FightingGameTypes\HitData.h">
+      <Filter>Source Files\Core\FightingGameTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\AssetManagement\EditableAssets\ActionAsset.h">
+      <Filter>Source Files\AssetManagement\EditableAssets</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\AssetManagement\EditableAssets\Editor\AnimationEditor.h">
+      <Filter>Source Files\AssetManagement\EditableAssets\Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\AssetManagement\EditableAssets\CharacterConfiguration.h">
+      <Filter>Source Files\AssetManagement\EditableAssets</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Core\Utility\JsonFile.h">
+      <Filter>Source Files\Core\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Core\Utility\FilePath.h">
+      <Filter>Source Files\Core\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Managers\AnimationCollectionManager.h">
+      <Filter>Source Files\Managers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\DebugGUI\EditorString.h">
+      <Filter>Source Files\DebugGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\DebugGUI\Window.h">
+      <Filter>Source Files\DebugGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\DebugGUI\EditorRect.h">
+      <Filter>Source Files\DebugGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\DebugGUI\DisplayImage.h">
+      <Filter>Source Files\DebugGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\DebugGUI\EditingCanvas.h">
+      <Filter>Source Files\DebugGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\AssetManagement\EditableAssets\AssetLibrary.h">
+      <Filter>Source Files\AssetManagement\EditableAssets</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

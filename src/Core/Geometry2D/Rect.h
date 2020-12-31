@@ -14,12 +14,17 @@ struct DrawRect
   T y;
   T w;
   T h;
+
+  //! Casting operator for other types of vectors (numerical only)
+  template <typename U>
+  operator DrawRect<U>() const { return DrawRect<U>((U)x, (U)y, (U)w, (U)h); }
 };
 
 //______________________________________________________________________________
 template <typename T>
 struct Rect
 {
+  typedef T DataType;
   typedef Vector2<T> PointType;
 
   Vector2<T> beg;

@@ -1,7 +1,8 @@
 #pragma once
 #include "Core/ECS/IComponent.h"
 #include "Components/Collider.h"
-#include "AssetManagement/StaticAssets/AnimationAssetData.h"
+#include "Core/FightingGameTypes/HitData.h"
+#include "AssetManagement/EditableAssets/FrameData.h"
 
 class TransferDataBox : public RectColliderD
 {
@@ -14,7 +15,7 @@ public:
   //! Initialize the transfer data using frame data
   virtual void Init(const FrameData& frameData);
 
-  virtual void MoveDataBoxAroundTransform(const Rect<double>& unscaledTransformRect, const Transform* transform, const Rect<double>& box, const Vector2<float> offset, bool onLeft);
+  virtual void MoveDataBoxAroundTransform(const Transform* transform, const Rect<double>& box, const Vector2<float> dataOffsetFromTransformCenter, bool onLeft);
 
   virtual void Serialize(std::ostream& os) const override
   {

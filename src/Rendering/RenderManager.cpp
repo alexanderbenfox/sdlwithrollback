@@ -41,12 +41,12 @@ template <> void DrawOperator<DrawPrimitive<GLTexture>>::DoDraw(DrawPrimitive<GL
     OpenGLRenderer::RenderQuad2D(operation.targetRect, 0, nullptr, operation.displayColor);
   else
   {
-    int xBeg = operation.targetRect.x;
-    int yBeg = operation.targetRect.y;
-    int xEnd = operation.targetRect.x + operation.targetRect.w;
-    int yEnd = operation.targetRect.y + operation.targetRect.h;
+    float xBeg = operation.targetRect.x;
+    float yBeg = operation.targetRect.y;
+    float xEnd = operation.targetRect.x + operation.targetRect.w;
+    float yEnd = operation.targetRect.y + operation.targetRect.h;
 
-    SDL_Point points[5] =
+    Vector2<float> points[5] =
     {
       {xBeg, yBeg},
       {xBeg, yEnd},

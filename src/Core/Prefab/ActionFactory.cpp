@@ -7,6 +7,7 @@
 #include "Components/Actors/GameActor.h"
 
 #include "Managers/GameManagement.h"
+#include "Managers/AnimationCollectionManager.h"
 
 void ActionFactory::SetAerialState(const EntityID& entity)
 {

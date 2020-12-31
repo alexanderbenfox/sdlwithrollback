@@ -130,6 +130,22 @@ void GUIController::MainLoop()
       }
       ImGui::EndMenu();
     }
+
+    for (auto& menu : _menuFunctions)
+    {
+      if (ImGui::BeginMenu(menu.first.c_str()))
+      {
+        for (auto& function : menu.second)
+        {
+          if (ImGui::MenuItem(function.first.c_str(), ""))
+          {
+            function.second();
+          }
+        }
+        ImGui::EndMenu();
+      }
+    }
+
     ImGui::EndMainMenuBar();
   }
 
@@ -137,18 +153,34 @@ void GUIController::MainLoop()
   {
     for (auto& window : _imguiWindows)
     {
-      ImGui::Begin(window.first.c_str());
-      for(auto& category : window.second)
-      {
-        ImGui::Text(category.first.c_str());
-        for (auto it : category.second.fns)
-        {
-          it.second();
-        }
-      }
-      ImGui::End();
+      window.second.DisplayWindow();
     }
+
+    std::pair<bool, int> closeOperation = { false, 0 };
+    for (int i = 0; i < _activePopups; i++)
+    {
+      if (_popup[i].display && _popup[i].onClose)
+      {
+        if (_popup[i].setPopupSize)
+          ImGui::SetNextWindowSize(_popup[i].popupSize);
+
+        std::string label = "Popup: " + _popup[i].label;
+        ImGui::Begin(label.c_str());
+        _popup[i].display();
+        if (ImGui::Button("Close")) { closeOperation = { true, i }; }
+        ImGui::End();
+      }
+    }
+    if (closeOperation.first)
+    {
+      _popup[closeOperation.second].onClose();
+      ClosePopup(closeOperation.second);
+    }
+
   }
+
+  // reset active drop downs on end of main loop (clean up)
+  DropDown::activeDropDowns = 0;
 }
 
 void GUIController::CleanUp()
@@ -159,45 +191,46 @@ void GUIController::CleanUp()
   ImGui::DestroyContext();
 }
 
-
 int GUIController::AddImguiWindowFunction(const std::string& window, const std::string& category, std::function<void()> function)
+{
+  return AddImguiWindowFunction("Windows", window, category, function);
+}
+
+int GUIController::AddImguiWindowFunction(const std::string& mainMenu, const std::string& window, const std::string& category, std::function<void()> function)
 {
   auto windowsIt = _imguiWindows.find(window);
   if (windowsIt == _imguiWindows.end())
   {
-    _imguiWindows.emplace(window, WindowGrouping());
-  }
-  auto categoryIt = _imguiWindows[window].find(category);
-  if (categoryIt == _imguiWindows[window].end())
-  {
-    _imguiWindows[window].emplace(category, WindowFn());
+    _imguiWindows.emplace(window, window.c_str());
+    AddMenuItem(mainMenu, window, [this, window]()
+      {
+        if (!_imguiWindows[window].BeingViewed())
+          _imguiWindows[window].OpenWindow();
+        else
+          _imguiWindows[window].CloseWindow();
+      });
   }
 
-  // this number will eventually get very high... need to swap ids
-  int debugID = _imguiWindows[window][category].fnCount;
-  _imguiWindows[window][category].fns[debugID] = function;
-  _imguiWindows[window][category].fnCount++;
-
-  // return the index of the new item
-  return debugID;
+  return _imguiWindows[window].AddFn(category.c_str(), function);
 }
 
-void GUIController::RemoveImguiWindowFunction(const std::string& window, const std::string& category, int index)
+void GUIController::RemoveImguiWindowFunction(const std::string& window, int index)
 {
   auto windowsIt = _imguiWindows.find(window);
   if (windowsIt != _imguiWindows.end())
   {
-    auto it = _imguiWindows[window].find(category);
-    if (it != _imguiWindows[window].end())
-    {
-      it->second.fns.erase(index);
-      if (it->second.fns.empty())
-      {
-        //reset fn counter as a silly work around for now
-        it->second.fnCount = 0;
-      }
-    }
+    _imguiWindows[window].RemoveFn(index);
   }
+}
+
+void GUIController::AddMenuItem(const std::string& menuName, const std::string& itemName, std::function<void()> onPress)
+{
+  auto menu = _menuFunctions.find(menuName);
+  if (menu == _menuFunctions.end())
+  {
+    _menuFunctions.insert(std::make_pair(menuName, std::vector<std::pair<std::string, std::function<void()>>>()));
+  }
+  _menuFunctions[menuName].push_back(std::make_pair(itemName, onPress));
 }
 
 void GUIController::RenderFrame()
@@ -230,9 +263,34 @@ void GUIController::RenderFrame()
     SDL_GL_SwapWindow(_window);
 }
 
+//! Init to 0
+int DropDown::activeDropDowns = 0;
+
+void DropDown::DisplayList(const std::vector<std::string>& list, std::string& selection)
+{
+  std::vector<const char*> valuesCStr;
+  for (const auto& item : list)
+  {
+    valuesCStr.push_back(item.c_str());
+  }
+  DropDown::Show(selection.c_str(), valuesCStr.data(), static_cast<int>(valuesCStr.size()), [&selection](const std::string& selected) { selection = selected; });
+}
+
+
+void DropDown::DisplayList(const std::vector<std::string>& list, std::string& selection, std::function<void()> onSelect)
+{
+  std::vector<const char*> valuesCStr;
+  for (const auto& item : list)
+  {
+    valuesCStr.push_back(item.c_str());
+  }
+  DropDown::Show(selection.c_str(), valuesCStr.data(), static_cast<int>(valuesCStr.size()), [&selection, onSelect](const std::string& selected) { selection = selected; onSelect(); });
+}
+
 void DropDown::Show(const char* currentItem, const char* items[], int nItems, std::function<void(const std::string&)> callback)
 {
-  if (ImGui::BeginCombo("##combo", currentItem))
+  std::string ddName = "##combo" + std::to_string(activeDropDowns++);
+  if (ImGui::BeginCombo(ddName.c_str(), currentItem))
   {
     for (int n = 0; n < nItems; n++)
     {

@@ -11,6 +11,8 @@
 #include <functional>
 #include <unordered_map>
 
+#include "Window.h"
+
 class GLTexture;
 
 // nano gui singleton
@@ -34,10 +36,72 @@ public:
   void RenderFrame();
   void CleanUp();
 
+  int GetPopupIndex(const std::string& label)
+  {
+    int replaceIndex = 0;
+    bool replaceOnType = false;
+    for (int i = 0; i < _activePopups; i++)
+    {
+      if (_popup[i].label == label)
+      {
+        replaceIndex = i;
+        replaceOnType = true;
+        break;
+      }
+    }
 
+    if (replaceOnType || _activePopups == _maxPopups)
+    {
+      if (_popup[replaceIndex].display != nullptr)
+        ClosePopup(replaceIndex);
+    }
+
+    if (_activePopups < _maxPopups)
+      _activePopups++;
+    return _activePopups - 1;
+  }
+
+  void CreatePopup(std::string label, std::function<void()> display, std::function<void()> onClose)
+  {
+    int idx = GetPopupIndex(label);
+    _popup[idx].label = label;
+    _popup[idx].display = display;
+    _popup[idx].onClose = onClose;
+    _popup[idx].setPopupSize = false;
+  }
+  void CreatePopup(std::string label, std::function<void()> display, std::function<void()> onClose, float xSize, float ySize)
+  {
+    int idx = GetPopupIndex(label);
+    _popup[idx].label = label;
+    _popup[idx].display = display;
+    _popup[idx].onClose = onClose;
+    _popup[idx].setPopupSize = true;
+    _popup[idx].popupSize = ImVec2(xSize, ySize);
+  }
+
+  void ClosePopup(int windowIndex)
+  {
+    if (windowIndex > (_activePopups - 1))
+      return;
+
+    for (int i = windowIndex; i < (_activePopups - 1); i++)
+    {
+      _popup[i] = _popup[i + 1];
+    }
+    // "delete" last index
+    _popup[_activePopups - 1].display = nullptr;
+    _popup[_activePopups - 1].onClose = nullptr;
+    _activePopups--;
+  }
 
   int AddImguiWindowFunction(const std::string& window, const std::string& category, std::function<void()> function);
-  void RemoveImguiWindowFunction(const std::string& window, const std::string& category, int index);
+  int AddImguiWindowFunction(const std::string& mainMenu, const std::string& window, const std::string& category, std::function<void()> function);
+  void RemoveImguiWindowFunction(const std::string& window, int index);
+
+  void AddMenuItem(const std::string& menuName, const std::string& itemName, std::function<void()> onPress);
+
+  bool HasWindow(const std::string& window) const { return _imguiWindows.find(window) != _imguiWindows.end(); }
+  GUIWindow& GetWindow(const std::string& window) { return _imguiWindows[window]; }
 
 private:
   GUIController() = default;
@@ -48,22 +112,31 @@ private:
   SDL_GLContext _glContext = nullptr;
 
   bool _ownsWindow = false;
-
   bool _drawComponentDebug = true;
-
   bool _init = false;
 
-  struct WindowFn
-  {
-    std::unordered_map<int, std::function<void()>> fns;
-    int fnCount = 0;
-  };
-  typedef std::unordered_map<std::string, WindowFn> WindowGrouping;
+  std::unordered_map<std::string, GUIWindow> _imguiWindows;
+  std::unordered_map<std::string, std::vector<std::pair<std::string, std::function<void()>>>> _menuFunctions;
 
-  std::unordered_map<std::string, WindowGrouping> _imguiWindows;
+  struct Popup
+  {
+    std::string label;
+    bool setPopupSize;
+    ImVec2 popupSize;
+    std::function<void()> display;
+    std::function<void()> onClose;
+  };
+
+  static constexpr int _maxPopups = 3;
+  int _activePopups = 0;
+  Popup _popup[_maxPopups];
 };
 
 struct DropDown
 {
+  static void DisplayList(const std::vector<std::string>& list, std::string& selection);
+  static void DisplayList(const std::vector<std::string>& list, std::string& selection, std::function<void()> onSelect);
   static void Show(const char* currentItem, const char* items[], int nItems, std::function<void(const std::string&)> callback);
+
+  static int activeDropDowns;
 };

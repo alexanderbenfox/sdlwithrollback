@@ -32,3 +32,21 @@ std::string StringUtils::CorrectPath(std::string file)
 #endif
   return file;
 }
+
+void StringUtils::AppendSubPath(std::string& path, const char* subPath)
+{
+#ifdef _WIN32
+  path += "\\" + std::string(subPath);
+#else
+  path += "/" + std::string(subPath);
+#endif
+}
+
+std::vector<std::string> StringUtils::SplitFilePath(const std::string& path)
+{
+#ifdef _WIN32
+  return Split(path, '\\');
+#else
+  return Split(path, '/');
+#endif
+}

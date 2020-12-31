@@ -1,5 +1,4 @@
-#include "AssetManagement/StaticAssets/AnimationAssetData.h"
-#include "AssetManagement/AnimationCollectionManager.h"
+#include "ActionAsset.h"
 #include "Core/ECS/Entity.h"
 
 #include "Components/Transform.h"
@@ -11,8 +10,24 @@
 #include "Components/StateComponent.h"
 #include "Components/MetaGameComponents.h"
 
+#include "Managers/AnimationCollectionManager.h"
 #include "Managers/GameManagement.h"
 
+#include "Systems/ActionSystems/EnactActionSystem.h"
+
+//______________________________________________________________________________
+template <> void AssetLoaderFn::OnLoad(ActionAsset& asset) {}
+
+//______________________________________________________________________________
+template <> ImVec2 AssetLoaderFn::GetDisplaySize<ActionAsset>()
+{
+  return ImVec2(500, 6 * fieldHeight);
+}
+
+template <> std::string AssetLoaderFn::GUIHeaderLabel<ActionAsset> = "Actions";
+template <> std::string AssetLoaderFn::GUIItemLabel<ActionAsset> = "Action";
+
+//______________________________________________________________________________
 void EntityCreationData::AddComponents(EntityID creatorID, const Transform* creator, const StateComponent* creatorState, std::shared_ptr<Entity> entity) const
 {
   float entityWidth = 0.0f;
@@ -21,7 +36,7 @@ void EntityCreationData::AddComponents(EntityID creatorID, const Transform* crea
 
   for (auto instruction : instructions)
   {
-    if(instruction.first == "Transform")
+    if (instruction.first == "Transform")
     {
       ComponentInitParams<Transform> params;
       scale = params.scale = Vector2<float>(instruction.second["scalex"].asFloat(), instruction.second["scaley"].asFloat());
@@ -48,6 +63,10 @@ void EntityCreationData::AddComponents(EntityID creatorID, const Transform* crea
       // return scale to 1 because transform scaling is messed up and needs to be FIXED
       params.scale = Vector2<float>(1.0f, 1.0f);
       entity->AddComponent<Transform>(params);
+
+      // set rendering basis to the entity size
+      entity->AddComponent<RenderProperties>();
+      entity->GetComponent<RenderProperties>()->rectTransform = params.size;
     }
     else if (instruction.first == "Animator")
     {
@@ -55,21 +74,13 @@ void EntityCreationData::AddComponents(EntityID creatorID, const Transform* crea
       params.collectionID = GAnimArchive.GetCollectionID(instruction.second["collection"].asString());
       params.isLooped = instruction.second["isLooped"].asBool();
       params.name = instruction.second["anim"].asString();
-
       params.horizontalFlip = !creatorState->onLeftSide;
       params.speed = 1.0f;
 
       entity->AddComponent<Animator>(params);
-
+      entity->AddComponent<RenderProperties>();
       entity->AddComponent<RenderComponent<RenderType>>();
-      auto renderer = entity->GetComponent<RenderComponent<RenderType>>();
-
-      Animation* anim = GAnimArchive.GetAnimationData(params.collectionID, params.name);
-      if (anim)
-      {
-        renderer->SetRenderResource(anim->GetSheetTexture<RenderType>());
-        renderer->sourceRect = anim->GetFrameSrcRect(0);
-      }
+      EnactAnimationActionSystem::PlayAnimation(entity->GetID(), params.name, params.isLooped, params.speed, true, !params.horizontalFlip);
     }
     else if (instruction.first == "RenderComponent")
     {
@@ -78,14 +89,14 @@ void EntityCreationData::AddComponents(EntityID creatorID, const Transform* crea
     else if (instruction.first == "RenderProperties")
     {
       ComponentInitParams<RenderProperties> params;
-      params.offsetFromCenter = Vector2<int>(instruction.second["offsetCenterX"].asInt(), instruction.second["offsetCenterY"].asInt());
       params.r = instruction.second["color_r"].asUInt();
       params.g = instruction.second["color_g"].asUInt();
       params.b = instruction.second["color_b"].asUInt();
       params.a = instruction.second["color_a"].asUInt();
-      entity->AddComponent<RenderProperties>(params);
-
-      entity->GetComponent<RenderProperties>()->horizontalFlip = !creatorState->onLeftSide;
+      entity->AddComponent<RenderProperties>();
+      RenderProperties* props = entity->GetComponent<RenderProperties>();
+      props->horizontalFlip = !creatorState->onLeftSide;
+      props->SetDisplayColor(params.r, params.g, params.b, params.a);
     }
     else if (instruction.first == "Rigidbody")
     {
@@ -141,11 +152,6 @@ void EntityCreationData::AddComponents(EntityID creatorID, const Transform* crea
   entity->AddComponent<TeamComponent>();
   entity->GetComponent<TeamComponent>()->team = GameManager::Get().GetEntityByID(creatorID)->GetComponent<TeamComponent>()->team;
 
-  if (entity->GetComponent<RenderProperties>())
-  {
-    entity->GetComponent<RenderProperties>()->unscaledRenderWidth = entityWidth;
-  }
-
   // set the scale
   entity->SetScale(scale);
 
@@ -154,4 +160,148 @@ void EntityCreationData::AddComponents(EntityID creatorID, const Transform* crea
     for (RectColliderD* collider : moveableColliders)
       collider->MoveToTransform(*transform);
   }
+}
+
+//______________________________________________________________________________
+void EntityCreationData::Load(const Json::Value& json)
+{
+  for (auto& component : json.getMemberNames())
+  {
+    std::unordered_map<std::string, Json::Value> args;
+    for (auto& param : json[component].getMemberNames())
+    {
+      args.emplace(param, json[component][param]);
+    }
+    instructions.emplace(component, args);
+  }
+}
+
+//______________________________________________________________________________
+void EntityCreationData::DisplayInEditor()
+{
+}
+
+//______________________________________________________________________________
+void EventData::Load(const Json::Value& json)
+{
+  if (!json["hitbox"].isNull())
+  {
+    Vector2<double> position(json["hitbox"]["position"]["x"].asDouble(), json["hitbox"]["position"]["y"].asDouble());
+    Vector2<double> size(json["hitbox"]["size"]["x"].asDouble(), json["hitbox"]["size"]["y"].asDouble());
+    hitbox = Rect<double>(position.x, position.y, position.x + size.x, position.y + size.y);
+    isActive = true;
+  }
+
+  if (!json["movement"].isNull())
+  {
+    movement = Vector2<float>(json["movement"]["x"].asFloat(), json["movement"]["y"].asFloat());
+  }
+
+  if (!json["createentity"].isNull())
+  {
+    create.Load(json["createentity"]);
+    isActive = true;
+  }
+  if (!json["active"].isNull())
+  {
+    isActive = true;
+  }
+}
+
+//______________________________________________________________________________
+void EventData::Write(Json::Value& json) const
+{
+  bool written = false;
+  if (movement.x != 0 || movement.y != 0)
+  {
+    json["movement"]["x"] = movement.x;
+    json["movement"]["y"] = movement.y;
+    written = true;
+  }
+  if (hitbox.Area() != 0)
+  {
+    json["hitbox"]["position"]["x"] = hitbox.beg.x;
+    json["hitbox"]["position"]["y"] = hitbox.beg.y;
+    json["hitbox"]["size"]["x"] = hitbox.Width();
+    json["hitbox"]["size"]["y"] = hitbox.Height();
+    written = true;
+  }
+  if (!create.instructions.empty())
+  {
+    /* PLACEHOLDER SECTION UNTIL I FIGURE OUT HOW WE WANT TO USE THIS MAYBE PREFABS INSTEAD*/
+    written = true;
+  }
+  if (!written && isActive)
+  {
+    json["active"] = true;
+  }
+}
+
+//______________________________________________________________________________
+void EventData::DisplayInEditor()
+{
+  ImGui::InputFloat2("Movement", (float*)&movement, 2);
+  if (hitbox.Area() > 0)
+  {
+    ImGui::SameLine();
+    if (ImGui::Button("Delete Hitbox"))
+      hitbox = Rect<double>(0, 0, 0, 0);
+  }
+}
+
+//______________________________________________________________________________
+void ActionAsset::Load(const Json::Value& json)
+{
+  frameData.Load(json);
+  if (!json["events"].isNull() && json["events"].isArray())
+  {
+    for (auto& value : json["events"])
+    {
+      eventData.emplace_back(EventData());
+      eventData.back().Load(value);
+    }
+  }
+}
+
+//______________________________________________________________________________
+void ActionAsset::Write(Json::Value& json) const
+{
+  frameData.Write(json);
+
+  if (json["events"].isNull())
+    json["events"] = Json::Value(Json::ValueType::arrayValue);
+
+  for (auto& data : eventData)
+  {
+    Json::Value jsonObject(Json::ValueType::objectValue);
+    data.Write(jsonObject);
+    json["events"].append(jsonObject);
+  }
+}
+
+//______________________________________________________________________________
+void ActionAsset::DisplayInEditor()
+{
+  frameData.DisplayInEditor();
+  int deleteIdx = -1;
+  for (int i = 0; i < eventData.size(); i++)
+  {
+    std::string deleteLabel = "Delete Data " + std::to_string(i);
+    if (ImGui::Button(deleteLabel.c_str()))
+    {
+      deleteIdx = i;
+    }
+    ImVec2 btnSize = ImGui::GetItemRectSize();
+    ImGui::SameLine();
+
+    std::string label = "Event Data for Frame " + std::to_string(i);
+    if (ImGui::CollapsingHeader(label.c_str()))
+    {
+      ImGui::Dummy(ImVec2(btnSize.x, 0));
+      eventData[i].DisplayInEditor();
+    }
+  }
+
+  if (deleteIdx >= 0)
+    eventData.erase(eventData.begin() + deleteIdx);
 }

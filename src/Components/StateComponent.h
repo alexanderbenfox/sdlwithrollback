@@ -1,7 +1,7 @@
 #pragma once
 #include "Components/DebugComponent/DebugComponent.h"
 #include "Core/Geometry2D/RectHelper.h"
-#include "AssetManagement/StaticAssets/AnimationAssetData.h"
+#include "Core/FightingGameTypes/HitData.h"
 
 #include "Core/Interfaces/Serializable.h"
 #include <sstream>

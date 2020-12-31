@@ -12,7 +12,7 @@ IDebugComponent::IDebugComponent(const IDebugComponent& other)
 IDebugComponent::~IDebugComponent()
 {
   if (debugID >= 0)
-    GUIController::Get().RemoveImguiWindowFunction("Debug Components", debugGroup, debugID);
+    GUIController::Get().RemoveImguiWindowFunction("Debug Components", debugID);
 }
 
 IDebugComponent& IDebugComponent::operator=(const IDebugComponent& other)
@@ -44,6 +44,6 @@ void IDebugComponent::OnAdd(const EntityID& entity)
 void IDebugComponent::OnRemove(const EntityID& entity)
 {
   if (debugID >= 0)
-    GUIController::Get().RemoveImguiWindowFunction("Debug Components", debugGroup, debugID);
+    GUIController::Get().RemoveImguiWindowFunction("Debug Components", debugID);
   debugID = -1;
 }

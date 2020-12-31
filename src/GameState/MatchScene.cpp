@@ -47,8 +47,8 @@ void PreMatchScene::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2)
   _p1 = p1;
   _p2 = p2;
 
-  CharacterConstructor::InitSpatialComponents(_p1, Vector2<int>(100, 0));
-  CharacterConstructor::InitSpatialComponents(_p2, Vector2<int>(400, 0));
+  CharacterConstructor::InitSpatialComponents(_p1, _p1->GetComponent<SelectedCharacterComponent>()->characterIdentifier, Vector2<int>(100, 0));
+  CharacterConstructor::InitSpatialComponents(_p2, _p2->GetComponent<SelectedCharacterComponent>()->characterIdentifier, Vector2<int>(400, 0));
 
   _p1->GetComponent<TeamComponent>()->team = TeamComponent::Team::TeamA;
   _p2->GetComponent<TeamComponent>()->team = TeamComponent::Team::TeamB;
@@ -93,13 +93,8 @@ void PreMatchScene::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2)
   _fightText->GetComponent<RenderProperties>()->SetDisplayColor(255, 255, 255, 0);
 
   // play idle before going into cutscene actions
-  _p1->GetComponent<Animator>()->Play("Idle", true, 1.0f, true);
-
-  // 
-  Animation* anim = _p2->GetComponent<Animator>()->Play("Idle", true, 1.0f, true);
-  RenderProperties& properties = *_p2->GetComponent<RenderProperties>();
-  Animator& animator = *_p2->GetComponent<Animator>();
-  properties.offset = -GAnimArchive.GetCollection(animator.animCollectionID).GetRenderOffset("Idle", true, (int)std::floor(properties.unscaledRenderWidth));
+  EnactAnimationActionSystem::PlayAnimation(_p1->GetID(), "Idle", true, 1.0f, true, true);
+  EnactAnimationActionSystem::PlayAnimation(_p2->GetID(), "Idle", true, 1.0f, true, false);
 }
 
 void PreMatchScene::Update(float deltaTime)

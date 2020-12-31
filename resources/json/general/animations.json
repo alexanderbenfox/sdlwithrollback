@@ -1,0 +1,143 @@
+{
+	"BlockSparks" : 
+	{
+		"anchor" : "Center",
+		"anchorPoints" : 
+		{
+			"BL" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"BR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"Center" : 
+			{
+				"x" : 30.82437275985663,
+				"y" : 51.171875
+			},
+			"TL" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"TR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			}
+		},
+		"sheet_name" : "HitblockSparks",
+		"startFrame" : 28,
+		"totalFrames" : 28
+	},
+	"Fireball" : 
+	{
+		"anchor" : "Center",
+		"anchorPoints" : 
+		{
+			"BL" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"BR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"Center" : 
+			{
+				"x" : 52.210884094238281,
+				"y" : 57.8125
+			},
+			"TL" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"TR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			}
+		},
+		"sheet_name" : "Fireball",
+		"startFrame" : 0,
+		"totalFrames" : 4
+	},
+	"HitSparks" : 
+	{
+		"anchor" : "Center",
+		"anchorPoints" : 
+		{
+			"BL" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"BR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"Center" : 
+			{
+				"x" : 40.681003584229387,
+				"y" : 54.296875
+			},
+			"TL" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"TR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			}
+		},
+		"sheet_name" : "HitblockSparks",
+		"startFrame" : 0,
+		"totalFrames" : 28
+	},
+  "BisonLightning" : 
+	{
+		"anchor" : "Center",
+		"anchorPoints" : 
+		{
+			"BL" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"BR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"Center" : 
+			{
+				"x" : 40.681003584229387,
+				"y" : 54.296875
+			},
+			"TL" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"TR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			}
+		},
+		"sheet_name" : "MBisonVar",
+		"startFrame" : 203,
+		"totalFrames" : 5
+	}
+}
+

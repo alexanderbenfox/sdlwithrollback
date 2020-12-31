@@ -26,10 +26,9 @@ void TransferDataBox::Init(const FrameData& frameData)
   tData.type = frameData.type;
 }
 
-void TransferDataBox::MoveDataBoxAroundTransform(const Rect<double>& unscaledTransformRect, const Transform* transform, const Rect<double>& box, const Vector2<float> offset, bool onLeft)
+void TransferDataBox::MoveDataBoxAroundTransform(const Transform* transform, const Rect<double>& box, const Vector2<float> dataOffsetFromTransformCenter, bool onLeft)
 {
-  Vector2<float> transCenterRelativeToAnim(unscaledTransformRect.HalfWidth() + offset.x, unscaledTransformRect.HalfHeight() + offset.y);
-  Vector2<double> relativeToTransformCenter = box.GetCenter() - (Vector2<double>)transCenterRelativeToAnim;
+  Vector2<double> relativeToTransformCenter = box.GetCenter() - (Vector2<double>)dataOffsetFromTransformCenter;
   if (!onLeft)
     relativeToTransformCenter.x *= -1.0;
 

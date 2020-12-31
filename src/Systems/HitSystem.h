@@ -133,7 +133,7 @@ public:
   }
 };
 
-#include "AssetManagement/AnimationCollectionManager.h"
+#include "Managers/AnimationCollectionManager.h"
 
 class FrameAdvantageSystem : public IMultiSystem<SysComponents<AttackStateComponent, Animator, RenderProperties>, SysComponents<HitStateComponent, TimedActionComponent>>
 {

@@ -1,7 +1,8 @@
 #pragma once
 #include "Globals.h"
 
-#include "AssetManagement/StaticAssets/AnimationAssetData.h"
+#include "AssetManagement/EditableAssets/ActionAsset.h"
+#include "AssetManagement/EditableAssets/AssetLibrary.h"
 #include "Components/Transform.h"
 #include "Components/StateComponent.h"
 #include "AssetManagement/BlitOperation.h"
@@ -11,6 +12,8 @@
 #include <functional>
 #include <unordered_map>
 
+#include "DebugGUI/DisplayImage.h"
+
 //!
 
 const float gameFramePerAnimationFrame = (1.0f / secPerFrame) / animation_fps;
@@ -19,51 +22,52 @@ const float gameFramePerAnimationFrame = (1.0f / secPerFrame) / animation_fps;
 class Animation
 {
 public:
-  Animation(const SpriteSheet& sheet, int startIndexOnSheet, int frames, AnchorPoint anchor);
+  Animation(const std::string& sheet, const std::string& subSheet, int startIndexOnSheet, int frames, AnchorPoint anchor, const Vector2<float>& anchorPt, bool reverse);
 
-  EventList GenerateEvents(const std::vector<AnimationActionEventData>& attackInfo, FrameData frameData);
+  EventList GenerateEvents(const std::vector<EventData>& attackInfo, FrameData frameData, const Vector2<float>& textureScalingFactor);
 
   //! Translates anim frame to the frame on spritesheet
   DrawRect<float> GetFrameSrcRect(int animFrame) const;
 
   const int GetFrameCount() const { return static_cast<int>(_animFrameToSheetFrame.size()); }
-
-  Vector2<int> GetFrameWH() const { return _spriteSheet.frameSize; }
   //!
   template <typename Texture>
   Resource<Texture>& GetSheetTexture() const;
-  //! Gets first non-transparent pixel from the top left and bottom left
-  Vector2<int> FindAnchorPoint(AnchorPoint anchorType, bool fromFirstFrame) const;
-  //!
-  std::pair<AnchorPoint, Vector2<int>> const& GetMainAnchor() const { return _anchorPoint; }
 
-  struct ImGuiDisplayParams
-  {
-    void* ptr;
-    Vector2<int> displaySize;
-    Vector2<float> uv0;
-    Vector2<float> uv1;
-
-  };
-  ImGuiDisplayParams GetUVCoordsForFrame(int displayHeight, int animFrame);
+  DisplayImage GetGUIDisplayImage(int displayHeight, int animFrame);
 
   // NEED TO REMOVE THIS ASAP
-  std::vector<AnimationActionEventData> animationEvents;
+  std::vector<EventData> animationEvents;
+
+  //! Gets index on spritesheet that corresponds to this frame of animation
+  int AnimFrameToSheetIndex(int frame) const { return _startIdx + _animFrameToSheetFrame[frame]; }
+  //! Gets index offset from start index on sprite sheet to this frame of animation
+  int AnimFrameToIndexOffset(int frame) const { return _animFrameToSheetFrame[frame]; }
+  //!
+  std::pair<AnchorPoint, Vector2<float>> GetAnchorForAnimFrame(int animFrame) const;
+
+  //!
+  Vector2<double> GetRenderScaling() const;
+
+  std::string GetSubSheet() const { return _subSheetName; }
+
+  bool playReverse = false;
+
+  void SetAnchorPoint(AnchorPoint pt, Vector2<float> pos) { _anchorPoint = { pt, pos }; }
 
 protected:
   //!
-  SpriteSheet _spriteSheet;
+  //SpriteSheet _spriteSheet;
+  std::string _spriteSheetName;
+  std::string _subSheetName;
   //!
   int _frames, _startIdx;
   //! stores the bottom left and top left reference pixels
   //Vector2<int> _anchorPoints[(const int)AnchorPoint::Size];
   //!
   std::vector<int> _animFrameToSheetFrame;
-  
-  //!
-  std::pair<AnchorPoint, Vector2<int>> _anchorPoint;
-  //! finding margin from the bottom right now
-  int _lMargin, _rMargin, _tMargin;
+
+  std::pair<AnchorPoint, Vector2<float>> _anchorPoint;
 
 };
 
@@ -71,7 +75,7 @@ protected:
 template <typename Texture>
 inline Resource<Texture>& Animation::GetSheetTexture() const
 {
-  return ResourceManager::Get().GetAsset<Texture>(_spriteSheet.src);
+  return ResourceManager::Get().GetAsset<Texture>(ResourceManager::Get().gSpriteSheets.Get(_spriteSheetName).src);
 }
 
 //______________________________________________________________________________
@@ -80,10 +84,9 @@ class AnimationCollection
 {
 public:
   AnimationCollection() = default;
-  void RegisterAnimation(const std::string& animationName, const SpriteSheet& sheet, int startIndexOnSheet, int frames, AnchorPoint anchor);
-  void SetAnimationEvents(const std::string& animationName, const std::vector<AnimationActionEventData>& eventData, const FrameData& frameData);
+  void RegisterAnimation(const std::string& animationName, const AnimationAsset& animationData);
+  void SetAnimationEvents(const std::string& animationName, const std::vector<EventData>& eventData, const FrameData& frameData);
 
-  Vector2<int> GetRenderOffset(const std::string& animationName, bool flipped, int transformWidth) const;
   //! Getters
   Animation* GetAnimation(const std::string& name)
   {
@@ -125,11 +128,5 @@ private:
   std::unordered_map<std::string, Animation> _animations;
   //! Map of frame starts for events to the event that should be triggered
   std::unordered_map<std::string, std::shared_ptr<EventList>> _events;
-  //!
-  Vector2<int> _anchorPoint[(const int)AnchorPoint::Size];
-  Rect<int> _anchorRect;
-
-  //! use the first sprite sheet in as anchor point reference
-  bool _useFirstSprite = false;
 
 };

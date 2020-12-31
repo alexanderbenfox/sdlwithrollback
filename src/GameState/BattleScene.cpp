@@ -31,7 +31,7 @@
 #include "Systems/ActionSystems/ActionHandleInputSystem.h"
 #include "Core/Prefab/ActionFactory.h"
 
-#include "AssetManagement/AnimationCollectionManager.h"
+#include "Managers/AnimationCollectionManager.h"
 
 #include "GameState/MatchScene.h"
 
@@ -43,12 +43,15 @@ IScene* SceneHelper::CreateScene(SceneType type)
   {
     case SceneType::START:
       return new StartScene;
+    case SceneType::BATTLEMODE:
+      return new BattleModeSelect;
     case SceneType::CSELECT:
-      return new CharacterSelectScene;
+      return new CharacterSelect;
     case SceneType::MATCH:
       return new MatchScene;
     case SceneType::RESULTS:
       return new ResultsScene;
+    default: return new StartScene;
   }
 }
 
@@ -111,9 +114,7 @@ void BattleScene::Update(float deltaTime)
   EnactAggregate::DoTick(deltaTime);
   if(deltaTime > 0)
     CleanUpActionSystem::PostUpdate();
-
-  ////++++ end state machine section ++++////
-
+  ////++++ end state machine section ++++///
   
   // update timer systems after state has been chosen
   TimedActionSystem::DoTick(deltaTime);
@@ -131,7 +132,6 @@ void BattleScene::Update(float deltaTime)
   MoveSystem::DoTick(deltaTime);
   // move walls according to camera position
   MoveWallSystem::DoTick(deltaTime);
-
 
   ////++++ section for state dependent auxilliary info systems ++++////
 
@@ -186,7 +186,7 @@ void BattleScene::InitCharacter(Vector2<float> position, std::shared_ptr<Entity>
   const Vector2<float> p2UIOffset(-200 - healthBarOffset.x * 2, 0);
 
   // set up non-ui components
-  CharacterConstructor::InitSpatialComponents(player, position);
+  CharacterConstructor::InitSpatialComponents(player, player->GetComponent<SelectedCharacterComponent>()->characterIdentifier, position);
   if (isPlayer1)
     player->GetComponent<TeamComponent>()->team = TeamComponent::Team::TeamA;
   else
