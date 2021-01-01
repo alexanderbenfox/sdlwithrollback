@@ -7,6 +7,7 @@ class TimerSystem : public ISystem<TimerContainer>
 public:
   static void DoTick(float dt)
   {
+    PROFILE_FUNCTION();
     for(const EntityID& entity : Registered)
     {
       std::vector<std::shared_ptr<ActionTimer>>& _timings = ComponentArray<TimerContainer>::Get().GetComponent(entity).timings;

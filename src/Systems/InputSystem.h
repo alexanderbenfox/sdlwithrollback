@@ -11,6 +11,7 @@ class PlayerSideSystem : public ISystem<Transform, StateComponent, TeamComponent
 public:
   static void DoTick(float dt)
   {
+    PROFILE_FUNCTION();
     for (const EntityID& entity : Registered)
     {
       Transform& transform = ComponentArray<Transform>::Get().GetComponent(entity);
@@ -52,6 +53,7 @@ class InputSystem : public ISystem<GameInputComponent, StateComponent, GameActor
 public:
   static void DoTick(float dt)
   {
+    PROFILE_FUNCTION();
     for(const EntityID& entity : Registered)
     {
       GameInputComponent& inputHandler = ComponentArray<GameInputComponent>::Get().GetComponent(entity);

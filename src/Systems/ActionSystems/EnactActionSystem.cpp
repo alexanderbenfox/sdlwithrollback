@@ -6,6 +6,7 @@
 
 void EnactAnimationActionSystem::DoTick(float dt)
 {
+  PROFILE_FUNCTION();
   if (dt <= 0)
     return;
 
@@ -35,6 +36,7 @@ void EnactAnimationActionSystem::PlayAnimation(EntityID entity, const std::strin
 
 void EnactAttackActionSystem::DoTick(float dt)
 {
+  PROFILE_FUNCTION();
   if (dt <= 0)
     return;
 
@@ -54,6 +56,7 @@ void EnactAttackActionSystem::DoTick(float dt)
 
 void EnactGrappleActionSystem::DoTick(float dt)
 {
+  PROFILE_FUNCTION();
   if (dt <= 0)
     return;
 
@@ -66,6 +69,7 @@ void EnactGrappleActionSystem::DoTick(float dt)
 
 void EnactActionMovementSystem::DoTick(float dt)
 {
+  PROFILE_FUNCTION();
   for (const EntityID& entity : Registered)
   {
     if (dt <= 0)
@@ -83,6 +87,7 @@ void EnactActionMovementSystem::DoTick(float dt)
 
 void EnactActionDamageSystem::DoTick(float dt)
 {
+  PROFILE_FUNCTION();
   if (dt <= 0)
     return;
 
@@ -114,6 +119,7 @@ void EnactActionDamageSystem::DoTick(float dt)
 
 void EnactGrappledSystem::DoTick(float dt)
 {
+  PROFILE_FUNCTION();
   if (dt <= 0)
     return;
 
@@ -133,6 +139,7 @@ void EnactGrappledSystem::DoTick(float dt)
 
 void CleanUpActionSystem::PostUpdate()
 {
+  PROFILE_FUNCTION();
   DeferGuard guard;
   for (const EntityID& entity : Registered)
   {

@@ -1,9 +1,9 @@
 #include "AssetManagement/Text.h"
 #include "Managers/GameManagement.h"
 
-TextResource::TextResource(Resource<TTF_Font> font, const char* text, SDL_Color color)
+TextResource::TextResource(TTF_Font* font, const char* text, SDL_Color color)
 {
-  SDL_Surface* textSurf = TTF_RenderText_Solid(font.Get(), text, color);
+  SDL_Surface* textSurf = TTF_RenderText_Solid(font, text, color);
   _info.mHeight = textSurf->h;
   _info.mWidth = textSurf->w;
 

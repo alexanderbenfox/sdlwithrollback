@@ -12,6 +12,7 @@ struct ApplyGravitySystem : public ISystem<Rigidbody, Gravity>
 {
   static void DoTick(float dt)
   {
+    PROFILE_FUNCTION();
     for (const EntityID& entity : Registered)
     {
       Rigidbody& rigidbody = ComponentArray<Rigidbody>::Get().GetComponent(entity);

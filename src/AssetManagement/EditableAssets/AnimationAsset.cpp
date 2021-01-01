@@ -260,8 +260,8 @@ Vector2<int> AnimationAsset::GenerateAnchorPoint(AnchorPoint anchorType, const S
   // Get the pixel data
   Uint32* upixels;
 #ifdef _WIN32
-  unsigned char* px = sheetTexture.GetInfo().pixels.get();
-  upixels = (Uint32*)px;
+  auto px = sheetTexture.GetInfo().GetPixels(sheetTexture.GetPath());
+  upixels = (Uint32*)px.get();
 #else
   upixels = (Uint32*)sheetTexture.GetInfo().pixels.get();
 #endif

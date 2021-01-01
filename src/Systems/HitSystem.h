@@ -15,6 +15,7 @@ class HitSystem : public IMultiSystem<SysComponents<Hurtbox, StateComponent, Tea
 public:
   static void DoTick(float dt)
   {
+    PROFILE_FUNCTION();
     if(dt <= 0)
       return;
 
@@ -94,6 +95,7 @@ class ThrowSystem : public IMultiSystem<SysComponents<Throwbox, TeamComponent, S
 public:
   static void DoTick(float dt)
   {
+    PROFILE_FUNCTION();
     for (const EntityID& entity : MainSystem::Registered)
     {
       Throwbox& throwbox = ComponentArray<Throwbox>::Get().GetComponent(entity);
@@ -140,6 +142,7 @@ class FrameAdvantageSystem : public IMultiSystem<SysComponents<AttackStateCompon
 public:
   static void DoTick(float dt)
   {
+    PROFILE_FUNCTION();
     for (const EntityID& entity : MainSystem::Registered)
     {
       AttackStateComponent& atkState = ComponentArray<AttackStateComponent>::Get().GetComponent(entity);

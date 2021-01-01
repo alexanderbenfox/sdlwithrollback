@@ -14,6 +14,7 @@ public:
   {
     for(const EntityID& entity : Registered)
     {
+      PROFILE_FUNCTION();
       Animator& animator = ComponentArray<Animator>::Get().GetComponent(entity);
       Transform& transform = ComponentArray<Transform>::Get().GetComponent(entity);
       AttackStateComponent& atkState = ComponentArray<AttackStateComponent>::Get().GetComponent(entity);
@@ -102,6 +103,7 @@ public:
   {
     for (const EntityID& entity : Registered)
     {
+      PROFILE_FUNCTION();
       Animator& animator = ComponentArray<Animator>::Get().GetComponent(entity);
       RenderComponent<RenderType>& renderer = ComponentArray<RenderComponent<RenderType>>::Get().GetComponent(entity);
       RenderProperties& properties = ComponentArray<RenderProperties>::Get().GetComponent(entity);

@@ -23,6 +23,7 @@ class MoveWallSystem : public IMultiSystem<SysComponents<Camera>, SysComponents<
 public:
   static void DoTick(float dt)
   {
+    PROFILE_FUNCTION();
     for (const EntityID& entity : MainSystem::Registered)
     {
       Camera& camera = ComponentArray<Camera>::Get().GetComponent(entity);
@@ -51,6 +52,7 @@ class MoveSystemCamera : public ISystem<Transform, Camera>
 public:
   static void DoTick(float dt)
   {
+    PROFILE_FUNCTION();
     for (const EntityID& entity : Registered)
     {
       Transform& transform = ComponentArray<Transform>::Get().GetComponent(entity);
@@ -90,6 +92,7 @@ class CameraFollowPlayerSystem : public IMultiSystem<SysComponents<Transform, Ca
 public:
   static void DoTick(float dt)
   {
+    PROFILE_FUNCTION();
     const float lerpFactor = 10.0f;
 
     for (const EntityID& e1 : MainSystem::Registered)
@@ -121,6 +124,7 @@ class MoveSystemPhysCollider : public ISystem<Transform, DynamicCollider>
 public:
   static void DoTick(float dt)
   {
+    PROFILE_FUNCTION();
     for (const EntityID& entity : Registered)
     {
       Transform& transform = ComponentArray<Transform>::Get().GetComponent(entity);
@@ -137,6 +141,7 @@ class MoveSystemHurtbox : public ISystem<Transform, Hurtbox>
 public:
   static void DoTick(float dt)
   {
+    PROFILE_FUNCTION();
     for (const EntityID& entity : Registered)
     {
       Transform& transform = ComponentArray<Transform>::Get().GetComponent(entity);
@@ -153,6 +158,7 @@ class MoveSystemHitbox : public ISystem<Transform, Hitbox>
 public:
   static void DoTick(float dt)
   {
+    PROFILE_FUNCTION();
     for (const EntityID& entity : Registered)
     {
       Transform& transform = ComponentArray<Transform>::Get().GetComponent(entity);
@@ -169,6 +175,7 @@ class MoveThrownEntitySystem : public IMultiSystem<SysComponents<ThrowFollower, 
 public:
   static void DoTick(float dt)
   {
+    PROFILE_FUNCTION();
     for (const EntityID& e1 : MainSystem::Registered)
     {
       ThrowFollower& throwbox = ComponentArray<ThrowFollower>::Get().GetComponent(e1);
@@ -202,6 +209,7 @@ public:
 
   static void DoTick(float dt)
   {
+    PROFILE_FUNCTION();
     MoveSystemPhysCollider::DoTick(dt);
     MoveSystemHurtbox::DoTick(dt);
     MoveSystemHitbox::DoTick(dt);

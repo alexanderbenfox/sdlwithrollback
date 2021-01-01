@@ -46,6 +46,12 @@
 #endif
 
 //______________________________________________________________________________
+void ResourceManager::Destroy()
+{
+  _fileAssets<SDL_Texture>.clear();
+}
+
+//______________________________________________________________________________
 void ResourceManager::Initialize()
 {
   char* basePath = SDL_GetBasePath();
@@ -65,7 +71,7 @@ TextResource& ResourceManager::GetText(const char* text, const std::string& font
 
   if (_loadedTexts.find(text) == _loadedTexts.end())
   {
-    _loadedTexts.insert(std::make_pair(text, TextResource(font, text, SDL_Color{255, 255, 255, SDL_ALPHA_OPAQUE})));
+    _loadedTexts.emplace(std::piecewise_construct, std::make_tuple(text), std::make_tuple(font.Get(), text, SDL_Color{ 255, 255, 255, SDL_ALPHA_OPAQUE }));
   }
   _loadedTexts[text].Load();
   return _loadedTexts[text];
@@ -78,8 +84,11 @@ LetterCase& ResourceManager::GetFontWriter(const std::string& fontFile, size_t s
 
   if (_loadedLetterCases.find(key) == _loadedLetterCases.end())
   {
-    auto& font = GetAsset<TTF_Font>(fontFile);
-    _loadedLetterCases.emplace(std::piecewise_construct, std::make_tuple(key), std::make_tuple(font.Get(), size));
+    Resource<TTF_Font> font(_resourcePath + fontFile);
+    font.Load();
+
+    if(font.IsLoaded())
+      _loadedLetterCases.emplace(std::piecewise_construct, std::make_tuple(key), std::make_tuple(font.Get(), size));
   }
   return _loadedLetterCases[key];
 }
@@ -112,8 +121,8 @@ void ResourceManager::CrawlTexture(Resource<SDL_Texture>& texture, Vector2<int> 
   Uint32* upixels;
 
 #ifdef _WIN32
-  unsigned char* px = textureData.pixels.get();
-  upixels = (Uint32*)px;
+  auto px = textureData.GetPixels(texture.GetPath());
+  upixels = (Uint32*)px.get();
   Uint32 transparent = textureData.transparent;
 #else
   upixels = (Uint32*)textureData.pixels.get();
@@ -135,8 +144,8 @@ Rect<double> ResourceManager::FindRect(Resource<SDL_Texture>& texture, Vector2<i
 
   Uint32 transparent;
 #ifdef _WIN32
-  unsigned char* px = texture.GetInfo().pixels.get();
-  Uint32* upixels = (Uint32*)px;
+  auto px = texture.GetInfo().GetPixels(texture.GetPath());
+  Uint32* upixels = (Uint32*)px.get();
   transparent = texture.GetInfo().transparent;
 #endif
 
@@ -471,7 +480,8 @@ void GameManager::BeginGameLoop()
 
     frameCount = (++frameCount) % 10;
   }
-
+  // destroy all entities in the scene before cleaning up gui
+  _currentScene.reset();
   GUIController::Get().CleanUp();
 }
 

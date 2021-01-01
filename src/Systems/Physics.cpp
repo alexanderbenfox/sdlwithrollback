@@ -4,6 +4,7 @@ void PhysicsSystem::DoTick(float dt)
 {
   for (const EntityID& entity : Registered)
   {
+    PROFILE_FUNCTION();
     // try moving
     // Apply last frame of acceleration to the velocity
 
