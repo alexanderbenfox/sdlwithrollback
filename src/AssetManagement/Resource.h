@@ -11,11 +11,13 @@
 template <typename T>
 struct ResourceTraits {};
 
+template <typename T> class Resource;
+
 template <> struct ResourceTraits<SDL_Texture>
 {
   ResourceTraits() : mPitch(0), mWidth(0), mHeight(0) {}
   int mPitch, mWidth, mHeight;
-  std::unique_ptr<unsigned char> pixels;
+  std::unique_ptr<unsigned char> GetPixels(const std::string& resourcePath) const;
   Uint32 transparent;
 
 };
@@ -41,12 +43,24 @@ public:
     _resource = std::move(ptr);
   }
 
+  virtual ~Resource()
+  {
+    if (_loaded)
+      Unload();
+  }
+
   virtual void Load();
-  void Unload();
+  virtual void Unload()
+  {
+    _resource.reset();
+    _resource = nullptr;
+    _loaded = false;
+  }
 
   T* Get() { return _resource.get(); }
   const T* GetConst() const { return _resource.get(); }
   bool IsLoaded() {return _loaded;}
+  std::string GetPath() { return _pathToResource; }
 
   ResourceTraits<T> const& GetInfo() const { return _info; }
 

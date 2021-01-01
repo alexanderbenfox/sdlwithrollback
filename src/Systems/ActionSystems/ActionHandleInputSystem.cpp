@@ -10,6 +10,7 @@
 //______________________________________________________________________________
 void TimedActionSystem::DoTick(float dt)
 {
+  PROFILE_FUNCTION();
   DeferGuard guard;
   for (const EntityID& entity : Registered)
   {
@@ -41,6 +42,7 @@ void TimedActionSystem::DoTick(float dt)
 //______________________________________________________________________________
 void HandleInputGrappledActionSystem::DoTick(float dt)
 {
+  PROFILE_FUNCTION();
   DeferGuard guard;
   for (const EntityID& entity : Registered)
   {
@@ -64,6 +66,7 @@ void HandleInputGrappledActionSystem::DoTick(float dt)
 //______________________________________________________________________________
 void HandleDashUpdateSystem::DoTick(float dt)
 {
+  PROFILE_FUNCTION();
   for (const EntityID& entity : Registered)
   {
     DashingAction& action = ComponentArray<DashingAction>::Get().GetComponent(entity);
@@ -81,6 +84,7 @@ void HandleDashUpdateSystem::DoTick(float dt)
 //______________________________________________________________________________
 void HandleInputJump::DoTick(float dt)
 {
+  PROFILE_FUNCTION();
   DeferGuard guard;
   for (const EntityID& entity : Registered)
   {
@@ -100,6 +104,7 @@ void HandleInputJump::DoTick(float dt)
 //______________________________________________________________________________
 void HandleInputCrouch::DoTick(float dt)
 {
+  PROFILE_FUNCTION();
   DeferGuard guard;
   for (const EntityID& entity : Registered)
   {
@@ -123,6 +128,7 @@ void HandleInputCrouch::DoTick(float dt)
 //______________________________________________________________________________
 void HandleInputGrappling::DoTick(float dt)
 {
+  PROFILE_FUNCTION();
   DeferGuard guard;
   for (const EntityID& entity : Registered)
   {
@@ -152,6 +158,7 @@ void HandleInputGrappling::DoTick(float dt)
 //______________________________________________________________________________
 void CheckForReturnToNeutral::DoTick(float dt)
 {
+  PROFILE_FUNCTION();
   DeferGuard guard;
   for (const EntityID& entity : Registered)
   {
@@ -174,6 +181,7 @@ void CheckForReturnToNeutral::DoTick(float dt)
 //______________________________________________________________________________
 void CheckForMoveLeft::DoTick(float dt)
 {
+  PROFILE_FUNCTION();
   DeferGuard guard;
   for (const EntityID& entity : Registered)
   {
@@ -196,6 +204,7 @@ void CheckForMoveLeft::DoTick(float dt)
 //______________________________________________________________________________
 void CheckForMoveRight::DoTick(float dt)
 {
+  PROFILE_FUNCTION();
   DeferGuard guard;
   for (const EntityID& entity : Registered)
   {
@@ -218,6 +227,7 @@ void CheckForMoveRight::DoTick(float dt)
 //______________________________________________________________________________
 void CheckForJump::DoTick(float dt)
 {
+  PROFILE_FUNCTION();
   DeferGuard guard;
   for (const EntityID& entity : Registered)
   {
@@ -265,6 +275,7 @@ void CheckForJump::DoTick(float dt)
 //______________________________________________________________________________
 void CheckForFalling::DoTick(float dt)
 {
+  PROFILE_FUNCTION();
   DeferGuard guard;
   for (const EntityID& entity : Registered)
   {
@@ -288,6 +299,7 @@ void CheckForFalling::DoTick(float dt)
 //______________________________________________________________________________
 void CheckForBeginCrouching::DoTick(float dt)
 {
+  PROFILE_FUNCTION();
   DeferGuard guard;
   for (const EntityID& entity : Registered)
   {
@@ -326,6 +338,7 @@ void CheckForBeginCrouching::DoTick(float dt)
 //______________________________________________________________________________
 void CheckHitThisFrameSystem::DoTick(float dt)
 {
+  PROFILE_FUNCTION();
   DeferGuard guard;
   for (const EntityID& entity : Registered)
   {
@@ -386,6 +399,7 @@ void CheckHitThisFrameSystem::DoTick(float dt)
 //______________________________________________________________________________
 void CheckSpecialAttackInputSystem::DoTick(float dt)
 {
+  PROFILE_FUNCTION();
   DeferGuard guard;
   for (const EntityID& entity : Registered)
   {
@@ -441,6 +455,7 @@ void CheckSpecialAttackInputSystem::DoTick(float dt)
 //______________________________________________________________________________
 void CheckDashSystem::DoTick(float dt)
 {
+  PROFILE_FUNCTION();
   DeferGuard guard;
   for (const EntityID& entity : Registered)
   {
@@ -475,6 +490,7 @@ void CheckDashSystem::DoTick(float dt)
 //______________________________________________________________________________
 void CheckAttackInputSystem::DoTick(float dt)
 {
+  PROFILE_FUNCTION();
   DeferGuard guard;
   for (const EntityID& entity : Registered)
   {
@@ -528,6 +544,7 @@ void CheckAttackInputSystem::DoTick(float dt)
 //______________________________________________________________________________
 void CheckGrappleCancelOnHit::DoTick(float dt)
 {
+  PROFILE_FUNCTION();
   DeferGuard guard;
   for (const EntityID& e1 : MainSystem::Registered)
   {
@@ -549,6 +566,7 @@ void CheckGrappleCancelOnHit::DoTick(float dt)
 //______________________________________________________________________________
 void ListenForAirborneSystem::DoTick(float dt)
 {
+  PROFILE_FUNCTION();
   DeferGuard guard;
   for (const EntityID& entity : Registered)
   {
@@ -566,6 +584,7 @@ void ListenForAirborneSystem::DoTick(float dt)
 //______________________________________________________________________________
 void TransitionToNeutralSystem::DoTick(float dt)
 {
+  PROFILE_FUNCTION();
   DeferGuard guard;
   for (const EntityID& entity : Registered)
   {
@@ -591,6 +610,7 @@ void TransitionToNeutralSystem::DoTick(float dt)
 //______________________________________________________________________________
 void CheckKnockdownComplete::DoTick(float dt)
 {
+  PROFILE_FUNCTION();
   DeferGuard guard;
   for (const EntityID& entity : Registered)
   {
@@ -607,6 +627,7 @@ void CheckKnockdownComplete::DoTick(float dt)
 //______________________________________________________________________________
 void CheckKnockdownOTG::DoTick(float dt)
 {
+  PROFILE_FUNCTION();
   DeferGuard guard;
   for (const EntityID& entity : Registered)
   {
@@ -623,6 +644,7 @@ void CheckKnockdownOTG::DoTick(float dt)
 //______________________________________________________________________________
 void CheckCrouchingFollowUp::DoTick(float dt)
 {
+  PROFILE_FUNCTION();
   DeferGuard guard;
   for (const EntityID& entity : Registered)
   {
@@ -639,6 +661,7 @@ void CheckCrouchingFollowUp::DoTick(float dt)
 //______________________________________________________________________________
 void HitGroundCancelActionSystem::DoTick(float dt)
 {
+  PROFILE_FUNCTION();
   for (const EntityID& entity : Registered)
   {
     Rigidbody& rigidbody = ComponentArray<Rigidbody>::Get().GetComponent(entity);
@@ -653,6 +676,7 @@ void HitGroundCancelActionSystem::DoTick(float dt)
 //______________________________________________________________________________
 void SpecialMoveCancelActionSystem::DoTick(float dt)
 {
+  PROFILE_FUNCTION();
   DeferGuard guard;
   for (const EntityID& entity : Registered)
   {
@@ -673,6 +697,7 @@ void SpecialMoveCancelActionSystem::DoTick(float dt)
 //______________________________________________________________________________
 void TargetComboCancelActionSystem::DoTick(float dt)
 {
+  PROFILE_FUNCTION();
   DeferGuard guard;
   for (const EntityID& entity : Registered)
   {

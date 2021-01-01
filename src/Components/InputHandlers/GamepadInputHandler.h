@@ -25,7 +25,7 @@ private:
   //!
   SDL_GameController* _gameController = nullptr;
   //!
-  SDL_Joystick* _joyStick;
+  //SDL_Joystick* _joyStick;
   //!
   ConfigMap<SDL_GameControllerButton, InputState> _config;
   

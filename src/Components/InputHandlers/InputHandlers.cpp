@@ -256,7 +256,8 @@ GamepadInputHandler::GamepadInputHandler(InputBuffer& buffer) : IInputHandler(bu
       {
         SDL_GameControllerEventState(SDL_ENABLE);
         _gameController = SDL_GameControllerOpen(i);
-        _joyStick = SDL_GameControllerGetJoystick(_gameController);
+        //_joyStick = SDL_GameControllerGetJoystick(_gameController);
+        break;
       }
     }
   }

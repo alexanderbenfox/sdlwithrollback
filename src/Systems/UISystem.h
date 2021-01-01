@@ -34,6 +34,7 @@ public:
 
   static void DoTick(float dt)
   {
+    PROFILE_FUNCTION();
     for (const EntityID& entity : Registered)
     {
       UITransform& transform = ComponentArray<UITransform>::Get().GetComponent(entity);
@@ -52,6 +53,7 @@ class UIContainerUpdateSystem : public ISystem<UIContainer, StateComponent>
 public:
   static void DoTick(float dt)
   {
+    PROFILE_FUNCTION();
     for (const EntityID& entity : Registered)
     {
       UIContainer& container = ComponentArray<UIContainer>::Get().GetComponent(entity);

@@ -10,6 +10,7 @@ class SpriteDrawCallSystem : public ISystem<Transform, RenderComponent<RenderTyp
 public:
   static void PostUpdate()
   {
+    PROFILE_FUNCTION();
     for (const EntityID& entity : Registered)
     {
       RenderComponent<RenderType>& renderer = ComponentArray<RenderComponent<RenderType>>::Get().GetComponent(entity);
@@ -54,6 +55,7 @@ class UITextDrawCallSystem : public ISystem<UITransform, TextRenderer, RenderPro
 public:
   static void PostUpdate()
   {
+    PROFILE_FUNCTION();
     for (const EntityID& entity : Registered)
     {
       TextRenderer& renderer = ComponentArray<TextRenderer>::Get().GetComponent(entity);

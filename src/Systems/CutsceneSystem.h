@@ -10,6 +10,7 @@ public:
     bool scenePlaying = false;
     for(const EntityID& entity : Registered)
     {
+      PROFILE_FUNCTION();
       CutsceneActor& actor = ComponentArray<CutsceneActor>::Get().GetComponent(entity);
 
       CutsceneAction* action = nullptr;
@@ -74,6 +75,7 @@ class CutsceneMovementSystem : public ISystem<Rigidbody>
 public:
   static void DoTick(float dt)
   {
+    PROFILE_FUNCTION();
     for(const EntityID& entity : Registered)
     {
       Rigidbody& rb = ComponentArray<Rigidbody>::Get().GetComponent(entity);

@@ -16,7 +16,7 @@ public:
   //! Returns singleton instance of the Resource Manager
   static ResourceManager& Get() { static ResourceManager rm; return rm; }
   //! Destroy loaded resource objects
-  void Destroy() {}
+  void Destroy();
   //! Initialize the main resource path
   void Initialize();
   //! Loads texture if unloaded and returns the SDL_Texture resource
@@ -77,7 +77,7 @@ inline Resource<AssetType>& ResourceManager::GetAsset(const std::string& file)
 
   if (_fileAssets<AssetType>.find(fileToLoad) == _fileAssets<AssetType>.end())
   {
-    _fileAssets<AssetType>.insert(std::make_pair(fileToLoad, Resource<AssetType>(_resourcePath + fileToLoad)));
+    _fileAssets<AssetType>.emplace(std::piecewise_construct, std::make_tuple(fileToLoad), std::make_tuple(_resourcePath + fileToLoad));
   }
   _fileAssets<AssetType>[fileToLoad].Load();
   return _fileAssets<AssetType>[fileToLoad];

@@ -72,6 +72,7 @@ struct EnactAggregate
 
   static void DoTick(float dt)
   {
+    PROFILE_FUNCTION();
     EnactAnimationActionSystem::DoTick(dt);
     EnactAttackActionSystem::DoTick(dt);
     EnactGrappleActionSystem::DoTick(dt);

@@ -6,6 +6,7 @@ class UpdateAISystem : public IMultiSystem<SysComponents<AIComponent, Transform,
 public:
   static void DoTick(float dt)
   {
+    PROFILE_FUNCTION();
     for (const EntityID& e1 : MainSystem::Registered)
     {
       AIComponent& ai = ComponentArray<AIComponent>::Get().GetComponent(e1);

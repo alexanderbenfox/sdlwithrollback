@@ -5,6 +5,7 @@
 
 void WallPushSystem::DoTick(float dt)
 {
+  PROFILE_FUNCTION();
   DeferGuard guard;
   for (const EntityID& entity : Registered)
   {

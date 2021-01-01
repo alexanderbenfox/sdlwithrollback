@@ -11,6 +11,7 @@ struct AnimationListenerSystem : public ISystem<WaitForAnimationComplete, Animat
 {
   static void DoTick(float dt)
   {
+    PROFILE_FUNCTION();
     for (const EntityID& entity : Registered)
     {
       Animator& animator = ComponentArray<Animator>::Get().GetComponent(entity);

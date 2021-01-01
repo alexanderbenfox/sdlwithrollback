@@ -170,6 +170,7 @@ struct StateTransitionAggregate
 
   static void DoTick(float dt)
   {
+    PROFILE_FUNCTION();
     // determine passive state before evaluating if entity got hit
     CheckForFalling::DoTick(dt);
     CheckForJump::DoTick(dt);
@@ -217,6 +218,7 @@ struct HandleUpdateAggregate
 
   static void DoTick(float dt)
   {
+    PROFILE_FUNCTION();
     HandleInputJump::DoTick(dt);
     HandleInputCrouch::DoTick(dt);
     HandleInputGrappledActionSystem::DoTick(dt);

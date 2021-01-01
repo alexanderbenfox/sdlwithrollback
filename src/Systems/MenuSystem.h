@@ -23,6 +23,7 @@ class MenuInputSystem : public ISystem<GameInputComponent, MenuState>
 public:
   static void DoTick(float dt)
   {
+    PROFILE_FUNCTION();
     for (const EntityID& entity : Registered)
     {
       GameInputComponent& input = ComponentArray<GameInputComponent>::Get().GetComponent(entity);
@@ -60,6 +61,7 @@ class UpdateMenuStateSystem : public IMultiSystem<SysComponents<MenuState>, SysC
 public:
   static void DoTick(float dt)
   {
+    PROFILE_FUNCTION();
     for (const EntityID& e1 : MainSystem::Registered)
     {
       MenuState& menu = ComponentArray<MenuState>::Get().GetComponent(e1);

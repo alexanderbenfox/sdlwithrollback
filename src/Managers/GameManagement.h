@@ -116,6 +116,8 @@ private:
 
   SDL_Event _hardwareEvents;
 
+  bool _running;
+
   ////!!!!! EXPERIMENTAL CODE FOR SNAPSHOT
   std::vector<SBuffer> _p1Snapshots;
   std::vector<SBuffer> _p2Snapshots;

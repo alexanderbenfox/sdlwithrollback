@@ -35,6 +35,8 @@
 #include "AssetManagement/EditableAssets/Editor/AnimationEditor.h"
 #include "AssetManagement/EditableAssets/AssetLibrary.h"
 
+#include "Core/Utility/Profiler.h"
+
 #include <sstream>
 
 #ifdef _DEBUG
@@ -42,6 +44,12 @@
 #include <thread>
 #include <iostream>
 #endif
+
+//______________________________________________________________________________
+void ResourceManager::Destroy()
+{
+  _fileAssets<SDL_Texture>.clear();
+}
 
 //______________________________________________________________________________
 void ResourceManager::Initialize()
@@ -63,7 +71,7 @@ TextResource& ResourceManager::GetText(const char* text, const std::string& font
 
   if (_loadedTexts.find(text) == _loadedTexts.end())
   {
-    _loadedTexts.insert(std::make_pair(text, TextResource(font, text, SDL_Color{255, 255, 255, SDL_ALPHA_OPAQUE})));
+    _loadedTexts.emplace(std::piecewise_construct, std::make_tuple(text), std::make_tuple(font.Get(), text, SDL_Color{ 255, 255, 255, SDL_ALPHA_OPAQUE }));
   }
   _loadedTexts[text].Load();
   return _loadedTexts[text];
@@ -76,8 +84,11 @@ LetterCase& ResourceManager::GetFontWriter(const std::string& fontFile, size_t s
 
   if (_loadedLetterCases.find(key) == _loadedLetterCases.end())
   {
-    auto& font = GetAsset<TTF_Font>(fontFile);
-    _loadedLetterCases.emplace(std::piecewise_construct, std::make_tuple(key), std::make_tuple(font.Get(), size));
+    Resource<TTF_Font> font(_resourcePath + fontFile);
+    font.Load();
+
+    if(font.IsLoaded())
+      _loadedLetterCases.emplace(std::piecewise_construct, std::make_tuple(key), std::make_tuple(font.Get(), size));
   }
   return _loadedLetterCases[key];
 }
@@ -110,8 +121,8 @@ void ResourceManager::CrawlTexture(Resource<SDL_Texture>& texture, Vector2<int> 
   Uint32* upixels;
 
 #ifdef _WIN32
-  unsigned char* px = textureData.pixels.get();
-  upixels = (Uint32*)px;
+  auto px = textureData.GetPixels(texture.GetPath());
+  upixels = (Uint32*)px.get();
   Uint32 transparent = textureData.transparent;
 #else
   upixels = (Uint32*)textureData.pixels.get();
@@ -133,8 +144,8 @@ Rect<double> ResourceManager::FindRect(Resource<SDL_Texture>& texture, Vector2<i
 
   Uint32 transparent;
 #ifdef _WIN32
-  unsigned char* px = texture.GetInfo().pixels.get();
-  Uint32* upixels = (Uint32*)px;
+  auto px = texture.GetInfo().GetPixels(texture.GetPath());
+  Uint32* upixels = (Uint32*)px.get();
   transparent = texture.GetInfo().transparent;
 #endif
 
@@ -453,7 +464,9 @@ void GameManager::BeginGameLoop()
   UpdateFunction update = std::bind(&GameManager::RunFrame, this, std::placeholders::_1);
 
   int frameCount = 0;
-  for (;;)
+  _running = true;
+
+  while(_running)
   {
     if (frameCount == 0)
       tracker.Add(_clock.GetUpdateTime());
@@ -465,12 +478,10 @@ void GameManager::BeginGameLoop()
     //! render the scene
     Draw();
 
-    if (_hardwareEvents.type == SDL_QUIT)
-      break;
-
     frameCount = (++frameCount) % 10;
   }
-
+  // destroy all entities in the scene before cleaning up gui
+  _currentScene.reset();
   GUIController::Get().CleanUp();
 }
 
@@ -670,6 +681,9 @@ std::string GameManager::LogGamestate()
 //______________________________________________________________________________
 void GameManager::Update(float deltaTime)
 {
+  // makes a profile for the function its contained in
+  PROFILE_FUNCTION();
+
   _currentScene->Update(_frameStopActive ? 0.0f : deltaTime);
   //! Do post update (update gui and change scene)
   PostUpdate();
@@ -697,6 +711,8 @@ void GameManager::SyncPlayerInputs(InputState* inputs)
 //______________________________________________________________________________
 void GameManager::RunFrame(float deltaTime)
 {
+  PROFILE_SCOPE("RunFrame");
+
   if (!_beginningOfFrameQueue.empty())
   {
     for (auto& func : _beginningOfFrameQueue)
@@ -789,6 +805,10 @@ SDL_Event GameManager::UpdateLocalInput()
       {
         GRenderer.ProcessResizeEvent(event);
       }
+    }
+    if (event.type == SDL_QUIT)
+    {
+      _running = false;
     }
   }
   return event;

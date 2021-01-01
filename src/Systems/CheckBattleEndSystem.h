@@ -8,6 +8,7 @@ class CheckBattleEndSystem : public ISystem<StateComponent, GameActor>
 public:
   static void DoTick(float dt)
   {
+    PROFILE_FUNCTION();
     bool readyToTransition = false;
     for(const EntityID& entity : Registered)
     {

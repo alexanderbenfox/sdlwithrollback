@@ -166,6 +166,7 @@
     <ClInclude Include="..\src\Core\Utility\FilePath.h" />
     <ClInclude Include="..\src\Core\Utility\InputSequenceBuffer.h" />
     <ClInclude Include="..\src\Core\Utility\JsonFile.h" />
+    <ClInclude Include="..\src\Core\Utility\Profiler.h" />
     <ClInclude Include="..\src\Core\Utility\ScopeGuard.h" />
     <ClInclude Include="..\src\Core\Utility\String.h" />
     <ClInclude Include="..\src\Core\Utility\TrieNode.h" />

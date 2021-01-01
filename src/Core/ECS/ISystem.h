@@ -1,6 +1,7 @@
 #pragma once
 #include "Core/ECS/Entity.h"
 #include "Core/ECS/ComponentTraits.h"
+#include "Core/Utility/Profiler.h"
 
 #include <cstdint>
 #include <map>
