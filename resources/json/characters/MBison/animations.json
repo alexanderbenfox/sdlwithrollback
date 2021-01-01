@@ -191,8 +191,8 @@
 		{
 			"BL" : 
 			{
-				"x" : 31.587837219238281,
-				"y" : 81.0546875
+				"x" : 28.142076502732245,
+				"y" : 97.0703125
 			},
 			"BR" : 
 			{
@@ -217,9 +217,9 @@
 		},
 		"reverse" : false,
 		"sheet_name" : "MBisonVar",
-		"startFrame" : 88,
+		"startFrame" : 89,
 		"sub_sheet_name" : "",
-		"totalFrames" : 2
+		"totalFrames" : 1
 	},
 	"Crouching" : 
 	{
