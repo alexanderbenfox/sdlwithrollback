@@ -14,7 +14,16 @@
 #include "Components/Input.h"
 #include "Components/StateComponent.h"
 
-#include "Core/Prefab/MenuButtonArray.h"
+void BasicMenuScene::Update(float deltaTime)
+{
+  UIPositionUpdateSystem::DoTick(deltaTime);
+  // menu movement and selection
+  MenuInputSystem::DoTick(deltaTime);
+  // change button highlight and callback if selected
+  UpdateMenuStateSystem::DoTick(deltaTime);
+
+  MoveSystemCamera::DoTick(deltaTime);
+}
 
 StartScene::~StartScene()
 {
@@ -29,8 +38,12 @@ void StartScene::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2)
 
   _p1->AddComponent<MenuState>();
 
-  MenuButtonArray menu(1, 1, 0.3f);
-  menu.CreateMenuOption("PRESS BTN1 TO START", [](){ GameManager::Get().RequestSceneChange(SceneType::BATTLEMODE); }, Vector2<int>(0, 0));
+  MenuButtonArray menu(1, 5, 0.1f);
+  menu.CreateMenuOption("ONLINE", [](SDL_Event){ GameManager::Get().RequestSceneChange(SceneType::BATTLEMODE); }, Vector2<int>(0, 0));
+  menu.CreateMenuOption("VERSUS", [](SDL_Event) { GameManager::Get().RequestSceneChange(SceneType::BATTLEMODE); }, Vector2<int>(0, 1));
+  menu.CreateMenuOption("SOLO", [](SDL_Event) { GameManager::Get().RequestSceneChange(SceneType::BATTLEMODE); }, Vector2<int>(0, 2));
+  menu.CreateMenuOption("OPTIONS", [](SDL_Event) { GameManager::Get().RequestSceneChange(SceneType::CTRLSETUP); }, Vector2<int>(0, 3));
+  menu.CreateMenuOption("EXIT", [](SDL_Event) { GameManager::Get().RequestSceneChange(SceneType::BATTLEMODE); }, Vector2<int>(0, 4));
 
   // set up camera
   _uiCamera = GameManager::Get().CreateEntity<Camera, Transform>();
@@ -38,15 +51,39 @@ void StartScene::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2)
   GRenderer.EstablishCamera(RenderLayer::UI, _uiCamera->GetComponent<Camera>());
 }
 
-void StartScene::Update(float deltaTime)
+CtrlSetupScene::~CtrlSetupScene()
 {
-  UIPositionUpdateSystem::DoTick(deltaTime);
-    // menu movement and selection
-  MenuInputSystem::DoTick(deltaTime);
-  // change button highlight and callback if selected
-  UpdateMenuStateSystem::DoTick(deltaTime);
+  GameManager::Get().DestroyEntity(_uiCamera);
+  _p1->RemoveComponent<MenuState>();
+}
 
-  MoveSystemCamera::DoTick(deltaTime);
+void CtrlSetupScene::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2)
+{
+  _p1 = p1;
+  _p2 = p2;
+
+  _p1->AddComponent<MenuState>();
+
+  GameInputComponent* inputComp = _p1->GetComponent<GameInputComponent>();
+  int maxInputs = std::log2((int)InputState::BTN4);
+  for (int i = 0; i <= maxInputs; i++)
+  {
+    InputState in = static_cast<InputState>(1 << i);
+    std::string label = std::string(InputStateStrings[i + 1]) + " : " + inputComp->GetAssignedInputName(in);
+    _menu.CreateMenuOption(label.c_str(), [this, in, i](SDL_Event evt)
+      {
+        _p1->GetComponent<GameInputComponent>()->SetActionKey(evt, in);
+
+        std::string label = std::string(InputStateStrings[i + 1]) + " : " + _p1->GetComponent<GameInputComponent>()->GetAssignedInputName(in);
+        _menu.SetLabelText(0, i, label.c_str());
+      }, Vector2<int>(0, i), true);
+  }
+  _menu.CreateMenuOption(" OK ", [](SDL_Event) { GameManager::Get().RequestSceneChange(SceneType::START); }, Vector2<int>(0, 8));
+
+  // set up camera
+  _uiCamera = GameManager::Get().CreateEntity<Camera, Transform>();
+  _uiCamera->GetComponent<Camera>()->Init(m_nativeWidth, m_nativeHeight);
+  GRenderer.EstablishCamera(RenderLayer::UI, _uiCamera->GetComponent<Camera>());
 }
 
 BattleModeSelect::~BattleModeSelect()
@@ -63,26 +100,15 @@ void BattleModeSelect::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> 
   _p1->AddComponent<MenuState>();
 
   MenuButtonArray menu(2, 2, 0.2f);
-  menu.CreateMenuOption("TRAINING", []() { GameManager::Get().SetBattleType(BattleType::Training); GameManager::Get().RequestSceneChange(SceneType::CSELECT); }, Vector2<int>(0, 0));
-  menu.CreateMenuOption("FIRST TO 2", [](){ GameManager::Get().SetBattleType(BattleType::BestOf3); GameManager::Get().RequestSceneChange(SceneType::CSELECT); }, Vector2<int>(1, 0));
-  menu.CreateMenuOption("FIRST TO 3", [](){ GameManager::Get().SetBattleType(BattleType::BestOf5); GameManager::Get().RequestSceneChange(SceneType::CSELECT); }, Vector2<int>(0, 1));
-  menu.CreateMenuOption("Press To Go Back", [](){ GameManager::Get().RequestSceneChange(SceneType::START); }, Vector2<int>(1, 1));
+  menu.CreateMenuOption("TRAINING", [](SDL_Event) { GameManager::Get().SetBattleType(BattleType::Training); GameManager::Get().RequestSceneChange(SceneType::CSELECT); }, Vector2<int>(0, 0));
+  menu.CreateMenuOption("FIRST TO 2", [](SDL_Event){ GameManager::Get().SetBattleType(BattleType::BestOf3); GameManager::Get().RequestSceneChange(SceneType::CSELECT); }, Vector2<int>(1, 0));
+  menu.CreateMenuOption("FIRST TO 3", [](SDL_Event){ GameManager::Get().SetBattleType(BattleType::BestOf5); GameManager::Get().RequestSceneChange(SceneType::CSELECT); }, Vector2<int>(0, 1));
+  menu.CreateMenuOption("BACK", [](SDL_Event){ GameManager::Get().RequestSceneChange(SceneType::START); }, Vector2<int>(1, 1));
 
   // set up camera
   _uiCamera = GameManager::Get().CreateEntity<Camera, Transform>();
   _uiCamera->GetComponent<Camera>()->Init(m_nativeWidth, m_nativeHeight);
   GRenderer.EstablishCamera(RenderLayer::UI, _uiCamera->GetComponent<Camera>());
-}
-
-void BattleModeSelect::Update(float deltaTime)
-{
-  UIPositionUpdateSystem::DoTick(deltaTime);
-  // menu movement and selection
-  MenuInputSystem::DoTick(deltaTime);
-  // change button highlight and callback if selected
-  UpdateMenuStateSystem::DoTick(deltaTime);
-
-  MoveSystemCamera::DoTick(deltaTime);
 }
 
 CharacterSelect::~CharacterSelect()
@@ -118,7 +144,7 @@ void CharacterSelect::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p
   for (int i = 0; i < characterString.size(); i++)
   {
     menu.CreateMenuOption(characterString[i].c_str(), 
-      [characterString, i, this]()
+      [characterString, i, this](SDL_Event)
       {
         // for now just do the same cause im lazy
         if (!_firstCharacter)
@@ -140,17 +166,6 @@ void CharacterSelect::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p
       }
     , Vector2<int>(i, 0));
   }
-}
-
-void CharacterSelect::Update(float deltaTime)
-{
-  UIPositionUpdateSystem::DoTick(deltaTime);
-  // menu movement and selection
-  MenuInputSystem::DoTick(deltaTime);
-  // change button highlight and callback if selected
-  UpdateMenuStateSystem::DoTick(deltaTime);
-
-  MoveSystemCamera::DoTick(deltaTime);
 }
 
 ResultsScene::~ResultsScene()
@@ -187,7 +202,7 @@ void ResultsScene::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2)
   }
 
   MenuButtonArray menu(3, 3, 0.1f);
-  menu.CreateMenuOption("OK", [](){ GameManager::Get().RequestSceneChange(SceneType::START); }, Vector2<int>(1, 2));
+  menu.CreateMenuOption("OK", [](SDL_Event){ GameManager::Get().RequestSceneChange(SceneType::START); }, Vector2<int>(1, 2));
 
   _p1->GetComponent<MenuState>()->currentFocus = Vector2<int>(1, 2);
   
@@ -195,15 +210,4 @@ void ResultsScene::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2)
   _uiCamera = GameManager::Get().CreateEntity<Camera, Transform>();
   _uiCamera->GetComponent<Camera>()->Init(m_nativeWidth, m_nativeHeight);
   GRenderer.EstablishCamera(RenderLayer::UI, _uiCamera->GetComponent<Camera>());
-}
-
-void ResultsScene::Update(float deltaTime)
-{
-  UIPositionUpdateSystem::DoTick(deltaTime);
-    // menu movement and selection
-  MenuInputSystem::DoTick(deltaTime);
-  // change button highlight and callback if selected
-  UpdateMenuStateSystem::DoTick(deltaTime);
-
-  MoveSystemCamera::DoTick(deltaTime);
 }

@@ -11,16 +11,7 @@
 #include <functional>
 #include <cmath>
 
-template <typename T>
-class ResourceWrapper
-{
-public:
-  ResourceWrapper(Resource<T>& resource) : _resource(resource) {}
-  Resource<T>& GetResource() { return _resource; }
-private:
-  Resource<T>& _resource;
-};
-
+//! Adds N rendering components to the render manager
 template <typename TextureType>
 class RenderComponent : public IComponent
 {

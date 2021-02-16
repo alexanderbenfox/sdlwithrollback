@@ -43,6 +43,8 @@ IScene* SceneHelper::CreateScene(SceneType type)
   {
     case SceneType::START:
       return new StartScene;
+    case SceneType::CTRLSETUP:
+      return new CtrlSetupScene;
     case SceneType::BATTLEMODE:
       return new BattleModeSelect;
     case SceneType::CSELECT:

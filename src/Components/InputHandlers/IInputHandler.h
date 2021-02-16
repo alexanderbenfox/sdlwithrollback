@@ -14,6 +14,10 @@ public:
   virtual ~IInputHandler() {}
   //! Translates local events to an input state
   virtual InputState TranslateEvent(const SDL_Event&) = 0;
+  //!
+  virtual void SetInputMapKey(InputState value, SDL_Event key) = 0;
+  //!
+  virtual const char* GetInputName(InputState value) const { return ""; }
   //! Push input state to buffer
   virtual void CommitInput(const InputState& input) { _inputBuffer.Push(input); }
   //! Gets the command based on the type of input received from the controller

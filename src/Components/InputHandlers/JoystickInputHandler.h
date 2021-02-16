@@ -14,6 +14,8 @@ public:
   //!
   virtual InputState TranslateEvent(const SDL_Event&) final;
 
+  virtual void SetInputMapKey(InputState value, SDL_Event key) final;
+
   void AssignKey(uint8_t keyCode, InputState action)
   {
     _config[keyCode] = action;

@@ -3,6 +3,9 @@
 #include "Components/Actors/CutsceneActor.h"
 #include "Components/MetaGameComponents.h"
 
+// for ctrl set up scene... probably should be moved
+#include "Core/Prefab/MenuButtonArray.h"
+
 class Camera;
 
 class IScene
@@ -27,9 +30,24 @@ protected:
 
 };
 
+enum class MainMenuOptions
+{
+  Main, Online, Versus, Solo, Options
+};
+
+enum class OnlineMenuOptions
+{
+  Ranked, Invite, Rankings
+};
+
+enum class SoloMenuOptions
+{
+  Arcade, VS_CPU, Career, Training, Lessons
+};
+
 enum class SceneType
 {
-  START, BATTLEMODE, CSELECT, MATCH, RESULTS
+  START, CTRLSETUP, BATTLEMODE, CSELECT, MATCH, RESULTS
 };
 
 // eventually use this for initiating different battle scene types
@@ -52,12 +70,19 @@ struct SceneHelper
   static IScene* CreateScene(SceneType type);
 };
 
-class StartScene : public IScene
+class BasicMenuScene : public IScene
+{
+public:
+  virtual ~BasicMenuScene() = default;
+  virtual void Update(float deltaTime) override;
+
+};
+
+class StartScene : public BasicMenuScene
 {
 public:
   virtual ~StartScene();
   virtual void Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2) final;
-  virtual void Update(float deltaTime) final;
 
 protected:
   std::shared_ptr<Entity> _p1, _p2;
@@ -65,12 +90,25 @@ protected:
 
 };
 
-class BattleModeSelect : public IScene
+class CtrlSetupScene : public BasicMenuScene
+{
+public:
+  CtrlSetupScene() : _menu(1, 9, 0.01f), BasicMenuScene() {}
+  virtual ~CtrlSetupScene();
+  virtual void Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2) final;
+
+protected:
+  std::shared_ptr<Entity> _p1, _p2;
+  std::shared_ptr<Entity> _uiCamera;
+  MenuButtonArray _menu;
+
+};
+
+class BattleModeSelect : public BasicMenuScene
 {
 public:
   virtual ~BattleModeSelect();
   virtual void Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2) final;
-  virtual void Update(float deltaTime) final;
   
 protected:
   std::shared_ptr<Entity> _p1, _p2;
@@ -78,12 +116,11 @@ protected:
 
 };
 
-class CharacterSelect : public IScene
+class CharacterSelect : public BasicMenuScene
 {
 public:
   virtual ~CharacterSelect();
   virtual void Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2) final;
-  virtual void Update(float deltaTime) final;
 
 protected:
   std::shared_ptr<Entity> _p1, _p2;
@@ -93,12 +130,11 @@ protected:
 
 };
 
-class ResultsScene : public IScene
+class ResultsScene : public BasicMenuScene
 {
 public:
   virtual ~ResultsScene();
   virtual void Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2) final;
-  virtual void Update(float deltaTime) final;
 
 protected:
   std::shared_ptr<Entity> _p1, _p2;

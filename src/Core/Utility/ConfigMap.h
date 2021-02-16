@@ -16,8 +16,41 @@ struct SmallMap
     }
     else
     {
-      throw std::range_error("Not Found");
+      throw std::range_error("Key not Found");
     }
+  }
+
+  Value& set(const Key& key, const Value& value)
+  {
+    const auto it = std::find_if(begin(data), end(data), [&key](const auto& v) { return v.first == key; });
+    if (it != end(data))
+    {
+      it->second = value;
+    }
+    else
+    {
+      // replace one with existing value
+      const auto valIt = std::find_if(begin(data), end(data), [&value](const auto& v) { return v.second == value; });
+      if (valIt != end(data))
+      {
+        valIt->first = key;
+        valIt->second = value;
+      }
+      else
+      {
+        throw std::range_error("Could not set the key value pair");
+      }
+    }
+  }
+
+  std::array<Key, N> keys() const
+  {
+    std::array<Key, N> arr;
+    for (int i = 0; i < N; i++)
+    {
+      arr[i] = data[i].first;
+    }
+    return arr;
   }
 };
 
@@ -109,20 +142,27 @@ inline T1 const& ConfigMap<T1, T2>::operator[](const T2& key) const
 
 //! Two-way map used for configuration maps like gamepad inputs (optimized?)
 template <typename T1, typename T2, size_t N>
-class ConstConfigMap
+class SizedConfigMap
 {
 public:
-  constexpr ConstConfigMap(
+  constexpr SizedConfigMap(
     std::array<T1, N> keys,
     std::array<std::pair<T1, T2>, N> forward,
     std::array<std::pair<T2, T1>, N> backward) :
     _keys(keys), _forward{ forward }, _backward{ backward }
   {}
-  ~ConstConfigMap() = default;
+  ~SizedConfigMap() = default;
 
   //! override getter operators
   T2 const& operator[](const T1& key) const;
   T1 const& operator[](const T2& key) const;
+
+  void SetKeyValue(const T1& key, const T2& value) 
+  {
+    _forward.set(key, value);
+    _backward.set(value, key);
+    _keys = _forward.keys();
+  }
 
   //std::vector<T1> const& GetKeys() const { return _keys; }
   std::array<T1, N> const& GetKeys() const { return _keys; }
@@ -135,13 +175,13 @@ private:
 };
 
 template <typename T1, typename T2, size_t N>
-inline T2 const& ConstConfigMap<T1, T2, N>::operator[](const T1& key) const
+inline T2 const& SizedConfigMap<T1, T2, N>::operator[](const T1& key) const
 {
   return _forward.at(key);
 }
 
 template <typename T1, typename T2, size_t N>
-inline T1 const& ConstConfigMap<T1, T2, N>::operator[](const T2& key) const
+inline T1 const& SizedConfigMap<T1, T2, N>::operator[](const T2& key) const
 {
   return _backward.at(key);
 }

@@ -164,6 +164,13 @@ InputState KeyboardInputHandler::TranslateEvent(const SDL_Event& input)
 }
 
 //______________________________________________________________________________
+void KeyboardInputHandler::SetInputMapKey(InputState value, SDL_Event key)
+{
+  _config.SetKeyValue(key.key.keysym.scancode, value);
+}
+
+
+//______________________________________________________________________________
 JoystickInputHandler::JoystickInputHandler(InputBuffer& buffer) : IInputHandler(buffer)
 {
   if(SDL_NumJoysticks() < 1) {}
@@ -179,6 +186,7 @@ JoystickInputHandler::JoystickInputHandler(InputBuffer& buffer) : IInputHandler(
   _config[3] = InputState::BTN4;
 }
 
+//______________________________________________________________________________
 JoystickInputHandler::~JoystickInputHandler()
 {
   //close game controller if it exists
@@ -243,6 +251,12 @@ InputState JoystickInputHandler::TranslateEvent(const SDL_Event& input)
   }
 
   return frameState;
+}
+
+//______________________________________________________________________________
+void JoystickInputHandler::SetInputMapKey(InputState value, SDL_Event key)
+{
+  _config[key.jbutton.button] = value;
 }
 
 //______________________________________________________________________________
@@ -343,6 +357,12 @@ InputState GamepadInputHandler::TranslateEvent(const SDL_Event& input)
     break;
   }
   return frameState;
+}
+
+//______________________________________________________________________________
+void GamepadInputHandler::SetInputMapKey(InputState value, SDL_Event key)
+{
+  _config[(SDL_GameControllerButton)key.cbutton.button] = value;
 }
 
 //______________________________________________________________________________

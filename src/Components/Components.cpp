@@ -30,6 +30,7 @@ void WallPushComponent::OnRemove(const EntityID& entity)
 //______________________________________________________________________________
 UIRectangleRenderComponent::UIRectangleRenderComponent() : shownSize{ 0, 0, 0, 0 }, IComponent() {}
 
+//______________________________________________________________________________
 void UIRectangleRenderComponent::OnAdd(const EntityID& entity)
 {
   GRenderer.RegisterDrawable<DrawPrimitive<RenderType>>(RenderLayer::UI);
@@ -44,6 +45,25 @@ void UIRectangleRenderComponent::OnAdd(const EntityID& entity)
 void UIRectangleRenderComponent::OnRemove(const EntityID& entity)
 {
   GRenderer.DeregisterDrawable<DrawPrimitive<RenderType>>(RenderLayer::UI);
+}
+
+//______________________________________________________________________________
+void UIBoxSpriteRenderComponent::OnAdd(const EntityID& entity)
+{
+  // register 8 drawables for corners and sides of box
+  for (int i = 0; i < 8; i++)
+  {
+    GRenderer.RegisterDrawable<BlitOperation<RenderType>>(RenderLayer::UI);
+  }
+}
+
+//______________________________________________________________________________
+void UIBoxSpriteRenderComponent::OnRemove(const EntityID& entity)
+{
+  for (int i = 0; i < 8; i++)
+  {
+    GRenderer.DeregisterDrawable<BlitOperation<RenderType>>(RenderLayer::UI);
+  }
 }
 
 //______________________________________________________________________________

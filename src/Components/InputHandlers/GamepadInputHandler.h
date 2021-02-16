@@ -15,6 +15,8 @@ public:
   //!
   virtual InputState TranslateEvent(const SDL_Event&) final;
 
+  virtual void SetInputMapKey(InputState value, SDL_Event key) final;
+
   void AssignKey(SDL_GameControllerButton keyCode, InputState action)
   {
     _config[keyCode] = action;
@@ -40,4 +42,6 @@ public:
   NetworkInputHandler(InputBuffer& buffer) : IInputHandler(buffer) {}
   //!
   virtual InputState TranslateEvent(const SDL_Event&) final;
+  //!
+  virtual void SetInputMapKey(InputState value, SDL_Event key) override {}
 };

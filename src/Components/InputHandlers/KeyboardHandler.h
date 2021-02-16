@@ -24,7 +24,7 @@ static constexpr std::array<std::pair<InputState, SDL_Scancode>, 8> InitValuesBa
   {InputState::BTN1, SDL_SCANCODE_U}, {InputState::BTN2, SDL_SCANCODE_I}, {InputState::BTN3, SDL_SCANCODE_O}, {InputState::BTN4, SDL_SCANCODE_P}}
 };
 
-static constexpr auto KeyboardConfig = ConstConfigMap<SDL_Scancode, InputState, 8>(Keys, InitValuesForward, InitValuesBackward);
+static constexpr auto KeyboardConfig = SizedConfigMap<SDL_Scancode, InputState, 8>(Keys, InitValuesForward, InitValuesBackward);
 //static constexpr auto KeyboardConfig = SmallMap<SDL_Scancode, InputState, 8>{ { InitValuesForward } };
 
 //______________________________________________________________________________
@@ -38,10 +38,17 @@ public:
   ~KeyboardInputHandler();
   //!
   virtual InputState TranslateEvent(const SDL_Event&) final;
+
+  virtual void SetInputMapKey(InputState value, SDL_Event key) final;
+  //!
+  virtual const char* GetInputName(InputState value) const override
+  {
+    return SDL_GetScancodeName(_config[value]);
+  }
   //!
   void AssignKey(SDL_Scancode keyCode, InputState action)
   {
-    //_config[keyCode] = action;
+    _config.SetKeyValue(keyCode, action);
   }
 
 private:
@@ -49,10 +56,10 @@ private:
   const uint8_t* _keyStates = nullptr;
   //!
   //ConfigMap<SDL_Scancode, InputState> _config;
-  //const ConstConfigMap<SDL_Scancode, InputState, 8> _config;
+  SizedConfigMap<SDL_Scancode, InputState, 8> _config;
 
   // the only way this works is if the input is unconfigurable...
-  const ConstConfigMap<SDL_Scancode, InputState, 8>& _config;
+  //const SizedConfigMap<SDL_Scancode, InputState, 8>& _config;
 
 
 };

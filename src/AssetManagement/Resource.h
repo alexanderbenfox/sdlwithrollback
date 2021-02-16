@@ -74,5 +74,15 @@ protected:
 
 };
 
+template <typename T>
+class ResourceWrapper
+{
+public:
+  ResourceWrapper(Resource<T>& resource) : _resource(resource) {}
+  Resource<T>& GetResource() { return _resource; }
+private:
+  Resource<T>& _resource;
+};
+
 //template <> void Resource<SDL_Texture>::Load();
 //template <> void Resource<TTF_Font>::Load();

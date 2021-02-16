@@ -506,6 +506,7 @@ void GameManager::CheckAgainstSystems(Entity* entity)
   UIPositionUpdateSystem::Check(entity);
   UIContainerUpdateSystem::Check(entity);
   DrawUIPrimitivesSystem::Check(entity);
+  DrawUIBoxSpriteSystem::Check(entity);
   UpdateAISystem::Check(entity);
   ThrowSystem::Check(entity);
   WallPushSystem::Check(entity);
@@ -821,6 +822,7 @@ void GameManager::Draw()
   SpriteDrawCallSystem::PostUpdate();
   UITextDrawCallSystem::PostUpdate();
   DrawUIPrimitivesSystem::PostUpdate();
+  DrawUIBoxSpriteSystem::PostUpdate();
 
   //clear last frame graphics
   GRenderer.Clear();

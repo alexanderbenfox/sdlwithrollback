@@ -46,11 +46,17 @@ public:
   void AssignHandler(InputType type);
   //! Handler interprets latest raw input and returns it
   //InputBuffer& QueryInput(const SDL_Event& local);
-  InputState TranslateEvent(const SDL_Event& local) { return _handler->TranslateEvent(local); }
+  InputState TranslateEvent(const SDL_Event& local)
+  {
+    _lastRawInput = local;
+    return _handler->TranslateEvent(local);
+  }
   //!
   void PushState(const InputState state) { _handler->CommitInput(state); }
   //! Gets input after it has already been interpretted by QueryInput (and GGPO, if applicable)
   InputBuffer const& GetInput() { return _handler->GetInterprettedInput(); }
+  //!
+  SDL_Event GetRawInput() { return _lastRawInput; }
   //! Sync last input from synced ggpo session
   void Sync(InputState syncState) { _handler->SyncLastInput(syncState); }
   //! Clears the input buffer
@@ -58,10 +64,19 @@ public:
   //! Assigns handler key to an action
   template <typename KeyType>
   void AssignActionKey(KeyType key, InputState action) {}
+  //!
+  void SetActionKey(SDL_Event key, InputState action)
+  {
+    if (_handler)
+      _handler->SetInputMapKey(action, key);
+  }
   //! Allows switching of input mode and key assignments
   void OnDebug() override;
 
   InputType GetAssignedHandler() const { return _assignedHandler; }
+
+
+  const char* GetAssignedInputName(InputState input) const { return _handler->GetInputName(input); }
 
   //! Override ISerializable functions (only serialize buffer state)
   void Serialize(std::ostream& os) const override { _input.Serialize(os); }
@@ -72,5 +87,7 @@ protected:
   IInputHandler* _handler;
   InputType _assignedHandler;
   InputBuffer _input;
+
+  SDL_Event _lastRawInput;
 
 };

@@ -16,6 +16,7 @@ enum class InputState : unsigned char
   BTN4 = 0x80
 };
 
+static const char* InputStateStrings[] = { "NONE", "UP", "DOWN", "RIGHT", "LEFT", "BTN1", "BTN2", "BTN3", "BTN4" };
 
 //______________________________________________________________________________
 enum class SpecialInputState : unsigned char

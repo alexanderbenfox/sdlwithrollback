@@ -125,3 +125,43 @@ public:
     }
   }
 };
+
+class DrawUIBoxSpriteSystem : public ISystem<UITransform, UIBoxSpriteRenderComponent, RenderProperties>
+{
+public:
+  static void PostUpdate()
+  {
+    for (const EntityID& entity : Registered)
+    {
+      UIBoxSpriteRenderComponent& boxSprite = ComponentArray<UIBoxSpriteRenderComponent>::Get().GetComponent(entity);
+      RenderProperties& properties = ComponentArray<RenderProperties>::Get().GetComponent(entity);
+      UITransform& transform = ComponentArray<UITransform>::Get().GetComponent(entity);
+
+      DrawRect<float> totalDraw(transform.screenPosition.x, transform.screenPosition.y, transform.rect.Width(), transform.rect.Height());
+      float partW = (totalDraw.w / 3.0f);
+      float partH = (totalDraw.h / 3.0f);
+
+      for (int i = 0; i < 8; i++)
+      {
+        // get a display op to set draw parameters
+        auto op = GRenderer.GetAvailableOp<BlitOperation<RenderType>>(RenderLayer::UI);
+
+        op->textureResource = boxSprite.GetTexture();
+        op->srcRect = boxSprite.GetSpritePart(i);
+
+        op->flip = SDL_RendererFlip::SDL_FLIP_NONE;
+
+        op->displayColor = properties.GetDisplayColor();
+
+        int drawIdx = i;
+        if (i >= 4)
+          drawIdx = drawIdx + 1;
+
+        Vector2<float> start((drawIdx % 3) * partW + totalDraw.x, (drawIdx / 3) * partH + totalDraw.y);
+        op->targetRect = DrawRect<float>(start.x, start.y, partW, partH);
+
+        op->valid = true;
+      }
+    }
+  }
+};
