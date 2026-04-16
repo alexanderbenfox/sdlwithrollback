@@ -8,8 +8,7 @@
 //______________________________________________________________________________
 void GameInputComponent::AssignHandler(InputType type)
 {
-  delete _handler;
-  _handler = nullptr;
+  _handler.reset();
 
   if ((int)_assignedHandler >= (int)InputType::DefendAll)
     GameManager::Get().GetEntityByID(entityID)->RemoveComponent<AIComponent>();
@@ -20,34 +19,35 @@ void GameInputComponent::AssignHandler(InputType type)
   switch (type)
   {
   case InputType::Keyboard:
-    _handler = new KeyboardInputHandler(_input);
+    _handler = std::make_unique<KeyboardInputHandler>(_input);
     break;
   case InputType::Gamepad:
-    _handler = new GamepadInputHandler(_input);
+    _handler = std::make_unique<GamepadInputHandler>(_input);
     break;
   case InputType::Joystick:
-    _handler = new JoystickInputHandler(_input);
+    _handler = std::make_unique<JoystickInputHandler>(_input);
     break;
   case InputType::DefendAll:
     GameManager::Get().GetEntityByID(entityID)->AddComponent<AIComponent>();
     ai = new AIInputHandler(_input);
     ai->SetAIProgram(GameManager::Get().GetEntityByID(entityID)->GetComponent<AIComponent>(), new DefendAI);
-    _handler = ai;
+    _handler.reset(ai);
     break;
   case InputType::DefendAfter:
     GameManager::Get().GetEntityByID(entityID)->AddComponent<AIComponent>();
     ai = new AIInputHandler(_input);
     ai->SetAIProgram(GameManager::Get().GetEntityByID(entityID)->GetComponent<AIComponent>(), new DefendAfter);
-    _handler = ai;
+    _handler.reset(ai);
     break;
   case InputType::RepeatCM:
     GameManager::Get().GetEntityByID(entityID)->AddComponent<AIComponent>();
     ai = new AIInputHandler(_input);
     ai->SetAIProgram(GameManager::Get().GetEntityByID(entityID)->GetComponent<AIComponent>(), new RepeatInputAI(InputState::DOWN | InputState::BTN2));
-    _handler = ai;
+    _handler.reset(ai);
     break;
   case InputType::NetworkCtrl:
-    _handler = new NetworkInputHandler(_input);
+    _handler = std::make_unique<NetworkInputHandler>(_input);
+    break;
   default:
     break;
   }
@@ -91,19 +91,19 @@ void GameInputComponent::OnDebug()
 template <>
 void GameInputComponent::AssignActionKey<SDL_Scancode>(SDL_Scancode key, InputState action)
 {
-  reinterpret_cast<KeyboardInputHandler*>(_handler)->AssignKey(key, action);
+  reinterpret_cast<KeyboardInputHandler*>(_handler.get())->AssignKey(key, action);
 }
 
 //______________________________________________________________________________
 template <>
 void GameInputComponent::AssignActionKey<uint8_t>(uint8_t key, InputState action)
 {
-  reinterpret_cast<JoystickInputHandler*>(_handler)->AssignKey(key, action);
+  reinterpret_cast<JoystickInputHandler*>(_handler.get())->AssignKey(key, action);
 }
 
 //______________________________________________________________________________
 template <>
 void GameInputComponent::AssignActionKey<SDL_GameControllerButton>(SDL_GameControllerButton key, InputState action)
 {
-  reinterpret_cast<GamepadInputHandler*>(_handler)->AssignKey(key, action);
+  reinterpret_cast<GamepadInputHandler*>(_handler.get())->AssignKey(key, action);
 }

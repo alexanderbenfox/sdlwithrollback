@@ -26,6 +26,7 @@ struct SmallMap
     if (it != end(data))
     {
       it->second = value;
+      return it->second;
     }
     else
     {
@@ -35,6 +36,7 @@ struct SmallMap
       {
         valIt->first = key;
         valIt->second = value;
+        return valIt->second;
       }
       else
       {

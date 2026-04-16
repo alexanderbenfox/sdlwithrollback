@@ -16,6 +16,17 @@ struct AssetLoaderFn
   template <typename T> static std::string GUIItemLabel;
 };
 
+// Inline variable template specializations (C++17)
+struct SpriteSheet;
+class AnimationAsset;
+class ActionAsset;
+template <> inline std::string AssetLoaderFn::GUIHeaderLabel<SpriteSheet> = "Sprite Sheets";
+template <> inline std::string AssetLoaderFn::GUIItemLabel<SpriteSheet> = "Sprite Sheet";
+template <> inline std::string AssetLoaderFn::GUIHeaderLabel<AnimationAsset> = "Animations";
+template <> inline std::string AssetLoaderFn::GUIItemLabel<AnimationAsset> = "Animation";
+template <> inline std::string AssetLoaderFn::GUIHeaderLabel<ActionAsset> = "Actions";
+template <> inline std::string AssetLoaderFn::GUIItemLabel<ActionAsset> = "Action";
+
 //______________________________________________________________________________
 template <typename T>
 inline void AssetLibrary<T>::LoadJsonData(const JsonFile& file)
@@ -79,7 +90,7 @@ inline void AssetLibrary<T>::DisplayInGUI()
   ImGui::BeginGroup();
   ImGui::Spacing();
   std::string editItemTxt = "Edit " + AssetLoaderFn::GUIItemLabel<T> +": ";
-  ImGui::Text(editItemTxt.c_str());
+  ImGui::Text("%s", editItemTxt.c_str());
   ImGui::SameLine();
   DropDown::DisplayList(itemNames, _dropdownSelection,
   [this]()

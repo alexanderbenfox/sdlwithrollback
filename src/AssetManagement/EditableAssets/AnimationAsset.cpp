@@ -75,9 +75,6 @@ template <> ImVec2 AssetLoaderFn::GetDisplaySize<AnimationAsset>()
   return ImVec2(500, 6 * fieldHeight);
 }
 
-template <> std::string AssetLoaderFn::GUIHeaderLabel<AnimationAsset> = "Animations";
-template <> std::string AssetLoaderFn::GUIItemLabel<AnimationAsset> = "Animation";
-
 static int spriteSheetAnimationDisplayFrame = 0;
 
 //______________________________________________________________________________

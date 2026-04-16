@@ -17,24 +17,13 @@ enum class InputType : int
 class GameInputComponent : public IDebugComponent, ISerializable
 {
 public:
-  GameInputComponent() : _input(20), _assignedHandler(InputType::Keyboard), _handler(new KeyboardInputHandler(_input)), IDebugComponent("Input Handler") {}
-  ~GameInputComponent()
-  {
-    if (_handler)
-    {
-      delete _handler;
-      _handler = nullptr;
-    }
-  }
+  GameInputComponent() : _input(20), _assignedHandler(InputType::Keyboard), _handler(std::make_unique<KeyboardInputHandler>(_input)), IDebugComponent("Input Handler") {}
+  ~GameInputComponent() = default;
 
   void OnRemove(const EntityID& entity) override
   {
     IDebugComponent::OnRemove(entity);
-    if (_handler)
-    {
-      delete _handler;
-      _handler = nullptr;
-    }
+    _handler.reset();
   }
 
   GameInputComponent& operator=(const GameInputComponent& other)
@@ -84,7 +73,7 @@ public:
   std::string Log() override { return _input.Log(); }
 
 protected:
-  IInputHandler* _handler;
+  std::unique_ptr<IInputHandler> _handler;
   InputType _assignedHandler;
   InputBuffer _input;
 

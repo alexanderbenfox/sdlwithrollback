@@ -6,6 +6,7 @@ class StateComponent;
 
 struct IAIProgram
 {
+  virtual ~IAIProgram() = default;
   //! Provide a function for how you want to update the logic based on this entity's state
   virtual InputState Update(const Transform*, const StateComponent*) = 0;
   //! Update based on the information from another entity. The current decision is passed in

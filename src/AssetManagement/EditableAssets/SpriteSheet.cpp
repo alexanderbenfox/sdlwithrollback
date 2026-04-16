@@ -19,9 +19,6 @@ template <> ImVec2 AssetLoaderFn::GetDisplaySize<SpriteSheet>()
   return ImVec2(700, 8 * fieldHeight);
 }
 
-template <> std::string AssetLoaderFn::GUIHeaderLabel<SpriteSheet> = "Sprite Sheets";
-template <> std::string AssetLoaderFn::GUIItemLabel<SpriteSheet> = "Sprite Sheet";
-
 //______________________________________________________________________________
 std::string SpriteSheet::SaveLocation()
 {
