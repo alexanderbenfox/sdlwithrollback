@@ -1,6 +1,6 @@
 {
   "Hadoken": {
-    "spritesheet": "spritesheets\\special_moves.png",
+    "spritesheet": "spritesheets/special_moves.png",
     "anchor": "BL",
     "startIndex": 0,
     "numFrames" :  14,

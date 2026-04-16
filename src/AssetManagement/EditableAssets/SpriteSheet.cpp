@@ -24,7 +24,7 @@ template <> std::string AssetLoaderFn::GUIItemLabel<SpriteSheet> = "Sprite Sheet
 //______________________________________________________________________________
 std::string SpriteSheet::SaveLocation()
 {
-  return ResourceManager::Get().GetResourcePath() + "json\\general\\spritesheets.json";
+  return ResourceManager::Get().GetResourcePath() + "json/general/spritesheets.json";
 }
 
 static int showFrame = 0;

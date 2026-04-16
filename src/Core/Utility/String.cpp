@@ -25,28 +25,15 @@ std::string StringUtils::Connect(std::vector<std::string>::iterator const& beg, 
 
 std::string StringUtils::CorrectPath(std::string file)
 {
-#ifndef _WIN32
-  auto split = StringUtils::Split(file, '\\');
-  if (split.size() > 1)
-    file = StringUtils::Connect(split.begin(), split.end(), '/');
-#endif
   return file;
 }
 
 void StringUtils::AppendSubPath(std::string& path, const char* subPath)
 {
-#ifdef _WIN32
-  path += "\\" + std::string(subPath);
-#else
   path += "/" + std::string(subPath);
-#endif
 }
 
 std::vector<std::string> StringUtils::SplitFilePath(const std::string& path)
 {
-#ifdef _WIN32
-  return Split(path, '\\');
-#else
   return Split(path, '/');
-#endif
 }

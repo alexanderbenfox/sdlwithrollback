@@ -1,6 +1,6 @@
 {
   "IdleAndWalking" : {
-    "sheet_location": "spritesheets\\idle_and_walking.png",
+    "sheet_location": "spritesheets/idle_and_walking.png",
     "rows": 6,
     "columns": 6,
     "frameSize" : {
@@ -13,7 +13,7 @@
     }
   },
   "JumpFall" : {
-    "sheet_location": "spritesheets\\idle_walking_jab_jump_crouch.png",
+    "sheet_location": "spritesheets/idle_walking_jab_jump_crouch.png",
     "rows": 8,
     "columns": 10,
     "frameSize": {
@@ -26,7 +26,7 @@
     }
   },
   "Crouching" : {
-    "sheet_location": "spritesheets\\crouching.png",
+    "sheet_location": "spritesheets/crouching.png",
     "rows": 4,
     "columns": 5,
     "frameSize": {
@@ -39,7 +39,7 @@
     }
   },
   "GroundedAttacks" : {
-    "sheet_location": "spritesheets\\grounded_attacks.png",
+    "sheet_location": "spritesheets/grounded_attacks.png",
     "rows": 8,
     "columns": 10,
     "frameSize": {
@@ -52,7 +52,7 @@
     }
   },
   "JumpingAttacks" : {
-    "sheet_location": "spritesheets\\jumping_attacks.png",
+    "sheet_location": "spritesheets/jumping_attacks.png",
     "rows": 5,
     "columns": 5,
     "frameSize": {
@@ -65,7 +65,7 @@
     }
   },
   "Hitstun" : {
-    "sheet_location": "spritesheets\\hitstun_standing&crouching.png",
+    "sheet_location": "spritesheets/hitstun_standing&crouching.png",
     "rows": 9,
     "columns": 7,
     "frameSize": {
@@ -78,7 +78,7 @@
     }
   },
   "Blocks" : {
-    "sheet_location": "spritesheets\\blocks.png",
+    "sheet_location": "spritesheets/blocks.png",
     "rows": 4,
     "columns": 4,
     "frameSize": {
@@ -91,7 +91,7 @@
     }
   },
   "Throws" : {
-    "sheet_location": "spritesheets\\throws.png",
+    "sheet_location": "spritesheets/throws.png",
     "rows": 8,
     "columns": 5,
     "frameSize": {
@@ -104,7 +104,7 @@
     }
   },
   "WinLoseEntrance" : {
-    "sheet_location": "spritesheets\\winloseentrance.png",
+    "sheet_location": "spritesheets/winloseentrance.png",
     "rows": 7,
     "columns": 6,
     "frameSize": {
@@ -117,7 +117,7 @@
     }
   },
   "Dashes" : {
-    "sheet_location": "spritesheets\\dashes.png",
+    "sheet_location": "spritesheets/dashes.png",
     "rows": 4,
     "columns": 3,
     "frameSize": {
@@ -130,7 +130,7 @@
     }
   },
   "SpecialMoves" : {
-    "sheet_location": "spritesheets\\special_moves.png",
+    "sheet_location": "spritesheets/special_moves.png",
     "rows": 10,
     "columns": 8,
     "frameSize": {
@@ -143,7 +143,7 @@
     }
   },
   "Knockdowns" : {
-    "sheet_location": "spritesheets\\knockdowns.png",
+    "sheet_location": "spritesheets/knockdowns.png",
     "rows": 9,
     "columns": 6,
     "frameSize": {

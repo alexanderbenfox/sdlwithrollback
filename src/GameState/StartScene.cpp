@@ -130,7 +130,7 @@ void CharacterSelect::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p
   _p1->AddComponent<MenuState>();
 
   _headerLabel = GameManager::Get().CreateEntity<TextRenderer, RenderProperties, UITransform, DestroyOnSceneEnd>();
-  _headerLabel->GetComponent<TextRenderer>()->SetFont(ResourceManager::Get().GetFontWriter("fonts\\Eurostile.ttf", 36));
+  _headerLabel->GetComponent<TextRenderer>()->SetFont(ResourceManager::Get().GetFontWriter("fonts/Eurostile.ttf", 36));
   const Vector2<float> headerSize = _headerLabel->GetComponent<TextRenderer>()->SetText("Player 1 Choose Character!", TextAlignment::Centered);
   _headerLabel->GetComponent<UITransform>()->anchor = UIAnchor::TL;
   //const Vector2<float> headerSize(100, 100);
@@ -184,7 +184,7 @@ void ResultsScene::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2)
 
   _resultText = GameManager::Get().CreateEntity<UITransform, TextRenderer, RenderProperties>();
   _resultText->GetComponent<UITransform>()->anchor = UIAnchor::Center;
-  _resultText->GetComponent<TextRenderer>()->SetFont(ResourceManager::Get().GetFontWriter("fonts\\Eurostile.ttf", 36));
+  _resultText->GetComponent<TextRenderer>()->SetFont(ResourceManager::Get().GetFontWriter("fonts/Eurostile.ttf", 36));
   
   if(_p1->GetComponent<LoserComponent>())
   {

@@ -6,7 +6,7 @@
 #include "Systems/ActionSystems/EnactActionSystem.h"
 
 // for hit block sparks sprite sheet data... stupid but ill fix later
-//SpriteSheet hitblockSparksInfo("sfx\\hitblocksparks.png", 8, 7, true);
+//SpriteSheet hitblockSparksInfo("sfx/hitblocksparks.png", 8, 7, true);
 
 
 void SFXComponent::OnAdd(const EntityID& entity)

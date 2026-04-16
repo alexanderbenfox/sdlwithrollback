@@ -20,7 +20,7 @@
 //______________________________________________________________________________
 void CharacterConstructor::InitSpatialComponents(std::shared_ptr<Entity> player, const std::string& character, Vector2<float> position)
 {
-  Vector2<int> textureSize = ResourceManager::Get().GetTextureWidthAndHeight("spritesheets\\ryu.png");
+  Vector2<int> textureSize = ResourceManager::Get().GetTextureWidthAndHeight("spritesheets/ryu.png");
   Vector2<double> entitySize(m_characterWidth, m_characterHeight);
   position.y = static_cast<float>(m_nativeHeight) - static_cast<float>(entitySize.y);
 
@@ -90,7 +90,7 @@ std::shared_ptr<Entity> CharacterConstructor::InitUIComponents(std::shared_ptr<E
   // add the combo hit counter entity
   // create the counter text without render properties so that it wont be visible
   auto comboTextEntity = GameManager::Get().CreateEntity<UITransform, TextRenderer, TimerContainer, DestroyOnSceneEnd>();
-  comboTextEntity->GetComponent<TextRenderer>()->SetFont(ResourceManager::Get().GetFontWriter("fonts\\Eurostile.ttf", 36));
+  comboTextEntity->GetComponent<TextRenderer>()->SetFont(ResourceManager::Get().GetFontWriter("fonts/Eurostile.ttf", 36));
 
   // set parent transform and offset
   comboTextEntity->GetComponent<UITransform>()->parent = healthbarOutline->GetComponent<UITransform>();

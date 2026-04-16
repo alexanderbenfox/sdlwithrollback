@@ -70,13 +70,13 @@ void PreMatchScene::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2)
 
 
   _roundText = GameManager::Get().CreateEntity<UITransform, TextRenderer, TimerContainer, DestroyOnSceneEnd>();
-  _roundText->GetComponent<TextRenderer>()->SetFont(ResourceManager::Get().GetFontWriter("fonts\\RUBBBB__.TTF", 36));
+  _roundText->GetComponent<TextRenderer>()->SetFont(ResourceManager::Get().GetFontWriter("fonts/RUBBBB__.TTF", 36));
   std::string roundString = "ROUND " + std::to_string(_matchStatus.roundNo + 1);
   _roundText->GetComponent<TextRenderer>()->SetText(roundString, TextAlignment::Centered);
   _roundText->GetComponent<UITransform>()->anchor = UIAnchor::Center;
 
   _fightText = GameManager::Get().CreateEntity<UITransform, TextRenderer, TimerContainer, DestroyOnSceneEnd>();
-  _fightText->GetComponent<TextRenderer>()->SetFont(ResourceManager::Get().GetFontWriter("fonts\\RUBBBB__.TTF", 52));
+  _fightText->GetComponent<TextRenderer>()->SetFont(ResourceManager::Get().GetFontWriter("fonts/RUBBBB__.TTF", 52));
   _fightText->GetComponent<TextRenderer>()->SetText("FIGHT", TextAlignment::Centered);
   _fightText->GetComponent<UITransform>()->anchor = UIAnchor::Center;
 
@@ -168,7 +168,7 @@ void PostMatchScene::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2
 
 
   _koText = GameManager::Get().CreateEntity<UITransform, TextRenderer, TimerContainer, DestroyOnSceneEnd>();
-  _koText->GetComponent<TextRenderer>()->SetFont(ResourceManager::Get().GetFontWriter("fonts\\Eurostile.ttf", 36));
+  _koText->GetComponent<TextRenderer>()->SetFont(ResourceManager::Get().GetFontWriter("fonts/Eurostile.ttf", 36));
   _koText->GetComponent<TextRenderer>()->SetText("KO!", TextAlignment::Centered);
   _koText->GetComponent<UITransform>()->anchor = UIAnchor::Center;
 
@@ -208,7 +208,7 @@ void LoadingScene::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2)
 {
   _loadingText = GameManager::Get().CreateEntity<UITransform, TextRenderer, RenderProperties>();
   _loadingText->GetComponent<UITransform>()->anchor = UIAnchor::Center;
-  _loadingText->GetComponent<TextRenderer>()->SetFont(ResourceManager::Get().GetFontWriter("fonts\\Eurostile.ttf", 36));
+  _loadingText->GetComponent<TextRenderer>()->SetFont(ResourceManager::Get().GetFontWriter("fonts/Eurostile.ttf", 36));
   _loadingText->GetComponent<TextRenderer>()->SetText("LOADING...", TextAlignment::Centered);
 }
 

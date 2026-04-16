@@ -13,7 +13,7 @@
 			"x" : 400,
 			"y" : 456
 		},
-		"sheet_location" : "spritesheets\\blocks.png"
+		"sheet_location" : "spritesheets/blocks.png"
 	},
 	"Crouching" : 
 	{
@@ -29,7 +29,7 @@
 			"x" : 440,
 			"y" : 436
 		},
-		"sheet_location" : "spritesheets\\crouching.png"
+		"sheet_location" : "spritesheets/crouching.png"
 	},
 	"Dashes" : 
 	{
@@ -45,7 +45,7 @@
 			"x" : 354,
 			"y" : 420
 		},
-		"sheet_location" : "spritesheets\\dashes.png"
+		"sheet_location" : "spritesheets/dashes.png"
 	},
 	"GroundedAttacks" : 
 	{
@@ -61,7 +61,7 @@
 			"x" : 1760,
 			"y" : 1656
 		},
-		"sheet_location" : "spritesheets\\grounded_attacks.png"
+		"sheet_location" : "spritesheets/grounded_attacks.png"
 	},
 	"HanBlockAttackCrouching" : 
 	{
@@ -82,7 +82,7 @@
 			"x" : 0.155,
 			"y" : 0.155
 		},
-		"sheet_location" : "spritesheets\\han-block&attacks.png"
+		"sheet_location" : "spritesheets/han-block&attacks.png"
 	},
 	"HanJumpIdleWalk" : 
 	{
@@ -103,7 +103,7 @@
 			"x" : 0.155,
 			"y" : 0.155
 		},
-		"sheet_location" : "spritesheets\\han-jump&idle.png"
+		"sheet_location" : "spritesheets/han-jump&idle.png"
 	},
   "HanDashHit" : 
 	{
@@ -124,7 +124,7 @@
 			"x" : 0.155,
 			"y" : 0.155
 		},
-		"sheet_location" : "spritesheets\\han_hit&dash.png"
+		"sheet_location" : "spritesheets/han_hit&dash.png"
 	},
 	"Hitstun" : 
 	{
@@ -140,7 +140,7 @@
 			"x" : 994,
 			"y" : 1008
 		},
-		"sheet_location" : "spritesheets\\hitstun_standing&crouching.png"
+		"sheet_location" : "spritesheets/hitstun_standing&crouching.png"
 	},
 	"IdleAndWalking" : 
 	{
@@ -156,7 +156,7 @@
 			"x" : 672,
 			"y" : 678
 		},
-		"sheet_location" : "spritesheets\\idle_and_walking.png"
+		"sheet_location" : "spritesheets/idle_and_walking.png"
 	},
 	"JumpFall" : 
 	{
@@ -172,7 +172,7 @@
 			"x" : 1120,
 			"y" : 1104
 		},
-		"sheet_location" : "spritesheets\\idle_walking_jab_jump_crouch.png"
+		"sheet_location" : "spritesheets/idle_walking_jab_jump_crouch.png"
 	},
 	"JumpingAttacks" : 
 	{
@@ -188,7 +188,7 @@
 			"x" : 720,
 			"y" : 635
 		},
-		"sheet_location" : "spritesheets\\jumping_attacks.png"
+		"sheet_location" : "spritesheets/jumping_attacks.png"
 	},
 	"Knockdowns" : 
 	{
@@ -204,7 +204,7 @@
 			"x" : 1068,
 			"y" : 1080
 		},
-		"sheet_location" : "spritesheets\\knockdowns.png"
+		"sheet_location" : "spritesheets/knockdowns.png"
 	},
 	"SpecialMoves" : 
 	{
@@ -220,7 +220,7 @@
 			"x" : 1440,
 			"y" : 1600
 		},
-		"sheet_location" : "spritesheets\\special_moves.png"
+		"sheet_location" : "spritesheets/special_moves.png"
 	},
 	"Throws" : 
 	{
@@ -236,7 +236,7 @@
 			"x" : 970,
 			"y" : 872
 		},
-		"sheet_location" : "spritesheets\\throws.png"
+		"sheet_location" : "spritesheets/throws.png"
 	},
 	"WinLoseEntrance" : 
 	{
@@ -252,7 +252,7 @@
 			"x" : 1062,
 			"y" : 938
 		},
-		"sheet_location" : "spritesheets\\winloseentrance.png"
+		"sheet_location" : "spritesheets/winloseentrance.png"
 	}
 }
 

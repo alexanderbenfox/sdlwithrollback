@@ -45,7 +45,7 @@ void MenuButtonArray::CreateMenuOption(const char* label, std::function<void(SDL
   labelText->GetComponent<UITransform>()->rect = Rect<float>(0, 0, 0, 0);
   labelText->GetComponent<UITransform>()->position = Vector2<float>::Zero;
 
-  labelText->GetComponent<TextRenderer>()->SetFont(ResourceManager::Get().GetFontWriter("fonts\\Eurostile.ttf", 36));
+  labelText->GetComponent<TextRenderer>()->SetFont(ResourceManager::Get().GetFontWriter("fonts/Eurostile.ttf", 36));
   labelText->GetComponent<TextRenderer>()->SetText(label, TextAlignment::Centered, _cellSize.x - 2.0f * _margin.x);
 
   // set id so things can be changed later

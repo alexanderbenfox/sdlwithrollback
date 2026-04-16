@@ -290,8 +290,8 @@ void RenderManager::Draw3DBackground()
   Mat4::toMat4(Mat4::RotateXN90, m);
   glMultMatrixf(m);
   RenderTextureCommand cmd;
-  cmd.texture = ResourceManager::Get().GetAsset<GLTexture>("spritesheets\\ryu.png").Get();
-  auto size = ResourceManager::Get().GetTextureWidthAndHeight("spritesheets\\ryu.png");
+  cmd.texture = ResourceManager::Get().GetAsset<GLTexture>("spritesheets/ryu.png").Get();
+  auto size = ResourceManager::Get().GetTextureWidthAndHeight("spritesheets/ryu.png");
   cmd.srcRect = DrawRect<float>(0, 0, size.x, size.y);
   OpenGLRenderer::RenderQuad3D(cmd, { 255, 255, 255, 255 }, { 0.1f, 0.1f }, Vector3<float>(0, -1.0f, 0.0f), Vector3<float>(1.0f, 1.0f, 1.0f));
   */

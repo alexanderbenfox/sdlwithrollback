@@ -67,18 +67,10 @@ std::unordered_map<std::string, Resource<AssetType>> ResourceManager::_fileAsset
 template <typename AssetType>
 inline Resource<AssetType>& ResourceManager::GetAsset(const std::string& file)
 {
-  auto fileToLoad = file;
-
-#ifndef _WIN32
-  auto split = StringUtils::Split(file, '\\');
-  if (split.size() > 1)
-    fileToLoad = StringUtils::Connect(split.begin(), split.end(), '/');
-#endif
-
-  if (_fileAssets<AssetType>.find(fileToLoad) == _fileAssets<AssetType>.end())
+  if (_fileAssets<AssetType>.find(file) == _fileAssets<AssetType>.end())
   {
-    _fileAssets<AssetType>.emplace(std::piecewise_construct, std::make_tuple(fileToLoad), std::make_tuple(_resourcePath + fileToLoad));
+    _fileAssets<AssetType>.emplace(std::piecewise_construct, std::make_tuple(file), std::make_tuple(_resourcePath + file));
   }
-  _fileAssets<AssetType>[fileToLoad].Load();
-  return _fileAssets<AssetType>[fileToLoad];
+  _fileAssets<AssetType>[file].Load();
+  return _fileAssets<AssetType>[file];
 }

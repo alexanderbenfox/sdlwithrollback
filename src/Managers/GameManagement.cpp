@@ -56,11 +56,7 @@ void ResourceManager::Initialize()
 {
   char* basePath = SDL_GetBasePath();
   if (basePath)
-#ifdef _WIN32
-    _resourcePath = std::string(basePath) + "..\\..\\..\\resources\\";
-#else
     _resourcePath = std::string(basePath) + "resources/";
-#endif
   else _resourcePath = "./";
 }
 
@@ -80,18 +76,11 @@ TextResource& ResourceManager::GetText(const char* text, const std::string& font
 //______________________________________________________________________________
 LetterCase& ResourceManager::GetFontWriter(const std::string& fontFile, size_t size)
 {
-  auto fileToLoad = fontFile;
-#ifndef _WIN32
-  auto split = StringUtils::Split(fontFile, '\\');
-  if (split.size() > 1)
-    fileToLoad = StringUtils::Connect(split.begin(), split.end(), '/');
-#endif
-
-  const FontKey key{ size, fileToLoad.c_str() };
+  const FontKey key{ size, fontFile.c_str() };
 
   if (_loadedLetterCases.find(key) == _loadedLetterCases.end())
   {
-    Resource<TTF_Font> font(_resourcePath + fileToLoad);
+    Resource<TTF_Font> font(_resourcePath + fontFile);
     font.Load();
 
     if(font.IsLoaded())
@@ -103,14 +92,7 @@ LetterCase& ResourceManager::GetFontWriter(const std::string& fontFile, size_t s
 //______________________________________________________________________________
 Vector2<int> ResourceManager::GetTextureWidthAndHeight(const std::string& file)
 {
-  auto fileToQuery = file;
-#ifndef _WIN32
-  auto split = StringUtils::Split(file, '\\');
-  if(split.size() > 1)
-    fileToQuery = StringUtils::Connect(split.begin(), split.end(), '/');
-#endif
-
-  SDL_Surface* surface = IMG_Load((_resourcePath + fileToQuery).c_str());
+  SDL_Surface* surface = IMG_Load((_resourcePath + file).c_str());
   if (!surface)
     return Vector2<int>(0, 0);
   Vector2<int> size(surface->w, surface->h);

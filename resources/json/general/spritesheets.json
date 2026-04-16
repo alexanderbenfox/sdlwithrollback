@@ -106,7 +106,7 @@
 			"x" : 3584,
 			"y" : 2448
 		},
-		"sheet_location" : "spritesheets\\akuma.png",
+		"sheet_location" : "spritesheets/akuma.png",
 		"variableSizeSprites" : false
 	},
 	"AkumaVar" : 
@@ -314,7 +314,7 @@
 			"x" : 3584,
 			"y" : 2448
 		},
-		"sheet_location" : "spritesheets\\akuma.png",
+		"sheet_location" : "spritesheets/akuma.png",
 		"variableSizeSprites" : true
 	},
 	"Blocks" : 
@@ -341,7 +341,7 @@
 			"x" : 400,
 			"y" : 456
 		},
-		"sheet_location" : "spritesheets\\blocks.png",
+		"sheet_location" : "spritesheets/blocks.png",
 		"variableSizeSprites" : false
 	},
 	"Crouching" : 
@@ -368,7 +368,7 @@
 			"x" : 440,
 			"y" : 436
 		},
-		"sheet_location" : "spritesheets\\crouching.png",
+		"sheet_location" : "spritesheets/crouching.png",
 		"variableSizeSprites" : false
 	},
 	"Dashes" : 
@@ -395,7 +395,7 @@
 			"x" : 354,
 			"y" : 420
 		},
-		"sheet_location" : "spritesheets\\dashes.png",
+		"sheet_location" : "spritesheets/dashes.png",
 		"variableSizeSprites" : false
 	},
 	"Fireball" : 
@@ -422,7 +422,7 @@
 			"x" : 860,
 			"y" : 187
 		},
-		"sheet_location" : "spritesheets\\coolfireballspritesheet.png",
+		"sheet_location" : "spritesheets/coolfireballspritesheet.png",
 		"variableSizeSprites" : false
 	},
 	"GroundedAttacks" : 
@@ -449,7 +449,7 @@
 			"x" : 1760,
 			"y" : 1656
 		},
-		"sheet_location" : "spritesheets\\grounded_attacks.png",
+		"sheet_location" : "spritesheets/grounded_attacks.png",
 		"variableSizeSprites" : false
 	},
 	"HanBlockAttackCrouching" : 
@@ -476,7 +476,7 @@
 			"x" : 8004,
 			"y" : 8001
 		},
-		"sheet_location" : "spritesheets\\han-block&attacks.png",
+		"sheet_location" : "spritesheets/han-block&attacks.png",
 		"variableSizeSprites" : false
 	},
 	"HanDashHit" : 
@@ -503,7 +503,7 @@
 			"x" : 3105,
 			"y" : 3072
 		},
-		"sheet_location" : "spritesheets\\han_hit&dash.png",
+		"sheet_location" : "spritesheets/han_hit&dash.png",
 		"variableSizeSprites" : false
 	},
 	"HanJumpIdleWalk" : 
@@ -530,7 +530,7 @@
 			"x" : 5120,
 			"y" : 5065
 		},
-		"sheet_location" : "spritesheets\\han-jump&idle.png",
+		"sheet_location" : "spritesheets/han-jump&idle.png",
 		"variableSizeSprites" : false
 	},
 	"HitblockSparks" : 
@@ -557,7 +557,7 @@
 			"x" : 3108,
 			"y" : 3256
 		},
-		"sheet_location" : "sfx\\hitblocksparks.png",
+		"sheet_location" : "sfx/hitblocksparks.png",
 		"variableSizeSprites" : false
 	},
 	"Hitstun" : 
@@ -584,7 +584,7 @@
 			"x" : 994,
 			"y" : 1008
 		},
-		"sheet_location" : "spritesheets\\hitstun_standing&crouching.png",
+		"sheet_location" : "spritesheets/hitstun_standing&crouching.png",
 		"variableSizeSprites" : false
 	},
 	"IdleAndWalking" : 
@@ -611,7 +611,7 @@
 			"x" : 672,
 			"y" : 678
 		},
-		"sheet_location" : "spritesheets\\idle_and_walking.png",
+		"sheet_location" : "spritesheets/idle_and_walking.png",
 		"variableSizeSprites" : false
 	},
 	"JumpFall" : 
@@ -638,7 +638,7 @@
 			"x" : 1120,
 			"y" : 1104
 		},
-		"sheet_location" : "spritesheets\\idle_walking_jab_jump_crouch.png",
+		"sheet_location" : "spritesheets/idle_walking_jab_jump_crouch.png",
 		"variableSizeSprites" : false
 	},
 	"JumpingAttacks" : 
@@ -665,7 +665,7 @@
 			"x" : 720,
 			"y" : 635
 		},
-		"sheet_location" : "spritesheets\\jumping_attacks.png",
+		"sheet_location" : "spritesheets/jumping_attacks.png",
 		"variableSizeSprites" : false
 	},
 	"Knockdowns" : 
@@ -692,7 +692,7 @@
 			"x" : 1068,
 			"y" : 1080
 		},
-		"sheet_location" : "spritesheets\\knockdowns.png",
+		"sheet_location" : "spritesheets/knockdowns.png",
 		"variableSizeSprites" : false
 	},
 	"MBison" : 
@@ -914,7 +914,7 @@
 			"x" : 1000,
 			"y" : 5152
 		},
-		"sheet_location" : "spritesheets\\mvc2-mbison.png",
+		"sheet_location" : "spritesheets/mvc2-mbison.png",
 		"variableSizeSprites" : false
 	},
 	"MBisonVar" : 
@@ -2180,7 +2180,7 @@
 			"x" : 1000,
 			"y" : 5152
 		},
-		"sheet_location" : "spritesheets\\mvc2-mbison.png",
+		"sheet_location" : "spritesheets/mvc2-mbison.png",
 		"variableSizeSprites" : true
 	},
 	"SolBadguy" : 
@@ -2207,7 +2207,7 @@
 			"x" : 793,
 			"y" : 1328
 		},
-		"sheet_location" : "spritesheets\\sol.png",
+		"sheet_location" : "spritesheets/sol.png",
 		"variableSizeSprites" : false
 	},
 	"SolBadguyAttacks" : 
@@ -2234,7 +2234,7 @@
 			"x" : 793,
 			"y" : 1328
 		},
-		"sheet_location" : "spritesheets\\sol.png",
+		"sheet_location" : "spritesheets/sol.png",
 		"variableSizeSprites" : false
 	},
 	"SolBadguyAttacks2" : 
@@ -2261,7 +2261,7 @@
 			"x" : 793,
 			"y" : 1328
 		},
-		"sheet_location" : "spritesheets\\sol.png",
+		"sheet_location" : "spritesheets/sol.png",
 		"variableSizeSprites" : false
 	},
 	"SolBadguyAttacks3" : 
@@ -2288,7 +2288,7 @@
 			"x" : 793,
 			"y" : 1328
 		},
-		"sheet_location" : "spritesheets\\sol.png",
+		"sheet_location" : "spritesheets/sol.png",
 		"variableSizeSprites" : false
 	},
 	"SolBadguyCrouching" : 
@@ -2315,7 +2315,7 @@
 			"x" : 793,
 			"y" : 1328
 		},
-		"sheet_location" : "spritesheets\\sol.png",
+		"sheet_location" : "spritesheets/sol.png",
 		"variableSizeSprites" : false
 	},
 	"SolBadguyIdle" : 
@@ -2342,7 +2342,7 @@
 			"x" : 793,
 			"y" : 1328
 		},
-		"sheet_location" : "spritesheets\\sol.png",
+		"sheet_location" : "spritesheets/sol.png",
 		"variableSizeSprites" : false
 	},
 	"SolBadguyJump" : 
@@ -2369,7 +2369,7 @@
 			"x" : 793,
 			"y" : 1328
 		},
-		"sheet_location" : "spritesheets\\sol.png",
+		"sheet_location" : "spritesheets/sol.png",
 		"variableSizeSprites" : false
 	},
 	"SolBadguyWalkF" : 
@@ -2396,7 +2396,7 @@
 			"x" : 793,
 			"y" : 1328
 		},
-		"sheet_location" : "spritesheets\\sol.png",
+		"sheet_location" : "spritesheets/sol.png",
 		"variableSizeSprites" : false
 	},
 	"SpecialMoves" : 
@@ -2423,7 +2423,7 @@
 			"x" : 1440,
 			"y" : 1600
 		},
-		"sheet_location" : "spritesheets\\special_moves.png",
+		"sheet_location" : "spritesheets/special_moves.png",
 		"variableSizeSprites" : false
 	},
 	"Throws" : 
@@ -2450,7 +2450,7 @@
 			"x" : 970,
 			"y" : 872
 		},
-		"sheet_location" : "spritesheets\\throws.png",
+		"sheet_location" : "spritesheets/throws.png",
 		"variableSizeSprites" : false
 	},
 	"Venom" : 
@@ -2480,7 +2480,7 @@
 			"x" : 1200,
 			"y" : 7612
 		},
-		"sheet_location" : "spritesheets\\mvc-venom.png",
+		"sheet_location" : "spritesheets/mvc-venom.png",
 		"variableSizeSprites" : true
 	},
 	"WinLoseEntrance" : 
@@ -2507,7 +2507,7 @@
 			"x" : 1062,
 			"y" : 938
 		},
-		"sheet_location" : "spritesheets\\winloseentrance.png",
+		"sheet_location" : "spritesheets/winloseentrance.png",
 		"variableSizeSprites" : false
 	}
 }
