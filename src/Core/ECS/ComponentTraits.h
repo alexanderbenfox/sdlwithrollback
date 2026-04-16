@@ -60,8 +60,6 @@ inline ComponentTraits<T>::ComponentTraits()
     std::function<void(EntityID, std::ostream&)>([this](EntityID e, std::ostream& os) { Serialize(e, os); }),
     std::function<void(EntityID, std::istream&)>([this](EntityID e, std::istream& is) { Deserialize(e, is); }),
     std::function<std::string(EntityID)>([this](EntityID e) { return LogSelf(e); }),
-    //std::function<SBuffer(EntityID)>([](EntityID e) { SBuffer buffer; CopyDataFromEntity(e, buffer); return buffer; }),
-    //std::function<void(EntityID, const SBuffer&)>([](EntityID e, const SBuffer& b) { CopyDataToEntity(e, b); }),
     std::type_index(typeid(T))
   });
 }

@@ -65,13 +65,6 @@ InputState DefendAfter::Update(const Transform* t, const StateComponent* s)
     ActionState thisDefendingState = s->actionState;
     if (thisDefendingState == ActionState::NONE && lastDefendingState == ActionState::BLOCKSTUN)
     {
-      // if not defending during this time, cancel the anim
-      /*if (blockCommand == InputState::NONE)
-      {
-        resetTimer->Cancel();
-        wasHit = false;
-        isDefending = false;
-      }*/
       blockCommand |= (InputState::BTN1 | InputState::DOWN);
     }
     lastDefendingState = thisDefendingState;
@@ -94,21 +87,6 @@ InputState DefendAfter::Update(const Transform* t, const StateComponent* s)
       timerEntity->GetComponent<TimerContainer>()->timings.push_back(resetTimer);
       isDefending = true;
       return DefendAI::Update(t, s);
-    }
-    else
-    {
-      // debug code
-      /*if (s->hitThisFrame)
-      {
-        int realHitstunFrames = 0;
-        int tFrames = 0;
-        if (auto timerComp = t->GetComponent<TimedActionComponent>())
-        {
-          realHitstunFrames = timerComp->currFrame;
-          tFrames = timerComp->totalFrames;
-        }
-        int remainingFrames = tFrames - realHitstunFrames;
-      }*/
     }
     return InputState::NONE;
   }

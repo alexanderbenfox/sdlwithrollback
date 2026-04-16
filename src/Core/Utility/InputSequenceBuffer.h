@@ -96,7 +96,6 @@ public:
 
 private:
   TrieNode<InputState, SpecialInputState> _dictionary;
-  //std::vector<std::pair<int, std::list<InputState>>> _prefixes;
   std::unordered_map<BufferItem, int, BufferItem> _prefixes;
 
   //! copy of prefix map for roll back events

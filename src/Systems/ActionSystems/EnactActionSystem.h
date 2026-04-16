@@ -66,8 +66,6 @@ struct EnactAggregate
     EnactGrappledSystem::Check(entity);
     CleanUpActionSystem::Check(entity);
 
-    // just needs to be here to generate component id for losercomponent
-    //LoserSystem::Check(entity);
   }
 
   static void DoTick(float dt)

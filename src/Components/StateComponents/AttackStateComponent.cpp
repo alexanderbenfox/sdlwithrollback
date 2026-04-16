@@ -16,10 +16,6 @@ void AttackStateComponent::OnRemove(const EntityID& entity)
 
 void AttackStateComponent::ClearEvents(const EntityID& entity)
 {
-  /*for(auto& event : inProgressEvents)
-    event->EndEvent(entity);
-  inProgressEvents.clear();*/
-
   for (const AnimationEvent::Type& type: inProgressEventTypes)
   {
     if (type == AnimationEvent::Type::EntitySpawner)

@@ -72,7 +72,6 @@ void StateComponent::OnDebug()
   std::string name = "State P" + std::to_string(entityID);
   if (ImGui::CollapsingHeader(name.c_str()))
   {
-    //ImGui::Text("Player %d State Component", _owner->GetID());
     if (hitting)
       ImGui::Text("IsHitting");
     else

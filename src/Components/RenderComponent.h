@@ -5,7 +5,7 @@
 #include "Rendering/RenderManager.h"
 
 #include "Transform.h"
-#include "AssetManagement/Text.h"
+#include "AssetManagement/LetterCase.h"
 #include "AssetManagement/EditableAssets/AnimationAsset.h"
 
 #include <functional>

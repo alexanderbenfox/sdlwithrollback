@@ -209,16 +209,6 @@ void AnimationAsset::DisplayAnchorPointEditor()
       anchorPoints[(int)anchor].DisplayAtPosition(position);
 
       ImGui::EndChild();
-
-      if (ImGui::Button("Auto Calculate Anchor Points"))
-      {
-        const SpriteSheet& animSpriteSheet = ResourceManager::Get().gSpriteSheets.Get(sheetName);
-        const SpriteSheet::Section& ssSection = animSpriteSheet.GetSubSection(subSheetName);
-        DrawRect<float> frameRect = ssSection.GetFrame(startIndexOnSheet);
-
-        Vector2<int> anchorPos = GenerateAnchorPoint(anchor, animSpriteSheet, startIndexOnSheet, false);
-        anchorPoints[(int)anchor].Import(anchorPos, Vector2<double>(frameRect.w, frameRect.h));
-      }
     }
 
     if (ImGui::Button("Close"))
@@ -249,60 +239,3 @@ Vector2<float> AnimationAsset::GetAnchorPosition(int animationFrame) const
   return static_cast<Vector2<float>>(anchPos);
 }
 
-//______________________________________________________________________________
-Vector2<int> AnimationAsset::GenerateAnchorPoint(AnchorPoint anchorType, const SpriteSheet& spriteSheet, int startIdx, bool fromFirstFrame)
-{
-  Resource<SDL_Texture>& sheetTexture = ResourceManager::Get().GetAsset<SDL_Texture>(spriteSheet.src);
-  // Get the window format
-  Uint32 windowFormat = SDL_GetWindowPixelFormat(GRenderer.GetWindow());
-  std::shared_ptr<SDL_PixelFormat> format = std::shared_ptr<SDL_PixelFormat>(SDL_AllocFormat(windowFormat), SDL_FreeFormat);
-
-  // Get the pixel data
-  Uint32* upixels;
-  auto px = sheetTexture.GetInfo().GetPixels(sheetTexture.GetPath());
-  upixels = (Uint32*)px.get();
-
-  const SpriteSheet::Section& ssSection = spriteSheet.mainSection;
-
-  auto findAnchor = [&ssSection, &upixels, &sheetTexture, &format](bool reverseX, bool reverseY, int startX, int startY)
-  {
-    Uint32 transparent = sheetTexture.GetInfo().transparent;
-    int strX = startX;
-    int strY = startY;
-    startX = reverseX ? startX - 1 : startX + 1;
-    startY = reverseY ? startY - 1 : startY + 1;
-    for (int yValue = startY; yValue < startY + ssSection.frameSize.y; yValue++)
-    {
-      for (int xValue = startX; xValue < startX + ssSection.frameSize.x; xValue++)
-      {
-        int y = yValue;
-        if (reverseY)
-          y = startY + ssSection.frameSize.y - (yValue - startY);
-        int x = xValue;
-        if (reverseX)
-          x = startX + ssSection.frameSize.x - (xValue - startX);
-
-        Uint32 pixel = upixels[sheetTexture.GetInfo().mWidth * y + x];
-#ifdef _WIN32
-        if (pixel != transparent)
-#else
-        Uint8 r, g, b, a;
-        SDL_GetRGBA(pixel, format.get(), &r, &g, &b, &a);
-        if (a == 0xFF)
-#endif
-          return Vector2<int>(x - strX, y - strY);
-      }
-    }
-    return Vector2<int>(0, 0);
-  };
-
-  int startX = (startIdx % ssSection.columns) * ssSection.frameSize.x;
-  int startY = (startIdx / ssSection.columns) * ssSection.frameSize.y;
-  bool reverseX = anchorType == AnchorPoint::TR || anchorType == AnchorPoint::BR;
-  bool reverseY = anchorType == AnchorPoint::BR || anchorType == AnchorPoint::BL;
-  if (fromFirstFrame)
-    return findAnchor(reverseX, reverseY, 0, 0);
-  else
-    return findAnchor(reverseX, reverseY, startX, startY);
-
-}

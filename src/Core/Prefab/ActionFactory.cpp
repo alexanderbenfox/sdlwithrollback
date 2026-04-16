@@ -480,8 +480,6 @@ void ActionFactory::RemoveTransitionComponents(const EntityID& entity)
   GameManager::Get().GetEntityByID(entity)->RemoveComponent<AttackStateComponent>();
   GameManager::Get().GetEntityByID(entity)->RemoveComponent<HitStateComponent>();
 
-  // remove all action state components
-  //GameManager::Get().GetEntityByID(entity)->RemoveComponents<DashingAction, JumpingAction, CrouchingAction>();
 }
 
 

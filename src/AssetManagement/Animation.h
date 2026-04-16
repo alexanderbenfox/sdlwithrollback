@@ -57,13 +57,10 @@ public:
 
 protected:
   //!
-  //SpriteSheet _spriteSheet;
   std::string _spriteSheetName;
   std::string _subSheetName;
   //!
   int _frames, _startIdx;
-  //! stores the bottom left and top left reference pixels
-  //Vector2<int> _anchorPoints[(const int)AnchorPoint::Size];
   //!
   std::vector<int> _animFrameToSheetFrame;
 

@@ -29,7 +29,6 @@ public:
   int startIndexOnSheet = 0;
   int frames = 0;
   AnchorPoint anchor = AnchorPoint::TL;
-  //Vector2<int> anchorPoints[(const int)AnchorPoint::Size];
   EditorPoint anchorPoints[(const int)AnchorPoint::Size];
   bool reverse = false;
 
@@ -46,9 +45,6 @@ public:
   //! Gets position of anchor point relative to top left corner of first frame
   Vector2<float> GetAnchorPosition(int animationFrame) const;
 
-
-  //! Gets first non-transparent pixel from the top left and bottom left
-  static Vector2<int> GenerateAnchorPoint(AnchorPoint anchorType, const SpriteSheet& spriteSheet, int startIdx, bool fromFirstFrame);
 
 private:
   DisplayImage _anchorEditBackground;

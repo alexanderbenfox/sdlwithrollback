@@ -24,22 +24,6 @@ public:
       {
         int frame = animator.frame;
 
-        // update all in progress events now
-        /*for (int i = 0; i < atkState.inProgressEvents.size(); i++)
-        {
-          AnimationEvent* evt = atkState.inProgressEvents[i];
-          if (frame >= evt->GetEndFrame())
-          {
-            evt->EndEvent(entity);
-            atkState.inProgressEvents.erase(atkState.inProgressEvents.begin() + i);
-            i--;
-          }
-          else
-          {
-            evt->UpdateEvent(frame, entity, &transform, &stateComp);
-          }
-        }*/
-
         // Checks if an event should be trigger this frame of animation and calls its callback if so
         EventList& linkedEventList = *GAnimArchive.GetCollection(animator.animCollectionID).GetEventList(atkState.attackAnimation);
         std::vector<AnimationEvent>& potentialEvents = linkedEventList[frame];

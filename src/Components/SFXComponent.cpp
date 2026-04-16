@@ -5,10 +5,6 @@
 #include "Managers/AnimationCollectionManager.h"
 #include "Systems/ActionSystems/EnactActionSystem.h"
 
-// for hit block sparks sprite sheet data... stupid but ill fix later
-//SpriteSheet hitblockSparksInfo("sfx/hitblocksparks.png", 8, 7, true);
-
-
 void SFXComponent::OnAdd(const EntityID& entity)
 {
   _sfxEntity = GameManager::Get().CreateEntity<RenderComponent<GLTexture>, Transform, Animator, TimerContainer>();
@@ -27,9 +23,7 @@ void SFXComponent::ShowHitSparks(bool directionRight)
   if (_subroutine)
     _subroutine->Cancel();
 
-  //Vector2<float> size = (Vector2<float>)hitblockSparksInfo.frameSize * _sfxEntity->GetComponent<Transform>()->scale;
-
-  _sfxEntity->GetComponent<Transform>()->position = showLocation;//Vector2<float>(showLocation.x - size.x / 2, showLocation.y - size.y / 2);
+  _sfxEntity->GetComponent<Transform>()->position = showLocation;
 
   // add render properties so that the render system shows it
   _sfxEntity->AddComponent<RenderProperties>();

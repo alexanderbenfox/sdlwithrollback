@@ -59,9 +59,6 @@ IScene* SceneHelper::CreateScene(SceneType type)
 
 BattleScene::~BattleScene()
 {
-  //for (int i = 0; i < _uiEntities.size(); i++)
-  //  GameManager::Get().DestroyEntity(_uiEntities[i]);
-
   GameManager::Get().DestroyEntity(_p1UIAnchor);
   GameManager::Get().DestroyEntity(_p2UIAnchor);
 

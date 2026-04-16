@@ -66,17 +66,6 @@ public:
       state.onNewState = false;
       state.collision = rigidbody.lastCollisionSide;
       actor.TransferInputData(inputHandler.GetInput(), &state);
-      
-
-      /*state->onNewState = false;
-
-      // if evaluation leads to changing state, do on state change code
-      if ((state->onNewState = actor->EvaluateInputContext(unitInputState, state)))
-      {
-        state->actionState = actor->GetActionState();
-        state->stanceState = actor->GetStanceState();
-        //rigidbody->elasticCollisions = actor->GetActionState() == ActionState::HITSTUN;
-      }*/
     }
   }
 };

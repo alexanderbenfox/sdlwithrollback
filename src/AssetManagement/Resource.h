@@ -13,15 +13,6 @@ struct ResourceTraits {};
 
 template <typename T> class Resource;
 
-template <> struct ResourceTraits<SDL_Texture>
-{
-  ResourceTraits() : mPitch(0), mWidth(0), mHeight(0) {}
-  int mPitch, mWidth, mHeight;
-  std::unique_ptr<unsigned char> GetPixels(const std::string& resourcePath) const;
-  Uint32 transparent;
-
-};
-
 template <> struct ResourceTraits<GLTexture>
 {
   ResourceTraits() : mPitch(0), mWidth(0), mHeight(0) {}
@@ -84,5 +75,3 @@ private:
   Resource<T>& _resource;
 };
 
-//template <> void Resource<SDL_Texture>::Load();
-//template <> void Resource<TTF_Font>::Load();

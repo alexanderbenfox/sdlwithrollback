@@ -115,21 +115,8 @@ void AIInputHandler::SetAIProgram(AIComponent* comp, IAIProgram* program)
 }
 
 //______________________________________________________________________________
-KeyboardInputHandler::KeyboardInputHandler(InputBuffer& buffer) : _config(KeyboardConfig),/*_config(Keys, InitValuesForward, InitValuesBackward),*/ IInputHandler(buffer)
+KeyboardInputHandler::KeyboardInputHandler(InputBuffer& buffer) : _config(KeyboardConfig), IInputHandler(buffer)
 {
-  /*
-  //assign direction buttons
-  _config[SDL_SCANCODE_W] = InputState::UP;
-  _config[SDL_SCANCODE_A] = InputState::LEFT;
-  _config[SDL_SCANCODE_S] = InputState::DOWN;
-  _config[SDL_SCANCODE_D] = InputState::RIGHT;
-
-  //assign the button events
-  _config[SDL_SCANCODE_U] = InputState::BTN1;
-  _config[SDL_SCANCODE_I] = InputState::BTN2;
-  _config[SDL_SCANCODE_O] = InputState::BTN3;
-  _config[SDL_SCANCODE_P] = InputState::BTN4;
-  */
 }
 
 //______________________________________________________________________________
@@ -138,7 +125,7 @@ KeyboardInputHandler::~KeyboardInputHandler() {}
 //______________________________________________________________________________
 InputState KeyboardInputHandler::TranslateEvent(const SDL_Event& input)
 {
-  InputState frameState = InputState::NONE;//_inputBuffer.Latest();
+  InputState frameState = InputState::NONE;
 
   _keyStates = SDL_GetKeyboardState(NULL);
   for (const SDL_Scancode& key : _config.GetKeys())
@@ -149,17 +136,6 @@ InputState KeyboardInputHandler::TranslateEvent(const SDL_Event& input)
       frameState &= (~(InputState)_config[key]);
   }
 
-  /*SDL_Keycode key = input.key.keysym.sym;
-  switch (input.type)
-  {
-  case SDL_KEYDOWN:
-    frameState |= _eventConfig[key];
-    break;
-  case SDL_KEYUP:
-    frameState &= (~(InputState)_eventConfig[key]);
-    break;
-  }*/
-  
   return frameState;
 }
 
@@ -270,7 +246,6 @@ GamepadInputHandler::GamepadInputHandler(InputBuffer& buffer) : IInputHandler(bu
       {
         SDL_GameControllerEventState(SDL_ENABLE);
         _gameController = SDL_GameControllerOpen(i);
-        //_joyStick = SDL_GameControllerGetJoystick(_gameController);
         break;
       }
     }
@@ -278,7 +253,6 @@ GamepadInputHandler::GamepadInputHandler(InputBuffer& buffer) : IInputHandler(bu
 
   _config[SDL_CONTROLLER_BUTTON_X] = InputState::BTN1;
   _config[SDL_CONTROLLER_BUTTON_Y] = InputState::BTN2;
-  //_config[SDL_CONTROLLER_BUTTON_A] = InputState::BTN3;
   _config[SDL_CONTROLLER_BUTTON_B] = InputState::BTN4;
   _config[SDL_CONTROLLER_BUTTON_RIGHTSHOULDER] = InputState::BTN3;
   _config[SDL_CONTROLLER_BUTTON_DPAD_UP] = InputState::UP;

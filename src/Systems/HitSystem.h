@@ -162,15 +162,6 @@ public:
         attackerFrameAdvantage += remainingFrames;
       }
 
-      // this is for stuff like fireball
-      /*ComponentArray<AttackStateComponent>::Get().ForEach([&attackerFrameAdvantage, &atkState](AttackStateComponent& otherAttackingEntity)
-      {
-          if (&otherAttackingEntity != &atkState)
-          {
-            attackerFrameAdvantage += otherAttackingEntity.GetRemainingFrames();
-          }
-      });*/
-
       if (attackerFrameAdvantage > 0)
         properties.SetDisplayColor(0, 0, 255);
       else if (attackerFrameAdvantage < 0)

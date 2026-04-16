@@ -4,8 +4,6 @@
 # define M_PI           3.14159265358979323846  /* pi */
 #endif
 
-//template <> Matrix<float, 4> Matrix<float, 4>::operator*(const Matrix<float, 4>&);
-
 typedef Matrix<float, 4> Matrix4F;
 
 class Mat4

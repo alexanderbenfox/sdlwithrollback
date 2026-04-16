@@ -14,24 +14,6 @@ void Transform::SetWidthAndHeight(float width, float height)
   rect = Rect<float>(0.0f, 0.0f, width, height);
 }
 
-/*void Transform::AddChild(std::shared_ptr<Entity> child)
-{
-  children.push_back(child);
-}
-
-void Transform::RemoveChild(std::shared_ptr<Entity> child)
-{
-  children.erase(std::find(children.begin(), children.end(), child));
-  GameManager::Get().DestroyEntity(child);
-}
-
-void Transform::RemoveAllChildren()
-{
-  for (const auto child : children)
-    GameManager::Get().DestroyEntity(child);
-  children.clear();
-}*/
-
 void Transform::Serialize(std::ostream& os) const
 {
   os << position;

@@ -334,3 +334,11 @@ ASALocalRun/
 
 ## Dear ImGui artifacts
 build/imgui.ini
+
+## Build output (macOS/make)
+game
+*.o
+*.dSYM/
+
+## Profiling data
+build/profiling_data/

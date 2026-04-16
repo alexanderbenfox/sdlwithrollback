@@ -93,8 +93,6 @@ void OpenGLRenderer::RenderQuad2D(GLTexture* texture, const DrawRect<float>& src
   GLfloat centerx, centery;
   GLfloat minu, maxu, minv, maxv;
 
-  //GL_SetShader(data, SHADER_RGB);
-
   if (center)
   {
     centerx = center->x;
@@ -140,7 +138,6 @@ void OpenGLRenderer::RenderQuad2D(GLTexture* texture, const DrawRect<float>& src
 
   glColor4ub((GLubyte)color.r, (GLubyte)color.g, (GLubyte)color.b, (GLubyte)color.a);
 
-  //program->RenderPresent();
   glBegin(GL_TRIANGLE_STRIP);
   glTexCoord2f(minu, minv);
   glVertex2f(minx, miny);
@@ -151,7 +148,6 @@ void OpenGLRenderer::RenderQuad2D(GLTexture* texture, const DrawRect<float>& src
   glTexCoord2f(maxu, maxv);
   glVertex2f(maxx, maxy);
   glEnd();
-  //program->EndPresent();
 
   glColor4ub((GLubyte)255, (GLubyte)255, (GLubyte)255, (GLubyte)255);
 

@@ -26,7 +26,6 @@ EventList Animation::GenerateEvents(const std::vector<EventData>& attackInfo, Fr
 {
   animationEvents = attackInfo;
   auto scaledOffset = static_cast<Vector2<float>>(_anchorPoint.second) * textureScalingFactor;
-  //auto scaledOffsetAnim = GetAttachedOffset() * textureScalingFactor;
   return AnimationEventHelper::BuildEventList(textureScalingFactor, scaledOffset, attackInfo, frameData, _frames, _animFrameToSheetFrame, _anchorPoint.first);
 }
 
@@ -45,7 +44,6 @@ DrawRect<float> Animation::GetFrameSrcRect(int animFrame) const
 //______________________________________________________________________________
 DisplayImage Animation::GetGUIDisplayImage(int displayHeight, int animFrame)
 {
-  //int frame = _animFrameToSheetFrame[animFrame];
   auto srcRect = GetFrameSrcRect(animFrame);
 
   return DisplayImage(ResourceManager::Get().gSpriteSheets.Get(_spriteSheetName).src, Rect<float>(srcRect.x, srcRect.y, srcRect.x + srcRect.w, srcRect.y + srcRect.h), displayHeight);
@@ -115,19 +113,3 @@ void AnimationCollection::SetAnimationEvents(const std::string& animationName, c
   }
 }
 
-//______________________________________________________________________________
-/*Vector2<float> AnimationCollection::GetRenderOffset(const std::string& animationName, bool flipped) const
-{
-  auto animIt = _animations.find(animationName);
-  if(animIt == _animations.end())
-    return Vector2<int>::Zero;
-
-  Animation const& renderedAnim = animIt->second;
-  Vector2<float> offset = renderedAnim.GetMainAnchor().second;
-
-  if (flipped)
-    offset.x = renderedAnim.GetFrameWH().x - offset.x;
-
-  return offset;
-}
-*/

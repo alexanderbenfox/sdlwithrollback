@@ -13,8 +13,7 @@ public:
   void OnRemove(const EntityID& entity) override;
   //! Clear event list
   void ClearEvents(const EntityID& entity);
-  //! List of in progress events
-  //std::vector<AnimationEvent*> inProgressEvents;
+  //! Set of in progress event types
   std::unordered_set<AnimationEvent::Type> inProgressEventTypes;
   //!
   std::string attackAnimation;

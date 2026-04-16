@@ -48,7 +48,6 @@
 //______________________________________________________________________________
 void ResourceManager::Destroy()
 {
-  _fileAssets<SDL_Texture>.clear();
 }
 
 //______________________________________________________________________________
@@ -58,19 +57,6 @@ void ResourceManager::Initialize()
   if (basePath)
     _resourcePath = std::string(basePath) + "resources/";
   else _resourcePath = "./";
-}
-
-//______________________________________________________________________________
-TextResource& ResourceManager::GetText(const char* text, const std::string& fontFile)
-{
-  auto& font = GetAsset<TTF_Font>(fontFile);
-
-  if (_loadedTexts.find(text) == _loadedTexts.end())
-  {
-    _loadedTexts.emplace(std::piecewise_construct, std::make_tuple(text), std::make_tuple(font.Get(), text, SDL_Color{ 255, 255, 255, SDL_ALPHA_OPAQUE }));
-  }
-  _loadedTexts[text].Load();
-  return _loadedTexts[text];
 }
 
 //______________________________________________________________________________
@@ -98,72 +84,6 @@ Vector2<int> ResourceManager::GetTextureWidthAndHeight(const std::string& file)
   Vector2<int> size(surface->w, surface->h);
   SDL_FreeSurface(surface);
   return size;
-}
-
-//______________________________________________________________________________
-void ResourceManager::CrawlTexture(Resource<SDL_Texture>& texture, Vector2<int> begin, Vector2<int> end, std::function<void(int, int, Uint32)> callback)
-{
-  auto& textureData = texture.GetInfo();
-  // Get the window format
-  Uint32 windowFormat = SDL_GetWindowPixelFormat(GRenderer.GetWindow());
-  std::shared_ptr<SDL_PixelFormat> format = std::shared_ptr<SDL_PixelFormat>(SDL_AllocFormat(windowFormat), SDL_FreeFormat);
-
-  // Get the pixel data
-  Uint32* upixels;
-
-  auto px = textureData.GetPixels(texture.GetPath());
-  upixels = (Uint32*)px.get();
-  Uint32 transparent = textureData.transparent;
-  for (int y = begin.y; y < end.y; y++)
-  {
-    for (int x = begin.x; x < end.x; x++)
-    {
-      callback(x - begin.x, y - begin.y, upixels[textureData.mWidth * y + x]);
-    }
-  }
-}
-
-//______________________________________________________________________________
-Rect<double> ResourceManager::FindRect(Resource<SDL_Texture>& texture, Vector2<int> frameSize, Vector2<int> begPx)
-{
-  Uint32 windowFormat = SDL_GetWindowPixelFormat(GRenderer.GetWindow());
-  std::shared_ptr<SDL_PixelFormat> format = std::shared_ptr<SDL_PixelFormat>(SDL_AllocFormat(windowFormat), SDL_FreeFormat);
-
-  Uint32 transparent;
-#ifdef _WIN32
-  auto px = texture.GetInfo().GetPixels(texture.GetPath());
-  Uint32* upixels = (Uint32*)px.get();
-  transparent = texture.GetInfo().transparent;
-#endif
-
-  Vector2<int> rectBegin(-1, -1);
-  Vector2<int> rectEnd(-1, -1);
-  bool firstFound = false;
-
-  auto buildRect = [format, &rectBegin, &rectEnd, &firstFound, &transparent](int x, int y, Uint32 pixel)
-  {
-#ifdef _WIN32
-    if(pixel != transparent)
-#else
-    Uint8 r, g, b, a;
-    SDL_GetRGBA(pixel, format.get(), &r, &g, &b, &a);
-    if (r != 0 || b != 0 || g != 0 || a != 0)
-#endif
-    {
-      if (!firstFound)
-      {
-        rectBegin = Vector2<int>(x, y);
-        firstFound = true;
-      }
-      else
-      {
-        rectEnd = Vector2<int>(x, y);
-      }
-    }
-  };
-
-  CrawlTexture(texture, begPx, begPx + frameSize, buildRect);
-  return Rect<double>((double)rectBegin.x, (double)rectBegin.y, (double)rectEnd.x, (double)rectEnd.y);
 }
 
 //______________________________________________________________________________
@@ -585,23 +505,11 @@ SBuffer GameManager::CreateGameStateSnapshot() const
   Serializer<bool>::Serialize(stream, _frameStopActive);
   Serializer<int>::Serialize(stream, _frameStop);
 
-  /*for (auto entity : _gameEntities)
-  {
-    Serializer<EntityID>::Serialize(stream, entity.first);
-    entity.second->Serialize(stream);
-  }*/
-
   for (const EntityID& id : _networkedEntities)
   {
     Serializer<EntityID>::Serialize(stream, id);
     _gameEntities.at(id)->Serialize(stream);
   }
-
-  // right now, lets just copy the player entities
-
-
-  //Serializer<EntityID>::Serialize(stream, _p2->GetID());
-  //_p2->Serialize(stream);
 
   return SBuffer(std::istreambuf_iterator<char>(stream), {});
 }
@@ -792,13 +700,6 @@ SDL_Event GameManager::UpdateLocalInput()
   SDL_Event event;
   // Check for quit or resize and update input object
   if (SDL_PollEvent(&event)) {
-    if (event.type == SDL_WINDOWEVENT)
-    {
-      if (event.window.event == SDL_WINDOWEVENT_RESIZED)
-      {
-        GRenderer.ProcessResizeEvent(event);
-      }
-    }
     if (event.type == SDL_QUIT)
     {
       _running = false;

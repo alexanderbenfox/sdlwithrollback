@@ -106,8 +106,6 @@ void PreMatchScene::Update(float deltaTime)
   // resolve collisions
   ApplyGravitySystem::DoTick(deltaTime);
   PhysicsSystem::DoTick(deltaTime);
-  // prevent continued movement after hitting the ground
-  //CutsceneMovementSystem::DoTick(deltaTime);
   // update the location of the colliders
   MoveSystem::DoTick(deltaTime);
 
@@ -232,8 +230,6 @@ MatchScene::~MatchScene()
   if (_sceneSwapperThread.joinable())
     _sceneSwapperThread.join();
 
-  //GRenderer.EstablishCamera(RenderLayer::UI, nullptr);
-  //GRenderer.EstablishCamera(RenderLayer::World, nullptr);
 }
 
 void MatchScene::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2)
@@ -321,7 +317,6 @@ void MatchScene::AdvanceScene()
 
         _subScene = std::make_shared<PreMatchScene>(matchStatus);
         _subScene->Init(_p1, _p2);
-        //BeginLoadingThread(new PreMatchScene(matchStatus));
         _currStage = MatchStage::PREMATCH;
       }
     }
@@ -329,14 +324,12 @@ void MatchScene::AdvanceScene()
     {
       _subScene = std::make_shared<BattleScene>(matchStatus);
       _subScene->Init(_p1, _p2);
-      //BeginLoadingThread(new BattleScene(matchStatus));
       _currStage = MatchStage::BATTLE;
     }
     else
     {
       _subScene = std::make_shared<PostMatchScene>(matchStatus);
       _subScene->Init(_p1, _p2);
-      //BeginLoadingThread(new PostMatchScene(matchStatus));
       if (_p1->GetComponent<LoserComponent>())
         matchStatus.scoreP2++;
       else
@@ -349,7 +342,6 @@ void MatchScene::AdvanceScene()
   {
     _subScene = std::make_shared<BattleScene>(matchStatus);
     _subScene->Init(_p1, _p2);
-    //BeginLoadingThread(new BattleScene(matchStatus));
     _p1->GetComponent<StateComponent>()->invulnerable = true;
     _p2->GetComponent<StateComponent>()->invulnerable = true;
 

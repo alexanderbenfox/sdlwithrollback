@@ -23,18 +23,11 @@ public:
   template <typename AssetType>
   Resource<AssetType>& GetAsset(const std::string& file);
   //!
-  TextResource& GetText(const char* text, const std::string& fontFile);
-  //!
   LetterCase& GetFontWriter(const std::string& fontFile, size_t size);
   //! Uses SDLQuery to get the width and height of the source texture
   Vector2<int> GetTextureWidthAndHeight(const std::string& file);
   //! Gets the relative source path for the resources
   const std::string& GetResourcePath() { return _resourcePath; }
-
-  //////++++ WE NEED TO GET THIS OUTTA HERE - BEGIN
-  static void CrawlTexture(Resource<SDL_Texture>& texture, Vector2<int> begin, Vector2<int> end, std::function<void(int, int, Uint32)> callback);
-  static Rect<double> FindRect(Resource<SDL_Texture>& texture, Vector2<int> frameSize, Vector2<int> begPx);
-  //////++++ WE NEED TO GET THIS OUTTA HERE - END
 
   AssetLibrary<SpriteSheet> gSpriteSheets;
 
@@ -47,11 +40,6 @@ private:
   std::unordered_map<FontKey, LetterCase> _loadedLetterCases;
   //! Relative source path for all of the resources
   std::string _resourcePath;
-
-  //////++++ WE NEED TO GET THIS OUTTA HERE - BEGIN
- //! All loaded font resources
-  std::unordered_map<std::string, TextResource> _loadedTexts;
-  //////++++ WE NEED TO GET THIS OUTTA HERE - END
 
   //!
   ResourceManager() = default;

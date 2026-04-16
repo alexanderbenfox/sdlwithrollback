@@ -164,7 +164,6 @@ public:
     _keys = _forward.keys();
   }
 
-  //std::vector<T1> const& GetKeys() const { return _keys; }
   std::array<T1, N> const& GetKeys() const { return _keys; }
 
 private:

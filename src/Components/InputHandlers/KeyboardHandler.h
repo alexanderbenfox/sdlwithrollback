@@ -2,11 +2,6 @@
 #include "Components/InputHandlers/IInputHandler.h"
 #include <SDL2/SDL_keycode.h>
 
-/*static constexpr std::array<SDL_Scancode, 8> Keys
-{
-  {SDL_SCANCODE_W, SDL_SCANCODE_A, SDL_SCANCODE_S, SDL_SCANCODE_D, SDL_SCANCODE_U, SDL_SCANCODE_I, SDL_SCANCODE_O, SDL_SCANCODE_P}
-};*/
-
 static constexpr std::array<SDL_Scancode, 8> Keys
 {
   {SDL_SCANCODE_W, SDL_SCANCODE_A, SDL_SCANCODE_S, SDL_SCANCODE_D, SDL_SCANCODE_U, SDL_SCANCODE_I, SDL_SCANCODE_O, SDL_SCANCODE_P}
@@ -25,7 +20,6 @@ static constexpr std::array<std::pair<InputState, SDL_Scancode>, 8> InitValuesBa
 };
 
 static constexpr auto KeyboardConfig = SizedConfigMap<SDL_Scancode, InputState, 8>(Keys, InitValuesForward, InitValuesBackward);
-//static constexpr auto KeyboardConfig = SmallMap<SDL_Scancode, InputState, 8>{ { InitValuesForward } };
 
 //______________________________________________________________________________
 //! Keyboard handler specification
@@ -55,11 +49,6 @@ private:
   //!
   const uint8_t* _keyStates = nullptr;
   //!
-  //ConfigMap<SDL_Scancode, InputState> _config;
   SizedConfigMap<SDL_Scancode, InputState, 8> _config;
-
-  // the only way this works is if the input is unconfigurable...
-  //const SizedConfigMap<SDL_Scancode, InputState, 8>& _config;
-
 
 };

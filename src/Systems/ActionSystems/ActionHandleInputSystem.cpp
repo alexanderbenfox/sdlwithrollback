@@ -34,7 +34,6 @@ void TimedActionSystem::DoTick(float dt)
       // remove system flag at the end of the system call
       
       RunOnDeferGuardDestroy(entity, GameManager::Get().GetEntityByID(entity)->RemoveComponent<TimedActionComponent>());
-      //guard.deferred.emplace(guard.deferred.begin(), [&](){ GameManager::Get().GetEntityByID(entity)->RemoveComponent<TimedActionComponent>(); });
     }
   }
 }
@@ -433,12 +432,6 @@ void CheckSpecialAttackInputSystem::DoTick(float dt)
         }
 
         RunOnDeferGuardDestroy(entity, {
-          // add additional cancelables for special moves here
-          // these might not work because they aren't implemented in any systems
-          // so they don't generate signatures
-          // entity->AddComponents<CancelOnDash, CancelOnJump>();
-
-          // no cancel on hit ground for stuff like tatsu
           GameManager::Get().GetEntityByID(entity)->RemoveComponent<CancelOnHitGround>();
           GameManager::Get().GetEntityByID(entity)->RemoveComponent<CancelOnNormal>();
           GameManager::Get().GetEntityByID(entity)->RemoveComponent<CancelOnSpecial>();
@@ -598,10 +591,6 @@ void TransitionToNeutralSystem::DoTick(float dt)
       if (rigidbody.IsGrounded() && HasState(actor.input.normal, InputState::DOWN))
       {
         RunOnDeferGuardDestroy((entity, &state), ActionFactory::SetCrouchingState(entity, &state));
-      }
-      else if (!rigidbody.IsGrounded())
-      {
-        //ActionFactory::SetAerialState(entity);
       }
     }
   }

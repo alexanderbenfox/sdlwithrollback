@@ -58,31 +58,6 @@ template <> void DrawOperator<DrawPrimitive<GLTexture>>::DoDraw(DrawPrimitive<GL
   }
 }
 
-/*template <> void DrawOperator<BlitOperation<GLTexture>>::SetupCamera()
-{
-  glMatrixMode(GL_MODELVIEW);
-  glPushMatrix();
-  glLoadIdentity();
-
-  const Matrix4F& matrix = GameManager::Get().GetMainCamera()->matrix;
-  float m[16];
-  Mat4::toMat4(matrix, m);
-  glMultMatrixf(m);
-}
-
-template <> void DrawOperator<BlitOperation<GLTexture>>::UndoCamera()
-{
-  const Matrix4F& matrix = GameManager::Get().GetMainCamera()->matrix;
-  const Matrix4F invTranspose = matrix.Transpose() * -1.0f;
-  float m[16];
-  Mat4::toMat4(invTranspose, m);
-
-  // unset the camera matrix
-  glMultMatrixf(m);
-  // pop matrix
-  glPopMatrix();
-}*/
-
 template <typename Drawable>
 void DrawOperator<Drawable>::SetupCamera(Camera* camera)
 {
@@ -111,10 +86,8 @@ void DrawOperator<Drawable>::UndoCamera(Camera* camera)
 
 //______________________________________________________________________________
 RenderManager::RenderManager() :
-  _renderer(nullptr),
   _window(nullptr),
-  _glContext(nullptr),
-  _renderScale(1.0, 1.0) {}
+  _glContext(nullptr) {}
 
 //______________________________________________________________________________
 void RenderManager::Init()
@@ -149,32 +122,14 @@ void RenderManager::Init()
 //______________________________________________________________________________
 void RenderManager::Destroy()
 {
-  if (_renderer)
-    SDL_DestroyRenderer(_renderer);
   SDL_GL_DeleteContext(_glContext);
   SDL_DestroyWindow(_window);
 
-  _renderer = nullptr;
   _window = nullptr;
 
   SDL_Quit();
   TTF_Quit();
 
-}
-
-//______________________________________________________________________________
-void RenderManager::ProcessResizeEvent(const SDL_Event& event)
-{
-  // get the window event size
-  Vector2<int> newWindowSize(event.window.data1, event.window.data2);
-
-  // get new scale for renderer
-  _renderScale = Vector2<double>(
-    static_cast<double>(newWindowSize.x) / static_cast<double>(m_nativeWidth),
-    static_cast<double>(newWindowSize.y) / static_cast<double>(m_nativeHeight));
-
-  // set render scale
-  SDL_RenderSetScale(_renderer, static_cast<float>(_renderScale.x), static_cast<float>(_renderScale.y));
 }
 
 //______________________________________________________________________________
@@ -283,18 +238,6 @@ void RenderManager::Draw3DBackground()
   SetUpMatrix();
   glTranslatef(0.0f, 0.0f, 3.0f);
   OpenGLRenderer::RenderQuad3D({ 230, 230, 230, 255 }, stageSize, Vector3<float>(0, -1.0f, 0.0f), Vector3<float>(1.0f, 1.0f, 1.0f));
-
-  /*
-  SetUpMatrix();
-  glTranslatef(0.0f, -0.5f, 3.5f);
-  Mat4::toMat4(Mat4::RotateXN90, m);
-  glMultMatrixf(m);
-  RenderTextureCommand cmd;
-  cmd.texture = ResourceManager::Get().GetAsset<GLTexture>("spritesheets/ryu.png").Get();
-  auto size = ResourceManager::Get().GetTextureWidthAndHeight("spritesheets/ryu.png");
-  cmd.srcRect = DrawRect<float>(0, 0, size.x, size.y);
-  OpenGLRenderer::RenderQuad3D(cmd, { 255, 255, 255, 255 }, { 0.1f, 0.1f }, Vector3<float>(0, -1.0f, 0.0f), Vector3<float>(1.0f, 1.0f, 1.0f));
-  */
 
   SetUpMatrix();
   glTranslatef(0.0f, 0.0f, 3.0f);

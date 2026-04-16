@@ -91,11 +91,6 @@ public:
   //! Destroys renderer and window
   void Destroy();
   //!
-  void ProcessResizeEvent(const SDL_Event& event);
-
-  //!
-  SDL_Renderer* GetRenderer() const { return _renderer; }
-  //!
   SDL_Window* GetWindow() const { return _window; }
   //!
   void* GetGLContext() const { return _glContext; }
@@ -164,14 +159,10 @@ private:
 
   LayerDrawers _drawers[(int)RenderLayer::NLayers];
 
-  //! SDL Renderer pointer
-  SDL_Renderer* _renderer;
   //! Window object pointer
   SDL_Window* _window;
   //! SDL Gl Context pointer - only used for gl texture rendering. SDL_GLContext is just an alias for void*
   void* _glContext;
-  //! Rendering scale for window resize
-  Vector2<double> _renderScale;
   //!
   Uint32 _sdlWindowFormat;
 

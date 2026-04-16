@@ -1,6 +1,5 @@
 #pragma once
 #include "AssetManagement/Resource.h"
-#include "AssetManagement/Text.h"
 
 #include "Core/Geometry2D/Rect.h"
 

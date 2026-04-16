@@ -58,9 +58,6 @@ protected:
 
 };
 
-//template <typename ... T>
-//std::map<int, std::tuple<T&...>> ISystem<T...>::Tuples;
-
 template <typename ... T>
 std::set<EntityID> ISystem<T...>::Registered;
 
