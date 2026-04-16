@@ -7,6 +7,7 @@
 #include <thread>
 #include <mutex>
 #include <fstream>
+#include <stdexcept>
 
 
 #include <algorithm>
@@ -91,7 +92,7 @@ public:
     }
     else
     {
-      throw std::exception("Profiler could not open/create results file.\n");
+      throw std::runtime_error("Profiler could not open/create results file.\n");
     }
 
   }

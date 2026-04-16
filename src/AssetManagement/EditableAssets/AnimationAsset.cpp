@@ -259,20 +259,14 @@ Vector2<int> AnimationAsset::GenerateAnchorPoint(AnchorPoint anchorType, const S
 
   // Get the pixel data
   Uint32* upixels;
-#ifdef _WIN32
   auto px = sheetTexture.GetInfo().GetPixels(sheetTexture.GetPath());
   upixels = (Uint32*)px.get();
-#else
-  upixels = (Uint32*)sheetTexture.GetInfo().pixels.get();
-#endif
 
   const SpriteSheet::Section& ssSection = spriteSheet.mainSection;
 
   auto findAnchor = [&ssSection, &upixels, &sheetTexture, &format](bool reverseX, bool reverseY, int startX, int startY)
   {
-#ifdef _WIN32
     Uint32 transparent = sheetTexture.GetInfo().transparent;
-#endif
     int strX = startX;
     int strY = startY;
     startX = reverseX ? startX - 1 : startX + 1;

@@ -1,31 +1,26 @@
 {
-    "configurations": [
-        {
-            "name": "Mac",
-            "includePath": [
-                "${workspaceFolder}/src/**"
-            ],
-            "defines": [],
-            "macFrameworkPath": [
-                "/Library/Frameworks"
-            ],
-            "compilerPath": "/usr/bin/clang++",
-            "cStandard": "c11",
-            "cppStandard": "c++17",
-            "intelliSenseMode": "clang-x64"
-        },
-        {
-            "name": "OSX 10.13.2",
-            "includePath": [
-                "${workspaceFolder}/include/**"
-            ],
-            "defines": [],
-            "macFrameworkPath": [],
-            "compilerPath": "/usr/bin/clang++",
-            "cStandard": "c11",
-            "cppStandard": "c++17",
-            "intelliSenseMode": "${default}"
-        }
-    ],
-    "version": 4
+  "configurations": [
+    {
+      "name": "Mac",
+      "includePath": [
+        "${workspaceFolder}/src",
+        "${workspaceFolder}/build/external/ggpo/include",
+        "/opt/homebrew/include",
+        "/opt/homebrew/include/SDL2",
+        "/opt/homebrew/opt/jsoncpp/include"
+      ],
+      "defines": [
+        "GL_SILENCE_DEPRECATION"
+      ],
+      "macFrameworkPath": [
+        "/Library/Frameworks",
+        "/System/Library/Frameworks"
+      ],
+      "compilerPath": "/usr/bin/clang++",
+      "cStandard": "c11",
+      "cppStandard": "c++17",
+      "intelliSenseMode": "macos-clang-arm64"
+    }
+  ],
+  "version": 4
 }

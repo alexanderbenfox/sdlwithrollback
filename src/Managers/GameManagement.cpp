@@ -120,13 +120,9 @@ void ResourceManager::CrawlTexture(Resource<SDL_Texture>& texture, Vector2<int> 
   // Get the pixel data
   Uint32* upixels;
 
-#ifdef _WIN32
   auto px = textureData.GetPixels(texture.GetPath());
   upixels = (Uint32*)px.get();
   Uint32 transparent = textureData.transparent;
-#else
-  upixels = (Uint32*)textureData.pixels.get();
-#endif
   for (int y = begin.y; y < end.y; y++)
   {
     for (int x = begin.x; x < end.x; x++)

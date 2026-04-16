@@ -122,22 +122,22 @@ void RenderManager::Init()
   SDL_Init(SDL_INIT_EVERYTHING | SDL_INIT_GAMECONTROLLER | SDL_INIT_JOYSTICK);
   TTF_Init();
 
-  _window = SDL_CreateWindow(Title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-    m_nativeWidth, m_nativeHeight,
-    SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_ALLOW_HIGHDPI);
-
-  _renderer = SDL_CreateRenderer(_window, -1, SDL_RENDERER_ACCELERATED);
-  SDL_SetRenderDrawBlendMode(_renderer, SDL_BLENDMODE_BLEND);
-
-  // init the gl context and a bunch of other stuff to enable GL
+  // GL attributes must be set BEFORE window creation to take effect
   SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
   SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
   SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
-  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
+
+  _window = SDL_CreateWindow(Title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+    m_nativeWidth, m_nativeHeight,
+    SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_ALLOW_HIGHDPI);
 
   _glContext = SDL_GL_CreateContext(_window);
   SDL_GL_MakeCurrent(_window, _glContext);
+
+  _renderer = SDL_CreateRenderer(_window, -1, SDL_RENDERER_ACCELERATED);
+  SDL_SetRenderDrawBlendMode(_renderer, SDL_BLENDMODE_BLEND);
 
   // Enable vsync
   SDL_GL_SetSwapInterval(1);
