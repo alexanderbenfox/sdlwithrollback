@@ -1,5 +1,6 @@
 #pragma once
 #include "GameState/Scene.h"
+#include "Components/Actors/CutsceneActor.h"
 #include <thread>
 
 //! fades in the text "ROUND X"... "FIGHT"

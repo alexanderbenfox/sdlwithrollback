@@ -1,34 +1,60 @@
 # Compiler
-CC = clang++ -std=c++17
+CXX = clang++
+CXXFLAGS = -std=c++17 -g -DGL_SILENCE_DEPRECATION
 
-# Collect all source files recursively
+# Include paths
+INCLUDE_PATHS = -Isrc \
+                -Ibuild/external/ggpo/include \
+                $(shell pkg-config --cflags sdl2 sdl2_image SDL2_ttf jsoncpp) \
+                -Iimgui -Iimgui/impl
+
+# Library paths and linker flags
+LIBRARY_FLAGS = $(shell pkg-config --libs sdl2 sdl2_image SDL2_ttf jsoncpp)
+FRAMEWORK_FLAGS = -framework OpenGL
+
+# Output binary
+OBJ_NAME = game
+
+# Build directory for object files
+BUILD_DIR = build/obj
+
+# Precompiled header
+PCH_SRC = src/pch.h
+PCH_OUT = $(BUILD_DIR)/pch.h.pch
+
+# Source files
 SRC_FILES = $(shell find src -name '*.cpp')
 IMGUI_FILES = imgui/imgui.cpp imgui/imgui_draw.cpp imgui/imgui_widgets.cpp \
               imgui/impl/imgui_impl_sdl.cpp imgui/impl/imgui_impl_opengl2.cpp
-OBJS = $(SRC_FILES) $(IMGUI_FILES)
 
-# Include paths: project source root, GGPO headers, and dependencies via pkg-config
-INCLUDE_PATHS = -Isrc \
-                -Ibuild/external/ggpo/include \
-                $(shell pkg-config --cflags sdl2 sdl2_image SDL2_ttf jsoncpp)
+# Object files: src/Foo/Bar.cpp -> build/obj/src/Foo/Bar.o
+SRC_OBJS = $(patsubst %.cpp,$(BUILD_DIR)/%.o,$(SRC_FILES))
+IMGUI_OBJS = $(patsubst %.cpp,$(BUILD_DIR)/%.o,$(IMGUI_FILES))
+ALL_OBJS = $(SRC_OBJS) $(IMGUI_OBJS)
 
-# Library paths and linker flags via pkg-config
-LIBRARY_FLAGS = $(shell pkg-config --libs sdl2 sdl2_image SDL2_ttf jsoncpp)
+# Default target
+all: $(OBJ_NAME)
 
-# Compiler flags
-# -g adds debugging symbols
-# -DGL_SILENCE_DEPRECATION suppresses macOS OpenGL deprecation warnings
-COMPILER_FLAGS = -g -DGL_SILENCE_DEPRECATION
+# Link
+$(OBJ_NAME): $(ALL_OBJS)
+	$(CXX) $(ALL_OBJS) $(LIBRARY_FLAGS) $(FRAMEWORK_FLAGS) -o $(OBJ_NAME)
 
-# macOS frameworks for OpenGL
-FRAMEWORK_FLAGS = -framework OpenGL
+# Compile PCH
+$(PCH_OUT): $(PCH_SRC)
+	@mkdir -p $(dir $@)
+	$(CXX) $(CXXFLAGS) $(INCLUDE_PATHS) -x c++-header $< -o $@
 
-# Output binary name
-OBJ_NAME = game
+# Compile project sources (with PCH)
+$(BUILD_DIR)/src/%.o: src/%.cpp $(PCH_OUT)
+	@mkdir -p $(dir $@)
+	$(CXX) $(CXXFLAGS) $(INCLUDE_PATHS) -include-pch $(PCH_OUT) -c $< -o $@
 
-# Build target
-all: $(OBJS)
-	$(CC) $(OBJS) $(INCLUDE_PATHS) $(COMPILER_FLAGS) $(LIBRARY_FLAGS) $(FRAMEWORK_FLAGS) -o $(OBJ_NAME)
+# Compile imgui sources (no PCH — they don't use our project headers)
+$(BUILD_DIR)/imgui/%.o: imgui/%.cpp
+	@mkdir -p $(dir $@)
+	$(CXX) $(CXXFLAGS) $(INCLUDE_PATHS) -c $< -o $@
 
 clean:
-	rm -f $(OBJ_NAME)
+	rm -rf $(BUILD_DIR) $(OBJ_NAME)
+
+.PHONY: all clean

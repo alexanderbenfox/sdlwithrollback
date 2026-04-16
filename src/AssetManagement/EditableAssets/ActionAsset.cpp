@@ -14,6 +14,7 @@
 #include "Managers/GameManagement.h"
 
 #include "Systems/ActionSystems/EnactActionSystem.h"
+#include "AssetLibraryImpl.h"
 
 //______________________________________________________________________________
 template <> void AssetLoaderFn::OnLoad(ActionAsset& asset) {}

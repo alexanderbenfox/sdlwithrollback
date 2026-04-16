@@ -5,6 +5,7 @@
 #include "SpriteSheet.h"
 #include "AnimationAsset.h"
 #include "ActionAsset.h"
+#include "AssetLibrary.h"
 
 #include "DebugGUI/EditorRect.h"
 

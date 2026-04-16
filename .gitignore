@@ -339,6 +339,7 @@ build/imgui.ini
 game
 *.o
 *.dSYM/
+build/obj/
 
 ## Profiling data
 build/profiling_data/

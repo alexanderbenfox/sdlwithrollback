@@ -1,7 +1,7 @@
 #pragma once
 #include "Core/ECS/Entity.h"
-#include "Components/Actors/CutsceneActor.h"
 #include "Components/MetaGameComponents.h"
+#include "GameState/SceneTypes.h"
 
 // for ctrl set up scene... probably should be moved
 #include "Core/Prefab/MenuButtonArray.h"
@@ -15,7 +15,7 @@ public:
   virtual void Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2) = 0;
   virtual void Update(float deltaTime) = 0;
   virtual void AdvanceScene() {}
-  
+
 };
 
 class ISubScene : public IScene
@@ -28,39 +28,6 @@ protected:
   //! match status when this scene was initialized
   MatchMetaComponent& _matchStatus;
 
-};
-
-enum class MainMenuOptions
-{
-  Main, Online, Versus, Solo, Options
-};
-
-enum class OnlineMenuOptions
-{
-  Ranked, Invite, Rankings
-};
-
-enum class SoloMenuOptions
-{
-  Arcade, VS_CPU, Career, Training, Lessons
-};
-
-enum class SceneType
-{
-  START, CTRLSETUP, BATTLEMODE, CSELECT, MATCH, RESULTS
-};
-
-// eventually use this for initiating different battle scene types
-enum class BattleType
-{
-  Training,
-  BestOf3,
-  BestOf5
-};
-
-enum class MatchStage
-{
-  PREMATCH, BATTLE, POSTMATCH
 };
 
 const Vector2<float> cameraOrigin(m_nativeWidth / 2.0f, m_nativeHeight / 2.0f);

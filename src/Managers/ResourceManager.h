@@ -3,6 +3,7 @@
 #include "Core/Geometry2D/Rect.h"
 #include "AssetManagement/LetterCase.h"
 #include "AssetManagement/EditableAssets/SpriteSheet.h"
+#include "AssetManagement/EditableAssets/AssetLibrary.h"
 
 #include <unordered_map>
 #include <vector>

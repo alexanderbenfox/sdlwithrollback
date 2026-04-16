@@ -1,5 +1,6 @@
 #pragma once
 #include "GameState/Scene.h"
+#include "Core/Geometry2D/Rect.h"
 
 class BattleScene : public ISubScene
 {

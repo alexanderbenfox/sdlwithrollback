@@ -3,7 +3,7 @@
 #include "DebugGUI/DisplayImage.h"
 
 #include "AssetManagement/Animation.h"
-#include "AssetLibrary.h"
+#include "AssetLibraryImpl.h"
 
 // this is for the find anchor
 #include "Managers/GameManagement.h"

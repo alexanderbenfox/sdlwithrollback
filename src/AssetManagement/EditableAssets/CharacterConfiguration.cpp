@@ -1,4 +1,5 @@
 #include "AssetManagement/EditableAssets/CharacterConfiguration.h"
+#include "AssetManagement/EditableAssets/AssetLibraryImpl.h"
 #include "DebugGUI/GUIController.h"
 #include "AssetManagement/Animation.h"
 

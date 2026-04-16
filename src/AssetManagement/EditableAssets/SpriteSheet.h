@@ -3,7 +3,6 @@
 #include "Core/Math/Vector2.h"
 #include "Core/Geometry2D/Rect.h"
 #include "DebugGUI/EditorString.h"
-#include "AssetLibrary.h"
 
 //______________________________________________________________________________
 struct SpriteSheet : public IJsonLoadable

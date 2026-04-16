@@ -1,8 +1,9 @@
 #include "SpriteSheet.h"
 #include "Managers/ResourceManager.h"
 #include "Managers/GameManagement.h"
+#include "DebugGUI/DisplayImage.h"
 #include "../imgui/imgui.h"
-#include "AssetLibrary.h"
+#include "AssetLibraryImpl.h"
 
 const ImU32 imColorWhite = IM_COL32(255, 255, 255, 255);
 

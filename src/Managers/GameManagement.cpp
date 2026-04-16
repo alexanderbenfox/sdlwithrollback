@@ -33,7 +33,7 @@
 #include "Managers/GGPOManager.h"
 
 #include "AssetManagement/EditableAssets/Editor/AnimationEditor.h"
-#include "AssetManagement/EditableAssets/AssetLibrary.h"
+#include "AssetManagement/EditableAssets/AssetLibraryImpl.h"
 
 #include "Core/Utility/Profiler.h"
 
@@ -741,3 +741,6 @@ void GameManager::ClearSceneData()
 
 //______________________________________________________________________________
 GameManager::GameManager() : _initialized(false) {}
+
+//______________________________________________________________________________
+GameManager::~GameManager() = default;

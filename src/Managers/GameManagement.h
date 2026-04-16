@@ -1,10 +1,13 @@
 #pragma once
 
-#include "GameState/Scene.h"
+#include "GameState/SceneTypes.h"
 #include "Core/ECS/IComponent.h"
+#include "Core/ECS/Entity.h"
 #include "Core/Timer.h"
 #include "Rendering/RenderManager.h"
 #include "Core/InputState.h"
+
+class IScene;
 
 #include <thread>
 #include <mutex>
@@ -144,6 +147,7 @@ private:
   //______________________________________________________________________________
   //!
   GameManager();
+  ~GameManager();
   GameManager(const GameManager&) = delete;
   GameManager(GameManager&&) = delete;
   GameManager operator=(const GameManager&) = delete;
