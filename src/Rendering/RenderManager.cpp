@@ -136,12 +136,8 @@ void RenderManager::Init()
   _glContext = SDL_GL_CreateContext(_window);
   SDL_GL_MakeCurrent(_window, _glContext);
 
-  _renderer = SDL_CreateRenderer(_window, -1, SDL_RENDERER_ACCELERATED);
-  SDL_SetRenderDrawBlendMode(_renderer, SDL_BLENDMODE_BLEND);
-
   // Enable vsync
   SDL_GL_SetSwapInterval(1);
-  SDL_RenderSetScale(_renderer, 1.0f, 1.0f);
 
 #ifndef _WIN32
   _sdlWindowFormat = SDL_GetWindowPixelFormat(_window);
@@ -153,9 +149,10 @@ void RenderManager::Init()
 //______________________________________________________________________________
 void RenderManager::Destroy()
 {
-  SDL_DestroyRenderer(_renderer);
-  SDL_DestroyWindow(_window);
+  if (_renderer)
+    SDL_DestroyRenderer(_renderer);
   SDL_GL_DeleteContext(_glContext);
+  SDL_DestroyWindow(_window);
 
   _renderer = nullptr;
   _window = nullptr;
@@ -230,6 +227,11 @@ void RenderManager::Draw()
 //______________________________________________________________________________
 void RenderManager::Clear()
 {
+  // Set viewport to actual drawable size (accounts for HiDPI/Retina scaling)
+  int drawableW, drawableH;
+  SDL_GL_GetDrawableSize(_window, &drawableW, &drawableH);
+  glViewport(0, 0, drawableW, drawableH);
+
   // clear previous render
   glClearColor(0.0, 0.0, 0.0, 1);
   glClear(GL_COLOR_BUFFER_BIT);

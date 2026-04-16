@@ -142,5 +142,8 @@ void GLTexture::SetTextureParameters(SDL_Surface* textureData)
   _w = textureData->w;
   _h = textureData->h;
 
+  // Handle surfaces with row padding (pitch != width * bytesPerPixel)
+  glPixelStorei(GL_UNPACK_ROW_LENGTH, textureData->pitch / textureData->format->BytesPerPixel);
   glTexImage2D(GL_TEXTURE_2D, 0, _internalFormat, textureData->w, textureData->h, 0, _textureFormat, _type, textureData->pixels);
+  glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
 }

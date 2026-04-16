@@ -30,10 +30,8 @@ void MenuButtonArray::CreateMenuOption(const char* label, std::function<void(SDL
   option->GetComponent<UITransform>()->rect = optRect;
 
   // add after setting the UI transform because it will set the rectangle size... should fix this probably
-  //option->AddComponent<UIRectangleRenderComponent>();
-  //option->GetComponent<UIRectangleRenderComponent>()->isFilled = false;
-  option->AddComponent<UIBoxSpriteRenderComponent>();
-  option->GetComponent<UIBoxSpriteRenderComponent>()->Init(ResourceManager::Get().GetAsset<GLTexture>("spritesheets/txtbox.png"), 3, 3, 0, 2, 6, 8, 3, 1, 5, 7);
+  option->AddComponent<UIRectangleRenderComponent>();
+  option->GetComponent<UIRectangleRenderComponent>()->isFilled = false;
 
   option->GetComponent<MenuItem>()->location = position;
   option->GetComponent<MenuItem>()->callback = callback;

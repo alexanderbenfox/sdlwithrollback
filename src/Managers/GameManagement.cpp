@@ -80,11 +80,18 @@ TextResource& ResourceManager::GetText(const char* text, const std::string& font
 //______________________________________________________________________________
 LetterCase& ResourceManager::GetFontWriter(const std::string& fontFile, size_t size)
 {
-  const FontKey key{ size, fontFile.c_str() };
+  auto fileToLoad = fontFile;
+#ifndef _WIN32
+  auto split = StringUtils::Split(fontFile, '\\');
+  if (split.size() > 1)
+    fileToLoad = StringUtils::Connect(split.begin(), split.end(), '/');
+#endif
+
+  const FontKey key{ size, fileToLoad.c_str() };
 
   if (_loadedLetterCases.find(key) == _loadedLetterCases.end())
   {
-    Resource<TTF_Font> font(_resourcePath + fontFile);
+    Resource<TTF_Font> font(_resourcePath + fileToLoad);
     font.Load();
 
     if(font.IsLoaded())
@@ -103,10 +110,12 @@ Vector2<int> ResourceManager::GetTextureWidthAndHeight(const std::string& file)
     fileToQuery = StringUtils::Connect(split.begin(), split.end(), '/');
 #endif
 
-  int width;
-  int height;
-  SDL_QueryTexture(GetAsset<SDL_Texture>(fileToQuery).Get(), nullptr, nullptr, &width, &height);
-  return Vector2<int>(width, height);
+  SDL_Surface* surface = IMG_Load((_resourcePath + fileToQuery).c_str());
+  if (!surface)
+    return Vector2<int>(0, 0);
+  Vector2<int> size(surface->w, surface->h);
+  SDL_FreeSurface(surface);
+  return size;
 }
 
 //______________________________________________________________________________
@@ -204,10 +213,15 @@ void GameManager::Initialize()
 //______________________________________________________________________________
 void GameManager::Destroy()
 {
-  GRenderer.Destroy();
+  // Release player refs before clearing — they also hold shared_ptrs to entities
+  _p1.reset();
+  _p2.reset();
 
+  // Clear entities before renderer so GL resources are freed while context is still valid
   _gameEntities.clear();
   _networkedEntities.clear();
+
+  GRenderer.Destroy();
 }
 
 //______________________________________________________________________________

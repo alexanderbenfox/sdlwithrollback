@@ -20,7 +20,7 @@ LetterCase::LetterCase(TTF_Font* font, size_t size) : _fontSize(size)
   for (char i = 0; i < alphabetSize; ++i)
   {
     s[0] = i + ' ';
-    surf = TTF_RenderText_Blended(font, s, SDL_Color{ 255, 255, 255 });
+    surf = TTF_RenderText_Blended(font, s, SDL_Color{ 255, 255, 255, 255 });
     surf->refcount++; // SDL2: prevent segfault on free
     glyphs[i] = Resource<GLTexture>(std::shared_ptr<GLTexture>(new GLTexture));
     glyphs[i].Get()->LoadFromSurface(surf);
