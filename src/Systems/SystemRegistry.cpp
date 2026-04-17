@@ -18,6 +18,7 @@
 #include "Systems/ActionSystems/EnactActionSystem.h"
 #include "Systems/ActionSystems/ActionListenerSystem.h"
 #include "Systems/ActionSystems/ActionHandleInputSystem.h"
+#include "Systems/ActionSystems/ActionComponentLifecycle.h"
 
 //______________________________________________________________________________
 void CheckAgainstAllSystems(Entity* entity)
@@ -56,4 +57,14 @@ void CheckAgainstAllSystems(Entity* entity)
   EnactAggregate::Check(entity);
 
   MoveSystem::Check(entity);
+
+  // Action component lifecycle systems
+  DashingActionLifecycle::Check(entity);
+  JumpingActionLifecycle::Check(entity);
+  CrouchingActionLifecycle::Check(entity);
+  GrappleActionLifecycle::Check(entity);
+  ReceivedGrappleLifecycle::Check(entity);
+  AttackStateLifecycle::Check(entity);
+  HitStateLifecycle::Check(entity);
+  ThrowboxLifecycle::Check(entity);
 }

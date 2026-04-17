@@ -178,49 +178,38 @@ void CheckForReturnToNeutral::DoTick(float dt)
 }
 
 //______________________________________________________________________________
-void CheckForMoveLeft::DoTick(float dt)
-{
-  PROFILE_FUNCTION();
-  DeferGuard guard;
-  for (const EntityID& entity : Registered)
+namespace {
+  void DoCheckForMove(const std::set<EntityID>& registered, InputState direction, float speedSign, bool walkingLeft)
   {
-    Rigidbody& rigidbody = ComponentArray<Rigidbody>::Get().GetComponent(entity);
-    GameActor& actor = ComponentArray<GameActor>::Get().GetComponent(entity);
-    StateComponent& state = ComponentArray<StateComponent>::Get().GetComponent(entity);
-
-    // N/A if not grounded
-    if (!actor.newInputs || !rigidbody.IsGrounded())
-      continue;
-
-    if (HasState(actor.input.normal, InputState::LEFT))
+    DeferGuard guard;
+    for (const EntityID& entity : registered)
     {
-      Vector2<float> movementVector = Vector2<float>(-0.5f * GlobalVars::BaseWalkSpeed, 0.0f);
-      RunOnDeferGuardDestroy((entity, &actor, &state, movementVector), ActionFactory::GoToWalkLeftAction(entity, &actor, &state, movementVector));
+      Rigidbody& rigidbody = ComponentArray<Rigidbody>::Get().GetComponent(entity);
+      GameActor& actor = ComponentArray<GameActor>::Get().GetComponent(entity);
+      StateComponent& state = ComponentArray<StateComponent>::Get().GetComponent(entity);
+
+      if (!actor.newInputs || !rigidbody.IsGrounded())
+        continue;
+
+      if (HasState(actor.input.normal, direction))
+      {
+        Vector2<float> movementVector = Vector2<float>(speedSign * GlobalVars::BaseWalkSpeed, 0.0f);
+        RunOnDeferGuardDestroy((entity, &actor, &state, movementVector, walkingLeft), ActionFactory::GoToWalkAction(entity, &actor, &state, movementVector, walkingLeft));
+      }
     }
   }
 }
 
-//______________________________________________________________________________
+void CheckForMoveLeft::DoTick(float dt)
+{
+  PROFILE_FUNCTION();
+  DoCheckForMove(Registered, InputState::LEFT, -0.5f, true);
+}
+
 void CheckForMoveRight::DoTick(float dt)
 {
   PROFILE_FUNCTION();
-  DeferGuard guard;
-  for (const EntityID& entity : Registered)
-  {
-    Rigidbody& rigidbody = ComponentArray<Rigidbody>::Get().GetComponent(entity);
-    GameActor& actor = ComponentArray<GameActor>::Get().GetComponent(entity);
-    StateComponent& state = ComponentArray<StateComponent>::Get().GetComponent(entity);
-
-    // N/A if not grounded
-    if (!actor.newInputs || !rigidbody.IsGrounded())
-      continue;
-
-    if (HasState(actor.input.normal, InputState::RIGHT))
-    {
-      Vector2<float> movementVector = Vector2<float>(0.5f * GlobalVars::BaseWalkSpeed, 0.0f);
-      RunOnDeferGuardDestroy((entity, &actor, &state, movementVector), ActionFactory::GoToWalkRightAction(entity, &actor, &state, movementVector));
-    }
-  }
+  DoCheckForMove(Registered, InputState::RIGHT, 0.5f, false);
 }
 
 //______________________________________________________________________________
@@ -406,41 +395,32 @@ void CheckSpecialAttackInputSystem::DoTick(float dt)
     GameActor& actor = ComponentArray<GameActor>::Get().GetComponent(entity);
 
     // only for ryu right now... probably need some kind of move mapping component
-    if (HasState(actor.input.normal, InputState::BTN1) || HasState(actor.input.normal, InputState::BTN2) || HasState(actor.input.normal, InputState::BTN3))
+    if (!HasState(actor.input.normal, InputState::BTN1) && !HasState(actor.input.normal, InputState::BTN2) && !HasState(actor.input.normal, InputState::BTN3))
+      continue;
+
+    bool fireball = (actor.input.special == SpecialInputState::QCF && state.onLeftSide) || (actor.input.special == SpecialInputState::QCB && !state.onLeftSide);
+    bool tatsu = (actor.input.special == SpecialInputState::QCF && !state.onLeftSide) || (actor.input.special == SpecialInputState::QCB && state.onLeftSide);
+    bool dp = (actor.input.special == SpecialInputState::DPF && state.onLeftSide) || (actor.input.special == SpecialInputState::DPB && !state.onLeftSide);
+    bool donkeyKick = fireball && HasState(actor.input.normal, InputState::BTN3);
+
+    // priority order: donkey kick > fireball > tatsu > dp
+    const char* specialAttack = nullptr;
+    if (donkeyKick)       specialAttack = "SpecialMove3";
+    else if (fireball)    specialAttack = "SpecialMove1";
+    else if (tatsu)       specialAttack = "SpecialMove4";
+    else if (dp)          specialAttack = "SpecialMove2";
+
+    if (specialAttack)
     {
-      bool fireball = (actor.input.special == SpecialInputState::QCF && state.onLeftSide) || (actor.input.special == SpecialInputState::QCB && !state.onLeftSide);
-      bool donkeyKick = fireball && (HasState(actor.input.normal, InputState::BTN3));
-      bool tatsu = (actor.input.special == SpecialInputState::QCF && !state.onLeftSide) || (actor.input.special == SpecialInputState::QCB && state.onLeftSide);
-      bool dp = (actor.input.special == SpecialInputState::DPF && state.onLeftSide) || (actor.input.special == SpecialInputState::DPB && !state.onLeftSide);
-      if (fireball || donkeyKick || tatsu || dp)
-      {
-        if (donkeyKick)
-        {
-          RunOnDeferGuardDestroy((entity, &state), ActionFactory::SetAttackAction(entity, &state, "SpecialMove3", ActionState::HEAVY));
-        }
-        else if (fireball)
-        {
-          RunOnDeferGuardDestroy((entity, &state), ActionFactory::SetAttackAction(entity, &state, "SpecialMove1", ActionState::HEAVY));
-        }
-        else if (tatsu)
-        {
-          RunOnDeferGuardDestroy((entity, &state), ActionFactory::SetAttackAction(entity, &state, "SpecialMove4", ActionState::HEAVY));
-        }
-        else if (dp)
-        {
-          RunOnDeferGuardDestroy((entity, &state), ActionFactory::SetAttackAction(entity, &state, "SpecialMove2", ActionState::HEAVY));
-        }
+      RunOnDeferGuardDestroy((entity, &state, specialAttack), ActionFactory::SetAttackAction(entity, &state, specialAttack, ActionState::HEAVY));
 
-        RunOnDeferGuardDestroy(entity, {
-          GameManager::Get().GetEntityByID(entity)->RemoveComponent<CancelOnHitGround>();
-          GameManager::Get().GetEntityByID(entity)->RemoveComponent<CancelOnNormal>();
-          GameManager::Get().GetEntityByID(entity)->RemoveComponent<CancelOnSpecial>();
-          GameManager::Get().GetEntityByID(entity)->RemoveComponent<CrouchingAction>();
-
-          GameManager::Get().GetEntityByID(entity)->RemoveComponent<InputListenerComponent>();
-        });
-
-      }
+      RunOnDeferGuardDestroy(entity, {
+        GameManager::Get().GetEntityByID(entity)->RemoveComponent<CancelOnHitGround>();
+        GameManager::Get().GetEntityByID(entity)->RemoveComponent<CancelOnNormal>();
+        GameManager::Get().GetEntityByID(entity)->RemoveComponent<CancelOnSpecial>();
+        GameManager::Get().GetEntityByID(entity)->RemoveComponent<CrouchingAction>();
+        GameManager::Get().GetEntityByID(entity)->RemoveComponent<InputListenerComponent>();
+      });
     }
   }
 }
@@ -485,6 +465,21 @@ void CheckAttackInputSystem::DoTick(float dt)
 {
   PROFILE_FUNCTION();
   DeferGuard guard;
+
+  struct AttackMapping {
+    InputState button;
+    const char* standingAnim;
+    const char* crouchingAnim;
+    const char* jumpingAnim;
+    ActionState actionState;
+  };
+
+  static const AttackMapping attacks[] = {
+    { InputState::BTN1, "StandingLight",  "CrouchingLight",  "JumpingLight",  ActionState::LIGHT  },
+    { InputState::BTN2, "StandingMedium", "CrouchingMedium", "JumpingMedium", ActionState::MEDIUM },
+    { InputState::BTN3, "StandingHeavy",  "CrouchingHeavy",  "JumpingHeavy",  ActionState::HEAVY  },
+  };
+
   for (const EntityID& entity : Registered)
   {
     StateComponent& state = ComponentArray<StateComponent>::Get().GetComponent(entity);
@@ -501,34 +496,29 @@ void CheckAttackInputSystem::DoTick(float dt)
         continue;
       }
 
-      bool crouchPossible = state.stanceState == StanceState::CROUCHING;//HasState(actor.input.normal, InputState::DOWN);
-      // then check attacks
-      if (HasState(actor.input.normal, InputState::BTN1))
+      bool crouching = state.stanceState == StanceState::CROUCHING;
+      for (const auto& atk : attacks)
       {
-        RunOnDeferGuardDestroy((entity, &state, crouchPossible), ActionFactory::SetAttackAction(entity, &state, crouchPossible ? "CrouchingLight" : "StandingLight", ActionState::LIGHT));
-      }
-      else if (HasState(actor.input.normal, InputState::BTN2))
-      {
-        RunOnDeferGuardDestroy((entity, &state, crouchPossible), ActionFactory::SetAttackAction(entity, &state, crouchPossible ? "CrouchingMedium" : "StandingMedium", ActionState::MEDIUM));
-      }
-      else if (HasState(actor.input.normal, InputState::BTN3))
-      {
-        RunOnDeferGuardDestroy((entity, &state, crouchPossible), ActionFactory::SetAttackAction(entity, &state, crouchPossible ? "CrouchingHeavy" : "StandingHeavy", ActionState::HEAVY));
+        if (HasState(actor.input.normal, atk.button))
+        {
+          const char* anim = crouching ? atk.crouchingAnim : atk.standingAnim;
+          ActionState actionState = atk.actionState;
+          RunOnDeferGuardDestroy((entity, &state, anim, actionState), ActionFactory::SetAttackAction(entity, &state, anim, actionState));
+          break;
+        }
       }
     }
     else
     {
-      if (HasState(actor.input.normal, InputState::BTN1))
+      for (const auto& atk : attacks)
       {
-        RunOnDeferGuardDestroy((entity, &state), ActionFactory::SetAttackAction(entity, &state, "JumpingLight", ActionState::LIGHT));
-      }
-      else if (HasState(actor.input.normal, InputState::BTN2))
-      {
-        RunOnDeferGuardDestroy((entity, &state), ActionFactory::SetAttackAction(entity, &state, "JumpingMedium", ActionState::MEDIUM));
-      }
-      else if (HasState(actor.input.normal, InputState::BTN3))
-      {
-        RunOnDeferGuardDestroy((entity, &state), ActionFactory::SetAttackAction(entity, &state, "JumpingHeavy", ActionState::HEAVY));
+        if (HasState(actor.input.normal, atk.button))
+        {
+          const char* anim = atk.jumpingAnim;
+          ActionState actionState = atk.actionState;
+          RunOnDeferGuardDestroy((entity, &state, anim, actionState), ActionFactory::SetAttackAction(entity, &state, anim, actionState));
+          break;
+        }
       }
     }
   }

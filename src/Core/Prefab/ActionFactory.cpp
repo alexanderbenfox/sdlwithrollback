@@ -394,7 +394,7 @@ void ActionFactory::GoToNeutralAction(const EntityID& entity, StateComponent* st
   state->hitting = false;
 }
 
-void ActionFactory::GoToWalkLeftAction(const EntityID& entity, GameActor* actor, StateComponent* state, const Vector2<float>& mvmt)
+void ActionFactory::GoToWalkAction(const EntityID& entity, GameActor* actor, StateComponent* state, const Vector2<float>& mvmt, bool walkingLeft)
 {
   state->stanceState = StanceState::STANDING;
   // Always reset action complete flag on new action
@@ -402,8 +402,8 @@ void ActionFactory::GoToWalkLeftAction(const EntityID& entity, GameActor* actor,
 
   GameManager::Get().GetEntityByID(entity)->AddComponents<EnactActionComponent, MovingActionComponent, HittableState, AbleToReturnToNeutral>();
 
-  // set animation based on direction
-  std::string animation = state->onLeftSide ? "WalkB" : "WalkF";
+  // walking in same direction as facing side = backward, otherwise forward
+  std::string animation = (walkingLeft == state->onLeftSide) ? "WalkB" : "WalkF";
   GameManager::Get().GetEntityByID(entity)->AddComponent<AnimatedActionComponent>({ state->onLeftSide, true, false, 1.0f, animation });
 
   GameManager::Get().GetEntityByID(entity)->GetComponent<MovingActionComponent>()->velocity = mvmt;
@@ -416,32 +416,11 @@ void ActionFactory::GoToWalkLeftAction(const EntityID& entity, GameActor* actor,
   // enable all abilities in neutral
   ActionFactory::EnableAbility(entity);
 
-  GameManager::Get().GetEntityByID(entity)->RemoveComponents<InputListenerComponent, AbleToWalkLeft>();
-}
-
-void ActionFactory::GoToWalkRightAction(const EntityID& entity, GameActor* actor, StateComponent* state, const Vector2<float>& mvmt)
-{
-  state->stanceState = StanceState::STANDING;
-  // Always reset action complete flag on new action
-  actor->actionTimerComplete = false;
-
-  GameManager::Get().GetEntityByID(entity)->AddComponents<EnactActionComponent, MovingActionComponent, HittableState, AbleToReturnToNeutral>();
-
-  // set animation based on direction
-  std::string animation = state->onLeftSide ? "WalkF" : "WalkB";
-  GameManager::Get().GetEntityByID(entity)->AddComponent<AnimatedActionComponent>({ state->onLeftSide, true, false, 1.0f, animation });
-
-  GameManager::Get().GetEntityByID(entity)->GetComponent<MovingActionComponent>()->velocity = mvmt;
-  GameManager::Get().GetEntityByID(entity)->GetComponent<MovingActionComponent>()->horizontalMovementOnly = true;
-
-  // add states for potential outside influence
-  GameManager::Get().GetEntityByID(entity)->GetComponent<HittableState>()->canBlock = true;
-  GameManager::Get().GetEntityByID(entity)->GetComponent<HittableState>()->inKnockdown = false;
-
-  // enable all abilities in neutral
-  ActionFactory::EnableAbility(entity);
-
-  GameManager::Get().GetEntityByID(entity)->RemoveComponents<InputListenerComponent, AbleToWalkRight>();
+  GameManager::Get().GetEntityByID(entity)->RemoveComponent<InputListenerComponent>();
+  if (walkingLeft)
+    GameManager::Get().GetEntityByID(entity)->RemoveComponent<AbleToWalkLeft>();
+  else
+    GameManager::Get().GetEntityByID(entity)->RemoveComponent<AbleToWalkRight>();
 }
 
 void ActionFactory::ResetActionComponents(const EntityID& entity)

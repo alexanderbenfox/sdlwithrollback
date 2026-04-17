@@ -83,9 +83,6 @@ public:
   //!
   Throwbox() : TransferDataBox() {}
 
-  //! Resets thrown properties on state component
-  void OnRemove(const EntityID& entity) override;
-
 };
 
 //! box that will track the movement of the throw while it happens

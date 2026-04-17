@@ -21,13 +21,6 @@
 #include "DebugGUI/GUIController.h"
 
 //______________________________________________________________________________
-void WallPushComponent::OnRemove(const EntityID& entity)
-{
-  if (ComponentArray<Rigidbody>::Get().HasComponent(entity))
-    ComponentArray<Rigidbody>::Get().GetComponent(entity).velocity.x = 0;
-}
-
-//______________________________________________________________________________
 UIRectangleRenderComponent::UIRectangleRenderComponent() : shownSize{ 0, 0, 0, 0 }, IComponent() {}
 
 //______________________________________________________________________________

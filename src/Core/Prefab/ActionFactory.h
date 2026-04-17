@@ -29,9 +29,7 @@ public:
 
   static void GoToNeutralAction(const EntityID& entity, StateComponent* state);
 
-  static void GoToWalkLeftAction(const EntityID& entity, GameActor* actor, StateComponent* state, const Vector2<float>& mvmt);
-
-  static void GoToWalkRightAction(const EntityID& entity, GameActor* actor, StateComponent* state, const Vector2<float>& mvmt);
+  static void GoToWalkAction(const EntityID& entity, GameActor* actor, StateComponent* state, const Vector2<float>& mvmt, bool walkingLeft);
 
   static void ResetActionComponents(const EntityID& entity);
 

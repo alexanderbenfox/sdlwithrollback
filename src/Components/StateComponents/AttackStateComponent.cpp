@@ -1,33 +1,8 @@
 #include "Components/StateComponents/AttackStateComponent.h"
-#include "Components/RenderComponent.h"
 
 AttackStateComponent::AttackStateComponent() :
   lastFrame(-1), IComponent()
 {
-}
-
-void AttackStateComponent::OnRemove(const EntityID& entity)
-{
-  ClearEvents(entity);
-  //reset color back to white in case stuck in frame advantage
-  if (ComponentArray<RenderProperties>::Get().HasComponent(entity))
-    ComponentArray<RenderProperties>::Get().GetComponent(entity).SetDisplayColor(255, 255, 255);
-}
-
-void AttackStateComponent::ClearEvents(const EntityID& entity)
-{
-  for (const AnimationEvent::Type& type: inProgressEventTypes)
-  {
-    if (type == AnimationEvent::Type::EntitySpawner)
-      AnimationEvent::EndEntitySpawnEvent(entity);
-    else if (type == AnimationEvent::Type::Hitbox)
-      AnimationEvent::EndHitboxEvent(entity);
-    else if (type == AnimationEvent::Type::Throwbox)
-      AnimationEvent::EndThrowboxEvent(entity);
-    else if (type == AnimationEvent::Type::Movement)
-      AnimationEvent::EndMovementEvent(entity);
-  }
-  inProgressEventTypes.clear();
 }
 
 void AttackStateComponent::Serialize(std::ostream& os) const

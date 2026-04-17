@@ -177,14 +177,7 @@ struct AttackActionComponent : public IComponent, ISerializable
 
 };
 
-struct GrappleActionComponent : public IComponent
-{
-  void OnRemove(const EntityID& entity) override
-  {
-    if (ComponentArray<Rigidbody>::Get().HasComponent(entity))
-      ComponentArray<Rigidbody>::Get().GetComponent(entity).ignoreDynamicColliders = false;
-  }
-};
+struct GrappleActionComponent : public IComponent {};
 
 struct MovingActionComponent : public IComponent, ISerializable
 {
@@ -250,11 +243,6 @@ struct ReceivedDamageAction : public IComponent, ISerializable
 
 struct ReceivedGrappleAction : public IComponent, ISerializable
 {
-  void OnRemove(const EntityID& entity) override
-  {
-    if (ComponentArray<Rigidbody>::Get().HasComponent(entity))
-      ComponentArray<Rigidbody>::Get().GetComponent(entity).ignoreDynamicColliders = false;
-  }
   int damageAmount;
   bool isKillingBlow = false;
   int damageAndKnockbackDelay = 0;
@@ -287,15 +275,6 @@ struct ReceivedGrappleAction : public IComponent, ISerializable
 
 struct DashingAction : public IComponent, ISerializable
 {
-  void OnAdd(const EntityID& entity) override
-  {
-    ComponentArray<GameActor>::Get().GetComponent(entity).forceNewInputOnNextFrame = true;
-  }
-  void OnRemove(const EntityID& entity) override
-  {
-    ComponentArray<GameActor>::Get().GetComponent(entity).forceNewInputOnNextFrame = true;
-  }
-
   float dashSpeed = 0.0f;
 
   void Serialize(std::ostream& os) const override
@@ -316,29 +295,9 @@ struct DashingAction : public IComponent, ISerializable
   }
 };
 
-struct JumpingAction : public IComponent
-{
-  void OnAdd(const EntityID& entity) override
-  {
-    ComponentArray<GameActor>::Get().GetComponent(entity).forceNewInputOnNextFrame = true;
-  }
-  void OnRemove(const EntityID& entity) override
-  {
-    ComponentArray<GameActor>::Get().GetComponent(entity).forceNewInputOnNextFrame = true;
-  }
-};
+struct JumpingAction : public IComponent {};
 
-struct CrouchingAction : public IComponent
-{
-  void OnAdd(const EntityID& entity) override
-  {
-    ComponentArray<GameActor>::Get().GetComponent(entity).forceNewInputOnNextFrame = true;
-  }
-  void OnRemove(const EntityID& entity) override
-  {
-    ComponentArray<GameActor>::Get().GetComponent(entity).forceNewInputOnNextFrame = true;
-  }
-};
+struct CrouchingAction : public IComponent {};
 
 //! Components that describe the completion parameters for a given action type
 
@@ -387,8 +346,6 @@ struct WaitingForJumpAirborne : public IComponent {};
 //! Component for pushing player away from other player when pressuring on the wall - plz move later
 struct WallPushComponent : public IComponent, ISerializable
 {
-  void OnRemove(const EntityID& entity) override;
-
   float pushAmount = 0.0f;
   float amountPushed = 0.0f;
   float velocity = 0.0f;

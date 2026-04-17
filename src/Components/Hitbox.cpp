@@ -44,8 +44,4 @@ void Hitbox::OnCollision(const EntityID& entity, ICollider* collider)
   }
 }
 
-void Throwbox::OnRemove(const EntityID& entity)
-{
-  GameManager::Get().GetEntityByID(entity)->GetComponent<StateComponent>()->triedToThrowThisFrame = false;
-  GameManager::Get().GetEntityByID(entity)->GetComponent<StateComponent>()->throwSuccess = false;
-}
+// Throwbox lifecycle is now handled by ThrowboxLifecycle in ActionComponentLifecycle.h

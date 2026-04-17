@@ -9,10 +9,6 @@ class AttackStateComponent : public IComponent, public ISerializable
 public:
   //! Constructor
   AttackStateComponent();
-  //! Clears events and resets debug color
-  void OnRemove(const EntityID& entity) override;
-  //! Clear event list
-  void ClearEvents(const EntityID& entity);
   //! Set of in progress event types
   std::unordered_set<AnimationEvent::Type> inProgressEventTypes;
   //!
