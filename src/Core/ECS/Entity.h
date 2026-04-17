@@ -38,8 +38,6 @@ public:
 
   //! Removes all added components by calling list of deleter functions
   void RemoveAllComponents();
-  //! Requests the game manager destroys this entity at the end of the frame
-  void DestroySelf();
   //! Sets scale among all scalable components attached to this... THERE MUST BE A BETTER WAY
   void SetScale(Vector2<float> scale);
   //! Gets a unique id for the entity

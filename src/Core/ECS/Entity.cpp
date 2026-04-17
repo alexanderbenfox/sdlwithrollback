@@ -8,7 +8,7 @@
 #include "Components/Rigidbody.h"
 #include "Components/Hitbox.h"
 
-#include "Managers/GameManagement.h"
+#include "Systems/SystemRegistry.h"
 
 #include <sstream>
 
@@ -137,12 +137,6 @@ void Entity::RemoveAllComponents()
 }
 
 //______________________________________________________________________________
-void Entity::DestroySelf()
-{
-  GameManager::Get().TriggerEndOfFrame([this]() { GameManager::Get().DestroyEntity(shared_from_this()); });
-}
-
-//______________________________________________________________________________
 void Entity::SetScale(Vector2<float> scale)
 {
   Transform& transform = *GetComponent<Transform>();
@@ -176,5 +170,5 @@ void Entity::SetScale(Vector2<float> scale)
 //______________________________________________________________________________
 void Entity::CheckAgainstSystems(Entity* entity)
 {
-  GameManager::Get().CheckAgainstSystems(entity);
+  CheckAgainstAllSystems(entity);
 }

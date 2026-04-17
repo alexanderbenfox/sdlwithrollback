@@ -8,6 +8,7 @@ EntityID EntityManager::RegisterEntity()
     EntityID id = _availableEntities.front();
     _availableEntities.pop();
     _livingEntityCount++;
+    _activeEntities[id] = true;
     return id;
   }
   return MAX_ENTITIES;
@@ -15,10 +16,11 @@ EntityID EntityManager::RegisterEntity()
 
 void EntityManager::DestroyEntity(EntityID id)
 {
-  if (id < MAX_ENTITIES)
+  if (id < MAX_ENTITIES && _activeEntities[id])
   {
     // invalidate signature of destroyed entity
     _signatures[id].reset();
+    _activeEntities[id] = false;
 
     // destroy id at the back of queue as it is newly available
     _availableEntities.push(id);

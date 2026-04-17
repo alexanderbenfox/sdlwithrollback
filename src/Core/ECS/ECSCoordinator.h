@@ -25,11 +25,12 @@ struct ComponentEntityFnSet
 class ECSCoordinator
 {
 public:
-  //! Static getter
+  //! Static getter (leaky singleton — intentionally never destroyed to avoid
+  //! static destruction order crash with ComponentTraits<T> singletons)
   static ECSCoordinator& Get()
   {
-    static ECSCoordinator manager;
-    return manager;
+    static ECSCoordinator* manager = new ECSCoordinator();
+    return *manager;
   }
 
   //! Generate bit flag for component (used on ComponentTraits initialization), set function map

@@ -2,38 +2,21 @@
 
 #include <iostream>
 
-#include "Managers/ResourceManager.h"
-
-#include "Systems/Physics.h"
-#include "Systems/AnimationSystem.h"
 #include "Systems/DrawCallSystems.h"
-#include "Systems/MoveSystem.h"
-#include "Systems/InputSystem.h"
-#include "Systems/HitSystem.h"
-#include "Systems/TimerSystem/TimerSystem.h"
-#include "Systems/CutsceneSystem.h"
-#include "Systems/CheckBattleEndSystem.h"
-#include "Systems/UISystem.h"
-#include "Systems/AISystem.h"
 #include "Systems/DestroyEntitiesSystem.h"
-#include "Systems/MenuSystem.h"
-#include "Systems/WallPush/WallPushSystem.h"
-
-#include "Systems/ActionSystems/EnactActionSystem.h"
-#include "Systems/ActionSystems/ActionListenerSystem.h"
-#include "Systems/ActionSystems/ActionHandleInputSystem.h"
-
-#include "Systems/Physics.h"
 #include "DebugGUI/GUIController.h"
+#include "DebugGUI/DebugSetup.h"
 
 #include "GameState/Scene.h"
 #include "GameState/MatchScene.h"
 
 #include "Components/Actors/GameActor.h"
+#include "Components/Input.h"
+#include "Components/Hitbox.h"
+#include "Components/Hurtbox.h"
+#include "Components/ActionComponents.h"
+#include "Managers/AnimationCollectionManager.h"
 #include "Managers/GGPOManager.h"
-
-#include "AssetManagement/EditableAssets/Editor/AnimationEditor.h"
-#include "AssetManagement/EditableAssets/AssetLibraryImpl.h"
 
 #include "Core/Utility/Profiler.h"
 
@@ -44,47 +27,6 @@
 #include <thread>
 #include <iostream>
 #endif
-
-//______________________________________________________________________________
-void ResourceManager::Destroy()
-{
-}
-
-//______________________________________________________________________________
-void ResourceManager::Initialize()
-{
-  char* basePath = SDL_GetBasePath();
-  if (basePath)
-    _resourcePath = std::string(basePath) + "resources/";
-  else _resourcePath = "./";
-}
-
-//______________________________________________________________________________
-LetterCase& ResourceManager::GetFontWriter(const std::string& fontFile, size_t size)
-{
-  const FontKey key{ size, fontFile.c_str() };
-
-  if (_loadedLetterCases.find(key) == _loadedLetterCases.end())
-  {
-    Resource<TTF_Font> font(_resourcePath + fontFile);
-    font.Load();
-
-    if(font.IsLoaded())
-      _loadedLetterCases.emplace(std::piecewise_construct, std::make_tuple(key), std::make_tuple(font.Get(), size));
-  }
-  return _loadedLetterCases[key];
-}
-
-//______________________________________________________________________________
-Vector2<int> ResourceManager::GetTextureWidthAndHeight(const std::string& file)
-{
-  SDL_Surface* surface = IMG_Load((_resourcePath + file).c_str());
-  if (!surface)
-    return Vector2<int>(0, 0);
-  Vector2<int> size(surface->w, surface->h);
-  SDL_FreeSurface(surface);
-  return size;
-}
 
 //______________________________________________________________________________
 void GameManager::Initialize()
@@ -141,233 +83,7 @@ void GameManager::BeginGameLoop()
   }
 
   AvgCounter tracker;
-
-  std::function<void()> imguiWindowFunc = [this, &tracker]()
-  {
-    ImGui::BeginGroup();
-    ImGui::Text("Update function time average %.3f ms/frame", (double)_clock.GetUpdateTime() / 1000000.0);
-    ImGui::PlotLines("Update speed over time (ms/frame) - updated every 10 frames", [](void* data, int idx) { return (float)((long long*)data)[idx]/ 1000000.0f; }, tracker.GetValues(), tracker.NumValues(), 0, nullptr, FLT_MAX, FLT_MAX, ImVec2(200, 100));
-    ImGui::EndGroup();
-  };
-  GUIController::Get().AddImguiWindowFunction("Main Debug Window", "Engine Stats", imguiWindowFunc);
-
-  static float ts[40];
-  for (int i = 0; i < 40; i++)
-    ts[i] = static_cast<float>(i);
-
-  std::function<void()> actionParameters = []()
-  {
-    ImGui::BeginGroup();
-
-    ImGui::InputFloat("Walk speed", &GlobalVars::BaseWalkSpeed, 1.0f, 10.0f, 0);
-    ImGui::InputFloat("Jump velocity", &GlobalVars::JumpVelocity, 1.0f, 10.0f, 0);
-    ImGui::InputFloat2("Gravity force", &GlobalVars::Gravity.x, 1);
-    ImGui::InputFloat2("Juggle Gravity force", &GlobalVars::JuggleGravity.x, 1);
-    ImGui::InputInt("number of frames for dash", &GlobalVars::nDashFrames);
-    ImGui::InputInt("Hit stop frames ON HIT", &GlobalVars::HitStopFramesOnHit);
-    ImGui::InputInt("Hit stop frames ON BLOCK", &GlobalVars::HitStopFramesOnBlock);
-
-    ImGui::Checkbox("Show hit effects", &GlobalVars::ShowHitEffects);
-
-    if (ImGui::CollapsingHeader("Dash Function"))
-    {
-      // plot function for visual aid
-      ImGui::PlotLines("Plateau",
-      [](void* data, int idx)
-      {
-        return Interpolation::Plateau::F(static_cast<float*>(data)[idx], 19, 1.0f);
-      },
-      ts, 40, 0, nullptr, FLT_MAX, FLT_MAX, ImVec2(200, 100));
-
-      ImGui::InputFloat("a value", &Interpolation::Plateau::a, 1.0f, 1.0f, 5);
-      ImGui::InputFloat("modifier value", &Interpolation::Plateau::modifier, 0.5f, 1.0f, 5);
-      ImGui::InputFloat("distribution width value", &Interpolation::Plateau::d, 0.0000001f, 0.00001f, 10);
-      ImGui::InputFloat("X axis offset", &Interpolation::Plateau::xAxisOffset, 0.001f, 0.01f, 5);
-    }
-
-    ImGui::EndGroup();
-  };
-
-  std::function<void()> sceneSelect = [this]()
-  {
-    const char* items[] = { "Start", "Character Select", "Battle", "Results" };
-    static const char* current_item = NULL;
-    auto func = [this](const std::string& i)
-    {
-      if (i == "Start")
-        RequestSceneChange(SceneType::START);
-      else if (i == "Character Select")
-        RequestSceneChange(SceneType::CSELECT);
-      else if (i == "Battle")
-        RequestSceneChange(SceneType::MATCH);
-      else
-        RequestSceneChange(SceneType::RESULTS);
-    };
-    DropDown::Show(current_item, items, 4, func);
-  };
-
-  GUIController::Get().AddImguiWindowFunction("Main Debug Window", "Dash Function parameters", actionParameters);
-  GUIController::Get().AddImguiWindowFunction("Main Debug Window", "Scene Selection", sceneSelect);
-
-  GUIController::Get().AddImguiWindowFunction("ECS Status", "Registered Components", []() {
-    ImGui::Text("Components = %d", ECSGlobalStatus::NRegisteredComponents);
-  });
-
-
-  GUIController::Get().AddImguiWindowFunction("ECS Status", "Entity Snapshots", [this]() {
-
-    if(ImGui::Button("Make P1 Snapshot"))
-    {
-      TriggerBeginningOfFrame([this]() { _p1Snapshots.push_back(_p1->CreateEntitySnapshot()); });
-    }
-    if (ImGui::CollapsingHeader("P1 Snapshot List"))
-    {
-      for (int i = 0; i < _p1Snapshots.size(); i++)
-      {
-        std::string btnLabel = "SNAPSHOT " + std::to_string(i + 1);
-        if (ImGui::Button(btnLabel.c_str()))
-        {
-          TriggerBeginningOfFrame([this, i]() {_p1->LoadEntitySnapshot(_p1Snapshots[i]); });
-        }
-      }
-    }
-
-
-    if (ImGui::Button("Make P2 Snapshot"))
-    {
-      TriggerBeginningOfFrame([this]() {_p2Snapshots.push_back(_p2->CreateEntitySnapshot()); });
-    }
-
-    if (ImGui::CollapsingHeader("P2 Snapshot List"))
-    {
-      for (int i = 0; i < _p2Snapshots.size(); i++)
-      {
-        std::string btnLabel = "SNAPSHOT " + std::to_string(i + 1);
-        if (ImGui::Button(btnLabel.c_str()))
-        {
-          TriggerBeginningOfFrame([this, i]() { _p2->LoadEntitySnapshot(_p2Snapshots[i]); });
-        }
-      }
-    }
-
-    if (ImGui::Button("Make Game State Snapshot"))
-    {
-      TriggerBeginningOfFrame([this]() { _gameStateSnapshots.push_back(CreateGameStateSnapshot()); });
-    }
-
-    if (ImGui::CollapsingHeader("Game State Snapshot List"))
-    {
-      for (int i = 0; i < _gameStateSnapshots.size(); i++)
-      {
-        std::string btnLabel = "SNAPSHOT " + std::to_string(i + 1);
-        if (ImGui::Button(btnLabel.c_str()))
-        {
-          TriggerBeginningOfFrame([this, i]() { LoadGamestateSnapshot(_gameStateSnapshots[i]); });
-        }
-      }
-    }
-    
-  });
-
-  static int localPlayerIndex = 0;
-
-#ifdef _WIN32
-  GUIController::Get().AddImguiWindowFunction("GGPO", "Connect Player", [this]()
-  {
-    ImGui::BeginGroup();
-
-    if (!GGPOManager::Get().InMatch())
-    {
-      static int localUDPPort = static_cast<int>(NetGlobals::LocalUDPPort);
-      if (ImGui::InputInt("Local Port", &localUDPPort))
-        NetGlobals::LocalUDPPort = static_cast<unsigned short>(localUDPPort);
-
-      ImGui::InputInt("Frame Delay", &NetGlobals::FrameDelay);
-
-      static char ip[128];
-      ImGui::InputText("Remote Player Address", ip, 128);
-
-      static int port;
-      ImGui::InputInt("Connection Port", &port);
-
-      if (ImGui::Button("Connect On Position 1"))
-      {
-        _p2->GetComponent<GameInputComponent>()->AssignHandler(InputType::NetworkCtrl);
-        localPlayerIndex = 0;
-        std::string_view remoteIP = ip;
-        unsigned short pport = (unsigned short)port;
-
-        GGPOPlayer players[2] = { GGPOManager::Get().CreateLocalPlayer(), GGPOManager::Get().CreateRemotePlayer(remoteIP, pport) };
-        players[0].player_num = 1;
-        players[1].player_num = 2;
-
-        GGPOManager::Get().BeginSession(players);
-      }
-
-      if (ImGui::Button("Connect On Position 2"))
-      {
-        _p1->GetComponent<GameInputComponent>()->AssignHandler(InputType::NetworkCtrl);
-        localPlayerIndex = 1;
-        std::string_view remoteIP = ip;
-        unsigned short pport = (unsigned short)port;
-
-        GGPOPlayer players[2] = { GGPOManager::Get().CreateRemotePlayer(remoteIP, pport), GGPOManager::Get().CreateLocalPlayer() };
-        players[0].player_num = 1;
-        players[1].player_num = 2;
-
-        GGPOManager::Get().BeginSession(players);
-      }
-    }
-    ImGui::EndGroup();
-  });
-
-  GUIController::Get().AddImguiWindowFunction("GGPO", "Network Stats", []()
-    {
-      ImGui::BeginGroup();
-
-      if (GGPOManager::Get().InMatch())
-      {
-        for (int i = 0; i < 2; i++)
-        {
-          if (i == localPlayerIndex)
-            continue;
-
-          ImGui::BeginGroup();
-
-          GGPONetworkStats stats = GGPOManager::Get().GetPlayerStats(i);
-          ImGui::Text("P%d Stats\n", (i + 1));
-          ImGui::Text("Ping: %d ms", stats.network.ping);
-          ImGui::Text("Frame Lag: %.1f frames", stats.network.ping ? stats.network.ping * 60.0 / 1000 : 0);
-          ImGui::Text("Bandwidth: %.2f kilobytes/sec", stats.network.kbps_sent / 8.0);
-          ImGui::Text("Local Frames Behind: %d frames", stats.timesync.local_frames_behind);
-          ImGui::Text("Remote Frames Behind: %d frames", stats.timesync.remote_frames_behind);
-
-          ImGui::EndGroup();
-        }
-      }
-      ImGui::EndGroup();
-    });
-#endif
-
-  CharacterEditor::Get().AddCreateNewCharacterButton();
-
-  GUIController::Get().AddImguiWindowFunction("Assets", "Sprite Sheets", []()
-  {
-    ImGui::BeginGroup();
-    ResourceManager::Get().gSpriteSheets.DisplayInGUI();
-    ResourceManager::Get().gSpriteSheets.DisplaySaveButton(SpriteSheet::SaveLocation());
-    ImGui::EndGroup();
-  });
-
-  GUIController::Get().AddImguiWindowFunction("Assets", "General Animations", []()
-    {
-      if (ImGui::CollapsingHeader("General Animations"))
-      {
-        ImGui::BeginGroup();
-        GAnimArchive.EditGeneralAnimations();
-        ImGui::EndGroup();
-      }
-    });
+  SetupDebugWindows(*this, _clock, tracker);
 
   //start the timer at 60 fps
   _clock.Start(60);
@@ -395,46 +111,6 @@ void GameManager::BeginGameLoop()
   // destroy all entities in the scene before cleaning up gui
   _currentScene.reset();
   GUIController::Get().CleanUp();
-}
-
-//______________________________________________________________________________
-void GameManager::CheckAgainstSystems(Entity* entity)
-{
-  InputSystem::Check(entity);
-  ApplyGravitySystem::Check(entity);
-  PhysicsSystem::Check(entity);
-  AnimationSystem::Check(entity);
-  MoveWallSystem::Check(entity);
-  AttackAnimationSystem::Check(entity);
-  HitSystem::Check(entity);
-  TimerSystem::Check(entity);
-  FrameAdvantageSystem::Check(entity);
-  SpriteDrawCallSystem::Check(entity);
-  UITextDrawCallSystem::Check(entity);
-  PlayerSideSystem::Check(entity);
-  CutsceneSystem::Check(entity);
-  CutsceneMovementSystem::Check(entity);
-  CheckBattleEndSystem::Check(entity);
-  UIPositionUpdateSystem::Check(entity);
-  UIContainerUpdateSystem::Check(entity);
-  DrawUIPrimitivesSystem::Check(entity);
-  DrawUIBoxSpriteSystem::Check(entity);
-  UpdateAISystem::Check(entity);
-  ThrowSystem::Check(entity);
-  WallPushSystem::Check(entity);
-  DestroyEntitiesSystem::Check(entity);
-  MenuInputSystem::Check(entity);
-  UpdateMenuStateSystem::Check(entity);
-
-  AnimationListenerSystem::Check(entity);
-
-  // start moving stuff to aggregate systems like this
-  StateTransitionAggregate::Check(entity);
-  HandleUpdateAggregate::Check(entity);
-  EnactAggregate::Check(entity);
-
-  // another aggregate system
-  MoveSystem::Check(entity);
 }
 
 //______________________________________________________________________________

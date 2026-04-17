@@ -41,6 +41,8 @@ private:
   std::queue<EntityID> _availableEntities;
   //! array of signatures where index corresponds to entity id
   std::array<ComponentBitFlag, MAX_ENTITIES> _signatures;
+  //! tracks which entity IDs are currently in use (guards against double-destroy)
+  std::array<bool, MAX_ENTITIES> _activeEntities{};
   //! total living entities - used to keep limits on how many exist
   uint32_t _livingEntityCount;
 

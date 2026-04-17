@@ -1,7 +1,6 @@
 #pragma once
 
 #include "GameState/SceneTypes.h"
-#include "Core/ECS/IComponent.h"
 #include "Core/ECS/Entity.h"
 #include "Core/Timer.h"
 #include "Rendering/RenderManager.h"
@@ -30,8 +29,6 @@ public:
   //! Starts the game loop. Returns when the game has been ended
   void BeginGameLoop();
 
-  void CheckAgainstSystems(Entity* entity);
-
   void ActivateHitStop(int frames);
 
   void DebugDraws();
@@ -44,6 +41,8 @@ public:
   void DestroyEntity(std::shared_ptr<Entity> entity);
   void DestroyEntity(const EntityID& entity);
   void AddToNetworkedList(const EntityID& entity) { _networkedEntities.push_back(entity); }
+  std::shared_ptr<Entity> GetP1() const { return _p1; }
+  std::shared_ptr<Entity> GetP2() const { return _p2; }
 
   //! request scene change at end of update loop
   void RequestSceneChange(SceneType newSceneType);
@@ -121,20 +120,6 @@ private:
 
   bool _running;
 
-  ////!!!!! EXPERIMENTAL CODE FOR SNAPSHOT
-  std::vector<SBuffer> _p1Snapshots;
-  std::vector<SBuffer> _p2Snapshots;
-  std::vector<SBuffer> _gameStateSnapshots;
-  
-
-  //______________________________________________________________________________
-
-  //! Helper function for adding multiple components to an entity at one time
-  template <typename T = IComponent, typename ... Rest>
-  static auto AddComponentToEntity(Entity* entity) -> std::enable_if_t<!std::is_void<T>::value>;
-  //! Helper function for adding multiple components to an entity at one time
-  template <typename T = IComponent, typename ... Rest>
-  static auto ComponentExistsOnEntity(Entity* entity);
 
   //! All entities in the scene
   std::unordered_map<EntityID, std::shared_ptr<Entity>> _gameEntities;
@@ -156,36 +141,12 @@ private:
 };
 
 //______________________________________________________________________________
-template <typename T, typename ... Rest>
-inline auto GameManager::AddComponentToEntity(Entity* entity) -> std::enable_if_t<!std::is_void<T>::value>
-{
-  // recursive control path enders
-  if (!all_base_of<IComponent, T, Rest...>() || std::is_same_v<T, IComponent>)
-    return;
-
-  // Add the current component
-  entity->AddComponent<T>();
-  // recursively call this function on the rest of the types
-  return AddComponentToEntity<Rest...>(entity);
-}
-
-//______________________________________________________________________________
-template <typename T, typename ... Rest>
-inline auto GameManager::ComponentExistsOnEntity(Entity* entity)
-{
-  // recursive control path enders
-  if (!all_base_of<IComponent, T, Rest...>() || std::is_same_v<T, IComponent>)
-    return true;
-  return entity->GetComponent<T>() && ComponentExistsOnEntity<Rest...>(entity);
-}
-
-//______________________________________________________________________________
 template <class ... Args>
 inline std::shared_ptr<Entity> GameManager::CreateEntity()
 {
   auto entityPtr = std::make_shared<Entity>();
   _gameEntities[entityPtr->GetID()] = entityPtr;
 
-  AddComponentToEntity<Args...>(_gameEntities[entityPtr->GetID()].get());
+  entityPtr->AddComponents<Args...>();
   return entityPtr;
 }
