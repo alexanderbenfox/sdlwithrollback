@@ -2,12 +2,23 @@
 #include "Core/ECS/ISystem.h"
 #include "Components/RenderComponent.h"
 #include "Components/UIComponents.h"
-#include "Managers/GameManagement.h"
+#include "Rendering/RenderManager.h"
 
 //! System that creates draw calls for textured sprites and passes them to the renderer
 class SpriteDrawCallSystem : public ISystem<Transform, RenderComponent<RenderType>, RenderProperties>
 {
 public:
+  static void Check(Entity* entity)
+  {
+    bool wasMember = Registered.count(entity->GetID());
+    ISystem::Check(entity);
+    bool isMember = Registered.count(entity->GetID());
+    if (!wasMember && isMember)
+      RenderManager::Get().RegisterDrawable<BlitOperation<RenderType>>(RenderLayer::World);
+    else if (wasMember && !isMember)
+      RenderManager::Get().DeregisterDrawable<BlitOperation<RenderType>>(RenderLayer::World);
+  }
+
   static void PostUpdate()
   {
     PROFILE_FUNCTION();
@@ -21,7 +32,7 @@ public:
       if (!renderer.GetRenderResource()) continue;
 
       // get a display op to set draw parameters
-      auto displayOp = GRenderer.GetAvailableOp<BlitOperation<RenderType>>(RenderLayer::World);
+      auto displayOp = RenderManager::Get().GetAvailableOp<BlitOperation<RenderType>>(RenderLayer::World);
 
       displayOp->srcRect = renderer.sourceRect;
       displayOp->textureResource = renderer.GetRenderResource();
@@ -40,7 +51,7 @@ public:
         renderer.sourceRect.h * transform.scale.y * properties.renderScaling.y);
 
       // set properties
-      displayOp->flip = properties.horizontalFlip ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
+      displayOp->flip = properties.horizontalFlip ? FlipMode::Horizontal : FlipMode::None;
       // set display color directly
       displayOp->displayColor = properties.GetDisplayColor();
 
@@ -64,10 +75,10 @@ public:
 
       Vector2<float> displayPosition = transform.screenPosition;
 
-      for (GLDrawOperation& drawOp : renderer.GetRenderOps())
+      for (TextDrawOp& drawOp : renderer.GetRenderOps())
       {
         // get a display op to set draw parameters
-        auto displayOp = GRenderer.GetAvailableOp<BlitOperation<RenderType>>(RenderLayer::UI);
+        auto displayOp = RenderManager::Get().GetAvailableOp<BlitOperation<RenderType>>(RenderLayer::UI);
 
         displayOp->srcRect = DrawRect<float>(0, 0, (*drawOp.texture)->w(), (*drawOp.texture)->h());
         displayOp->textureResource = drawOp.texture;
@@ -81,7 +92,7 @@ public:
           displayOp->srcRect.h * transform.scale.y);
 
         // set properties
-        displayOp->flip = properties.horizontalFlip ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
+        displayOp->flip = properties.horizontalFlip ? FlipMode::Horizontal : FlipMode::None;
         // set display color directly
         displayOp->displayColor = properties.GetDisplayColor();
 
@@ -94,6 +105,23 @@ public:
 class DrawUIPrimitivesSystem : public ISystem<UITransform, UIRectangleRenderComponent, RenderProperties>
 {
 public:
+  static void Check(Entity* entity)
+  {
+    bool wasMember = Registered.count(entity->GetID());
+    ISystem::Check(entity);
+    bool isMember = Registered.count(entity->GetID());
+    if (!wasMember && isMember)
+    {
+      RenderManager::Get().RegisterDrawable<DrawPrimitive<RenderType>>(RenderLayer::UI);
+      UIRectangleRenderComponent& uiElement = ComponentArray<UIRectangleRenderComponent>::Get().GetComponent(entity->GetID());
+      UITransform& transform = ComponentArray<UITransform>::Get().GetComponent(entity->GetID());
+      uiElement.shownSize.w = transform.rect.Width();
+      uiElement.shownSize.h = transform.rect.Height();
+    }
+    else if (wasMember && !isMember)
+      RenderManager::Get().DeregisterDrawable<DrawPrimitive<RenderType>>(RenderLayer::UI);
+  }
+
   static void PostUpdate()
   {
     for (const EntityID& entity : Registered)
@@ -108,7 +136,7 @@ public:
         displayOp->targetRect.y += transform.screenPosition.y;
 
         // set properties
-        displayOp->flip = properties.horizontalFlip ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
+        displayOp->flip = properties.horizontalFlip ? FlipMode::Horizontal : FlipMode::None;
         // set display color directly
         displayOp->displayColor = properties.GetDisplayColor();
 
@@ -116,7 +144,7 @@ public:
       };
 
       // get a display op to set draw parameters
-      auto op = GRenderer.GetAvailableOp<DrawPrimitive<RenderType>>(RenderLayer::UI);
+      auto op = RenderManager::Get().GetAvailableOp<DrawPrimitive<RenderType>>(RenderLayer::UI);
 
       op->targetRect = uiElement.shownSize;
       op->filled = uiElement.isFilled;
@@ -129,6 +157,23 @@ public:
 class DrawUIBoxSpriteSystem : public ISystem<UITransform, UIBoxSpriteRenderComponent, RenderProperties>
 {
 public:
+  static void Check(Entity* entity)
+  {
+    bool wasMember = Registered.count(entity->GetID());
+    ISystem::Check(entity);
+    bool isMember = Registered.count(entity->GetID());
+    if (!wasMember && isMember)
+    {
+      for (int i = 0; i < 8; i++)
+        RenderManager::Get().RegisterDrawable<BlitOperation<RenderType>>(RenderLayer::UI);
+    }
+    else if (wasMember && !isMember)
+    {
+      for (int i = 0; i < 8; i++)
+        RenderManager::Get().DeregisterDrawable<BlitOperation<RenderType>>(RenderLayer::UI);
+    }
+  }
+
   static void PostUpdate()
   {
     for (const EntityID& entity : Registered)
@@ -144,12 +189,12 @@ public:
       for (int i = 0; i < 8; i++)
       {
         // get a display op to set draw parameters
-        auto op = GRenderer.GetAvailableOp<BlitOperation<RenderType>>(RenderLayer::UI);
+        auto op = RenderManager::Get().GetAvailableOp<BlitOperation<RenderType>>(RenderLayer::UI);
 
         op->textureResource = boxSprite.GetTexture();
         op->srcRect = boxSprite.GetSpritePart(i);
 
-        op->flip = SDL_RendererFlip::SDL_FLIP_NONE;
+        op->flip = FlipMode::None;
 
         op->displayColor = properties.GetDisplayColor();
 

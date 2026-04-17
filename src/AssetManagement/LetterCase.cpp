@@ -1,11 +1,11 @@
 #include "AssetManagement/LetterCase.h"
-#include "Rendering/GLTexture.h"
+#include "Rendering/GLTexture.h" // needed for GLTexture constructor in LetterCase(TTF_Font*)
 
 LetterCase::LetterCase() : _fontSize(0)
 {
   for (int i = 0; i < alphabetSize; ++i)
   {
-    glyphs[i] = Resource<GLTexture>();
+    glyphs[i] = Resource<RenderType>();
   }
 }
 
@@ -22,7 +22,7 @@ LetterCase::LetterCase(TTF_Font* font, size_t size) : _fontSize(size)
     s[0] = i + ' ';
     surf = TTF_RenderText_Blended(font, s, SDL_Color{ 255, 255, 255, 255 });
     surf->refcount++; // SDL2: prevent segfault on free
-    glyphs[i] = Resource<GLTexture>(std::shared_ptr<GLTexture>(new GLTexture));
+    glyphs[i] = Resource<RenderType>(std::shared_ptr<GLTexture>(new GLTexture));
     glyphs[i].Get()->LoadFromSurface(surf);
     SDL_FreeSurface(surf);
   }
@@ -39,16 +39,16 @@ LetterCase::~LetterCase()
   }*/
 }
 
-std::vector<GLDrawOperation> LetterCase::CreateStringField(const char* text, int fieldWidth, TextAlignment alignment, float lineHeight, float kerning)
+std::vector<TextDrawOp> LetterCase::CreateStringField(const char* text, int fieldWidth, TextAlignment alignment, float lineHeight, float kerning)
 {
-  GLRenderString string;
+  TextRenderString string;
   string.ratio = _fontSize / glyphs[0]->h();
 
   // stores last texture index for current line
   int lineBeginIndex = 0;
 
   // center aligns characters from x to y
-  auto centerLine = [](std::vector<GLDrawOperation>& stringCharacters, int lineBegin, int lineEnd, float space)
+  auto centerLine = [](std::vector<TextDrawOp>& stringCharacters, int lineBegin, int lineEnd, float space)
   {
     for (int i = lineBegin; i <= lineEnd; i++)
     {

@@ -2,7 +2,6 @@
 #include "Core/ECS/IComponent.h"
 
 #include "AssetManagement/Resource.h"
-#include "Rendering/RenderManager.h"
 
 #include "Transform.h"
 #include "AssetManagement/LetterCase.h"
@@ -17,16 +16,6 @@ class RenderComponent : public IComponent
 {
 public:
   RenderComponent() : sourceRect{ 0, 0, 0, 0 }, IComponent() {}
-
-  void OnAdd(const EntityID& entity) override
-  {
-    RenderManager::Get().template RegisterDrawable<BlitOperation<TextureType>>(RenderLayer::World);
-  }
-
-  void OnRemove(const EntityID& entity) override
-  {
-    RenderManager::Get().template DeregisterDrawable<BlitOperation<TextureType>>(RenderLayer::World);
-  }
 
   //! Init with a resource
   void Init(Resource<TextureType>& resource)
@@ -70,13 +59,13 @@ public:
   //! Sets up GL calls for text rendering and returns the size of the new on screen text field
   Vector2<float> SetText(const std::string& text, TextAlignment alignment, int fieldWidth = 600);
 
-  std::vector<GLDrawOperation> GetRenderOps();
+  std::vector<TextDrawOp> GetRenderOps();
 
 protected:
   //!
   LetterCase* _resource;
   //!
-  std::vector<GLDrawOperation> _string;
+  std::vector<TextDrawOp> _string;
   //!
   std::string _currentText;
 
@@ -97,9 +86,9 @@ public:
   //! Should the display be flipped horizontally
   bool horizontalFlip;
 
-  virtual void SetDisplayColor(Uint8 r, Uint8 g, Uint8 b);
-  virtual void SetDisplayColor(Uint8 r, Uint8 g, Uint8 b, Uint8 a);
-  virtual SDL_Color GetDisplayColor() const;
+  virtual void SetDisplayColor(uint8_t r, uint8_t g, uint8_t b);
+  virtual void SetDisplayColor(uint8_t r, uint8_t g, uint8_t b, uint8_t a);
+  virtual Color GetDisplayColor() const;
 
   void Serialize(std::ostream& os) const override
   {
@@ -108,7 +97,7 @@ public:
     os << offset;
     Serializer<AnchorPoint>::Serialize(os, anchor);
     Serializer<bool>::Serialize(os, horizontalFlip);
-    Serializer<SDL_Color>::Serialize(os, _displayColor);
+    Serializer<Color>::Serialize(os, _displayColor);
   }
 
   void Deserialize(std::istream& is) override
@@ -118,7 +107,7 @@ public:
     is >> offset;
     Serializer<AnchorPoint>::Deserialize(is, anchor);
     Serializer<bool>::Deserialize(is, horizontalFlip);
-    Serializer<SDL_Color>::Deserialize(is, _displayColor);
+    Serializer<Color>::Deserialize(is, _displayColor);
   }
 
   std::string Log() override
@@ -136,16 +125,16 @@ public:
 
 protected:
   //!
-  SDL_Color _displayColor;
+  Color _displayColor;
   
 };
 
 template <> struct ComponentInitParams<RenderProperties>
 {
-  Uint8 r = 255;
-  Uint8 g = 255;
-  Uint8 b = 255;
-  Uint8 a = 255;
+  uint8_t r = 255;
+  uint8_t g = 255;
+  uint8_t b = 255;
+  uint8_t a = 255;
   static void Init(RenderProperties& component, const ComponentInitParams<RenderProperties>& params)
   {
     component.SetDisplayColor(params.r, params.g, params.b, params.a);

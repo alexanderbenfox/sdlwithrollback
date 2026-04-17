@@ -7,7 +7,7 @@
 
 void SFXComponent::OnAdd(const EntityID& entity)
 {
-  _sfxEntity = GameManager::Get().CreateEntity<RenderComponent<GLTexture>, Transform, Animator, TimerContainer>();
+  _sfxEntity = GameManager::Get().CreateEntity<RenderComponent<RenderType>, Transform, Animator, TimerContainer>();
   _sfxEntity->SetScale(Vector2<float>(0.75, 0.75f));
 
   _sfxEntity->GetComponent<Animator>()->animCollectionID = AnimationCollectionManager::Get().GetCollectionID("General");

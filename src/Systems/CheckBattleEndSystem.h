@@ -1,5 +1,6 @@
 #pragma once
 #include "Core/ECS/ISystem.h"
+#include "Managers/GameManagement.h"
 #include "Components/StateComponent.h"
 #include "Components/Actors/GameActor.h"
 

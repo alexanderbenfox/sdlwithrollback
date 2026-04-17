@@ -1,22 +1,22 @@
 #pragma once
 #include "Resource.h"
 #include "BlitOperation.h"
-#include "Rendering/GLTexture.h"
+#include "Globals.h"
 #include "Core/Utility/TypeTraits.h"
 #include <vector>
 
-struct GLDrawOperation
+struct TextDrawOp
 {
   float x, y, lh;
-  Resource<GLTexture>* texture;
+  Resource<RenderType>* texture;
 };
 
-struct GLRenderString
+struct TextRenderString
 {
   float x = 0;
   float y = 0;
   float ratio;
-  std::vector<GLDrawOperation> textures;
+  std::vector<TextDrawOp> textures;
 
 };
 
@@ -38,9 +38,9 @@ struct LetterCase
   ~LetterCase();
 
   //! right now only deals with left aligned and centered
-  std::vector<GLDrawOperation> CreateStringField(const char* text, int fieldWidth, TextAlignment alignment, float lineHeight = 1.0f, float kerning = 1.0f);
+  std::vector<TextDrawOp> CreateStringField(const char* text, int fieldWidth, TextAlignment alignment, float lineHeight = 1.0f, float kerning = 1.0f);
 
-  Resource<GLTexture> glyphs[alphabetSize];
+  Resource<RenderType> glyphs[alphabetSize];
   size_t _fontSize;
 
 };

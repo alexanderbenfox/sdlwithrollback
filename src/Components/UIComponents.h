@@ -2,7 +2,6 @@
 #include "Core/ECS/IComponent.h"
 #include "Components/StateComponent.h"
 #include "AssetManagement/BlitOperation.h"
-#include "Rendering/RenderManager.h"
 
 enum class UIAnchor
 {
@@ -43,8 +42,6 @@ class UIRectangleRenderComponent : public IComponent
 {
 public:
   UIRectangleRenderComponent();
-  void OnAdd(const EntityID& entity) override;
-  void OnRemove(const EntityID& entity) override;
   DrawRect<float> shownSize;
   bool isFilled = false;
 
@@ -54,12 +51,10 @@ class UIBoxSpriteRenderComponent : public IComponent
 {
 public:
   UIBoxSpriteRenderComponent() : IComponent() {}
-  void OnAdd(const EntityID& entity) override;
-  void OnRemove(const EntityID& entity) override;
 
-  void Init(Resource<GLTexture>& resource, int columns, int rows, int tlIdx, int trIdx, int blIdx, int brIdx, int lSideIdx, int tSideIdx, int rSideIdx, int bSideIdx)
+  void Init(Resource<RenderType>& resource, int columns, int rows, int tlIdx, int trIdx, int blIdx, int brIdx, int lSideIdx, int tSideIdx, int rSideIdx, int bSideIdx)
   {
-    _resource = std::shared_ptr<ResourceWrapper<GLTexture>>(new ResourceWrapper<GLTexture>(resource));
+    _resource = std::shared_ptr<ResourceWrapper<RenderType>>(new ResourceWrapper<RenderType>(resource));
 
     _texWidth = _resource->GetResource()->w();
     _texHeight = _resource->GetResource()->h();
@@ -80,7 +75,7 @@ public:
 
   }
 
-  Resource<GLTexture>* GetTexture() { return &_resource->GetResource(); }
+  Resource<RenderType>* GetTexture() { return &_resource->GetResource(); }
 
   DrawRect<float> GetSpritePart(int part)
   {
@@ -105,7 +100,7 @@ public:
   }
 
 private:
-  std::shared_ptr<ResourceWrapper<GLTexture>> _resource = nullptr;
+  std::shared_ptr<ResourceWrapper<RenderType>> _resource = nullptr;
   int _texWidth = 0;
   int _texHeight = 0;
 

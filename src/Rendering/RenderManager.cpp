@@ -24,7 +24,7 @@ template <> void DrawOperator<BlitOperation<GLTexture>>::DoDraw(BlitOperation<GL
 
   try
   {
-    OpenGLRenderer::RenderQuad2D(srcTexture, operation.srcRect, operation.targetRect, rotation, nullptr, operation.flip, operation.displayColor);
+    OpenGLRenderer::RenderQuad2D(srcTexture, operation.srcRect, operation.targetRect, rotation, nullptr, ToSDLFlip(operation.flip), ToSDLColor(operation.displayColor));
   }
   catch (std::exception& e)
   {
@@ -38,7 +38,7 @@ template <> void DrawOperator<DrawPrimitive<GLTexture>>::DoDraw(DrawPrimitive<GL
   if (!operation.valid) return;
 
   if (operation.filled)
-    OpenGLRenderer::RenderQuad2D(operation.targetRect, 0, nullptr, operation.displayColor);
+    OpenGLRenderer::RenderQuad2D(operation.targetRect, 0, nullptr, ToSDLColor(operation.displayColor));
   else
   {
     float xBeg = operation.targetRect.x;
@@ -54,7 +54,7 @@ template <> void DrawOperator<DrawPrimitive<GLTexture>>::DoDraw(DrawPrimitive<GL
       {xEnd, yBeg},
       {xBeg, yBeg}
     };
-    OpenGLRenderer::RenderLines2D(points, 5, operation.displayColor);
+    OpenGLRenderer::RenderLines2D(points, 5, ToSDLColor(operation.displayColor));
   }
 }
 

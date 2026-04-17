@@ -1,5 +1,6 @@
 #pragma once
 #include "Core/ECS/ISystem.h"
+#include "Managers/GameManagement.h"
 
 // for wall push
 #include "Components/ActionComponents.h"

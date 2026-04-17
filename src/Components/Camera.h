@@ -3,14 +3,7 @@
 #include "Components/DebugComponent/DebugComponent.h"
 
 #include "Core/Math/Matrix4.h"
-#include "AssetManagement/BlitOperation.h"
-
-//!
-static bool SDLRectOverlap(const SDL_Rect& a, const SDL_Rect& b)
-{
-  return (b.x + b.w) >= a.x && b.x <= (a.x + a.w) &&
-    (b.y + b.h) >= a.y && b.y <= (a.y + a.h);
-}
+#include "Core/Geometry2D/Rect.h"
 
 //!
 class Camera : public IDebugComponent
@@ -22,7 +15,7 @@ public:
   //!
   virtual void OnDebug() override;
   //!
-  SDL_Rect rect;
+  DrawRect<int> rect;
   //!
   Matrix4F matrix, worldMatrix;
   //! takes care of the z value not in the transform component

@@ -1,5 +1,6 @@
 #pragma once
 #include "AssetManagement/Resource.h"
+#include "Rendering/RenderTypes.h"
 
 #include "Core/Geometry2D/Rect.h"
 
@@ -7,8 +8,8 @@ struct RenderCommand
 {
   bool valid = false;
   DrawRect<float> targetRect;
-  SDL_Color displayColor = SDL_Color{ 0, 0, 0, 0 };
-  SDL_RendererFlip flip = SDL_FLIP_NONE;
+  Color displayColor = Color{ 0, 0, 0, 0 };
+  FlipMode flip = FlipMode::None;
 };
 
 //! Drawing parameters drawing sprite objects
@@ -31,11 +32,11 @@ struct DrawPrimitive : public RenderCommand
 struct RenderCube
 {
   bool valid = false;
-  SDL_Color faceColor[6];
+  Color faceColor[6];
 };
 
 struct RenderTriangle
 {
   bool valid = false;
-  SDL_Color vertColors[3];
+  Color vertColors[3];
 };

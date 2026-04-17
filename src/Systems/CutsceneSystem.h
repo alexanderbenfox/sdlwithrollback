@@ -1,5 +1,6 @@
 #pragma once
 #include "Core/ECS/ISystem.h"
+#include "Managers/GameManagement.h"
 #include "Components/Actors/CutsceneActor.h"
 
 class CutsceneSystem : public ISystem<CutsceneActor>
