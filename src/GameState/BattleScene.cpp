@@ -14,6 +14,7 @@
 
 // for wall push
 #include "Components/ActionComponents.h"
+#include "Components/StaticComponents/AttackLinkMap.h"
 
 #include "Systems/Physics.h"
 #include "Systems/AnimationSystem.h"
@@ -26,10 +27,10 @@
 #include "Systems/AISystem.h"
 #include "Systems/WallPush/WallPushSystem.h"
 
-#include "Systems/ActionSystems/EnactActionSystem.h"
-#include "Systems/ActionSystems/ActionListenerSystem.h"
-#include "Systems/ActionSystems/ActionHandleInputSystem.h"
-#include "Core/Prefab/ActionFactory.h"
+
+#include "Systems/FighterFSMSystem.h"
+#include "Core/FSM/FighterFSMComponent.h"
+#include "Core/FSM/FighterStateTable.h"
 
 #include "Managers/AnimationCollectionManager.h"
 
@@ -63,8 +64,8 @@ BattleScene::~BattleScene()
   GameManager::Get().DestroyEntity(_p2UIAnchor);
 
   // we are moving into the after match cutscene, so only remove game state related components
-  _p1->RemoveComponents<GameActor, StateComponent, Hurtbox, UIContainer, WallPushComponent, TimerContainer>();
-  _p2->RemoveComponents<GameActor, StateComponent, Hurtbox, UIContainer, WallPushComponent, TimerContainer>();
+  _p1->RemoveComponents<GameActor, StateComponent, Hurtbox, UIContainer, WallPushComponent, TimerContainer, FighterFSMComponent>();
+  _p2->RemoveComponents<GameActor, StateComponent, Hurtbox, UIContainer, WallPushComponent, TimerContainer, FighterFSMComponent>();
 }
 
 void BattleScene::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2)
@@ -75,18 +76,18 @@ void BattleScene::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2)
   InitCharacter(Vector2<int>(100, 0), _p1, true);
   InitCharacter(Vector2<int>(400, 0), _p2, false);
 
-  //set player state to neutral
-  ActionFactory::GoToNeutralAction(_p1->GetID(), _p1->GetComponent<StateComponent>());
-  ActionFactory::GoToNeutralAction(_p2->GetID(), _p2->GetComponent<StateComponent>());
-  _p1->AddComponent<InputListenerComponent>();
-  _p2->AddComponent<InputListenerComponent>();
+  // Initialize FSM components for both players
+  _p1->AddComponent<FighterFSMComponent>();
+  _p1->GetComponent<FighterFSMComponent>()->characterID = 0;
+  _p1->GetComponent<FighterFSMComponent>()->stateTable = &FighterStateTable::Get().GetTable(0);
+
+  _p2->AddComponent<FighterFSMComponent>();
+  _p2->GetComponent<FighterFSMComponent>()->characterID = 0;
+  _p2->GetComponent<FighterFSMComponent>()->stateTable = &FighterStateTable::Get().GetTable(0);
 }
 
 void BattleScene::Update(float deltaTime)
 {
-  // transition entities to neutral before enacting
-  TransitionToNeutralSystem::DoTick(deltaTime);
-
   // check the hitboxes potentially just created
   HitSystem::DoTick(deltaTime);
   ThrowSystem::DoTick(deltaTime);
@@ -104,22 +105,9 @@ void BattleScene::Update(float deltaTime)
 
   ////++++ state machine section ++++////
   InputSystem::DoTick(deltaTime);
-
-  // Check action state machine after all game context gets updated
-  StateTransitionAggregate::DoTick(deltaTime);
-  HandleUpdateAggregate::DoTick(deltaTime);
-
-  // Enact new action states then clean them up
-  EnactAggregate::DoTick(deltaTime);
-  if(deltaTime > 0)
-    CleanUpActionSystem::PostUpdate();
+  FighterFSMSystem::DoTick(deltaTime);
   ////++++ end state machine section ++++///
-  
-  // update timer systems after state has been chosen
-  TimedActionSystem::DoTick(deltaTime);
 
-  // update animation listener
-  AnimationListenerSystem::DoTick(deltaTime);
   AnimationSystem::DoTick(deltaTime);
   // advance attack event schedules before checking hitboxes
   AttackAnimationSystem::DoTick(deltaTime);

@@ -15,10 +15,8 @@
 #include "Systems/MenuSystem.h"
 #include "Systems/WallPush/WallPushSystem.h"
 
-#include "Systems/ActionSystems/EnactActionSystem.h"
-#include "Systems/ActionSystems/ActionListenerSystem.h"
-#include "Systems/ActionSystems/ActionHandleInputSystem.h"
 #include "Systems/ActionSystems/ActionComponentLifecycle.h"
+#include "Systems/FighterFSMSystem.h"
 
 //______________________________________________________________________________
 void CheckAgainstAllSystems(Entity* entity)
@@ -49,21 +47,14 @@ void CheckAgainstAllSystems(Entity* entity)
   MenuInputSystem::Check(entity);
   UpdateMenuStateSystem::Check(entity);
 
-  AnimationListenerSystem::Check(entity);
-
-  // aggregate systems
-  StateTransitionAggregate::Check(entity);
-  HandleUpdateAggregate::Check(entity);
-  EnactAggregate::Check(entity);
 
   MoveSystem::Check(entity);
 
+  // Fighter FSM system
+  FighterFSMSystem::Check(entity);
+
   // Action component lifecycle systems
-  DashingActionLifecycle::Check(entity);
-  JumpingActionLifecycle::Check(entity);
-  CrouchingActionLifecycle::Check(entity);
   GrappleActionLifecycle::Check(entity);
-  ReceivedGrappleLifecycle::Check(entity);
   AttackStateLifecycle::Check(entity);
   HitStateLifecycle::Check(entity);
   ThrowboxLifecycle::Check(entity);

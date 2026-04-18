@@ -9,23 +9,12 @@
 
 struct AnimatedActionComponent : public IComponent, ISerializable
 {
-  //! State of player when starting this action
-  //!
   bool isFacingRight = false;
-  //!
   bool isLoopedAnimation = false;
-
-  //! Initialization parameters
-  //!
   bool forceAnimRestart = false;
-  //!
   float playSpeed = 1.0f;
-  //!
   bool playReverse = false;
-  //!
   std::string animation = "";
-
-  //! State of this action
   bool complete = false;
 
   void Serialize(std::ostream& os) const override
@@ -59,7 +48,6 @@ struct AnimatedActionComponent : public IComponent, ISerializable
     ss << "\tComplete: " << complete << "\n";
     return ss.str();
   }
-
 };
 
 template <> struct ComponentInitParams<AnimatedActionComponent>
@@ -80,79 +68,9 @@ template <> struct ComponentInitParams<AnimatedActionComponent>
   }
 };
 
-//! Empty components for indicating which system should be run for handling input
 struct EnactActionComponent : public IComponent {};
 
-//! Marks the entity as available to check for another action
 struct InputListenerComponent : public IComponent {};
-
-// Marks entity hittable
-struct HittableState : public IComponent, ISerializable
-{
-  bool canBlock = true;
-  bool inKnockdown = false;
-
-  void Serialize(std::ostream& os) const override
-  {
-    Serializer<bool>::Serialize(os, canBlock);
-    Serializer<bool>::Serialize(os, inKnockdown);
-  }
-  void Deserialize(std::istream& is) override
-  {
-    Serializer<bool>::Deserialize(is, canBlock);
-    Serializer<bool>::Deserialize(is, inKnockdown);
-  }
-
-  std::string Log() override
-  {
-    std::stringstream ss;
-    ss << "HittableState: \n";
-    ss << "\tCan block: " << canBlock << "\n";
-    ss << "\tIn knockdown: " << inKnockdown << "\n";
-    return ss.str();
-  }
-};
-
-struct AbleToAttackState : public IComponent {};
-
-struct AbleToSpecialAttackState : public IComponent {};
-
-struct AbleToDash : public IComponent {};
-
-struct AbleToJump : public IComponent {};
-
-struct AbleToWalkLeft : public IComponent {};
-
-struct AbleToWalkRight : public IComponent {};
-
-struct AbleToCrouch : public IComponent {};
-
-struct AbleToReturnToNeutral : public IComponent {};
-
-//! Follow up action component - player hit the ground but other player can still OTG
-struct TransitionToKnockdownGroundOTG : public IComponent {};
-
-//! Follow up action component - player cannot otg
-struct TransitionToKnockdownGround : public IComponent {};
-
-struct TransitionToNeutral : public IComponent {};
-
-struct TransitionToCrouching : public IComponent {};
-
-//! Cancel actions
-
-struct CancelOnHitGround : public IComponent {};
-
-struct CancelOnDash : public IComponent {};
-
-struct CancelOnJump : public IComponent {};
-
-struct CancelOnSpecial : public IComponent {};
-
-// this component will work in conjunction with the HasTargetCombo component (and other action mapping components of that type)
-struct CancelOnNormal : public IComponent {};
-
-//! Components that describe the enacting parameters for a given action type
 
 struct AttackActionComponent : public IComponent, ISerializable
 {
@@ -174,14 +92,12 @@ struct AttackActionComponent : public IComponent, ISerializable
     ss << "\tAction type: " << (int)type << "\n";
     return ss.str();
   }
-
 };
 
 struct GrappleActionComponent : public IComponent {};
 
 struct MovingActionComponent : public IComponent, ISerializable
 {
-  //
   bool horizontalMovementOnly = false;
   Vector2<float> velocity;
 
@@ -204,7 +120,6 @@ struct MovingActionComponent : public IComponent, ISerializable
     ss << "\tVelocity: " << velocity.x << " " << velocity.y << "\n";
     return ss.str();
   }
-
 };
 
 struct ReceivedDamageAction : public IComponent, ISerializable
@@ -269,45 +184,13 @@ struct ReceivedGrappleAction : public IComponent, ISerializable
     ss << "\tDamage and knockback delay: " << damageAndKnockbackDelay << "\n";
     return ss.str();
   }
-
-
 };
-
-struct DashingAction : public IComponent, ISerializable
-{
-  float dashSpeed = 0.0f;
-
-  void Serialize(std::ostream& os) const override
-  {
-    Serializer<float>::Serialize(os, dashSpeed);
-  }
-  void Deserialize(std::istream& is) override
-  {
-    Serializer<float>::Deserialize(is, dashSpeed);
-  }
-
-  std::string Log() override
-  {
-    std::stringstream ss;
-    ss << "DashingAction: \n";
-    ss << "\tDash Speed: " << dashSpeed << "\n";
-    return ss.str();
-  }
-};
-
-struct JumpingAction : public IComponent {};
-
-struct CrouchingAction : public IComponent {};
-
-//! Components that describe the completion parameters for a given action type
 
 struct TimedActionComponent : public IComponent, ISerializable
 {
-  //!
   float playTime = 0.0f;
   int currFrame = 0;
   int totalFrames = 0;
-
   bool cancelled = false;
 
   void Serialize(std::ostream& os) const override
@@ -337,13 +220,6 @@ struct TimedActionComponent : public IComponent, ISerializable
   }
 };
 
-struct WaitForAnimationComplete : public IComponent {};
-
-//! Fully transitions to jumping state
-struct WaitingForJumpAirborne : public IComponent {};
-
-
-//! Component for pushing player away from other player when pressuring on the wall - plz move later
 struct WallPushComponent : public IComponent, ISerializable
 {
   float pushAmount = 0.0f;
@@ -362,7 +238,6 @@ struct WallPushComponent : public IComponent, ISerializable
     Serializer<float>::Deserialize(is, amountPushed);
     Serializer<float>::Deserialize(is, velocity);
   }
-
 
   std::string Log() override
   {

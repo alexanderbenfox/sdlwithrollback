@@ -21,7 +21,6 @@
 #include "Systems/ActionSystems/EnactActionSystem.h"
 
 #include "Core/Prefab/CharacterConstructor.h"
-#include "Core/Prefab/ActionFactory.h"
 
 PreMatchScene::PreMatchScene(MatchMetaComponent& matchData) :
   _fadeAction1(1.5f, 255, 0),

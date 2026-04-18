@@ -12,36 +12,14 @@
 // Each uses the Check() override pattern to detect entity membership changes.
 //
 
-// DashingAction, JumpingAction, CrouchingAction all set forceNewInputOnNextFrame
-// on both add and remove. This template handles all three.
-template <typename ActionComponent>
-struct ForceNewInputOnChange : public ISystem<ActionComponent, GameActor>
+// GrappleActionComponent resets ignoreDynamicColliders on remove.
+struct GrappleActionLifecycle : public ISystem<GrappleActionComponent, Rigidbody>
 {
   static void Check(Entity* entity)
   {
-    auto& reg = ISystem<ActionComponent, GameActor>::Registered;
+    auto& reg = Registered;
     bool wasMember = reg.count(entity->GetID());
-    ISystem<ActionComponent, GameActor>::Check(entity);
-    bool isMember = reg.count(entity->GetID());
-    if (wasMember != isMember)
-      ComponentArray<GameActor>::Get().GetComponent(entity->GetID()).forceNewInputOnNextFrame = true;
-  }
-};
-
-using DashingActionLifecycle = ForceNewInputOnChange<DashingAction>;
-using JumpingActionLifecycle = ForceNewInputOnChange<JumpingAction>;
-using CrouchingActionLifecycle = ForceNewInputOnChange<CrouchingAction>;
-
-// GrappleActionComponent and ReceivedGrappleAction both reset
-// ignoreDynamicColliders on remove.
-template <typename GrappleComponent>
-struct ResetColliderOnGrappleRemove : public ISystem<GrappleComponent, Rigidbody>
-{
-  static void Check(Entity* entity)
-  {
-    auto& reg = ISystem<GrappleComponent, Rigidbody>::Registered;
-    bool wasMember = reg.count(entity->GetID());
-    ISystem<GrappleComponent, Rigidbody>::Check(entity);
+    ISystem::Check(entity);
     bool isMember = reg.count(entity->GetID());
     if (wasMember && !isMember)
     {
@@ -50,9 +28,6 @@ struct ResetColliderOnGrappleRemove : public ISystem<GrappleComponent, Rigidbody
     }
   }
 };
-
-using GrappleActionLifecycle = ResetColliderOnGrappleRemove<GrappleActionComponent>;
-using ReceivedGrappleLifecycle = ResetColliderOnGrappleRemove<ReceivedGrappleAction>;
 
 // AttackStateComponent cleanup: end any in-progress animation events and reset display color.
 // We call all End*Event functions unconditionally since they are safe no-ops when the

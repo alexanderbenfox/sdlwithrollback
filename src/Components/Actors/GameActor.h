@@ -22,8 +22,6 @@ struct GameActor : public IComponent, ISerializable
 
   //! Forces this game actor to update the input state and flag newInputs so that the state would be checked again
   bool forceNewInputOnNextFrame = false;
-  //! indicates current action is complete and entity should trigger its "TransitionTo" action if it has one
-  bool actionTimerComplete = false;
 
   //! Updates input state helper function
   void TransferInputData(const InputBuffer& buffer, const StateComponent* stateInfo);

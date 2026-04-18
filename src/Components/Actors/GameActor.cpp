@@ -27,7 +27,6 @@ void GameActor::Serialize(std::ostream& os) const
   Serializer<SpecialInputState>::Serialize(os, input.special);
   Serializer<bool>::Serialize(os, newInputs);
   Serializer<bool>::Serialize(os, forceNewInputOnNextFrame);
-  Serializer<bool>::Serialize(os, actionTimerComplete);
   lastState.Serialize(os);
 }
 
@@ -38,7 +37,6 @@ void GameActor::Deserialize(std::istream& is)
   Serializer<SpecialInputState>::Deserialize(is, input.special);
   Serializer<bool>::Deserialize(is, newInputs);
   Serializer<bool>::Deserialize(is, forceNewInputOnNextFrame);
-  Serializer<bool>::Deserialize(is, actionTimerComplete);
   lastState.Deserialize(is);
 }
 
@@ -51,6 +49,5 @@ std::string GameActor::Log()
   ss << "\tSpecial Input State: " << (int)input.special << "\n";
   ss << "\tIs New Input?: " << newInputs << "\n";
   ss << "\tForce new input: " << forceNewInputOnNextFrame << "\n";
-  ss << "\tAction complete: " << actionTimerComplete << "\n";
   return ss.str();
 }
