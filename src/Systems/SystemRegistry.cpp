@@ -17,6 +17,7 @@
 
 #include "Systems/ActionSystems/ActionComponentLifecycle.h"
 #include "Systems/FighterFSMSystem.h"
+#include "Systems/DebugSystems.h"
 
 //______________________________________________________________________________
 void CheckAgainstAllSystems(Entity* entity)
@@ -29,7 +30,7 @@ void CheckAgainstAllSystems(Entity* entity)
   AttackAnimationSystem::Check(entity);
   HitSystem::Check(entity);
   TimerSystem::Check(entity);
-  FrameAdvantageSystem::Check(entity);
+  DebugFrameAdvantageSystem::Check(entity);
   SpriteDrawCallSystem::Check(entity);
   UITextDrawCallSystem::Check(entity);
   PlayerSideSystem::Check(entity);

@@ -29,6 +29,7 @@
 
 
 #include "Systems/FighterFSMSystem.h"
+#include "Systems/DebugSystems.h"
 #include "Components/FighterFSMComponent.h"
 #include "Core/FSM/FighterStateTable.h"
 
@@ -123,7 +124,7 @@ void BattleScene::Update(float deltaTime)
   ////++++ section for state dependent auxilliary info systems ++++////
 
 // do stuff that requires up to date actions
-  FrameAdvantageSystem::DoTick(deltaTime);
+  DebugFrameAdvantageSystem::DoTick(deltaTime);
 
   // update AI timers, UI timers (all non-state timers)
   TimerSystem::DoTick(deltaTime);
