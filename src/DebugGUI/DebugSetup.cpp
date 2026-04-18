@@ -142,6 +142,59 @@ void SetupDebugWindows(GameManager& gm, Timer& clock, AvgCounter& tracker)
           }
         }
       }
+
+      ImGui::Separator();
+
+      // Snapshot round-trip validation: save → load → save → compare
+      static std::string validationResult;
+      if (ImGui::Button("Validate Snapshot Round-Trip"))
+      {
+        gm.TriggerBeginningOfFrame([&gm]()
+        {
+          // 1. Save current state
+          SBuffer snapA = gm.CreateGameStateSnapshot();
+
+          // 2. Load that snapshot back (overwrites live state with deserialized data)
+          gm.LoadGamestateSnapshot(snapA);
+
+          // 3. Save again from the restored state
+          SBuffer snapB = gm.CreateGameStateSnapshot();
+
+          // 4. Compare byte-for-byte
+          if (snapA.size() != snapB.size())
+          {
+            validationResult = "FAIL: size mismatch (A=" + std::to_string(snapA.size()) +
+                               " B=" + std::to_string(snapB.size()) + ")";
+          }
+          else
+          {
+            bool match = true;
+            size_t firstDiff = 0;
+            for (size_t i = 0; i < snapA.size(); i++)
+            {
+              if (snapA[i] != snapB[i])
+              {
+                match = false;
+                firstDiff = i;
+                break;
+              }
+            }
+            if (match)
+              validationResult = "PASS: round-trip OK (" + std::to_string(snapA.size()) + " bytes)";
+            else
+              validationResult = "FAIL: divergence at byte " + std::to_string(firstDiff) +
+                                 " of " + std::to_string(snapA.size());
+          }
+        });
+      }
+      if (!validationResult.empty())
+      {
+        bool pass = validationResult.find("PASS") != std::string::npos;
+        if (pass)
+          ImGui::TextColored(ImVec4(0, 1, 0, 1), "%s", validationResult.c_str());
+        else
+          ImGui::TextColored(ImVec4(1, 0, 0, 1), "%s", validationResult.c_str());
+      }
     });
 
   static int localPlayerIndex = 0;

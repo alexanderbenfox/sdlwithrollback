@@ -1,6 +1,8 @@
 #pragma once
 #include <vector>
+#include <bitset>
 #include <cstdint>
+#include <initializer_list>
 
 #include "Globals.h"
 
@@ -52,49 +54,64 @@ enum class FighterStateID : uint8_t
 // Condition flags evaluated once per entity per frame.
 // Direction-relative: InputForward/Backward and SpecialQCF/QCB are resolved
 // from raw input + onLeftSide so transition rules are side-independent.
-enum ConditionFlag : uint32_t
+// Values are bit indices into ConditionFlags, not bitmasks.
+enum ConditionFlag : size_t
 {
-  CF_None             = 0,
   // Input directions (relative to opponent)
-  CF_InputUp          = 1 << 0,
-  CF_InputDown        = 1 << 1,
-  CF_InputForward     = 1 << 2,
-  CF_InputBackward    = 1 << 3,
+  CF_InputUp          = 0,
+  CF_InputDown        = 1,
+  CF_InputForward     = 2,
+  CF_InputBackward    = 3,
   // Input buttons
-  CF_InputBtn1        = 1 << 4,
-  CF_InputBtn2        = 1 << 5,
-  CF_InputBtn3        = 1 << 6,
-  CF_InputBtn4        = 1 << 7,
+  CF_InputBtn1        = 4,
+  CF_InputBtn2        = 5,
+  CF_InputBtn3        = 6,
+  CF_InputBtn4        = 7,
   // Special inputs (relative to opponent)
-  CF_SpecialQCF       = 1 << 8,
-  CF_SpecialQCB       = 1 << 9,
-  CF_SpecialDPF       = 1 << 10,
-  CF_SpecialDPB       = 1 << 11,
-  CF_SpecialFDash     = 1 << 12,
-  CF_SpecialBDash     = 1 << 13,
+  CF_SpecialQCF       = 8,
+  CF_SpecialQCB       = 9,
+  CF_SpecialDPF       = 10,
+  CF_SpecialDPB       = 11,
+  CF_SpecialFDash     = 12,
+  CF_SpecialBDash     = 13,
   // Physics
-  CF_IsGrounded       = 1 << 14,
-  CF_IsAirborne       = 1 << 15,
+  CF_IsGrounded       = 14,
+  CF_IsAirborne       = 15,
   // Combat
-  CF_HitThisFrame     = 1 << 16,
-  CF_ThrownThisFrame  = 1 << 17,
-  CF_Hitting          = 1 << 18,
+  CF_HitThisFrame     = 16,
+  CF_ThrownThisFrame  = 17,
+  CF_Hitting          = 18,
   // Completion
-  CF_AnimComplete     = 1 << 19,
-  CF_TimerComplete    = 1 << 20,
+  CF_AnimComplete     = 19,
+  CF_TimerComplete    = 20,
   // State flags
-  CF_NewInputs        = 1 << 21,
+  CF_NewInputs        = 21,
   // Any attack button
-  CF_AnyAttackBtn     = 1 << 22,
+  CF_AnyAttackBtn     = 22,
+
+  // Total built-in flags (user-defined flags start here)
+  CF_BuiltInCount     = 23,
 };
+
+// 64 bits gives room for user-defined condition flags beyond the built-in set
+constexpr size_t ConditionFlagCapacity = 64;
+using ConditionFlags = std::bitset<ConditionFlagCapacity>;
+
+// Build a ConditionFlags from a list of flag indices
+inline ConditionFlags MakeFlags(std::initializer_list<ConditionFlag> flags)
+{
+  ConditionFlags result;
+  for (auto f : flags) result.set(f);
+  return result;
+}
 
 //______________________________________________________________________________
 struct TransitionRule
 {
-  uint32_t requiredFlags;       // AND mask: all must be true
-  uint32_t forbiddenFlags = 0;  // if ANY of these are set, rule does NOT fire
-  FighterStateID targetState;   // COUNT = use hit resolver
-  int8_t priority = 0;          // higher = evaluated first
+  ConditionFlags requiredFlags;       // all must be true
+  ConditionFlags forbiddenFlags;      // if ANY of these are set, rule does NOT fire
+  FighterStateID targetState;         // COUNT = use hit resolver
+  int8_t priority = 0;                // higher = evaluated first
 };
 
 //______________________________________________________________________________

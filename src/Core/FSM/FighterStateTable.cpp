@@ -30,59 +30,59 @@ void FighterStateTable::BuildRyu()
 
   // Hit/thrown detection — highest priority, applies to any hittable state
   // targetState = COUNT means "use ResolveHitTarget"
-  const TransitionRule hitTransition       = { CF_HitThisFrame,    0, ID::COUNT, 100 };
-  const TransitionRule thrownTransition    = { CF_ThrownThisFrame, 0, ID::COUNT, 100 };
+  const TransitionRule hitTransition       = { MakeFlags({CF_HitThisFrame}),    {}, ID::COUNT, 100 };
+  const TransitionRule thrownTransition    = { MakeFlags({CF_ThrownThisFrame}), {}, ID::COUNT, 100 };
 
   // Fall detection — applies to any grounded state that can become airborne
-  const TransitionRule fallTransition      = { CF_IsAirborne, 0, ID::Falling, 90 };
+  const TransitionRule fallTransition      = { MakeFlags({CF_IsAirborne}), {}, ID::Falling, 90 };
 
   // Special move transitions (priority 70, above normals)
-  const TransitionRule donkeyKick = { CF_SpecialQCF | CF_InputBtn3 | CF_AnyAttackBtn, 0, ID::SpecialMove3, 72 };
-  const TransitionRule fireball   = { CF_SpecialQCF | CF_AnyAttackBtn,                0, ID::SpecialMove1, 71 };
-  const TransitionRule tatsu      = { CF_SpecialQCB | CF_AnyAttackBtn,                0, ID::SpecialMove4, 71 };
-  const TransitionRule dp         = { CF_SpecialDPF | CF_AnyAttackBtn,                0, ID::SpecialMove2, 71 };
+  const TransitionRule donkeyKick = { MakeFlags({CF_SpecialQCF, CF_InputBtn3, CF_AnyAttackBtn}), {}, ID::SpecialMove3, 72 };
+  const TransitionRule fireball   = { MakeFlags({CF_SpecialQCF, CF_AnyAttackBtn}),                {}, ID::SpecialMove1, 71 };
+  const TransitionRule tatsu      = { MakeFlags({CF_SpecialQCB, CF_AnyAttackBtn}),                {}, ID::SpecialMove4, 71 };
+  const TransitionRule dp         = { MakeFlags({CF_SpecialDPF, CF_AnyAttackBtn}),                {}, ID::SpecialMove2, 71 };
 
   // Normal attack transitions (priority 60)
-  const TransitionRule throwFwd   = { CF_IsGrounded | CF_InputBtn4, CF_InputBackward, ID::ForwardThrow, 65 };
-  const TransitionRule throwBack  = { CF_IsGrounded | CF_InputBtn4 | CF_InputBackward, 0, ID::BackThrow, 66 };
-  const TransitionRule sLight     = { CF_IsGrounded | CF_InputBtn1, 0, ID::StandingLight,  60 };
-  const TransitionRule sMedium    = { CF_IsGrounded | CF_InputBtn2, 0, ID::StandingMedium, 60 };
-  const TransitionRule sHeavy     = { CF_IsGrounded | CF_InputBtn3, 0, ID::StandingHeavy,  60 };
-  const TransitionRule cLight     = { CF_IsGrounded | CF_InputBtn1, 0, ID::CrouchingLight,  60 };
-  const TransitionRule cMedium    = { CF_IsGrounded | CF_InputBtn2, 0, ID::CrouchingMedium, 60 };
-  const TransitionRule cHeavy     = { CF_IsGrounded | CF_InputBtn3, 0, ID::CrouchingHeavy,  60 };
-  const TransitionRule jLight     = { CF_IsAirborne | CF_InputBtn1, 0, ID::JumpingLight,  60 };
-  const TransitionRule jMedium    = { CF_IsAirborne | CF_InputBtn2, 0, ID::JumpingMedium, 60 };
-  const TransitionRule jHeavy     = { CF_IsAirborne | CF_InputBtn3, 0, ID::JumpingHeavy,  60 };
+  const TransitionRule throwFwd   = { MakeFlags({CF_IsGrounded, CF_InputBtn4}), MakeFlags({CF_InputBackward}), ID::ForwardThrow, 65 };
+  const TransitionRule throwBack  = { MakeFlags({CF_IsGrounded, CF_InputBtn4, CF_InputBackward}), {}, ID::BackThrow, 66 };
+  const TransitionRule sLight     = { MakeFlags({CF_IsGrounded, CF_InputBtn1}), {}, ID::StandingLight,  60 };
+  const TransitionRule sMedium    = { MakeFlags({CF_IsGrounded, CF_InputBtn2}), {}, ID::StandingMedium, 60 };
+  const TransitionRule sHeavy     = { MakeFlags({CF_IsGrounded, CF_InputBtn3}), {}, ID::StandingHeavy,  60 };
+  const TransitionRule cLight     = { MakeFlags({CF_IsGrounded, CF_InputBtn1}), {}, ID::CrouchingLight,  60 };
+  const TransitionRule cMedium    = { MakeFlags({CF_IsGrounded, CF_InputBtn2}), {}, ID::CrouchingMedium, 60 };
+  const TransitionRule cHeavy     = { MakeFlags({CF_IsGrounded, CF_InputBtn3}), {}, ID::CrouchingHeavy,  60 };
+  const TransitionRule jLight     = { MakeFlags({CF_IsAirborne, CF_InputBtn1}), {}, ID::JumpingLight,  60 };
+  const TransitionRule jMedium    = { MakeFlags({CF_IsAirborne, CF_InputBtn2}), {}, ID::JumpingMedium, 60 };
+  const TransitionRule jHeavy     = { MakeFlags({CF_IsAirborne, CF_InputBtn3}), {}, ID::JumpingHeavy,  60 };
 
   // Dash transitions (priority 55)
-  const TransitionRule dashFwdBtn = { CF_IsGrounded | CF_InputForward | CF_InputBtn4,  0, ID::ForwardDash, 55 };
-  const TransitionRule dashFwdSp  = { CF_IsGrounded | CF_SpecialFDash,                 0, ID::ForwardDash, 55 };
-  const TransitionRule dashBkBtn  = { CF_IsGrounded | CF_InputBackward | CF_InputBtn4, 0, ID::BackDash,    55 };
-  const TransitionRule dashBkSp   = { CF_IsGrounded | CF_SpecialBDash,                 0, ID::BackDash,    55 };
+  const TransitionRule dashFwdBtn = { MakeFlags({CF_IsGrounded, CF_InputForward, CF_InputBtn4}),  {}, ID::ForwardDash, 55 };
+  const TransitionRule dashFwdSp  = { MakeFlags({CF_IsGrounded, CF_SpecialFDash}),                 {}, ID::ForwardDash, 55 };
+  const TransitionRule dashBkBtn  = { MakeFlags({CF_IsGrounded, CF_InputBackward, CF_InputBtn4}), {}, ID::BackDash,    55 };
+  const TransitionRule dashBkSp   = { MakeFlags({CF_IsGrounded, CF_SpecialBDash}),                 {}, ID::BackDash,    55 };
 
   // Jump (priority 50)
-  const TransitionRule jump       = { CF_IsGrounded | CF_InputUp, 0, ID::Jumping, 50 };
+  const TransitionRule jump       = { MakeFlags({CF_IsGrounded, CF_InputUp}), {}, ID::Jumping, 50 };
 
   // Crouch (priority 40)
-  const TransitionRule crouch     = { CF_IsGrounded | CF_InputDown, 0, ID::CrouchTransition, 40 };
+  const TransitionRule crouch     = { MakeFlags({CF_IsGrounded, CF_InputDown}), {}, ID::CrouchTransition, 40 };
 
   // Walk (priority 30) — no CF_NewInputs: held directions should keep working after state changes
-  const TransitionRule walkFwd    = { CF_IsGrounded | CF_InputForward,  0, ID::WalkForward,  30 };
-  const TransitionRule walkBk     = { CF_IsGrounded | CF_InputBackward, 0, ID::WalkBackward, 30 };
+  const TransitionRule walkFwd    = { MakeFlags({CF_IsGrounded, CF_InputForward}),  {}, ID::WalkForward,  30 };
+  const TransitionRule walkBk     = { MakeFlags({CF_IsGrounded, CF_InputBackward}), {}, ID::WalkBackward, 30 };
 
   // Return to neutral (priority 20) — no direction held
-  const TransitionRule returnToNeutral = { CF_NewInputs | CF_IsGrounded, CF_InputForward | CF_InputBackward | CF_InputDown, ID::Idle, 20 };
+  const TransitionRule returnToNeutral = { MakeFlags({CF_NewInputs, CF_IsGrounded}), MakeFlags({CF_InputForward, CF_InputBackward, CF_InputDown}), ID::Idle, 20 };
 
   // Completion transitions
-  const TransitionRule onTimerToIdle     = { CF_TimerComplete, 0, ID::Idle, 10 };
-  const TransitionRule onTimerToCrouch   = { CF_TimerComplete | CF_IsGrounded | CF_InputDown, 0, ID::CrouchTransition, 11 };
-  const TransitionRule onAnimToIdle      = { CF_AnimComplete, 0, ID::Idle, 10 };
-  const TransitionRule onAnimToCrouch    = { CF_AnimComplete | CF_IsGrounded | CF_InputDown, 0, ID::CrouchTransition, 11 };
+  const TransitionRule onTimerToIdle     = { MakeFlags({CF_TimerComplete}), {}, ID::Idle, 10 };
+  const TransitionRule onTimerToCrouch   = { MakeFlags({CF_TimerComplete, CF_IsGrounded, CF_InputDown}), {}, ID::CrouchTransition, 11 };
+  const TransitionRule onAnimToIdle      = { MakeFlags({CF_AnimComplete}), {}, ID::Idle, 10 };
+  const TransitionRule onAnimToCrouch    = { MakeFlags({CF_AnimComplete, CF_IsGrounded, CF_InputDown}), {}, ID::CrouchTransition, 11 };
   // Variants that skip CrouchTransition (for states already crouching)
-  const TransitionRule onTimerToCrouched = { CF_TimerComplete | CF_IsGrounded | CF_InputDown, 0, ID::Crouched, 11 };
-  const TransitionRule onAnimToCrouched  = { CF_AnimComplete | CF_IsGrounded | CF_InputDown, 0, ID::Crouched, 11 };
-  const TransitionRule onGrounded        = { CF_IsGrounded, 0, ID::KnockdownHitGround, 10 };
+  const TransitionRule onTimerToCrouched = { MakeFlags({CF_TimerComplete, CF_IsGrounded, CF_InputDown}), {}, ID::Crouched, 11 };
+  const TransitionRule onAnimToCrouched  = { MakeFlags({CF_AnimComplete, CF_IsGrounded, CF_InputDown}), {}, ID::Crouched, 11 };
+  const TransitionRule onGrounded        = { MakeFlags({CF_IsGrounded}), {}, ID::KnockdownHitGround, 10 };
 
   // ---- State Definitions ----
 
@@ -169,7 +169,7 @@ void FighterStateTable::BuildRyu()
     s.transitions = {
       hitTransition, thrownTransition,
       jLight, jMedium, jHeavy,
-      { CF_IsGrounded, 0, ID::Idle, 10 } // land
+      { MakeFlags({CF_IsGrounded}), {}, ID::Idle, 10 } // land
     };
   }
 
@@ -186,7 +186,7 @@ void FighterStateTable::BuildRyu()
     s.transitions = {
       hitTransition, thrownTransition,
       jLight, jMedium, jHeavy,
-      { CF_IsGrounded, 0, ID::Idle, 10 }
+      { MakeFlags({CF_IsGrounded}), {}, ID::Idle, 10 }
     };
   }
 
@@ -208,7 +208,7 @@ void FighterStateTable::BuildRyu()
       donkeyKick, fireball, tatsu, dp,
       cLight, cMedium, cHeavy,
       // Release down → go to idle
-      { CF_NewInputs | CF_IsGrounded, CF_InputDown, ID::Idle, 20 }
+      { MakeFlags({CF_NewInputs, CF_IsGrounded}), MakeFlags({CF_InputDown}), ID::Idle, 20 }
     };
   }
 
@@ -228,7 +228,7 @@ void FighterStateTable::BuildRyu()
       donkeyKick, fireball, tatsu, dp,
       cLight, cMedium, cHeavy,
       // Release down → idle
-      { CF_NewInputs | CF_IsGrounded, CF_InputDown, ID::Idle, 20 }
+      { MakeFlags({CF_NewInputs, CF_IsGrounded}), MakeFlags({CF_InputDown}), ID::Idle, 20 }
     };
   }
 
@@ -289,10 +289,10 @@ void FighterStateTable::BuildRyu()
     s.transitions = {
       hitTransition, thrownTransition,
       // Cancel on special (requires hitting)
-      { CF_Hitting | CF_SpecialQCF | CF_InputBtn3 | CF_AnyAttackBtn, 0, ID::SpecialMove3, 72 },
-      { CF_Hitting | CF_SpecialQCF | CF_AnyAttackBtn,                0, ID::SpecialMove1, 71 },
-      { CF_Hitting | CF_SpecialQCB | CF_AnyAttackBtn,                0, ID::SpecialMove4, 71 },
-      { CF_Hitting | CF_SpecialDPF | CF_AnyAttackBtn,                0, ID::SpecialMove2, 71 },
+      { MakeFlags({CF_Hitting, CF_SpecialQCF, CF_InputBtn3, CF_AnyAttackBtn}), {}, ID::SpecialMove3, 72 },
+      { MakeFlags({CF_Hitting, CF_SpecialQCF, CF_AnyAttackBtn}),                {}, ID::SpecialMove1, 71 },
+      { MakeFlags({CF_Hitting, CF_SpecialQCB, CF_AnyAttackBtn}),                {}, ID::SpecialMove4, 71 },
+      { MakeFlags({CF_Hitting, CF_SpecialDPF, CF_AnyAttackBtn}),                {}, ID::SpecialMove2, 71 },
       // Normal cancel (target combo) handled by evaluator checking AttackLinkMap
       onAnimToCrouch, onAnimToIdle
     };
@@ -320,10 +320,10 @@ void FighterStateTable::BuildRyu()
     s.cancelFlags = StateDefinition::Cancel_HitGround | StateDefinition::Cancel_Special | StateDefinition::Cancel_Normal;
     s.transitions = {
       hitTransition, thrownTransition,
-      { CF_Hitting | CF_SpecialQCF | CF_InputBtn3 | CF_AnyAttackBtn, 0, ID::SpecialMove3, 72 },
-      { CF_Hitting | CF_SpecialQCF | CF_AnyAttackBtn,                0, ID::SpecialMove1, 71 },
-      { CF_Hitting | CF_SpecialQCB | CF_AnyAttackBtn,                0, ID::SpecialMove4, 71 },
-      { CF_Hitting | CF_SpecialDPF | CF_AnyAttackBtn,                0, ID::SpecialMove2, 71 },
+      { MakeFlags({CF_Hitting, CF_SpecialQCF, CF_InputBtn3, CF_AnyAttackBtn}), {}, ID::SpecialMove3, 72 },
+      { MakeFlags({CF_Hitting, CF_SpecialQCF, CF_AnyAttackBtn}),                {}, ID::SpecialMove1, 71 },
+      { MakeFlags({CF_Hitting, CF_SpecialQCB, CF_AnyAttackBtn}),                {}, ID::SpecialMove4, 71 },
+      { MakeFlags({CF_Hitting, CF_SpecialDPF, CF_AnyAttackBtn}),                {}, ID::SpecialMove2, 71 },
       onAnimToCrouched, onAnimToIdle  // already crouching → skip CrouchTransition
     };
   };
@@ -351,12 +351,12 @@ void FighterStateTable::BuildRyu()
     s.transitions = {
       hitTransition, thrownTransition,
       // Cancel on special in air
-      { CF_Hitting | CF_SpecialQCF | CF_InputBtn3 | CF_AnyAttackBtn, 0, ID::SpecialMove3, 72 },
-      { CF_Hitting | CF_SpecialQCF | CF_AnyAttackBtn,                0, ID::SpecialMove1, 71 },
-      { CF_Hitting | CF_SpecialQCB | CF_AnyAttackBtn,                0, ID::SpecialMove4, 71 },
-      { CF_Hitting | CF_SpecialDPF | CF_AnyAttackBtn,                0, ID::SpecialMove2, 71 },
+      { MakeFlags({CF_Hitting, CF_SpecialQCF, CF_InputBtn3, CF_AnyAttackBtn}), {}, ID::SpecialMove3, 72 },
+      { MakeFlags({CF_Hitting, CF_SpecialQCF, CF_AnyAttackBtn}),                {}, ID::SpecialMove1, 71 },
+      { MakeFlags({CF_Hitting, CF_SpecialQCB, CF_AnyAttackBtn}),                {}, ID::SpecialMove4, 71 },
+      { MakeFlags({CF_Hitting, CF_SpecialDPF, CF_AnyAttackBtn}),                {}, ID::SpecialMove2, 71 },
       // Landing cancels the attack
-      { CF_IsGrounded, 0, ID::Idle, 50 },
+      { MakeFlags({CF_IsGrounded}), {}, ID::Idle, 50 },
       onAnimToIdle
     };
   };

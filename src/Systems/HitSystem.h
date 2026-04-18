@@ -137,8 +137,9 @@ public:
 };
 
 #include "Managers/AnimationCollectionManager.h"
+#include "Components/FighterFSMComponent.h"
 
-class FrameAdvantageSystem : public IMultiSystem<SysComponents<AttackStateComponent, Animator, RenderProperties>, SysComponents<HitStateComponent, TimedActionComponent>>
+class FrameAdvantageSystem : public IMultiSystem<SysComponents<AttackStateComponent, Animator, RenderProperties>, SysComponents<HitStateComponent, FighterFSMComponent>>
 {
 public:
   static void DoTick(float dt)
@@ -146,7 +147,6 @@ public:
     PROFILE_FUNCTION();
     for (const EntityID& entity : MainSystem::Registered)
     {
-      AttackStateComponent& atkState = ComponentArray<AttackStateComponent>::Get().GetComponent(entity);
       Animator& animator = ComponentArray<Animator>::Get().GetComponent(entity);
       RenderProperties& properties = ComponentArray<RenderProperties>::Get().GetComponent(entity);
 
@@ -157,8 +157,8 @@ public:
 
       for (const EntityID& e2 : SubSystem::Registered)
       {
-        TimedActionComponent hitstun = ComponentArray<TimedActionComponent>::Get().GetComponent(e2);
-        int remainingFrames = hitstun.totalFrames - hitstun.currFrame;
+        const FighterFSMComponent& fsm = ComponentArray<FighterFSMComponent>::Get().GetComponent(e2);
+        int remainingFrames = fsm.stateTotalFrames - fsm.stateFrame;
 
         attackerFrameAdvantage += remainingFrames;
       }

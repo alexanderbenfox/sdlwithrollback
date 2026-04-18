@@ -46,7 +46,7 @@ void FighterFSMSystem::DoTick(float dt)
     UpdateCurrentState(dt, entity, fsm, state, rb);
 
     // 4. Build condition flags from current entity state
-    uint32_t flags = EvaluateConditionFlags(fsm, actor, state, rb, animator);
+    ConditionFlags flags = EvaluateConditionFlags(fsm, actor, state, rb, animator);
 
     // 4. Evaluate transitions — first matching rule wins
     FighterStateID target = EvaluateTransitions(entity, fsm, flags, actor, state, rb);
@@ -63,7 +63,7 @@ void FighterFSMSystem::DoTick(float dt)
     // Allow re-entry into the same state on hit/thrown (e.g., getting hit while in hitstun
     // must reset the timer and re-apply damage)
     bool shouldTransition = (target != fsm.currentState);
-    if (!shouldTransition && (flags & (CF_HitThisFrame | CF_ThrownThisFrame)))
+    if (!shouldTransition && (flags.test(CF_HitThisFrame) || flags.test(CF_ThrownThisFrame)))
       shouldTransition = true;
 
     if (shouldTransition)
@@ -107,66 +107,66 @@ void FighterFSMSystem::DoTick(float dt)
 }
 
 //______________________________________________________________________________
-uint32_t FighterFSMSystem::EvaluateConditionFlags(
+ConditionFlags FighterFSMSystem::EvaluateConditionFlags(
   const FighterFSMComponent& fsm, const GameActor& actor,
   const StateComponent& state, const Rigidbody& rb, const Animator& animator)
 {
-  uint32_t flags = CF_None;
+  ConditionFlags flags;
   const InputState& btns = actor.input.normal;
 
   // Input directions (relative to opponent)
-  if (HasState(btns, InputState::UP))    flags |= CF_InputUp;
-  if (HasState(btns, InputState::DOWN))  flags |= CF_InputDown;
+  if (HasState(btns, InputState::UP))    flags.set(CF_InputUp);
+  if (HasState(btns, InputState::DOWN))  flags.set(CF_InputDown);
 
   if (state.onLeftSide)
   {
-    if (HasState(btns, InputState::RIGHT)) flags |= CF_InputForward;
-    if (HasState(btns, InputState::LEFT))  flags |= CF_InputBackward;
+    if (HasState(btns, InputState::RIGHT)) flags.set(CF_InputForward);
+    if (HasState(btns, InputState::LEFT))  flags.set(CF_InputBackward);
   }
   else
   {
-    if (HasState(btns, InputState::LEFT))  flags |= CF_InputForward;
-    if (HasState(btns, InputState::RIGHT)) flags |= CF_InputBackward;
+    if (HasState(btns, InputState::LEFT))  flags.set(CF_InputForward);
+    if (HasState(btns, InputState::RIGHT)) flags.set(CF_InputBackward);
   }
 
   // Buttons
-  if (HasState(btns, InputState::BTN1)) flags |= CF_InputBtn1;
-  if (HasState(btns, InputState::BTN2)) flags |= CF_InputBtn2;
-  if (HasState(btns, InputState::BTN3)) flags |= CF_InputBtn3;
-  if (HasState(btns, InputState::BTN4)) flags |= CF_InputBtn4;
+  if (HasState(btns, InputState::BTN1)) flags.set(CF_InputBtn1);
+  if (HasState(btns, InputState::BTN2)) flags.set(CF_InputBtn2);
+  if (HasState(btns, InputState::BTN3)) flags.set(CF_InputBtn3);
+  if (HasState(btns, InputState::BTN4)) flags.set(CF_InputBtn4);
 
-  if (flags & (CF_InputBtn1 | CF_InputBtn2 | CF_InputBtn3))
-    flags |= CF_AnyAttackBtn;
+  if (flags.test(CF_InputBtn1) || flags.test(CF_InputBtn2) || flags.test(CF_InputBtn3))
+    flags.set(CF_AnyAttackBtn);
 
   // Special inputs (relative to opponent)
   const SpecialInputState& sp = actor.input.special;
   if (state.onLeftSide)
   {
-    if (sp == SpecialInputState::QCF)   flags |= CF_SpecialQCF;
-    if (sp == SpecialInputState::QCB)   flags |= CF_SpecialQCB;
-    if (sp == SpecialInputState::DPF)   flags |= CF_SpecialDPF;
-    if (sp == SpecialInputState::DPB)   flags |= CF_SpecialDPB;
-    if (sp == SpecialInputState::RDash) flags |= CF_SpecialFDash;
-    if (sp == SpecialInputState::LDash) flags |= CF_SpecialBDash;
+    if (sp == SpecialInputState::QCF)   flags.set(CF_SpecialQCF);
+    if (sp == SpecialInputState::QCB)   flags.set(CF_SpecialQCB);
+    if (sp == SpecialInputState::DPF)   flags.set(CF_SpecialDPF);
+    if (sp == SpecialInputState::DPB)   flags.set(CF_SpecialDPB);
+    if (sp == SpecialInputState::RDash) flags.set(CF_SpecialFDash);
+    if (sp == SpecialInputState::LDash) flags.set(CF_SpecialBDash);
   }
   else
   {
-    if (sp == SpecialInputState::QCF)   flags |= CF_SpecialQCB;
-    if (sp == SpecialInputState::QCB)   flags |= CF_SpecialQCF;
-    if (sp == SpecialInputState::DPF)   flags |= CF_SpecialDPB;
-    if (sp == SpecialInputState::DPB)   flags |= CF_SpecialDPF;
-    if (sp == SpecialInputState::RDash) flags |= CF_SpecialBDash;
-    if (sp == SpecialInputState::LDash) flags |= CF_SpecialFDash;
+    if (sp == SpecialInputState::QCF)   flags.set(CF_SpecialQCB);
+    if (sp == SpecialInputState::QCB)   flags.set(CF_SpecialQCF);
+    if (sp == SpecialInputState::DPF)   flags.set(CF_SpecialDPB);
+    if (sp == SpecialInputState::DPB)   flags.set(CF_SpecialDPF);
+    if (sp == SpecialInputState::RDash) flags.set(CF_SpecialBDash);
+    if (sp == SpecialInputState::LDash) flags.set(CF_SpecialFDash);
   }
 
   // Physics
-  if (rb.IsGrounded()) flags |= CF_IsGrounded;
-  else                 flags |= CF_IsAirborne;
+  if (rb.IsGrounded()) flags.set(CF_IsGrounded);
+  else                 flags.set(CF_IsAirborne);
 
   // Combat
-  if (state.hitThisFrame)    flags |= CF_HitThisFrame;
-  if (state.thrownThisFrame) flags |= CF_ThrownThisFrame;
-  if (fsm.hitConfirmed)      flags |= CF_Hitting;
+  if (state.hitThisFrame)    flags.set(CF_HitThisFrame);
+  if (state.thrownThisFrame) flags.set(CF_ThrownThisFrame);
+  if (fsm.hitConfirmed)      flags.set(CF_Hitting);
 
   // Completion
   const auto& stateDef = fsm.GetCurrentStateDef();
@@ -174,24 +174,24 @@ uint32_t FighterFSMSystem::EvaluateConditionFlags(
   {
     Animation* animData = GAnimArchive.GetAnimationData(animator.animCollectionID, animator.currentAnimationName);
     if (animData && !animator.looping && animator.frame >= animData->GetFrameCount() - 1)
-      flags |= CF_AnimComplete;
+      flags.set(CF_AnimComplete);
   }
   if (stateDef.completionType == StateDefinition::Timer)
   {
     if (fsm.stateTotalFrames > 0 && fsm.stateFrame >= fsm.stateTotalFrames - 1)
-      flags |= CF_TimerComplete;
+      flags.set(CF_TimerComplete);
   }
 
   // State flags
   if (actor.newInputs || actor.forceNewInputOnNextFrame)
-    flags |= CF_NewInputs;
+    flags.set(CF_NewInputs);
 
   return flags;
 }
 
 //______________________________________________________________________________
 FighterStateID FighterFSMSystem::EvaluateTransitions(
-  EntityID entity, FighterFSMComponent& fsm, uint32_t flags,
+  EntityID entity, FighterFSMComponent& fsm, const ConditionFlags& flags,
   const GameActor& actor, StateComponent& state, const Rigidbody& rb)
 {
   const auto& stateDef = fsm.GetCurrentStateDef();
@@ -201,7 +201,7 @@ FighterStateID FighterFSMSystem::EvaluateTransitions(
   {
     if ((flags & rule.requiredFlags) != rule.requiredFlags)
       continue;
-    if (rule.forbiddenFlags && (flags & rule.forbiddenFlags))
+    if (rule.forbiddenFlags.any() && (flags & rule.forbiddenFlags).any())
       continue;
 
     // Hit resolver sentinel
@@ -212,7 +212,7 @@ FighterStateID FighterFSMSystem::EvaluateTransitions(
   }
 
   // Normal cancel via AttackLinkMap (target combo)
-  if ((stateDef.cancelFlags & StateDefinition::Cancel_Normal) && (flags & CF_Hitting))
+  if ((stateDef.cancelFlags & StateDefinition::Cancel_Normal) && flags.test(CF_Hitting))
   {
     if (ComponentArray<AttackLinkMap>::Get().HasComponent(entity))
     {
@@ -235,9 +235,9 @@ FighterStateID FighterFSMSystem::EvaluateTransitions(
   }
 
   // If no transition matched but completion condition is met, use completionTarget
-  if ((flags & CF_AnimComplete) && stateDef.completionType == StateDefinition::Animation)
+  if (flags.test(CF_AnimComplete) && stateDef.completionType == StateDefinition::Animation)
     return stateDef.completionTarget;
-  if ((flags & CF_TimerComplete) && stateDef.completionType == StateDefinition::Timer)
+  if (flags.test(CF_TimerComplete) && stateDef.completionType == StateDefinition::Timer)
     return stateDef.completionTarget;
 
   return fsm.currentState;

@@ -194,8 +194,8 @@
     <ClCompile Include="..\src\Globals.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\Systems\ActionSystems\ActionHandleInputSystem.cpp">
-      <Filter>Source Files\Systems\ActionSystems</Filter>
+    <ClCompile Include="..\src\Systems\FighterFSMSystem.cpp">
+      <Filter>Source Files\Systems</Filter>
     </ClCompile>
     <ClCompile Include="..\src\Systems\WallPush\WallPushSystem.cpp">
       <Filter>Source Files\Systems\WallPush</Filter>
@@ -206,8 +206,11 @@
     <ClCompile Include="..\src\Core\Timer.cpp">
       <Filter>Source Files\Core</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\Core\Prefab\ActionFactory.cpp">
-      <Filter>Source Files\Core\Prefab</Filter>
+    <ClCompile Include="..\src\Components\FighterFSMComponent.cpp">
+      <Filter>Source Files\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Core\FSM\FighterStateTable.cpp">
+      <Filter>Source Files\Core\FSM</Filter>
     </ClCompile>
     <ClCompile Include="..\src\Core\ECS\Entity.cpp">
       <Filter>Source Files\Core\ECS</Filter>
@@ -361,11 +364,8 @@
     <ClInclude Include="..\src\Systems\UISystem.h">
       <Filter>Source Files\Systems</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\Systems\ActionSystems\ActionHandleInputSystem.h">
-      <Filter>Source Files\Systems\ActionSystems</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\Systems\ActionSystems\ActionListenerSystem.h">
-      <Filter>Source Files\Systems\ActionSystems</Filter>
+    <ClInclude Include="..\src\Systems\FighterFSMSystem.h">
+      <Filter>Source Files\Systems</Filter>
     </ClInclude>
     <ClInclude Include="..\src\Systems\ActionSystems\EnactActionSystem.h">
       <Filter>Source Files\Systems\ActionSystems</Filter>
@@ -400,8 +400,14 @@
     <ClInclude Include="..\src\Core\Timer.h">
       <Filter>Source Files\Core</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\Core\Prefab\ActionFactory.h">
-      <Filter>Source Files\Core\Prefab</Filter>
+    <ClInclude Include="..\src\Components\FighterFSMComponent.h">
+      <Filter>Source Files\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Core\FSM\CharacterState.h">
+      <Filter>Source Files\Core\FSM</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Core\FSM\FighterStateTable.h">
+      <Filter>Source Files\Core\FSM</Filter>
     </ClInclude>
     <ClInclude Include="..\src\Core\Prefab\MenuButtonArray.h">
       <Filter>Source Files\Core\Prefab</Filter>

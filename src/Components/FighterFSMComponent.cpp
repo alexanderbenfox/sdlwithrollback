@@ -1,4 +1,4 @@
-#include "Core/FSM/FighterFSMComponent.h"
+#include "Components/FighterFSMComponent.h"
 #include "Core/FSM/FighterStateTable.h"
 
 //______________________________________________________________________________

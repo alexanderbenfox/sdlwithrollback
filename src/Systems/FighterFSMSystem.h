@@ -1,6 +1,6 @@
 #pragma once
 #include "Core/ECS/ISystem.h"
-#include "Core/FSM/FighterFSMComponent.h"
+#include "Components/FighterFSMComponent.h"
 #include "Components/Actors/GameActor.h"
 #include "Components/StateComponent.h"
 #include "Components/Rigidbody.h"
@@ -13,13 +13,13 @@ struct FighterFSMSystem : public ISystem<FighterFSMComponent, GameActor, StateCo
 
 private:
   // Build condition flags from current entity state
-  static uint32_t EvaluateConditionFlags(
+  static ConditionFlags EvaluateConditionFlags(
     const FighterFSMComponent& fsm, const GameActor& actor,
     const StateComponent& state, const Rigidbody& rb, const Animator& animator);
 
   // Evaluate transition rules, return target state (currentState if none matched)
   static FighterStateID EvaluateTransitions(
-    EntityID entity, FighterFSMComponent& fsm, uint32_t flags,
+    EntityID entity, FighterFSMComponent& fsm, const ConditionFlags& flags,
     const GameActor& actor, StateComponent& state, const Rigidbody& rb);
 
   // Resolve which damage state to enter when hit/thrown
