@@ -1,6 +1,7 @@
 #include "AssetManagement/EditableAssets/CharacterConfiguration.h"
 #include "AssetManagement/EditableAssets/AssetLibraryImpl.h"
 #include "DebugGUI/GUIController.h"
+#include "AssetManagement/IAnimation.h"
 #include "AssetManagement/Animation.h"
 
 #include "Managers/AnimationCollectionManager.h"
@@ -11,41 +12,44 @@
 #include "DebugGUI/DisplayImage.h"
 #include "DebugGUI/EditorRect.h"
 
+#include "Core/FSM/FighterStateTable.h"
+
 //______________________________________________________________________________
-void HitboxEditor::OpenEditor(Animation* anim, ActionAsset& data, const std::string& spriteSheetID, const std::string& subSheet)
+// HitboxEditor — now animation-type-agnostic
+//______________________________________________________________________________
+
+void HitboxEditor::OpenEditor(IAnimation* anim, ActionAsset& data)
 {
-  const SpriteSheet::Section& sheet = ResourceManager::Get().gSpriteSheets.Get(spriteSheetID).GetSubSection(subSheet);
-  GameManager::Get().TriggerEndOfFrame([this, anim, &sheet, &data]()
+  GameManager::Get().TriggerEndOfFrame([this, anim, &data]()
     {
       static int frame = 0;
 
       if (GUIController::Get().HasWindow("View Hitboxes"))
       {
         GUIController::Get().RemoveImguiWindowFunction("View Hitboxes", 0);
-        CommitRectChange(anim, frame, data, sheet);
+        CommitRectChange(anim, frame, data);
       }
 
       frame = 0;
-      ChangeDisplay(anim, frame, data, sheet);
+      ChangeDisplay(anim, frame, data);
 
       GUIController::Get().AddImguiWindowFunction("View Hitboxes", "View",
-        [this, anim, &sheet, &data]()
+        [this, anim, &data]()
         {
-
           int nFrames = anim->GetFrameCount();
           ImGui::BeginGroup();
           if (ImGui::Button("Back"))
           {
-            CommitRectChange(anim, frame, data, sheet);
+            CommitRectChange(anim, frame, data);
             frame = frame == 0 ? nFrames - 1 : frame - 1;
-            ChangeDisplay(anim, frame, data, sheet);
+            ChangeDisplay(anim, frame, data);
           }
           ImGui::SameLine();
           if (ImGui::Button("Forward"))
           {
-            CommitRectChange(anim, frame, data, sheet);
+            CommitRectChange(anim, frame, data);
             frame = (frame + 1) % nFrames;
-            ChangeDisplay(anim, frame, data, sheet);
+            ChangeDisplay(anim, frame, data);
           }
           ImGui::SameLine();
           ImGui::Text("%d", frame);
@@ -61,34 +65,28 @@ void HitboxEditor::OpenEditor(Animation* anim, ActionAsset& data, const std::str
     });
 }
 
-
-void HitboxEditor::ChangeDisplay(Animation* anim, int frame, ActionAsset& data, const SpriteSheet::Section& sheet)
+void HitboxEditor::ChangeDisplay(IAnimation* anim, int frame, ActionAsset& data)
 {
-  frameDisplay = anim->GetGUIDisplayImage(512, frame);
+  frameDisplay = anim->GetEditorPreview(512, frame);
   displayRect = EditorRect(frameDisplay.displaySize);
 
-  int evtFrame = anim->AnimFrameToIndexOffset(frame);
-  if (evtFrame < data.eventData.size())
+  int evtFrame = anim->GetFrameIndexOffset(frame);
+  if (evtFrame < static_cast<int>(data.eventData.size()))
   {
     Rect<double>& hitbox = data.eventData[evtFrame].hitbox;
-
-    auto canvasRect = sheet.GetFrame(anim->AnimFrameToSheetIndex(frame));
-    Vector2<double> srcSize(canvasRect.w, canvasRect.h);
-
+    Vector2<double> srcSize = anim->GetFrameSourceSize(frame);
     displayRect.Import(hitbox, srcSize);
   }
 }
 
-void HitboxEditor::CommitRectChange(Animation* anim, int frame, ActionAsset& data, const SpriteSheet::Section& sheet)
+void HitboxEditor::CommitRectChange(IAnimation* anim, int frame, ActionAsset& data)
 {
-  int evtFrame = anim->AnimFrameToIndexOffset(frame);
-  if (evtFrame < data.eventData.size())
+  int evtFrame = anim->GetFrameIndexOffset(frame);
+  if (evtFrame < static_cast<int>(data.eventData.size()))
   {
     if (displayRect.UserDataExists())
     {
-      auto canvasRect = sheet.GetFrame(anim->AnimFrameToSheetIndex(frame));
-      Vector2<double> srcSize(canvasRect.w, canvasRect.h);
-
+      Vector2<double> srcSize = anim->GetFrameSourceSize(frame);
       data.eventData[evtFrame].hitbox = displayRect.Export(srcSize);
     }
     else
@@ -107,6 +105,9 @@ void HitboxEditor::ShowHitboxEditor()
 }
 
 //______________________________________________________________________________
+// CharacterConfiguration
+//______________________________________________________________________________
+
 CharacterConfiguration::CharacterConfiguration(const std::string& pathToResourceFolder) : _resourcePath(pathToResourceFolder)
 {
   FilePath p(pathToResourceFolder);
@@ -117,26 +118,32 @@ CharacterConfiguration::CharacterConfiguration(const std::string& pathToResource
   LoadAssetFile("animations.json", _animations);
   LoadAssetFile("actions.json", _actions);
 
+  // Propagate renames: animation/action names must stay in sync with each other
+  // and with the state table's animationName fields (used as lookup key for both)
+  auto updateStateTable = [this](const std::string& oldName, const std::string& newName)
+  {
+    FighterStateTable::StateArray* states = FighterStateTable::Get().GetMutableTable(_characterIdentifier);
+    if (!states) return;
+    for (auto& state : *states)
+    {
+      if (state.animationName == oldName)
+        state.animationName = newName;
+    }
+  };
+
+  _animations.SetOnRenameCallback([this, updateStateTable](const std::string& oldName, const std::string& newName)
+  {
+    updateStateTable(oldName, newName);
+    _actions.RenameKey(oldName, newName);
+  });
+
+  _actions.SetOnRenameCallback([this, updateStateTable](const std::string& oldName, const std::string& newName)
+  {
+    updateStateTable(oldName, newName);
+    _animations.RenameKey(oldName, newName);
+  });
+
   AddCharacterDisplay();
-}
-
-void CharacterConfiguration::ReloadActionDebug(const std::string& actionName, ActionAsset& data)
-{
-  // hitbox editor window
-  static HitboxEditor hitboxEditor;
-
-  AnimationCollection& collection = GAnimArchive.GetCollection(GAnimArchive.GetCollectionID(_characterIdentifier));
-
-  if (ImGui::Button("View/Edit Hitboxes"))
-  {
-    hitboxEditor.OpenEditor(collection.GetSpriteAnimation(actionName), data, _animations.GetLibrary().at(actionName).sheetName, _animations.GetLibrary().at(actionName).subSheetName);
-  }
-
-  if (ImGui::Button("Set Frame Data"))
-  {
-    // generate event list based on new frame data
-    collection.SetAnimationEvents(actionName, data.eventData, data.frameData);
-  }
 }
 
 //______________________________________________________________________________
@@ -144,27 +151,88 @@ void CharacterConfiguration::AddCharacterDisplay()
 {
   GUIController::Get().AddImguiWindowFunction("Characters", _characterIdentifier, "Assets", [this]()
   {
-    _animations.DisplayInGUI();
-    if (ImGui::Button("Save Animations"))
-      SaveAssetFile("animations.json", _animations);
-    _actions.DisplayInGUI();
-    if (ImGui::Button("Save Actions"))
-      SaveAssetFile("actions.json", _actions);
-
-    static std::string selectedAction = "";
-    std::vector<std::string> actionNames;
-    for (const auto& action : _actions.GetLibrary())
-      actionNames.push_back(action.first);
-
-    ImGui::BeginGroup();
-    ImGui::Text("Modify Action: ");
-    ImGui::SameLine();
-    DropDown::DisplayList(actionNames, selectedAction);
-    if (!selectedAction.empty())
-      ReloadActionDebug(selectedAction, _actions.GetModifiable(selectedAction));
-    ImGui::EndGroup();
-
-    if (ImGui::Button("Reload Animation Collection"))
-      AnimationCollectionManager::Get().ReloadAnimationCollection(_characterIdentifier, *this);
+    if (ImGui::BeginTabBar("CharacterTabs"))
+    {
+      if (ImGui::BeginTabItem("Animations"))
+      {
+        DisplayAnimationsTab();
+        ImGui::EndTabItem();
+      }
+      if (ImGui::BeginTabItem("Actions"))
+      {
+        DisplayActionsTab();
+        ImGui::EndTabItem();
+      }
+      if (ImGui::BeginTabItem("States"))
+      {
+        DisplayStatesTab();
+        ImGui::EndTabItem();
+      }
+      ImGui::EndTabBar();
+    }
   });
+}
+
+//______________________________________________________________________________
+void CharacterConfiguration::DisplayAnimationsTab()
+{
+  _animations.DisplayInGUI();
+
+  if (ImGui::Button("Save Animations"))
+    SaveAssetFile("animations.json", _animations);
+
+  ImGui::SameLine();
+  if (ImGui::Button("Reload Animation Collection"))
+    AnimationCollectionManager::Get().ReloadAnimationCollection(_characterIdentifier, *this);
+}
+
+//______________________________________________________________________________
+void CharacterConfiguration::DisplayActionsTab()
+{
+  _actions.DisplayInGUI();
+
+  if (ImGui::Button("Save Actions"))
+    SaveAssetFile("actions.json", _actions);
+
+  ImGui::Separator();
+
+  // Action editing — select an action to edit hitboxes and frame data
+  std::vector<std::string> actionNames;
+  for (const auto& action : _actions.GetLibrary())
+    actionNames.push_back(action.first);
+
+  ImGui::Text("Modify Action: ");
+  ImGui::SameLine();
+  DropDown::DisplayList(actionNames, _selectedAction);
+
+  if (!_selectedAction.empty())
+  {
+    ActionAsset& data = _actions.GetModifiable(_selectedAction);
+    AnimationCollection& collection = GAnimArchive.GetCollection(GAnimArchive.GetCollectionID(_characterIdentifier));
+    IAnimation* anim = collection.GetAnimation(_selectedAction);
+
+    if (anim)
+    {
+      if (ImGui::Button("View/Edit Hitboxes"))
+        _hitboxEditor.OpenEditor(anim, data);
+
+      if (ImGui::Button("Set Frame Data"))
+      {
+        // SetAnimationEvents still needs the concrete Animation* for event generation
+        Animation* spriteAnim = collection.GetSpriteAnimation(_selectedAction);
+        if (spriteAnim)
+          collection.SetAnimationEvents(_selectedAction, data.eventData, data.frameData);
+      }
+    }
+    else
+    {
+      ImGui::TextColored(ImVec4(1, 0.5f, 0, 1), "No animation found for '%s'", _selectedAction.c_str());
+    }
+  }
+}
+
+//______________________________________________________________________________
+void CharacterConfiguration::DisplayStatesTab()
+{
+  _stateVisualizer.Display(_characterIdentifier);
 }

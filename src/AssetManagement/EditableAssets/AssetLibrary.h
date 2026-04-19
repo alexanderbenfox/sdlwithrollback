@@ -3,6 +3,7 @@
 #include "DebugGUI/EditorString.h"
 
 #include <string>
+#include <functional>
 #include <unordered_map>
 
 class JsonFile;
@@ -25,6 +26,22 @@ public:
   T const& Get(const std::string& id) { return _library[id]; }
   T& GetModifiable(const std::string& id) { return _library[id]; }
 
+  // Called after an asset is renamed in the GUI (oldName, newName)
+  void SetOnRenameCallback(std::function<void(const std::string&, const std::string&)> cb)
+  { _onRenameCallback = std::move(cb); }
+
+  // Rename a key programmatically (no callback, no GUI popup)
+  void RenameKey(const std::string& oldName, const std::string& newName)
+  {
+    auto it = _library.find(oldName);
+    if (it != _library.end())
+    {
+      T cpy = std::move(it->second);
+      _library.erase(it);
+      _library[newName] = std::move(cpy);
+    }
+  }
+
 private:
   void OnRename(const std::string& item);
   void OnCopy(const std::string& item);
@@ -39,5 +56,7 @@ private:
   std::string _dropdownSelection = "";
 
   bool _showItemList = false;
+
+  std::function<void(const std::string&, const std::string&)> _onRenameCallback;
 
 };

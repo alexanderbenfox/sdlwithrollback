@@ -53,4 +53,10 @@ private:
 
   std::string _anchorDropDownCurrentItem;
 
+  // Animation preview playback state (editor-only, not serialized)
+  int _previewFrame = 0;
+  float _playbackAccumulator = 0.0f;
+  bool _playing = false;
+  bool _looping = false;
+
 };

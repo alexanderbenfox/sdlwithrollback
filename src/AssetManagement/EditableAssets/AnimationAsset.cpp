@@ -72,10 +72,8 @@ template <> void AssetLoaderFn::OnLoad(AnimationAsset& asset) {}
 //______________________________________________________________________________
 template <> ImVec2 AssetLoaderFn::GetDisplaySize<AnimationAsset>()
 {
-  return ImVec2(500, 6 * fieldHeight);
+  return ImVec2(500, 10 * fieldHeight);
 }
-
-static int spriteSheetAnimationDisplayFrame = 0;
 
 //______________________________________________________________________________
 void AnimationAsset::Load(const Json::Value& json)
@@ -154,18 +152,69 @@ void AnimationAsset::DisplayInEditor()
 
   ImGui::Checkbox("Play Reverse", &reverse);
 
-  static bool showAnimationFrames = false;
-  ImGui::Checkbox("Show Animation Frames", &showAnimationFrames);
-  if (showAnimationFrames)
+  // Animation preview — only renders if visible on screen
+  if (frames > 0 && ImGui::IsRectVisible(ImVec2(80, 80)))
   {
     const SpriteSheet& animSpriteSheet = ResourceManager::Get().gSpriteSheets.Get(sheetName);
     const SpriteSheet::Section& ssSection = animSpriteSheet.GetSubSection(subSheetName);
-    for (int i = 0; i < frames; i++)
+
+    // Advance playback when playing
+    if (_playing)
     {
-      if (i != 0)
-        ImGui::SameLine();
-      ssSection.ShowSpriteAtIndex(animSpriteSheet, startIndexOnSheet + i, 64);
-    } 
+      constexpr float kFrameInterval = 1.0f / 10.0f; // 10 fps preview
+      _playbackAccumulator += ImGui::GetIO().DeltaTime;
+      while (_playbackAccumulator >= kFrameInterval)
+      {
+        _playbackAccumulator -= kFrameInterval;
+        _previewFrame++;
+        if (_previewFrame >= frames)
+        {
+          if (_looping)
+            _previewFrame = 0;
+          else
+          {
+            _previewFrame = frames - 1;
+            _playing = false;
+          }
+        }
+      }
+    }
+
+    // Clamp frame to valid range
+    if (_previewFrame >= frames) _previewFrame = 0;
+
+    // Show single frame
+    int sheetIdx = reverse ? (startIndexOnSheet + frames - 1 - _previewFrame)
+                           : (startIndexOnSheet + _previewFrame);
+    ssSection.ShowSpriteAtIndex(animSpriteSheet, sheetIdx, 64);
+
+    // Playback controls
+    ImGui::Text("Frame %d / %d", _previewFrame + 1, frames);
+    ImGui::SameLine();
+    if (ImGui::Button(_playing ? "Stop" : "Play"))
+    {
+      if (_playing)
+        _playing = false;
+      else
+      {
+        _playing = true;
+        _previewFrame = 0;
+        _playbackAccumulator = 0.0f;
+      }
+    }
+    ImGui::SameLine();
+    ImGui::Checkbox("Loop", &_looping);
+
+    // Manual frame stepping (only when not playing)
+    if (!_playing && frames > 1)
+    {
+      ImGui::SameLine();
+      if (ImGui::ArrowButton("##prev", ImGuiDir_Left))
+        _previewFrame = (_previewFrame == 0) ? frames - 1 : _previewFrame - 1;
+      ImGui::SameLine();
+      if (ImGui::ArrowButton("##next", ImGuiDir_Right))
+        _previewFrame = (_previewFrame + 1) % frames;
+    }
   }
 
   ImGui::EndGroup();

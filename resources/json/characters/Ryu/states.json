@@ -283,10 +283,10 @@
     "JumpingMedium":   { "template": "airAttack", "animationName": "JumpingMedium", "actionState": "Medium" },
     "JumpingHeavy":    { "template": "airAttack", "animationName": "JumpingHeavy",  "actionState": "Heavy" },
 
-    "SpecialMove1":    { "template": "special", "animationName": "SpecialMove1" },
-    "SpecialMove2":    { "template": "special", "animationName": "SpecialMove2" },
-    "SpecialMove3":    { "template": "special", "animationName": "SpecialMove3" },
-    "SpecialMove4":    { "template": "special", "animationName": "SpecialMove4" },
+    "SpecialMove1":    { "template": "special", "animationName": "Fireball" },
+    "SpecialMove2":    { "template": "special", "animationName": "DragonPunch" },
+    "SpecialMove3":    { "template": "special", "animationName": "DonkeyKick" },
+    "SpecialMove4":    { "template": "special", "animationName": "Tatsu" },
 
     "ForwardThrow":    { "template": "throw", "animationName": "ForwardThrow" },
     "BackThrow":       { "template": "throw", "animationName": "BackThrow" },

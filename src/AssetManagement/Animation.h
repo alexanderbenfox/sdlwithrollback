@@ -32,6 +32,9 @@ public:
   Vector2<double> GetRenderScaling() const override;
   void ApplyInitialFrame(RenderComponent<RenderType>& renderer, RenderProperties& properties) const override;
   void ApplyFrame(int animFrame, RenderComponent<RenderType>& renderer, RenderProperties& properties) const override;
+  DisplayImage GetEditorPreview(int displayHeight, int animFrame) const override;
+  Vector2<double> GetFrameSourceSize(int animFrame) const override;
+  int GetFrameIndexOffset(int animFrame) const override { return _animFrameToSheetFrame[animFrame]; }
 
   // --- Spritesheet-specific methods (used by editor, event generation) ---
   DrawRect<float> GetFrameSrcRect(int animFrame) const;
@@ -39,15 +42,11 @@ public:
   template <typename Texture>
   Resource<Texture>& GetSheetTexture() const;
 
-  DisplayImage GetGUIDisplayImage(int displayHeight, int animFrame);
-
   // NEED TO REMOVE THIS ASAP
   std::vector<EventData> animationEvents;
 
   //! Gets index on spritesheet that corresponds to this frame of animation
   int AnimFrameToSheetIndex(int frame) const { return _startIdx + _animFrameToSheetFrame[frame]; }
-  //! Gets index offset from start index on sprite sheet to this frame of animation
-  int AnimFrameToIndexOffset(int frame) const { return _animFrameToSheetFrame[frame]; }
 
   std::pair<AnchorPoint, Vector2<float>> GetAnchorForAnimFrame(int animFrame) const;
 

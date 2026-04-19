@@ -17,8 +17,17 @@ public:
 
   const StateArray& GetTable(uint8_t characterID) const;
 
+  // Mutable access for editor — pointer-stable since unordered_map doesn't move values
+  StateArray* GetMutableTable(const std::string& characterName);
+
   // Hot-reload a single character's state table from disk
   void Reload(const std::string& characterName);
+
+  // Write the current state table back to its JSON file (fully expanded, no templates)
+  void WriteStatesToJson(const std::string& characterName) const;
+
+  // Get the JSON path for a character
+  std::string GetJsonPath(const std::string& characterName) const;
 
 private:
   FighterStateTable();

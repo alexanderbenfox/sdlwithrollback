@@ -7,7 +7,7 @@
 			"BL" : 
 			{
 				"x" : 0.8474576473236084,
-				"y" : 99.047622680664063
+				"y" : 99.047622680664062
 			},
 			"BR" : 
 			{
@@ -406,6 +406,80 @@
 		"sub_sheet_name" : "",
 		"totalFrames" : 11
 	},
+	"DonkeyKick" : 
+	{
+		"anchor" : "BL",
+		"anchorPoints" : 
+		{
+			"BL" : 
+			{
+				"x" : 11.666666984558105,
+				"y" : 98.75
+			},
+			"BR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"Center" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"TL" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"TR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			}
+		},
+		"reverse" : false,
+		"sheet_name" : "SpecialMoves",
+		"startFrame" : 58,
+		"sub_sheet_name" : "",
+		"totalFrames" : 15
+	},
+	"DragonPunch" : 
+	{
+		"anchor" : "BL",
+		"anchorPoints" : 
+		{
+			"BL" : 
+			{
+				"x" : 19.44444465637207,
+				"y" : 99.375
+			},
+			"BR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"Center" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"TL" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"TR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			}
+		},
+		"reverse" : false,
+		"sheet_name" : "SpecialMoves",
+		"startFrame" : 41,
+		"sub_sheet_name" : "",
+		"totalFrames" : 17
+	},
 	"Entrance" : 
 	{
 		"anchor" : "BR",
@@ -418,7 +492,7 @@
 			},
 			"BR" : 
 			{
-				"x" : 42.751480102539063,
+				"x" : 42.751480102539062,
 				"y" : 98.046875
 			},
 			"Center" : 
@@ -450,7 +524,7 @@
 		{
 			"BL" : 
 			{
-				"x" : 28.674697875976563,
+				"x" : 28.674697875976562,
 				"y" : 2.1484375
 			},
 			"BR" : 
@@ -480,6 +554,80 @@
 		"sub_sheet_name" : "",
 		"totalFrames" : 13
 	},
+	"Fireball" : 
+	{
+		"anchor" : "BL",
+		"anchorPoints" : 
+		{
+			"BL" : 
+			{
+				"x" : 17.777778625488281,
+				"y" : 99.375
+			},
+			"BR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"Center" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"TL" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"TR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			}
+		},
+		"reverse" : false,
+		"sheet_name" : "SpecialMoves",
+		"startFrame" : 0,
+		"sub_sheet_name" : "",
+		"totalFrames" : 14
+	},
+	"Fireballl" : 
+	{
+		"anchor" : "BL",
+		"anchorPoints" : 
+		{
+			"BL" : 
+			{
+				"x" : 17.777778625488281,
+				"y" : 99.375
+			},
+			"BR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"Center" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"TL" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"TR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			}
+		},
+		"reverse" : false,
+		"sheet_name" : "SpecialMoves",
+		"startFrame" : 0,
+		"sub_sheet_name" : "",
+		"totalFrames" : 14
+	},
 	"ForwardDash" : 
 	{
 		"anchor" : "BL",
@@ -488,7 +636,7 @@
 			"BL" : 
 			{
 				"x" : 0.8474576473236084,
-				"y" : 99.047622680664063
+				"y" : 99.047622680664062
 			},
 			"BR" : 
 			{
@@ -1109,154 +1257,6 @@
 		"sub_sheet_name" : "",
 		"totalFrames" : 10
 	},
-	"SpecialMove1" : 
-	{
-		"anchor" : "BL",
-		"anchorPoints" : 
-		{
-			"BL" : 
-			{
-				"x" : 17.777778625488281,
-				"y" : 99.375
-			},
-			"BR" : 
-			{
-				"x" : 0.0,
-				"y" : 0.0
-			},
-			"Center" : 
-			{
-				"x" : 0.0,
-				"y" : 0.0
-			},
-			"TL" : 
-			{
-				"x" : 0.0,
-				"y" : 0.0
-			},
-			"TR" : 
-			{
-				"x" : 0.0,
-				"y" : 0.0
-			}
-		},
-		"reverse" : false,
-		"sheet_name" : "SpecialMoves",
-		"startFrame" : 0,
-		"sub_sheet_name" : "",
-		"totalFrames" : 14
-	},
-	"SpecialMove2" : 
-	{
-		"anchor" : "BL",
-		"anchorPoints" : 
-		{
-			"BL" : 
-			{
-				"x" : 19.44444465637207,
-				"y" : 99.375
-			},
-			"BR" : 
-			{
-				"x" : 0.0,
-				"y" : 0.0
-			},
-			"Center" : 
-			{
-				"x" : 0.0,
-				"y" : 0.0
-			},
-			"TL" : 
-			{
-				"x" : 0.0,
-				"y" : 0.0
-			},
-			"TR" : 
-			{
-				"x" : 0.0,
-				"y" : 0.0
-			}
-		},
-		"reverse" : false,
-		"sheet_name" : "SpecialMoves",
-		"startFrame" : 41,
-		"sub_sheet_name" : "",
-		"totalFrames" : 17
-	},
-	"SpecialMove3" : 
-	{
-		"anchor" : "BL",
-		"anchorPoints" : 
-		{
-			"BL" : 
-			{
-				"x" : 11.666666984558105,
-				"y" : 98.75
-			},
-			"BR" : 
-			{
-				"x" : 0.0,
-				"y" : 0.0
-			},
-			"Center" : 
-			{
-				"x" : 0.0,
-				"y" : 0.0
-			},
-			"TL" : 
-			{
-				"x" : 0.0,
-				"y" : 0.0
-			},
-			"TR" : 
-			{
-				"x" : 0.0,
-				"y" : 0.0
-			}
-		},
-		"reverse" : false,
-		"sheet_name" : "SpecialMoves",
-		"startFrame" : 58,
-		"sub_sheet_name" : "",
-		"totalFrames" : 15
-	},
-	"SpecialMove4" : 
-	{
-		"anchor" : "BL",
-		"anchorPoints" : 
-		{
-			"BL" : 
-			{
-				"x" : 16.666666030883789,
-				"y" : 99.375
-			},
-			"BR" : 
-			{
-				"x" : 0.0,
-				"y" : 0.0
-			},
-			"Center" : 
-			{
-				"x" : 0.0,
-				"y" : 0.0
-			},
-			"TL" : 
-			{
-				"x" : 0.0,
-				"y" : 0.0
-			},
-			"TR" : 
-			{
-				"x" : 0.0,
-				"y" : 0.0
-			}
-		},
-		"reverse" : false,
-		"sheet_name" : "SpecialMoves",
-		"startFrame" : 14,
-		"sub_sheet_name" : "",
-		"totalFrames" : 27
-	},
 	"StandingHeavy" : 
 	{
 		"anchor" : "BL",
@@ -1367,6 +1367,43 @@
 		"startFrame" : 45,
 		"sub_sheet_name" : "",
 		"totalFrames" : 9
+	},
+	"Tatsu" : 
+	{
+		"anchor" : "BL",
+		"anchorPoints" : 
+		{
+			"BL" : 
+			{
+				"x" : 16.666666030883789,
+				"y" : 99.375
+			},
+			"BR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"Center" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"TL" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			},
+			"TR" : 
+			{
+				"x" : 0.0,
+				"y" : 0.0
+			}
+		},
+		"reverse" : false,
+		"sheet_name" : "SpecialMoves",
+		"startFrame" : 14,
+		"sub_sheet_name" : "",
+		"totalFrames" : 27
 	},
 	"ThrowMiss" : 
 	{

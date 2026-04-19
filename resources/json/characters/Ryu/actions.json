@@ -704,7 +704,7 @@
 			"startup" : 5
 		}
 	},
-	"SpecialMove1" : 
+	"Fireball" :
 	{
 		"events" : 
 		[
@@ -804,7 +804,7 @@
 			"startup" : 14
 		}
 	},
-	"SpecialMove2" : 
+	"DragonPunch" :
 	{
 		"events" : 
 		[
@@ -933,7 +933,7 @@
 			"startup" : 2
 		}
 	},
-	"SpecialMove3" : 
+	"DonkeyKick" :
 	{
 		"events" : 
 		[
@@ -1062,7 +1062,7 @@
 			"startup" : 18
 		}
 	},
-	"SpecialMove4" : 
+	"Tatsu" :
 	{
 		"events" : 
 		[
@@ -1547,8 +1547,8 @@
 				"y" : -100.0
 			},
 			"knockdown" : false,
-			"onblock" : 1,
-			"onhit" : 7,
+			"onblock" : -2,
+			"onhit" : 4,
 			"recovery" : 10,
 			"startup" : 5
 		}

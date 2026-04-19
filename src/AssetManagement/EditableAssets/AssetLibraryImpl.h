@@ -146,11 +146,14 @@ inline void AssetLibrary<T>::OnRename(const std::string& item)
     },
     [this, item]()
     {
-      if ((std::string)popupStr != item)
+      std::string newName = (std::string)popupStr;
+      if (newName != item)
       {
         T cpy = _library[item];
         _library.erase(item);
-        _library[(std::string)popupStr] = cpy;
+        _library[newName] = cpy;
+        if (_onRenameCallback)
+          _onRenameCallback(item, newName);
       }
     }, 350, 4 * fieldHeight);
 }

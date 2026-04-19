@@ -2,25 +2,24 @@
 #include "Core/Utility/JsonFile.h"
 #include "Core/Utility/FilePath.h"
 
-#include "SpriteSheet.h"
 #include "AnimationAsset.h"
 #include "ActionAsset.h"
 #include "AssetLibrary.h"
 
 #include "DebugGUI/EditorRect.h"
+#include "DebugGUI/DisplayImage.h"
+#include "Core/FSM/StateVisualizer.h"
 
-class Animation;
+class IAnimation;
 
 class HitboxEditor
 {
 public:
-  void OpenEditor(Animation* anim, ActionAsset& data, const std::string& spriteSheetID, const std::string& subSheetID);
+  void OpenEditor(IAnimation* anim, ActionAsset& data);
 
 private:
-  void ChangeDisplay(Animation* anim, int frame, ActionAsset& data, const SpriteSheet::Section& sheet);
-
-  void CommitRectChange(Animation* anim, int frame, ActionAsset& data, const SpriteSheet::Section& sheet);
-
+  void ChangeDisplay(IAnimation* anim, int frame, ActionAsset& data);
+  void CommitRectChange(IAnimation* anim, int frame, ActionAsset& data);
   void ShowHitboxEditor();
 
   DisplayImage frameDisplay;
@@ -34,10 +33,13 @@ public:
   AssetLibrary<AnimationAsset>::LibType const& GetAnimationConfig() const { return _animations.GetLibrary(); }
   AssetLibrary<ActionAsset>::LibType const& GetActionConfig() const { return _actions.GetLibrary(); }
 
-  void ReloadActionDebug(const std::string& actionName, ActionAsset& data);
   void AddCharacterDisplay();
 
 private:
+  void DisplayAnimationsTab();
+  void DisplayActionsTab();
+  void DisplayStatesTab();
+
   template <typename T = IJsonLoadable>
   void LoadAssetFile(const char* file, AssetLibrary<T>& map)
   {
@@ -64,4 +66,10 @@ private:
   AssetLibrary<AnimationAsset> _animations;
   AssetLibrary<ActionAsset> _actions;
 
+  // Action editing state
+  std::string _selectedAction;
+  HitboxEditor _hitboxEditor;
+
+  // State visualizer
+  StateVisualizer _stateVisualizer;
 };

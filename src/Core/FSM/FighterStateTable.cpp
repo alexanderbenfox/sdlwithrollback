@@ -323,3 +323,145 @@ int FighterStateTable::ResolveTimerFrames(const Json::Value& val)
 
   return 0;
 }
+
+//______________________________________________________________________________
+FighterStateTable::StateArray* FighterStateTable::GetMutableTable(const std::string& characterName)
+{
+  auto it = _tables.find(characterName);
+  if (it != _tables.end())
+    return &it->second;
+  return nullptr;
+}
+
+//______________________________________________________________________________
+std::string FighterStateTable::GetJsonPath(const std::string& characterName) const
+{
+  return ResourceManager::Get().GetResourcePath() + "json/characters/" + characterName + "/states.json";
+}
+
+//______________________________________________________________________________
+void FighterStateTable::WriteStatesToJson(const std::string& characterName) const
+{
+  auto it = _tables.find(characterName);
+  if (it == _tables.end()) return;
+
+  const StateArray& states = it->second;
+  std::string jsonPath = GetJsonPath(characterName);
+
+  // Read existing file to preserve transitionTemplates and stateTemplates
+  Json::Value root;
+  {
+    std::ifstream inFile(jsonPath);
+    if (inFile.is_open())
+    {
+      try { inFile >> root; }
+      catch (...) { root = Json::Value(Json::objectValue); }
+    }
+  }
+
+  // Rebuild the "states" section with current data
+  Json::Value& statesJson = root["states"];
+  statesJson = Json::Value(Json::objectValue);
+
+  for (size_t i = 0; i < static_cast<size_t>(FighterStateID::COUNT); ++i)
+  {
+    const StateDefinition& state = states[i];
+    if (state.animationName.empty() && state.transitions.empty())
+      continue;
+
+    const char* stateName = FighterStateIDToString(state.id);
+    Json::Value& sj = statesJson[stateName];
+
+    // Animation
+    sj["animationName"] = state.animationName;
+    if (state.loopAnimation) sj["loopAnimation"] = true;
+    if (state.forceAnimRestart) sj["forceAnimRestart"] = true;
+    if (state.playSpeed != 1.0f) sj["playSpeed"] = state.playSpeed;
+
+    // Completion
+    if (state.completionType != StateDefinition::None)
+    {
+      sj["completionType"] = CompletionTypeToString(state.completionType);
+      sj["completionTarget"] = FighterStateIDToString(state.completionTarget);
+      if (state.completionType == StateDefinition::Timer && state.timerFrames > 0)
+      {
+        if (state.timerFrames == GlobalVars::nDashFrames)
+          sj["timerFrames"] = "$nDashFrames";
+        else
+          sj["timerFrames"] = state.timerFrames;
+      }
+      else if (state.completionType == StateDefinition::Timer)
+        sj["timerFrames"] = state.timerFrames;
+    }
+
+    // State properties
+    sj["stanceState"] = StanceStateToString(state.stanceState);
+    if (state.actionState != ActionState::NONE)
+      sj["actionState"] = ActionStateToString(state.actionState);
+    if (state.isHittable) sj["isHittable"] = true;
+    if (state.canBlock) sj["canBlock"] = true;
+    if (state.inKnockdown) sj["inKnockdown"] = true;
+    if (state.isAttackState) sj["isAttackState"] = true;
+    if (state.isGrappleState) sj["isGrappleState"] = true;
+
+    // Entry movement
+    if (state.entryMovement != StateDefinition::NoMovement)
+      sj["entryMovement"] = EntryMovementToString(state.entryMovement);
+    if (state.horizontalOnly) sj["horizontalOnly"] = true;
+
+    // Cancel flags
+    if (state.cancelFlags != StateDefinition::Cancel_None)
+    {
+      Json::Value& cf = sj["cancelFlags"];
+      cf = Json::Value(Json::arrayValue);
+      if (state.cancelFlags & StateDefinition::Cancel_HitGround) cf.append("HitGround");
+      if (state.cancelFlags & StateDefinition::Cancel_Special) cf.append("Special");
+      if (state.cancelFlags & StateDefinition::Cancel_Normal) cf.append("Normal");
+    }
+
+    // Damage-related
+    if (state.appliesDamage) sj["appliesDamage"] = true;
+    if (state.isBlocking) sj["isBlocking"] = true;
+    if (state.setsJuggleGravity) sj["setsJuggleGravity"] = true;
+    if (state.resetsJuggleGravity) sj["resetsJuggleGravity"] = true;
+
+    // Transitions (written as inline rules, not template references)
+    if (!state.transitions.empty())
+    {
+      Json::Value& transArr = sj["transitions"];
+      transArr = Json::Value(Json::arrayValue);
+      for (const auto& rule : state.transitions)
+      {
+        Json::Value tj;
+
+        Json::Value& req = tj["required"];
+        req = Json::Value(Json::arrayValue);
+        for (size_t f = 0; f < ConditionFlagCapacity; ++f)
+          if (rule.requiredFlags.test(f))
+            req.append(ConditionFlagToString(static_cast<ConditionFlag>(f)));
+
+        if (rule.forbiddenFlags.any())
+        {
+          Json::Value& forb = tj["forbidden"];
+          forb = Json::Value(Json::arrayValue);
+          for (size_t f = 0; f < ConditionFlagCapacity; ++f)
+            if (rule.forbiddenFlags.test(f))
+              forb.append(ConditionFlagToString(static_cast<ConditionFlag>(f)));
+        }
+
+        if (rule.targetState == FighterStateID::COUNT)
+          tj["target"] = "HitResolver";
+        else
+          tj["target"] = FighterStateIDToString(rule.targetState);
+
+        tj["priority"] = rule.priority;
+        transArr.append(tj);
+      }
+    }
+  }
+
+  // Write back
+  std::ofstream outFile(jsonPath);
+  outFile << root.toStyledString();
+  std::cout << "FighterStateTable: wrote " << jsonPath << "\n";
+}

@@ -4,6 +4,7 @@
 // Forward declarations — avoid pulling in full component headers
 template <typename T> class RenderComponent;
 class RenderProperties;
+struct DisplayImage;
 
 //
 // Abstract animation interface.
@@ -33,4 +34,15 @@ public:
   // Called each frame the animation advances — updates per-frame render state
   // (texture, source rect, offset)
   virtual void ApplyFrame(int animFrame, RenderComponent<RenderType>& renderer, RenderProperties& properties) const = 0;
+
+  // --- Editor support (animation-type-agnostic preview) ---
+
+  // Returns an ImGui-displayable preview image for the given animation frame
+  virtual DisplayImage GetEditorPreview(int displayHeight, int animFrame) const = 0;
+
+  // Returns the source pixel dimensions of a frame (used for hitbox coordinate scaling)
+  virtual Vector2<double> GetFrameSourceSize(int animFrame) const = 0;
+
+  // Maps animation frame index to a zero-based offset (for EventData indexing)
+  virtual int GetFrameIndexOffset(int animFrame) const = 0;
 };

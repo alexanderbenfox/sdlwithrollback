@@ -215,6 +215,9 @@
     <ClCompile Include="..\src\Core\FSM\StateEnumMaps.cpp">
       <Filter>Source Files\Core\FSM</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\Core\FSM\StateVisualizer.cpp">
+      <Filter>Source Files\Core\FSM</Filter>
+    </ClCompile>
     <ClCompile Include="..\src\Core\ECS\Entity.cpp">
       <Filter>Source Files\Core\ECS</Filter>
     </ClCompile>
@@ -413,6 +416,9 @@
       <Filter>Source Files\Core\FSM</Filter>
     </ClInclude>
     <ClInclude Include="..\src\Core\FSM\StateEnumMaps.h">
+      <Filter>Source Files\Core\FSM</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Core\FSM\StateVisualizer.h">
       <Filter>Source Files\Core\FSM</Filter>
     </ClInclude>
     <ClInclude Include="..\src\Core\Prefab\MenuButtonArray.h">

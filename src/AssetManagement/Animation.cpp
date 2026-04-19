@@ -43,11 +43,18 @@ DrawRect<float> Animation::GetFrameSrcRect(int animFrame) const
 }
 
 //______________________________________________________________________________
-DisplayImage Animation::GetGUIDisplayImage(int displayHeight, int animFrame)
+DisplayImage Animation::GetEditorPreview(int displayHeight, int animFrame) const
 {
   auto srcRect = GetFrameSrcRect(animFrame);
+  return DisplayImage(ResourceManager::Get().gSpriteSheets.Get(_spriteSheetName).src,
+    Rect<float>(srcRect.x, srcRect.y, srcRect.x + srcRect.w, srcRect.y + srcRect.h), displayHeight);
+}
 
-  return DisplayImage(ResourceManager::Get().gSpriteSheets.Get(_spriteSheetName).src, Rect<float>(srcRect.x, srcRect.y, srcRect.x + srcRect.w, srcRect.y + srcRect.h), displayHeight);
+//______________________________________________________________________________
+Vector2<double> Animation::GetFrameSourceSize(int animFrame) const
+{
+  auto srcRect = GetFrameSrcRect(animFrame);
+  return Vector2<double>(srcRect.w, srcRect.h);
 }
 
 //______________________________________________________________________________
