@@ -306,7 +306,7 @@ void FighterFSMSystem::EnactState(
   actor.forceNewInputOnNextFrame = true;
 
   // --- Determine animation to play ---
-  const char* animName = stateDef.animationName;
+  std::string animName = stateDef.animationName;
   float playSpeed = stateDef.playSpeed;
 
   // Hitstun: choose animation based on stun duration

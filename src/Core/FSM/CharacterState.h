@@ -120,7 +120,7 @@ struct StateDefinition
   FighterStateID id;
 
   // Animation
-  const char* animationName = "";
+  std::string animationName;
   bool loopAnimation = false;
   float playSpeed = 1.0f;
   bool forceAnimRestart = false;

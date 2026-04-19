@@ -9,6 +9,7 @@
 #include "AssetManagement/EditableAssets/Editor/AnimationEditor.h"
 #include "AssetManagement/EditableAssets/AssetLibraryImpl.h"
 
+#include "Core/FSM/FighterStateTable.h"
 #include "Globals.h"
 
 //______________________________________________________________________________
@@ -47,6 +48,12 @@ void SetupDebugWindows(GameManager& gm, Timer& clock, AvgCounter& tracker)
     ImGui::InputInt("Hit stop frames ON BLOCK", &GlobalVars::HitStopFramesOnBlock);
 
     ImGui::Checkbox("Show hit effects", &GlobalVars::ShowHitEffects);
+
+    ImGui::Separator();
+    if (ImGui::Button("Reload State Tables"))
+    {
+      FighterStateTable::Get().Reload("Ryu");
+    }
 
     if (ImGui::CollapsingHeader("Dash Function"))
     {

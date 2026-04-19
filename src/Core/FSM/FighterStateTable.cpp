@@ -1,631 +1,325 @@
 #include "Core/FSM/FighterStateTable.h"
-#include <algorithm>
+#include "Core/FSM/StateEnumMaps.h"
+#include "Managers/ResourceManager.h"
+#include "Globals.h"
 
-using ID = FighterStateID;
+#include <json/json.h>
+#include <fstream>
+#include <algorithm>
+#include <iostream>
+#include <filesystem>
+
+namespace fs = std::filesystem;
 
 //______________________________________________________________________________
-const FighterStateTable& FighterStateTable::Get()
+FighterStateTable& FighterStateTable::Get()
 {
   static FighterStateTable instance;
   return instance;
 }
 
 //______________________________________________________________________________
-const std::array<StateDefinition, static_cast<size_t>(FighterStateID::COUNT)>& FighterStateTable::GetTable(uint8_t characterID) const
+const FighterStateTable::StateArray& FighterStateTable::GetTable(uint8_t characterID) const
 {
-  // For now all characters use the same table
-  return _ryuStates;
+  if (characterID < _characterOrder.size())
+  {
+    auto it = _tables.find(_characterOrder[characterID]);
+    if (it != _tables.end())
+      return it->second;
+  }
+  // Fallback to first loaded character
+  return _tables.begin()->second;
 }
 
 //______________________________________________________________________________
 FighterStateTable::FighterStateTable()
 {
-  BuildRyu();
+  DiscoverAndLoad();
 }
 
 //______________________________________________________________________________
-void FighterStateTable::BuildRyu()
+void FighterStateTable::DiscoverAndLoad()
 {
-  // ---- Reusable transition rule sets ----
+  std::string charDir = ResourceManager::Get().GetResourcePath() + "json/characters/";
 
-  // Hit/thrown detection — highest priority, applies to any hittable state
-  // targetState = COUNT means "use ResolveHitTarget"
-  const TransitionRule hitTransition       = { MakeFlags({CF_HitThisFrame}),    {}, ID::COUNT, 100 };
-  const TransitionRule thrownTransition    = { MakeFlags({CF_ThrownThisFrame}), {}, ID::COUNT, 100 };
-
-  // Fall detection — applies to any grounded state that can become airborne
-  const TransitionRule fallTransition      = { MakeFlags({CF_IsAirborne}), {}, ID::Falling, 90 };
-
-  // Special move transitions (priority 70, above normals)
-  const TransitionRule donkeyKick = { MakeFlags({CF_SpecialQCF, CF_InputBtn3, CF_AnyAttackBtn}), {}, ID::SpecialMove3, 72 };
-  const TransitionRule fireball   = { MakeFlags({CF_SpecialQCF, CF_AnyAttackBtn}),                {}, ID::SpecialMove1, 71 };
-  const TransitionRule tatsu      = { MakeFlags({CF_SpecialQCB, CF_AnyAttackBtn}),                {}, ID::SpecialMove4, 71 };
-  const TransitionRule dp         = { MakeFlags({CF_SpecialDPF, CF_AnyAttackBtn}),                {}, ID::SpecialMove2, 71 };
-
-  // Normal attack transitions (priority 60)
-  const TransitionRule throwFwd   = { MakeFlags({CF_IsGrounded, CF_InputBtn4}), MakeFlags({CF_InputBackward}), ID::ForwardThrow, 65 };
-  const TransitionRule throwBack  = { MakeFlags({CF_IsGrounded, CF_InputBtn4, CF_InputBackward}), {}, ID::BackThrow, 66 };
-  const TransitionRule sLight     = { MakeFlags({CF_IsGrounded, CF_InputBtn1}), {}, ID::StandingLight,  60 };
-  const TransitionRule sMedium    = { MakeFlags({CF_IsGrounded, CF_InputBtn2}), {}, ID::StandingMedium, 60 };
-  const TransitionRule sHeavy     = { MakeFlags({CF_IsGrounded, CF_InputBtn3}), {}, ID::StandingHeavy,  60 };
-  const TransitionRule cLight     = { MakeFlags({CF_IsGrounded, CF_InputBtn1}), {}, ID::CrouchingLight,  60 };
-  const TransitionRule cMedium    = { MakeFlags({CF_IsGrounded, CF_InputBtn2}), {}, ID::CrouchingMedium, 60 };
-  const TransitionRule cHeavy     = { MakeFlags({CF_IsGrounded, CF_InputBtn3}), {}, ID::CrouchingHeavy,  60 };
-  const TransitionRule jLight     = { MakeFlags({CF_IsAirborne, CF_InputBtn1}), {}, ID::JumpingLight,  60 };
-  const TransitionRule jMedium    = { MakeFlags({CF_IsAirborne, CF_InputBtn2}), {}, ID::JumpingMedium, 60 };
-  const TransitionRule jHeavy     = { MakeFlags({CF_IsAirborne, CF_InputBtn3}), {}, ID::JumpingHeavy,  60 };
-
-  // Dash transitions (priority 55)
-  const TransitionRule dashFwdBtn = { MakeFlags({CF_IsGrounded, CF_InputForward, CF_InputBtn4}),  {}, ID::ForwardDash, 55 };
-  const TransitionRule dashFwdSp  = { MakeFlags({CF_IsGrounded, CF_SpecialFDash}),                 {}, ID::ForwardDash, 55 };
-  const TransitionRule dashBkBtn  = { MakeFlags({CF_IsGrounded, CF_InputBackward, CF_InputBtn4}), {}, ID::BackDash,    55 };
-  const TransitionRule dashBkSp   = { MakeFlags({CF_IsGrounded, CF_SpecialBDash}),                 {}, ID::BackDash,    55 };
-
-  // Jump (priority 50)
-  const TransitionRule jump       = { MakeFlags({CF_IsGrounded, CF_InputUp}), {}, ID::Jumping, 50 };
-
-  // Crouch (priority 40)
-  const TransitionRule crouch     = { MakeFlags({CF_IsGrounded, CF_InputDown}), {}, ID::CrouchTransition, 40 };
-
-  // Walk (priority 30) — no CF_NewInputs: held directions should keep working after state changes
-  const TransitionRule walkFwd    = { MakeFlags({CF_IsGrounded, CF_InputForward}),  {}, ID::WalkForward,  30 };
-  const TransitionRule walkBk     = { MakeFlags({CF_IsGrounded, CF_InputBackward}), {}, ID::WalkBackward, 30 };
-
-  // Return to neutral (priority 20) — no direction held
-  const TransitionRule returnToNeutral = { MakeFlags({CF_NewInputs, CF_IsGrounded}), MakeFlags({CF_InputForward, CF_InputBackward, CF_InputDown}), ID::Idle, 20 };
-
-  // Completion transitions
-  const TransitionRule onTimerToIdle     = { MakeFlags({CF_TimerComplete}), {}, ID::Idle, 10 };
-  const TransitionRule onTimerToCrouch   = { MakeFlags({CF_TimerComplete, CF_IsGrounded, CF_InputDown}), {}, ID::CrouchTransition, 11 };
-  const TransitionRule onAnimToIdle      = { MakeFlags({CF_AnimComplete}), {}, ID::Idle, 10 };
-  const TransitionRule onAnimToCrouch    = { MakeFlags({CF_AnimComplete, CF_IsGrounded, CF_InputDown}), {}, ID::CrouchTransition, 11 };
-  // Variants that skip CrouchTransition (for states already crouching)
-  const TransitionRule onTimerToCrouched = { MakeFlags({CF_TimerComplete, CF_IsGrounded, CF_InputDown}), {}, ID::Crouched, 11 };
-  const TransitionRule onAnimToCrouched  = { MakeFlags({CF_AnimComplete, CF_IsGrounded, CF_InputDown}), {}, ID::Crouched, 11 };
-  const TransitionRule onGrounded        = { MakeFlags({CF_IsGrounded}), {}, ID::KnockdownHitGround, 10 };
-
-  // ---- State Definitions ----
-
-  // Idle
+  if (!fs::exists(charDir))
   {
-    auto& s = _ryuStates[static_cast<size_t>(ID::Idle)];
-    s.id = ID::Idle;
-    s.animationName = "Idle";
-    s.loopAnimation = true;
-    s.forceAnimRestart = false;
-    s.completionType = StateDefinition::None;
-    s.stanceState = StanceState::STANDING;
-    s.actionState = ActionState::NONE;
-    s.isHittable = true;
-    s.canBlock = true;
-    s.entryMovement = StateDefinition::StopHorizontal;
-    s.transitions = {
-      hitTransition, thrownTransition, fallTransition,
-      donkeyKick, fireball, tatsu, dp,
-      throwBack, throwFwd,
-      sLight, sMedium, sHeavy,
-      dashFwdBtn, dashFwdSp, dashBkBtn, dashBkSp,
-      jump, crouch,
-      walkFwd, walkBk
-    };
+    std::cerr << "FighterStateTable: character directory not found: " << charDir << "\n";
+    return;
   }
 
-  // WalkForward
+  for (const auto& entry : fs::directory_iterator(charDir))
   {
-    auto& s = _ryuStates[static_cast<size_t>(ID::WalkForward)];
-    s.id = ID::WalkForward;
-    s.animationName = "WalkF";
-    s.loopAnimation = true;
-    s.stanceState = StanceState::STANDING;
-    s.isHittable = true;
-    s.canBlock = true;
-    s.entryMovement = StateDefinition::Custom; // velocity set by EnactState based on direction
-    s.horizontalOnly = true;
-    s.transitions = {
-      hitTransition, thrownTransition, fallTransition,
-      donkeyKick, fireball, tatsu, dp,
-      throwBack, throwFwd,
-      sLight, sMedium, sHeavy,
-      dashFwdBtn, dashFwdSp, dashBkBtn, dashBkSp,
-      jump, crouch,
-      walkBk, returnToNeutral
-    };
+    if (!entry.is_directory()) continue;
+
+    std::string name = entry.path().filename().string();
+    std::string statesPath = entry.path().string() + "/states.json";
+
+    if (fs::exists(statesPath))
+    {
+      if (LoadCharacter(name, statesPath))
+        _characterOrder.push_back(name);
+    }
   }
 
-  // WalkBackward
+  if (_characterOrder.empty())
+    std::cerr << "FighterStateTable: no characters loaded!\n";
+  else
+    std::cout << "FighterStateTable: loaded " << _characterOrder.size() << " character(s)\n";
+}
+
+//______________________________________________________________________________
+void FighterStateTable::Reload(const std::string& characterName)
+{
+  std::string charDir = ResourceManager::Get().GetResourcePath() + "json/characters/";
+  std::string statesPath = charDir + characterName + "/states.json";
+
+  if (!fs::exists(statesPath))
   {
-    auto& s = _ryuStates[static_cast<size_t>(ID::WalkBackward)];
-    s.id = ID::WalkBackward;
-    s.animationName = "WalkB";
-    s.loopAnimation = true;
-    s.stanceState = StanceState::STANDING;
-    s.isHittable = true;
-    s.canBlock = true;
-    s.entryMovement = StateDefinition::Custom;
-    s.horizontalOnly = true;
-    s.transitions = {
-      hitTransition, thrownTransition, fallTransition,
-      donkeyKick, fireball, tatsu, dp,
-      throwBack, throwFwd,
-      sLight, sMedium, sHeavy,
-      dashFwdBtn, dashFwdSp, dashBkBtn, dashBkSp,
-      jump, crouch,
-      walkFwd, returnToNeutral
-    };
+    std::cerr << "FighterStateTable::Reload: file not found: " << statesPath << "\n";
+    return;
   }
 
-  // Jumping
+  // Reload in-place — pointer stays stable since unordered_map doesn't move existing entries
+  LoadCharacter(characterName, statesPath);
+  std::cout << "FighterStateTable: reloaded " << characterName << "\n";
+}
+
+//______________________________________________________________________________
+bool FighterStateTable::LoadCharacter(const std::string& name, const std::string& jsonPath)
+{
+  std::ifstream file(jsonPath);
+  if (!file.is_open())
   {
-    auto& s = _ryuStates[static_cast<size_t>(ID::Jumping)];
-    s.id = ID::Jumping;
-    s.animationName = "Jumping";
-    s.loopAnimation = false;
-    s.forceAnimRestart = false;
-    s.completionType = StateDefinition::None;
-    s.stanceState = StanceState::JUMPING;
-    s.isHittable = true;
-    s.entryMovement = StateDefinition::Custom; // jump velocity set by EnactState
-    // Transitions: land → Idle, air attacks, hit
-    s.transitions = {
-      hitTransition, thrownTransition,
-      jLight, jMedium, jHeavy,
-      { MakeFlags({CF_IsGrounded}), {}, ID::Idle, 10 } // land
-    };
+    std::cerr << "FighterStateTable: failed to open " << jsonPath << "\n";
+    return false;
   }
 
-  // Falling (walked off edge or pushed off)
+  Json::Value root;
+  try
   {
-    auto& s = _ryuStates[static_cast<size_t>(ID::Falling)];
-    s.id = ID::Falling;
-    s.animationName = "Falling";
-    s.loopAnimation = true;
-    s.forceAnimRestart = true;
-    s.stanceState = StanceState::JUMPING;
-    s.isHittable = true;
-    s.entryMovement = StateDefinition::NoMovement; // keep existing velocity, remove horizontal
-    s.transitions = {
-      hitTransition, thrownTransition,
-      jLight, jMedium, jHeavy,
-      { MakeFlags({CF_IsGrounded}), {}, ID::Idle, 10 }
-    };
+    file >> root;
+  }
+  catch (const Json::RuntimeError& err)
+  {
+    std::cerr << "FighterStateTable: JSON parse error in " << jsonPath << ": " << err.what() << "\n";
+    return false;
   }
 
-  // CrouchTransition (entering crouch with animation)
+  // --- Parse transition templates ---
+  std::unordered_map<std::string, TransitionRule> transitionTemplates;
+  const Json::Value& ttSection = root["transitionTemplates"];
+  for (const auto& key : ttSection.getMemberNames())
   {
-    auto& s = _ryuStates[static_cast<size_t>(ID::CrouchTransition)];
-    s.id = ID::CrouchTransition;
-    s.animationName = "Crouching";
-    s.loopAnimation = false;
-    s.completionType = StateDefinition::Animation;
-    s.completionTarget = ID::Crouched;
-    s.stanceState = StanceState::CROUCHING;
-    s.isHittable = true;
-    s.canBlock = true;
-    s.entryMovement = StateDefinition::StopHorizontal;
-    s.transitions = {
-      hitTransition, thrownTransition,
-      // Can attack while crouching
-      donkeyKick, fireball, tatsu, dp,
-      cLight, cMedium, cHeavy,
-      // Release down → go to idle
-      { MakeFlags({CF_NewInputs, CF_IsGrounded}), MakeFlags({CF_InputDown}), ID::Idle, 20 }
-    };
+    transitionTemplates[key] = ParseTransition(ttSection[key]);
   }
 
-  // Crouched (holding crouch, looped animation)
+  // --- Parse state templates (kept as raw JSON for field application) ---
+  std::unordered_map<std::string, Json::Value> stateTemplates;
+  const Json::Value& stSection = root["stateTemplates"];
+  for (const auto& key : stSection.getMemberNames())
   {
-    auto& s = _ryuStates[static_cast<size_t>(ID::Crouched)];
-    s.id = ID::Crouched;
-    s.animationName = "Crouch";
-    s.loopAnimation = true;
-    s.forceAnimRestart = true;
-    s.stanceState = StanceState::CROUCHING;
-    s.isHittable = true;
-    s.canBlock = true;
-    s.entryMovement = StateDefinition::StopHorizontal;
-    s.transitions = {
-      hitTransition, thrownTransition,
-      donkeyKick, fireball, tatsu, dp,
-      cLight, cMedium, cHeavy,
-      // Release down → idle
-      { MakeFlags({CF_NewInputs, CF_IsGrounded}), MakeFlags({CF_InputDown}), ID::Idle, 20 }
-    };
+    stateTemplates[key] = stSection[key];
   }
 
-  // ForwardDash
+  // --- Parse states ---
+  StateArray& states = _tables[name];
+
+  // Initialize all state IDs
+  for (size_t i = 0; i < static_cast<size_t>(FighterStateID::COUNT); ++i)
+    states[i].id = static_cast<FighterStateID>(i);
+
+  const Json::Value& statesSection = root["states"];
+  for (const auto& stateName : statesSection.getMemberNames())
   {
-    auto& s = _ryuStates[static_cast<size_t>(ID::ForwardDash)];
-    s.id = ID::ForwardDash;
-    s.animationName = "ForwardDash";
-    s.loopAnimation = false;
-    s.forceAnimRestart = true;
-    s.completionType = StateDefinition::Timer;
-    s.timerFrames = GlobalVars::nDashFrames;
-    s.completionTarget = ID::Idle;
-    s.stanceState = StanceState::STANDING;
-    s.isHittable = true;
-    s.entryMovement = StateDefinition::NoMovement; // dash velocity handled by UpdateCurrentState
-    s.transitions = {
-      hitTransition, thrownTransition,
-      onTimerToCrouch, onTimerToIdle
-    };
+    FighterStateID stateID = FighterStateIDFromString(stateName);
+    if (stateID == FighterStateID::Idle && stateName != "Idle")
+    {
+      // FighterStateIDFromString returns Idle for unknown strings — skip
+      std::cerr << "FighterStateTable: unknown state '" << stateName << "' in " << name << "\n";
+      continue;
+    }
+
+    ParseState(stateName, statesSection[stateName], stateTemplates, transitionTemplates,
+               states[static_cast<size_t>(stateID)]);
   }
 
-  // BackDash
-  {
-    auto& s = _ryuStates[static_cast<size_t>(ID::BackDash)];
-    s.id = ID::BackDash;
-    s.animationName = "BackDash";
-    s.loopAnimation = false;
-    s.forceAnimRestart = true;
-    s.completionType = StateDefinition::Timer;
-    s.timerFrames = GlobalVars::nDashFrames;
-    s.completionTarget = ID::Idle;
-    s.stanceState = StanceState::STANDING;
-    s.isHittable = true;
-    s.entryMovement = StateDefinition::NoMovement;
-    s.transitions = {
-      hitTransition, thrownTransition,
-      onTimerToCrouch, onTimerToIdle
-    };
-  }
-
-  // ---- Normal Attacks (standing) ----
-  auto buildGroundAttack = [&](ID id, const char* anim, ActionState actionSt)
-  {
-    auto& s = _ryuStates[static_cast<size_t>(id)];
-    s.id = id;
-    s.animationName = anim;
-    s.loopAnimation = false;
-    s.forceAnimRestart = true;
-    s.completionType = StateDefinition::Animation;
-    s.completionTarget = ID::Idle;
-    s.stanceState = StanceState::STANDING;
-    s.actionState = actionSt;
-    s.isHittable = true;
-    s.isAttackState = true;
-    s.entryMovement = StateDefinition::StopHorizontal;
-    s.cancelFlags = StateDefinition::Cancel_HitGround | StateDefinition::Cancel_Special | StateDefinition::Cancel_Normal;
-    s.transitions = {
-      hitTransition, thrownTransition,
-      // Cancel on special (requires hitting)
-      { MakeFlags({CF_Hitting, CF_SpecialQCF, CF_InputBtn3, CF_AnyAttackBtn}), {}, ID::SpecialMove3, 72 },
-      { MakeFlags({CF_Hitting, CF_SpecialQCF, CF_AnyAttackBtn}),                {}, ID::SpecialMove1, 71 },
-      { MakeFlags({CF_Hitting, CF_SpecialQCB, CF_AnyAttackBtn}),                {}, ID::SpecialMove4, 71 },
-      { MakeFlags({CF_Hitting, CF_SpecialDPF, CF_AnyAttackBtn}),                {}, ID::SpecialMove2, 71 },
-      // Normal cancel (target combo) handled by evaluator checking AttackLinkMap
-      onAnimToCrouch, onAnimToIdle
-    };
-  };
-
-  buildGroundAttack(ID::StandingLight,  "StandingLight",  ActionState::LIGHT);
-  buildGroundAttack(ID::StandingMedium, "StandingMedium", ActionState::MEDIUM);
-  buildGroundAttack(ID::StandingHeavy,  "StandingHeavy",  ActionState::HEAVY);
-
-  // ---- Crouching Attacks ----
-  auto buildCrouchAttack = [&](ID id, const char* anim, ActionState actionSt)
-  {
-    auto& s = _ryuStates[static_cast<size_t>(id)];
-    s.id = id;
-    s.animationName = anim;
-    s.loopAnimation = false;
-    s.forceAnimRestart = true;
-    s.completionType = StateDefinition::Animation;
-    s.completionTarget = ID::Crouched;
-    s.stanceState = StanceState::CROUCHING;
-    s.actionState = actionSt;
-    s.isHittable = true;
-    s.isAttackState = true;
-    s.entryMovement = StateDefinition::StopHorizontal;
-    s.cancelFlags = StateDefinition::Cancel_HitGround | StateDefinition::Cancel_Special | StateDefinition::Cancel_Normal;
-    s.transitions = {
-      hitTransition, thrownTransition,
-      { MakeFlags({CF_Hitting, CF_SpecialQCF, CF_InputBtn3, CF_AnyAttackBtn}), {}, ID::SpecialMove3, 72 },
-      { MakeFlags({CF_Hitting, CF_SpecialQCF, CF_AnyAttackBtn}),                {}, ID::SpecialMove1, 71 },
-      { MakeFlags({CF_Hitting, CF_SpecialQCB, CF_AnyAttackBtn}),                {}, ID::SpecialMove4, 71 },
-      { MakeFlags({CF_Hitting, CF_SpecialDPF, CF_AnyAttackBtn}),                {}, ID::SpecialMove2, 71 },
-      onAnimToCrouched, onAnimToIdle  // already crouching → skip CrouchTransition
-    };
-  };
-
-  buildCrouchAttack(ID::CrouchingLight,  "CrouchingLight",  ActionState::LIGHT);
-  buildCrouchAttack(ID::CrouchingMedium, "CrouchingMedium", ActionState::MEDIUM);
-  buildCrouchAttack(ID::CrouchingHeavy,  "CrouchingHeavy",  ActionState::HEAVY);
-
-  // ---- Jumping Attacks ----
-  auto buildAirAttack = [&](ID id, const char* anim, ActionState actionSt)
-  {
-    auto& s = _ryuStates[static_cast<size_t>(id)];
-    s.id = id;
-    s.animationName = anim;
-    s.loopAnimation = false;
-    s.forceAnimRestart = true;
-    s.completionType = StateDefinition::Animation;
-    s.completionTarget = ID::Idle;
-    s.stanceState = StanceState::JUMPING;
-    s.actionState = actionSt;
-    s.isHittable = true;
-    s.isAttackState = true;
-    s.entryMovement = StateDefinition::NoMovement; // keep air momentum
-    s.cancelFlags = StateDefinition::Cancel_HitGround | StateDefinition::Cancel_Special;
-    s.transitions = {
-      hitTransition, thrownTransition,
-      // Cancel on special in air
-      { MakeFlags({CF_Hitting, CF_SpecialQCF, CF_InputBtn3, CF_AnyAttackBtn}), {}, ID::SpecialMove3, 72 },
-      { MakeFlags({CF_Hitting, CF_SpecialQCF, CF_AnyAttackBtn}),                {}, ID::SpecialMove1, 71 },
-      { MakeFlags({CF_Hitting, CF_SpecialQCB, CF_AnyAttackBtn}),                {}, ID::SpecialMove4, 71 },
-      { MakeFlags({CF_Hitting, CF_SpecialDPF, CF_AnyAttackBtn}),                {}, ID::SpecialMove2, 71 },
-      // Landing cancels the attack
-      { MakeFlags({CF_IsGrounded}), {}, ID::Idle, 50 },
-      onAnimToIdle
-    };
-  };
-
-  buildAirAttack(ID::JumpingLight,  "JumpingLight",  ActionState::LIGHT);
-  buildAirAttack(ID::JumpingMedium, "JumpingMedium", ActionState::MEDIUM);
-  buildAirAttack(ID::JumpingHeavy,  "JumpingHeavy",  ActionState::HEAVY);
-
-  // ---- Special Moves ----
-  auto buildSpecial = [&](ID id, const char* anim)
-  {
-    auto& s = _ryuStates[static_cast<size_t>(id)];
-    s.id = id;
-    s.animationName = anim;
-    s.loopAnimation = false;
-    s.forceAnimRestart = true;
-    s.completionType = StateDefinition::Animation;
-    s.completionTarget = ID::Idle;
-    s.stanceState = StanceState::STANDING;
-    s.actionState = ActionState::HEAVY;
-    s.isHittable = true;
-    s.isAttackState = true;
-    s.entryMovement = StateDefinition::StopHorizontal;
-    s.transitions = {
-      hitTransition, thrownTransition,
-      onAnimToCrouch, onAnimToIdle
-    };
-  };
-
-  buildSpecial(ID::SpecialMove1, "SpecialMove1"); // fireball
-  buildSpecial(ID::SpecialMove2, "SpecialMove2"); // dp
-  buildSpecial(ID::SpecialMove3, "SpecialMove3"); // donkey kick
-  buildSpecial(ID::SpecialMove4, "SpecialMove4"); // tatsu
-
-  // ---- Throws ----
-  auto buildThrow = [&](ID id, const char* anim)
-  {
-    auto& s = _ryuStates[static_cast<size_t>(id)];
-    s.id = id;
-    s.animationName = anim;
-    s.loopAnimation = false;
-    s.forceAnimRestart = true;
-    s.completionType = StateDefinition::Animation;
-    s.completionTarget = ID::Idle;
-    s.stanceState = StanceState::STANDING;
-    s.isHittable = true;
-    s.isAttackState = true;
-    s.isGrappleState = true;
-    s.entryMovement = StateDefinition::StopHorizontal;
-    s.transitions = {
-      hitTransition, thrownTransition,
-      onAnimToIdle
-    };
-  };
-
-  buildThrow(ID::ForwardThrow, "ForwardThrow");
-  buildThrow(ID::BackThrow, "BackThrow");
-
-  // ThrowMiss (whiffed throw, locked in animation)
-  {
-    auto& s = _ryuStates[static_cast<size_t>(ID::ThrowMiss)];
-    s.id = ID::ThrowMiss;
-    s.animationName = "ThrowMiss";
-    s.loopAnimation = false;
-    s.forceAnimRestart = true;
-    s.completionType = StateDefinition::Animation;
-    s.completionTarget = ID::Idle;
-    s.stanceState = StanceState::STANDING;
-    s.isHittable = true;
-    s.transitions = {
-      hitTransition, thrownTransition,
-      onAnimToIdle
-    };
-  }
-
-  // Grappling (actively throwing the opponent — currently same as throw attack state)
-  // This state is entered when grapple connects, handled by throw state + GrappleActionComponent
-
-  // ---- Damage States ----
-
-  // Hitstun (timer-based, dynamic values filled by EnactState)
-  {
-    auto& s = _ryuStates[static_cast<size_t>(ID::Hitstun)];
-    s.id = ID::Hitstun;
-    s.animationName = "LightHitstun"; // overridden by EnactState based on stun duration
-    s.loopAnimation = false;
-    s.forceAnimRestart = true;
-    s.completionType = StateDefinition::Timer;
-    s.timerFrames = 0; // set dynamically from hitData.framesInStunHit
-    s.completionTarget = ID::Idle;
-    s.stanceState = StanceState::STANDING;
-    s.actionState = ActionState::HITSTUN;
-    s.isHittable = true;
-    s.inKnockdown = false;
-    s.entryMovement = StateDefinition::UseHitKnockbackFull;
-    s.appliesDamage = true;
-    s.transitions = {
-      hitTransition, thrownTransition,
-      onTimerToCrouch, onTimerToIdle
-    };
-  }
-
-  // CrouchingHitstun
-  {
-    auto& s = _ryuStates[static_cast<size_t>(ID::CrouchingHitstun)];
-    s.id = ID::CrouchingHitstun;
-    s.animationName = "CrouchingHitstun";
-    s.loopAnimation = false;
-    s.forceAnimRestart = true;
-    s.completionType = StateDefinition::Timer;
-    s.timerFrames = 0; // set dynamically
-    s.completionTarget = ID::Idle;
-    s.stanceState = StanceState::CROUCHING;
-    s.actionState = ActionState::HITSTUN;
-    s.isHittable = true;
-    s.inKnockdown = false;
-    s.entryMovement = StateDefinition::UseHitKnockbackFull;
-    s.appliesDamage = true;
-    s.transitions = {
-      hitTransition, thrownTransition,
-      onTimerToCrouched, onTimerToIdle  // already crouching → skip CrouchTransition
-    };
-  }
-
-  // BlockstunStanding
-  {
-    auto& s = _ryuStates[static_cast<size_t>(ID::BlockstunStanding)];
-    s.id = ID::BlockstunStanding;
-    s.animationName = "BlockMid";
-    s.loopAnimation = false;
-    s.forceAnimRestart = true;
-    s.completionType = StateDefinition::Timer;
-    s.timerFrames = 0; // set dynamically from hitData.framesInStunBlock
-    s.completionTarget = ID::Idle;
-    s.stanceState = StanceState::STANDING;
-    s.actionState = ActionState::BLOCKSTUN;
-    s.isHittable = true;
-    s.canBlock = true;
-    s.entryMovement = StateDefinition::StopHorizontal;
-    s.appliesDamage = true;
-    s.isBlocking = true;
-    s.transitions = {
-      hitTransition, thrownTransition,
-      onTimerToCrouch, onTimerToIdle
-    };
-  }
-
-  // BlockstunCrouching
-  {
-    auto& s = _ryuStates[static_cast<size_t>(ID::BlockstunCrouching)];
-    s.id = ID::BlockstunCrouching;
-    s.animationName = "BlockLow";
-    s.loopAnimation = false;
-    s.forceAnimRestart = true;
-    s.completionType = StateDefinition::Timer;
-    s.timerFrames = 0; // set dynamically
-    s.completionTarget = ID::Idle;
-    s.stanceState = StanceState::CROUCHING;
-    s.actionState = ActionState::BLOCKSTUN;
-    s.isHittable = true;
-    s.canBlock = true;
-    s.entryMovement = StateDefinition::StopHorizontal;
-    s.appliesDamage = true;
-    s.isBlocking = true;
-    s.transitions = {
-      hitTransition, thrownTransition,
-      onTimerToCrouched, onTimerToIdle  // already crouching → skip CrouchTransition
-    };
-  }
-
-  // KnockdownAirborne (launched into the air)
-  {
-    auto& s = _ryuStates[static_cast<size_t>(ID::KnockdownAirborne)];
-    s.id = ID::KnockdownAirborne;
-    s.animationName = "Knockdown_Air";
-    s.loopAnimation = false;
-    s.forceAnimRestart = true;
-    s.completionType = StateDefinition::None; // transitions on landing
-    s.stanceState = StanceState::KNOCKDOWN;
-    s.actionState = ActionState::HITSTUN;
-    s.isHittable = true;
-    s.inKnockdown = true;
-    s.entryMovement = StateDefinition::UseHitKnockbackFull;
-    s.appliesDamage = true;
-    s.setsJuggleGravity = true;
-    s.transitions = {
-      hitTransition, thrownTransition,
-      onGrounded // land → KnockdownHitGround
-    };
-  }
-
-  // KnockdownHitGround (OTG period, can still be hit)
-  {
-    auto& s = _ryuStates[static_cast<size_t>(ID::KnockdownHitGround)];
-    s.id = ID::KnockdownHitGround;
-    s.animationName = "Knockdown_HitGround";
-    s.loopAnimation = false;
-    s.completionType = StateDefinition::Animation;
-    s.completionTarget = ID::KnockdownOnGround;
-    s.stanceState = StanceState::KNOCKDOWN;
-    s.actionState = ActionState::HITSTUN;
-    s.isHittable = true;
-    s.inKnockdown = true;
-    s.entryMovement = StateDefinition::StopHorizontal;
-    s.transitions = {
-      hitTransition, thrownTransition,
-      onAnimToIdle // fallback shouldn't fire normally since completionTarget handles it
-    };
-  }
-
-  // KnockdownOnGround (invincible getup)
-  {
-    auto& s = _ryuStates[static_cast<size_t>(ID::KnockdownOnGround)];
-    s.id = ID::KnockdownOnGround;
-    s.animationName = "Knockdown_OnGround";
-    s.loopAnimation = false;
-    s.completionType = StateDefinition::Animation;
-    s.completionTarget = ID::Idle;
-    s.stanceState = StanceState::KNOCKDOWN;
-    s.actionState = ActionState::NONE;
-    s.isHittable = false; // invincible during getup
-    s.entryMovement = StateDefinition::StopHorizontal;
-    s.resetsJuggleGravity = true;
-    s.transitions = {
-      onAnimToIdle
-    };
-  }
-
-  // Grappled (receiving a throw)
-  {
-    auto& s = _ryuStates[static_cast<size_t>(ID::Grappled)];
-    s.id = ID::Grappled;
-    s.animationName = "HeavyHitstun";
-    s.loopAnimation = false;
-    s.forceAnimRestart = true;
-    s.completionType = StateDefinition::Timer;
-    s.timerFrames = 0; // set dynamically from hitData.activeFrames
-    s.completionTarget = ID::KnockdownAirborne;
-    s.stanceState = StanceState::KNOCKDOWN;
-    s.isGrappleState = true;
-    s.entryMovement = StateDefinition::NoMovement;
-    s.transitions = {
-      // No explicit timer transition — completionTarget handles timer → KnockdownAirborne
-    };
-  }
-
-  // Grappling (actively performing throw — uses the throw animation, managed by throw state)
-  // Currently throw attacker stays in their throw attack state (ForwardThrow/BackThrow)
-  // Grappling state is used when throw misses and opponent escapes
-  {
-    auto& s = _ryuStates[static_cast<size_t>(ID::Grappling)];
-    s.id = ID::Grappling;
-    s.animationName = "ThrowMiss";
-    s.loopAnimation = false;
-    s.forceAnimRestart = true;
-    s.completionType = StateDefinition::Animation;
-    s.completionTarget = ID::Idle;
-    s.stanceState = StanceState::STANDING;
-    s.isHittable = true;
-    s.transitions = {
-      hitTransition, thrownTransition,
-      onAnimToIdle
-    };
-  }
-
-  // Sort all transition lists by descending priority so first-match-wins
-  for (auto& state : _ryuStates)
+  // Sort all transition lists by descending priority (first match wins)
+  for (auto& state : states)
   {
     std::sort(state.transitions.begin(), state.transitions.end(),
       [](const TransitionRule& a, const TransitionRule& b) { return a.priority > b.priority; });
   }
+
+  return true;
+}
+
+//______________________________________________________________________________
+void FighterStateTable::ParseState(
+    const std::string& stateName,
+    const Json::Value& stateJson,
+    const std::unordered_map<std::string, Json::Value>& stateTemplates,
+    const std::unordered_map<std::string, TransitionRule>& transitionTemplates,
+    StateDefinition& outState)
+{
+  outState.id = FighterStateIDFromString(stateName);
+
+  // Apply template first (if specified), then override with state-specific fields
+  if (stateJson.isMember("template"))
+  {
+    const std::string& tmplName = stateJson["template"].asString();
+    auto it = stateTemplates.find(tmplName);
+    if (it != stateTemplates.end())
+      ApplyStateFields(it->second, outState, transitionTemplates);
+    else
+      std::cerr << "FighterStateTable: unknown state template '" << tmplName << "'\n";
+  }
+
+  // Apply state's own fields (overrides template)
+  ApplyStateFields(stateJson, outState, transitionTemplates);
+}
+
+//______________________________________________________________________________
+void FighterStateTable::ApplyStateFields(
+    const Json::Value& json,
+    StateDefinition& state,
+    const std::unordered_map<std::string, TransitionRule>& transitionTemplates)
+{
+  // Animation
+  if (json.isMember("animationName"))
+    state.animationName = json["animationName"].asString();
+  if (json.isMember("loopAnimation"))
+    state.loopAnimation = json["loopAnimation"].asBool();
+  if (json.isMember("playSpeed"))
+    state.playSpeed = json["playSpeed"].asFloat();
+  if (json.isMember("forceAnimRestart"))
+    state.forceAnimRestart = json["forceAnimRestart"].asBool();
+
+  // Completion
+  if (json.isMember("completionType"))
+    state.completionType = CompletionTypeFromString(json["completionType"].asString());
+  if (json.isMember("timerFrames"))
+    state.timerFrames = ResolveTimerFrames(json["timerFrames"]);
+  if (json.isMember("completionTarget"))
+    state.completionTarget = FighterStateIDFromString(json["completionTarget"].asString());
+
+  // State properties
+  if (json.isMember("stanceState"))
+    state.stanceState = StanceStateFromString(json["stanceState"].asString());
+  if (json.isMember("actionState"))
+    state.actionState = ActionStateFromString(json["actionState"].asString());
+  if (json.isMember("isHittable"))
+    state.isHittable = json["isHittable"].asBool();
+  if (json.isMember("canBlock"))
+    state.canBlock = json["canBlock"].asBool();
+  if (json.isMember("inKnockdown"))
+    state.inKnockdown = json["inKnockdown"].asBool();
+  if (json.isMember("isAttackState"))
+    state.isAttackState = json["isAttackState"].asBool();
+  if (json.isMember("isGrappleState"))
+    state.isGrappleState = json["isGrappleState"].asBool();
+
+  // Entry movement
+  if (json.isMember("entryMovement"))
+    state.entryMovement = EntryMovementFromString(json["entryMovement"].asString());
+  if (json.isMember("horizontalOnly"))
+    state.horizontalOnly = json["horizontalOnly"].asBool();
+
+  // Cancel flags
+  if (json.isMember("cancelFlags"))
+  {
+    uint8_t flags = StateDefinition::Cancel_None;
+    const Json::Value& arr = json["cancelFlags"];
+    for (const auto& f : arr)
+      flags |= CancelFlagFromString(f.asString());
+    state.cancelFlags = flags;
+  }
+
+  // Damage-related
+  if (json.isMember("appliesDamage"))
+    state.appliesDamage = json["appliesDamage"].asBool();
+  if (json.isMember("isBlocking"))
+    state.isBlocking = json["isBlocking"].asBool();
+  if (json.isMember("setsJuggleGravity"))
+    state.setsJuggleGravity = json["setsJuggleGravity"].asBool();
+  if (json.isMember("resetsJuggleGravity"))
+    state.resetsJuggleGravity = json["resetsJuggleGravity"].asBool();
+
+  // Transitions (completely replaces any template transitions)
+  if (json.isMember("transitions"))
+  {
+    state.transitions.clear();
+    const Json::Value& arr = json["transitions"];
+    for (const auto& item : arr)
+    {
+      if (item.isString())
+      {
+        // "$templateName" reference
+        const std::string& ref = item.asString();
+        if (!ref.empty() && ref[0] == '$')
+        {
+          std::string tmplName = ref.substr(1);
+          auto it = transitionTemplates.find(tmplName);
+          if (it != transitionTemplates.end())
+            state.transitions.push_back(it->second);
+          else
+            std::cerr << "FighterStateTable: unknown transition template '$" << tmplName << "'\n";
+        }
+      }
+      else if (item.isObject())
+      {
+        // Inline transition rule
+        state.transitions.push_back(ParseTransition(item));
+      }
+    }
+  }
+}
+
+//______________________________________________________________________________
+TransitionRule FighterStateTable::ParseTransition(const Json::Value& json)
+{
+  TransitionRule rule;
+
+  // Required flags
+  if (json.isMember("required"))
+  {
+    for (const auto& f : json["required"])
+      rule.requiredFlags.set(ConditionFlagFromString(f.asString()));
+  }
+
+  // Forbidden flags
+  if (json.isMember("forbidden"))
+  {
+    for (const auto& f : json["forbidden"])
+      rule.forbiddenFlags.set(ConditionFlagFromString(f.asString()));
+  }
+
+  // Target state
+  if (json.isMember("target"))
+    rule.targetState = FighterStateIDFromString(json["target"].asString());
+
+  // Priority
+  if (json.isMember("priority"))
+    rule.priority = static_cast<int8_t>(json["priority"].asInt());
+
+  return rule;
+}
+
+//______________________________________________________________________________
+int FighterStateTable::ResolveTimerFrames(const Json::Value& val)
+{
+  if (val.isInt())
+    return val.asInt();
+
+  if (val.isString())
+  {
+    const std::string& str = val.asString();
+    if (str == "$nDashFrames")
+      return GlobalVars::nDashFrames;
+
+    std::cerr << "FighterStateTable: unknown timer variable '" << str << "'\n";
+    return 0;
+  }
+
+  return 0;
 }

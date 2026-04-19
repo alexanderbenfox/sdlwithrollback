@@ -1,0 +1,433 @@
+{
+  "transitionTemplates": {
+    "hit":              { "required": ["HitThisFrame"],                              "target": "HitResolver",      "priority": 100 },
+    "thrown":           { "required": ["ThrownThisFrame"],                           "target": "HitResolver",      "priority": 100 },
+    "fall":             { "required": ["IsAirborne"],                                "target": "Falling",          "priority": 90 },
+
+    "donkeyKick":       { "required": ["SpecialQCF", "InputBtn3", "AnyAttackBtn"],  "target": "SpecialMove3",     "priority": 72 },
+    "fireball":         { "required": ["SpecialQCF", "AnyAttackBtn"],               "target": "SpecialMove1",     "priority": 71 },
+    "tatsu":            { "required": ["SpecialQCB", "AnyAttackBtn"],               "target": "SpecialMove4",     "priority": 71 },
+    "dp":               { "required": ["SpecialDPF", "AnyAttackBtn"],               "target": "SpecialMove2",     "priority": 71 },
+
+    "throwBack":        { "required": ["IsGrounded", "InputBtn4", "InputBackward"], "target": "BackThrow",        "priority": 66 },
+    "throwFwd":         { "required": ["IsGrounded", "InputBtn4"], "forbidden": ["InputBackward"], "target": "ForwardThrow", "priority": 65 },
+
+    "sLight":           { "required": ["IsGrounded", "InputBtn1"],                  "target": "StandingLight",    "priority": 60 },
+    "sMedium":          { "required": ["IsGrounded", "InputBtn2"],                  "target": "StandingMedium",   "priority": 60 },
+    "sHeavy":           { "required": ["IsGrounded", "InputBtn3"],                  "target": "StandingHeavy",    "priority": 60 },
+    "cLight":           { "required": ["IsGrounded", "InputBtn1"],                  "target": "CrouchingLight",   "priority": 60 },
+    "cMedium":          { "required": ["IsGrounded", "InputBtn2"],                  "target": "CrouchingMedium",  "priority": 60 },
+    "cHeavy":           { "required": ["IsGrounded", "InputBtn3"],                  "target": "CrouchingHeavy",   "priority": 60 },
+    "jLight":           { "required": ["IsAirborne", "InputBtn1"],                  "target": "JumpingLight",     "priority": 60 },
+    "jMedium":          { "required": ["IsAirborne", "InputBtn2"],                  "target": "JumpingMedium",    "priority": 60 },
+    "jHeavy":           { "required": ["IsAirborne", "InputBtn3"],                  "target": "JumpingHeavy",     "priority": 60 },
+
+    "dashFwdBtn":       { "required": ["IsGrounded", "InputForward", "InputBtn4"],  "target": "ForwardDash",      "priority": 55 },
+    "dashFwdSp":        { "required": ["IsGrounded", "SpecialFDash"],               "target": "ForwardDash",      "priority": 55 },
+    "dashBkBtn":        { "required": ["IsGrounded", "InputBackward", "InputBtn4"], "target": "BackDash",         "priority": 55 },
+    "dashBkSp":         { "required": ["IsGrounded", "SpecialBDash"],               "target": "BackDash",         "priority": 55 },
+
+    "jump":             { "required": ["IsGrounded", "InputUp"],                    "target": "Jumping",          "priority": 50 },
+    "crouch":           { "required": ["IsGrounded", "InputDown"],                  "target": "CrouchTransition", "priority": 40 },
+    "walkFwd":          { "required": ["IsGrounded", "InputForward"],               "target": "WalkForward",      "priority": 30 },
+    "walkBk":           { "required": ["IsGrounded", "InputBackward"],              "target": "WalkBackward",     "priority": 30 },
+    "returnToNeutral":  { "required": ["NewInputs", "IsGrounded"], "forbidden": ["InputForward", "InputBackward", "InputDown"], "target": "Idle", "priority": 20 },
+
+    "onTimerToIdle":     { "required": ["TimerComplete"],                                         "target": "Idle",             "priority": 10 },
+    "onTimerToCrouch":   { "required": ["TimerComplete", "IsGrounded", "InputDown"],              "target": "CrouchTransition", "priority": 11 },
+    "onTimerToCrouched": { "required": ["TimerComplete", "IsGrounded", "InputDown"],              "target": "Crouched",         "priority": 11 },
+    "onAnimToIdle":      { "required": ["AnimComplete"],                                          "target": "Idle",             "priority": 10 },
+    "onAnimToCrouch":    { "required": ["AnimComplete", "IsGrounded", "InputDown"],               "target": "CrouchTransition", "priority": 11 },
+    "onAnimToCrouched":  { "required": ["AnimComplete", "IsGrounded", "InputDown"],               "target": "Crouched",         "priority": 11 },
+    "onGrounded":        { "required": ["IsGrounded"],                                            "target": "KnockdownHitGround","priority": 10 },
+
+    "hitCancel_donkeyKick": { "required": ["Hitting", "SpecialQCF", "InputBtn3", "AnyAttackBtn"], "target": "SpecialMove3", "priority": 72 },
+    "hitCancel_fireball":   { "required": ["Hitting", "SpecialQCF", "AnyAttackBtn"],              "target": "SpecialMove1", "priority": 71 },
+    "hitCancel_tatsu":      { "required": ["Hitting", "SpecialQCB", "AnyAttackBtn"],              "target": "SpecialMove4", "priority": 71 },
+    "hitCancel_dp":         { "required": ["Hitting", "SpecialDPF", "AnyAttackBtn"],              "target": "SpecialMove2", "priority": 71 }
+  },
+
+  "stateTemplates": {
+    "groundAttack": {
+      "loopAnimation": false,
+      "forceAnimRestart": true,
+      "completionType": "Animation",
+      "completionTarget": "Idle",
+      "stanceState": "Standing",
+      "isHittable": true,
+      "isAttackState": true,
+      "entryMovement": "StopHorizontal",
+      "cancelFlags": ["HitGround", "Special", "Normal"],
+      "transitions": [
+        "$hit", "$thrown",
+        "$hitCancel_donkeyKick", "$hitCancel_fireball", "$hitCancel_tatsu", "$hitCancel_dp",
+        "$onAnimToCrouch", "$onAnimToIdle"
+      ]
+    },
+    "crouchAttack": {
+      "loopAnimation": false,
+      "forceAnimRestart": true,
+      "completionType": "Animation",
+      "completionTarget": "Crouched",
+      "stanceState": "Crouching",
+      "isHittable": true,
+      "isAttackState": true,
+      "entryMovement": "StopHorizontal",
+      "cancelFlags": ["HitGround", "Special", "Normal"],
+      "transitions": [
+        "$hit", "$thrown",
+        "$hitCancel_donkeyKick", "$hitCancel_fireball", "$hitCancel_tatsu", "$hitCancel_dp",
+        "$onAnimToCrouched", "$onAnimToIdle"
+      ]
+    },
+    "airAttack": {
+      "loopAnimation": false,
+      "forceAnimRestart": true,
+      "completionType": "Animation",
+      "completionTarget": "Idle",
+      "stanceState": "Jumping",
+      "isHittable": true,
+      "isAttackState": true,
+      "entryMovement": "NoMovement",
+      "cancelFlags": ["HitGround", "Special"],
+      "transitions": [
+        "$hit", "$thrown",
+        "$hitCancel_donkeyKick", "$hitCancel_fireball", "$hitCancel_tatsu", "$hitCancel_dp",
+        { "required": ["IsGrounded"], "target": "Idle", "priority": 50 },
+        "$onAnimToIdle"
+      ]
+    },
+    "special": {
+      "loopAnimation": false,
+      "forceAnimRestart": true,
+      "completionType": "Animation",
+      "completionTarget": "Idle",
+      "stanceState": "Standing",
+      "actionState": "Heavy",
+      "isHittable": true,
+      "isAttackState": true,
+      "entryMovement": "StopHorizontal",
+      "transitions": ["$hit", "$thrown", "$onAnimToCrouch", "$onAnimToIdle"]
+    },
+    "throw": {
+      "loopAnimation": false,
+      "forceAnimRestart": true,
+      "completionType": "Animation",
+      "completionTarget": "Idle",
+      "stanceState": "Standing",
+      "isHittable": true,
+      "isAttackState": true,
+      "isGrappleState": true,
+      "entryMovement": "StopHorizontal",
+      "transitions": ["$hit", "$thrown", "$onAnimToIdle"]
+    }
+  },
+
+  "states": {
+    "Idle": {
+      "animationName": "Idle",
+      "loopAnimation": true,
+      "forceAnimRestart": false,
+      "completionType": "None",
+      "stanceState": "Standing",
+      "actionState": "None",
+      "isHittable": true,
+      "canBlock": true,
+      "entryMovement": "StopHorizontal",
+      "transitions": [
+        "$hit", "$thrown", "$fall",
+        "$donkeyKick", "$fireball", "$tatsu", "$dp",
+        "$throwBack", "$throwFwd",
+        "$sLight", "$sMedium", "$sHeavy",
+        "$dashFwdBtn", "$dashFwdSp", "$dashBkBtn", "$dashBkSp",
+        "$jump", "$crouch",
+        "$walkFwd", "$walkBk"
+      ]
+    },
+
+    "WalkForward": {
+      "animationName": "WalkF",
+      "loopAnimation": true,
+      "stanceState": "Standing",
+      "isHittable": true,
+      "canBlock": true,
+      "entryMovement": "Custom",
+      "horizontalOnly": true,
+      "transitions": [
+        "$hit", "$thrown", "$fall",
+        "$donkeyKick", "$fireball", "$tatsu", "$dp",
+        "$throwBack", "$throwFwd",
+        "$sLight", "$sMedium", "$sHeavy",
+        "$dashFwdBtn", "$dashFwdSp", "$dashBkBtn", "$dashBkSp",
+        "$jump", "$crouch",
+        "$walkBk", "$returnToNeutral"
+      ]
+    },
+
+    "WalkBackward": {
+      "animationName": "WalkB",
+      "loopAnimation": true,
+      "stanceState": "Standing",
+      "isHittable": true,
+      "canBlock": true,
+      "entryMovement": "Custom",
+      "horizontalOnly": true,
+      "transitions": [
+        "$hit", "$thrown", "$fall",
+        "$donkeyKick", "$fireball", "$tatsu", "$dp",
+        "$throwBack", "$throwFwd",
+        "$sLight", "$sMedium", "$sHeavy",
+        "$dashFwdBtn", "$dashFwdSp", "$dashBkBtn", "$dashBkSp",
+        "$jump", "$crouch",
+        "$walkFwd", "$returnToNeutral"
+      ]
+    },
+
+    "Jumping": {
+      "animationName": "Jumping",
+      "loopAnimation": false,
+      "forceAnimRestart": false,
+      "completionType": "None",
+      "stanceState": "Jumping",
+      "isHittable": true,
+      "entryMovement": "Custom",
+      "transitions": [
+        "$hit", "$thrown",
+        "$jLight", "$jMedium", "$jHeavy",
+        { "required": ["IsGrounded"], "target": "Idle", "priority": 10 }
+      ]
+    },
+
+    "Falling": {
+      "animationName": "Falling",
+      "loopAnimation": true,
+      "forceAnimRestart": true,
+      "stanceState": "Jumping",
+      "isHittable": true,
+      "entryMovement": "NoMovement",
+      "transitions": [
+        "$hit", "$thrown",
+        "$jLight", "$jMedium", "$jHeavy",
+        { "required": ["IsGrounded"], "target": "Idle", "priority": 10 }
+      ]
+    },
+
+    "CrouchTransition": {
+      "animationName": "Crouching",
+      "loopAnimation": false,
+      "completionType": "Animation",
+      "completionTarget": "Crouched",
+      "stanceState": "Crouching",
+      "isHittable": true,
+      "canBlock": true,
+      "entryMovement": "StopHorizontal",
+      "transitions": [
+        "$hit", "$thrown",
+        "$donkeyKick", "$fireball", "$tatsu", "$dp",
+        "$cLight", "$cMedium", "$cHeavy",
+        { "required": ["NewInputs", "IsGrounded"], "forbidden": ["InputDown"], "target": "Idle", "priority": 20 }
+      ]
+    },
+
+    "Crouched": {
+      "animationName": "Crouch",
+      "loopAnimation": true,
+      "forceAnimRestart": true,
+      "stanceState": "Crouching",
+      "isHittable": true,
+      "canBlock": true,
+      "entryMovement": "StopHorizontal",
+      "transitions": [
+        "$hit", "$thrown",
+        "$donkeyKick", "$fireball", "$tatsu", "$dp",
+        "$cLight", "$cMedium", "$cHeavy",
+        { "required": ["NewInputs", "IsGrounded"], "forbidden": ["InputDown"], "target": "Idle", "priority": 20 }
+      ]
+    },
+
+    "ForwardDash": {
+      "animationName": "ForwardDash",
+      "loopAnimation": false,
+      "forceAnimRestart": true,
+      "completionType": "Timer",
+      "timerFrames": "$nDashFrames",
+      "completionTarget": "Idle",
+      "stanceState": "Standing",
+      "isHittable": true,
+      "entryMovement": "NoMovement",
+      "transitions": ["$hit", "$thrown", "$onTimerToCrouch", "$onTimerToIdle"]
+    },
+
+    "BackDash": {
+      "animationName": "BackDash",
+      "loopAnimation": false,
+      "forceAnimRestart": true,
+      "completionType": "Timer",
+      "timerFrames": "$nDashFrames",
+      "completionTarget": "Idle",
+      "stanceState": "Standing",
+      "isHittable": true,
+      "entryMovement": "NoMovement",
+      "transitions": ["$hit", "$thrown", "$onTimerToCrouch", "$onTimerToIdle"]
+    },
+
+    "StandingLight":   { "template": "groundAttack", "animationName": "StandingLight",  "actionState": "Light" },
+    "StandingMedium":  { "template": "groundAttack", "animationName": "StandingMedium", "actionState": "Medium" },
+    "StandingHeavy":   { "template": "groundAttack", "animationName": "StandingHeavy",  "actionState": "Heavy" },
+
+    "CrouchingLight":  { "template": "crouchAttack", "animationName": "CrouchingLight",  "actionState": "Light" },
+    "CrouchingMedium": { "template": "crouchAttack", "animationName": "CrouchingMedium", "actionState": "Medium" },
+    "CrouchingHeavy":  { "template": "crouchAttack", "animationName": "CrouchingHeavy",  "actionState": "Heavy" },
+
+    "JumpingLight":    { "template": "airAttack", "animationName": "JumpingLight",  "actionState": "Light" },
+    "JumpingMedium":   { "template": "airAttack", "animationName": "JumpingMedium", "actionState": "Medium" },
+    "JumpingHeavy":    { "template": "airAttack", "animationName": "JumpingHeavy",  "actionState": "Heavy" },
+
+    "SpecialMove1":    { "template": "special", "animationName": "SpecialMove1" },
+    "SpecialMove2":    { "template": "special", "animationName": "SpecialMove2" },
+    "SpecialMove3":    { "template": "special", "animationName": "SpecialMove3" },
+    "SpecialMove4":    { "template": "special", "animationName": "SpecialMove4" },
+
+    "ForwardThrow":    { "template": "throw", "animationName": "ForwardThrow" },
+    "BackThrow":       { "template": "throw", "animationName": "BackThrow" },
+
+    "ThrowMiss": {
+      "animationName": "ThrowMiss",
+      "loopAnimation": false,
+      "forceAnimRestart": true,
+      "completionType": "Animation",
+      "completionTarget": "Idle",
+      "stanceState": "Standing",
+      "isHittable": true,
+      "transitions": ["$hit", "$thrown", "$onAnimToIdle"]
+    },
+
+    "Grappling": {
+      "animationName": "ThrowMiss",
+      "loopAnimation": false,
+      "forceAnimRestart": true,
+      "completionType": "Animation",
+      "completionTarget": "Idle",
+      "stanceState": "Standing",
+      "isHittable": true,
+      "transitions": ["$hit", "$thrown", "$onAnimToIdle"]
+    },
+
+    "Hitstun": {
+      "animationName": "LightHitstun",
+      "loopAnimation": false,
+      "forceAnimRestart": true,
+      "completionType": "Timer",
+      "timerFrames": 0,
+      "completionTarget": "Idle",
+      "stanceState": "Standing",
+      "actionState": "Hitstun",
+      "isHittable": true,
+      "entryMovement": "UseHitKnockbackFull",
+      "appliesDamage": true,
+      "transitions": ["$hit", "$thrown", "$onTimerToCrouch", "$onTimerToIdle"]
+    },
+
+    "CrouchingHitstun": {
+      "animationName": "CrouchingHitstun",
+      "loopAnimation": false,
+      "forceAnimRestart": true,
+      "completionType": "Timer",
+      "timerFrames": 0,
+      "completionTarget": "Idle",
+      "stanceState": "Crouching",
+      "actionState": "Hitstun",
+      "isHittable": true,
+      "entryMovement": "UseHitKnockbackFull",
+      "appliesDamage": true,
+      "transitions": ["$hit", "$thrown", "$onTimerToCrouched", "$onTimerToIdle"]
+    },
+
+    "BlockstunStanding": {
+      "animationName": "BlockMid",
+      "loopAnimation": false,
+      "forceAnimRestart": true,
+      "completionType": "Timer",
+      "timerFrames": 0,
+      "completionTarget": "Idle",
+      "stanceState": "Standing",
+      "actionState": "Blockstun",
+      "isHittable": true,
+      "canBlock": true,
+      "entryMovement": "StopHorizontal",
+      "appliesDamage": true,
+      "isBlocking": true,
+      "transitions": ["$hit", "$thrown", "$onTimerToCrouch", "$onTimerToIdle"]
+    },
+
+    "BlockstunCrouching": {
+      "animationName": "BlockLow",
+      "loopAnimation": false,
+      "forceAnimRestart": true,
+      "completionType": "Timer",
+      "timerFrames": 0,
+      "completionTarget": "Idle",
+      "stanceState": "Crouching",
+      "actionState": "Blockstun",
+      "isHittable": true,
+      "canBlock": true,
+      "entryMovement": "StopHorizontal",
+      "appliesDamage": true,
+      "isBlocking": true,
+      "transitions": ["$hit", "$thrown", "$onTimerToCrouched", "$onTimerToIdle"]
+    },
+
+    "KnockdownAirborne": {
+      "animationName": "Knockdown_Air",
+      "loopAnimation": false,
+      "forceAnimRestart": true,
+      "completionType": "None",
+      "stanceState": "Knockdown",
+      "actionState": "Hitstun",
+      "isHittable": true,
+      "inKnockdown": true,
+      "entryMovement": "UseHitKnockbackFull",
+      "appliesDamage": true,
+      "setsJuggleGravity": true,
+      "transitions": ["$hit", "$thrown", "$onGrounded"]
+    },
+
+    "KnockdownHitGround": {
+      "animationName": "Knockdown_HitGround",
+      "loopAnimation": false,
+      "completionType": "Animation",
+      "completionTarget": "KnockdownOnGround",
+      "stanceState": "Knockdown",
+      "actionState": "Hitstun",
+      "isHittable": true,
+      "inKnockdown": true,
+      "entryMovement": "StopHorizontal",
+      "transitions": ["$hit", "$thrown", "$onAnimToIdle"]
+    },
+
+    "KnockdownOnGround": {
+      "animationName": "Knockdown_OnGround",
+      "loopAnimation": false,
+      "completionType": "Animation",
+      "completionTarget": "Idle",
+      "stanceState": "Knockdown",
+      "actionState": "None",
+      "isHittable": false,
+      "entryMovement": "StopHorizontal",
+      "resetsJuggleGravity": true,
+      "transitions": ["$onAnimToIdle"]
+    },
+
+    "Grappled": {
+      "animationName": "HeavyHitstun",
+      "loopAnimation": false,
+      "forceAnimRestart": true,
+      "completionType": "Timer",
+      "timerFrames": 0,
+      "completionTarget": "KnockdownAirborne",
+      "stanceState": "Knockdown",
+      "isGrappleState": true,
+      "entryMovement": "NoMovement"
+    }
+  }
+}

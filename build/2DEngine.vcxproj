@@ -60,6 +60,7 @@
     <ClCompile Include="..\src\Core\Math\Matrix4.cpp" />
     <ClCompile Include="..\src\Components\FighterFSMComponent.cpp" />
     <ClCompile Include="..\src\Core\FSM\FighterStateTable.cpp" />
+    <ClCompile Include="..\src\Core\FSM\StateEnumMaps.cpp" />
     <ClCompile Include="..\src\Core\Prefab\CharacterConstructor.cpp" />
     <ClCompile Include="..\src\Core\Prefab\MenuButtonArray.cpp" />
     <ClCompile Include="..\src\Core\Timer.cpp" />
@@ -160,6 +161,7 @@
     <ClInclude Include="..\src\Components\FighterFSMComponent.h" />
     <ClInclude Include="..\src\Core\FSM\CharacterState.h" />
     <ClInclude Include="..\src\Core\FSM\FighterStateTable.h" />
+    <ClInclude Include="..\src\Core\FSM\StateEnumMaps.h" />
     <ClInclude Include="..\src\Core\Prefab\MenuButtonArray.h" />
     <ClInclude Include="..\src\Core\Prefab\CharacterConstructor.h" />
     <ClInclude Include="..\src\Core\Timer.h" />
