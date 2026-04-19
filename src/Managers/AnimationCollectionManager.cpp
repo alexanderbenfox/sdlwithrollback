@@ -13,7 +13,7 @@ AnimationCollection& AnimationCollectionManager::GetCollection(unsigned int ID)
   return _collections[ID];
 }
 
-Animation* AnimationCollectionManager::GetAnimationData(unsigned int collectionID, std::string_view animationName)
+IAnimation* AnimationCollectionManager::GetAnimationData(unsigned int collectionID, std::string_view animationName)
 {
   return GetCollection(collectionID).GetAnimation(animationName.data());
 }
@@ -125,7 +125,7 @@ void AnimationCollectionManager::EditGeneralAnimations()
     item.second.DisplayInEditor();
     if (ImGui::Button("Set Anchor In-Game"))
     {
-      GAnimArchive.GetCollection(GetCollectionID("General")).GetAnimation(item.first)->SetAnchorPoint(item.second.anchor, item.second.GetAnchorPosition(0));
+      GAnimArchive.GetCollection(GetCollectionID("General")).GetSpriteAnimation(item.first)->SetAnchorPoint(item.second.anchor, item.second.GetAnchorPosition(0));
     }
     ImGui::EndChild();
   }

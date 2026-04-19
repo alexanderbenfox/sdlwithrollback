@@ -28,10 +28,15 @@ CutsceneAction* CutsceneActor::ActionListPop()
 
 void PlayAnimation::Begin(EntityID actor)
 {
+  targetActor = actor;
   const RenderProperties& props = ComponentArray<RenderProperties>::Get().GetComponent(actor);
   EnactAnimationActionSystem::PlayAnimation(actor, anim, false, speed, true, !props.horizontalFlip);
-  Animator& animator = ComponentArray<Animator>::Get().GetComponent(actor);
-  animator.ChangeListener(this);
+}
+
+bool PlayAnimation::CheckEndConditions()
+{
+  Animator& animator = ComponentArray<Animator>::Get().GetComponent(targetActor);
+  return animator.animationComplete;
 }
 
 void AlphaFader::Begin(EntityID actor)

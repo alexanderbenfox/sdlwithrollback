@@ -172,7 +172,7 @@ ConditionFlags FighterFSMSystem::EvaluateConditionFlags(
   const auto& stateDef = fsm.GetCurrentStateDef();
   if (stateDef.completionType == StateDefinition::Animation)
   {
-    Animation* animData = GAnimArchive.GetAnimationData(animator.animCollectionID, animator.currentAnimationName);
+    IAnimation* animData = GAnimArchive.GetAnimationData(animator.animCollectionID, animator.currentAnimationName);
     if (animData && !animator.looping && animator.frame >= animData->GetFrameCount() - 1)
       flags.set(CF_AnimComplete);
   }
@@ -320,7 +320,7 @@ void FighterFSMSystem::EnactState(
   // Dash: adjust animation play speed to fit dash duration
   if (fsm.currentState == FighterStateID::ForwardDash || fsm.currentState == FighterStateID::BackDash)
   {
-    Animation* dashAnim = GAnimArchive.GetAnimationData(animator.animCollectionID, animName);
+    IAnimation* dashAnim = GAnimArchive.GetAnimationData(animator.animCollectionID, animName);
     if (dashAnim)
     {
       int ssAnimFrames = dashAnim->GetFrameCount();
@@ -329,17 +329,13 @@ void FighterFSMSystem::EnactState(
   }
 
   // --- Play animation ---
-  Animation* anim = animator.Play(animName, stateDef.loopAnimation, playSpeed, stateDef.forceAnimRestart);
+  IAnimation* anim = animator.Play(animName, stateDef.loopAnimation, playSpeed, stateDef.forceAnimRestart);
   if (anim)
   {
     RenderProperties& properties = ComponentArray<RenderProperties>::Get().GetComponent(entity);
     RenderComponent<RenderType>& renderer = ComponentArray<RenderComponent<RenderType>>::Get().GetComponent(entity);
     properties.horizontalFlip = !state.onLeftSide;
-    properties.anchor = anim->GetAnchorForAnimFrame(0).first;
-    properties.offset = anim->GetAnchorForAnimFrame(0).second;
-    properties.renderScaling = anim->GetRenderScaling();
-    renderer.SetRenderResource(anim->GetSheetTexture<RenderType>());
-    renderer.sourceRect = anim->GetFrameSrcRect(0);
+    anim->ApplyInitialFrame(renderer, properties);
   }
 
   // --- Entry movement ---
@@ -386,6 +382,11 @@ void FighterFSMSystem::EnactState(
     case StateDefinition::NoMovement:
       break;
   }
+
+  // Clear grounded flag for airborne knockdown so the landing transition
+  // doesn't fire on the same frame — physics hasn't moved us off the ground yet
+  if (fsm.currentState == FighterStateID::KnockdownAirborne)
+    rb.lastCollisionSide &= ~CollisionSide::DOWN;
 
   // --- Timer setup ---
   fsm.stateFrame = 0;

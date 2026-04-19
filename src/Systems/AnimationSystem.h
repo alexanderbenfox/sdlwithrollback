@@ -5,6 +5,7 @@
 #include "Components/StateComponents/AttackStateComponent.h"
 #include "Components/StateComponent.h"
 
+#include "AssetManagement/IAnimation.h"
 #include "Managers/AnimationCollectionManager.h"
 
 class AttackAnimationSystem : public ISystem<AttackStateComponent, Animator, Transform, StateComponent>
@@ -95,12 +96,12 @@ public:
       // if playing, do advance time and update frame
       if (animator.playing)
       {
-        // when the animation is complete, do the listener callback
-        // do this on the following frame so that the last frame of animation can still render
-        if (auto* listener = animator.GetListener())
+        // flag non-looping animations as complete when they reach the last frame
+        if (!animator.looping && !animator.animationComplete)
         {
-          if (!animator.looping && animator.frame == (GAnimArchive.GetAnimationData(animator.animCollectionID, animator.currentAnimationName)->GetFrameCount() - 1))
-            listener->OnAnimationComplete(animator.currentAnimationName);
+          int totalFrames = GAnimArchive.GetAnimationData(animator.animCollectionID, animator.currentAnimationName)->GetFrameCount();
+          if (animator.frame >= totalFrames - 1)
+            animator.animationComplete = true;
         }
 
         if (animator.accumulatedTime >= secPerFrame)
@@ -119,10 +120,8 @@ public:
             animator.frame = nextFrame;
             int currFrame = animator.reverse ? (totalAnimFrames - 1) - nextFrame : nextFrame;
 
-            Animation* animation = GAnimArchive.GetAnimationData(animator.animCollectionID, animator.currentAnimationName);
-            renderer.SetRenderResource(animation->GetSheetTexture<RenderType>());
-            renderer.sourceRect = animation->GetFrameSrcRect(currFrame);
-            properties.offset = animation->GetAnchorForAnimFrame(currFrame).second;
+            IAnimation* animation = GAnimArchive.GetAnimationData(animator.animCollectionID, animator.currentAnimationName);
+            animation->ApplyFrame(currFrame, renderer, properties);
           }
 
           // 

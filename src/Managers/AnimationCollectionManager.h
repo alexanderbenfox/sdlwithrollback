@@ -24,7 +24,7 @@ public:
   //! Get collection by ID
   AnimationCollection& GetCollection(unsigned int ID);
   //! Shortcut for getting animation data from collection
-  Animation* GetAnimationData(unsigned int collectionID, std::string_view animationName);
+  IAnimation* GetAnimationData(unsigned int collectionID, std::string_view animationName);
   //!
   void AddNewCharacter(const std::string& characterName);
 

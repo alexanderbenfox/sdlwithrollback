@@ -1,6 +1,7 @@
 #pragma once
 #include "Globals.h"
 
+#include "AssetManagement/IAnimation.h"
 #include "AssetManagement/EditableAssets/ActionAsset.h"
 #include "Components/Transform.h"
 #include "Components/StateComponent.h"
@@ -18,18 +19,23 @@
 const float gameFramePerAnimationFrame = (1.0f / secPerFrame) / animation_fps;
 
 //______________________________________________________________________________
-class Animation
+class Animation : public IAnimation
 {
 public:
   Animation(const std::string& sheet, const std::string& subSheet, int startIndexOnSheet, int frames, AnchorPoint anchor, const Vector2<float>& anchorPt, bool reverse);
 
   EventList GenerateEvents(const std::vector<EventData>& attackInfo, FrameData frameData, const Vector2<float>& textureScalingFactor);
 
-  //! Translates anim frame to the frame on spritesheet
+  // --- IAnimation interface ---
+  int GetFrameCount() const override { return static_cast<int>(_animFrameToSheetFrame.size()); }
+  bool PlaysReverse() const override { return playReverse; }
+  Vector2<double> GetRenderScaling() const override;
+  void ApplyInitialFrame(RenderComponent<RenderType>& renderer, RenderProperties& properties) const override;
+  void ApplyFrame(int animFrame, RenderComponent<RenderType>& renderer, RenderProperties& properties) const override;
+
+  // --- Spritesheet-specific methods (used by editor, event generation) ---
   DrawRect<float> GetFrameSrcRect(int animFrame) const;
 
-  const int GetFrameCount() const { return static_cast<int>(_animFrameToSheetFrame.size()); }
-  //!
   template <typename Texture>
   Resource<Texture>& GetSheetTexture() const;
 
@@ -42,11 +48,8 @@ public:
   int AnimFrameToSheetIndex(int frame) const { return _startIdx + _animFrameToSheetFrame[frame]; }
   //! Gets index offset from start index on sprite sheet to this frame of animation
   int AnimFrameToIndexOffset(int frame) const { return _animFrameToSheetFrame[frame]; }
-  //!
-  std::pair<AnchorPoint, Vector2<float>> GetAnchorForAnimFrame(int animFrame) const;
 
-  //!
-  Vector2<double> GetRenderScaling() const;
+  std::pair<AnchorPoint, Vector2<float>> GetAnchorForAnimFrame(int animFrame) const;
 
   std::string GetSubSheet() const { return _subSheetName; }
 
@@ -83,34 +86,30 @@ public:
   void RegisterAnimation(const std::string& animationName, const AnimationAsset& animationData);
   void SetAnimationEvents(const std::string& animationName, const std::vector<EventData>& eventData, const FrameData& frameData);
 
-  //! Getters
-  Animation* GetAnimation(const std::string& name)
+  //! Returns the abstract animation interface (used by systems)
+  IAnimation* GetAnimation(const std::string& name)
   {
-    if(_animations.find(name) == _animations.end())
+    auto it = _animations.find(name);
+    if (it == _animations.end())
       return nullptr;
-    return &_animations.find(name)->second;
+    return it->second.get();
   }
+
+  //! Returns concrete sprite animation (used by editor code only)
+  Animation* GetSpriteAnimation(const std::string& name)
+  {
+    auto it = _animations.find(name);
+    if (it == _animations.end())
+      return nullptr;
+    return static_cast<Animation*>(it->second.get());
+  }
+
   //!
   std::shared_ptr<EventList> GetEventList(const std::string& name)
   {
     if(_events.find(name) == _events.end())
       return nullptr;
     return _events.find(name)->second;
-  }
-
-  std::unordered_map<std::string, Animation>::iterator GetAnimationIt(const std::string& name)
-  {
-    return _animations.find(name);
-  }
-
-  std::unordered_map<std::string, Animation>::iterator GetEnd()
-  {
-    return _animations.end();
-  }
-
-  bool IsValid(const std::unordered_map<std::string, Animation>::iterator& it)
-  {
-    return it != _animations.end();
   }
 
   void Clear()
@@ -120,8 +119,8 @@ public:
   }
 
 private:
-  //! Map of animations name to animation object
-  std::unordered_map<std::string, Animation> _animations;
+  //! Map of animation name to animation object
+  std::unordered_map<std::string, std::unique_ptr<IAnimation>> _animations;
   //! Map of frame starts for events to the event that should be triggered
   std::unordered_map<std::string, std::shared_ptr<EventList>> _events;
 

@@ -412,9 +412,6 @@
     <ClInclude Include="..\src\Core\Prefab\MenuButtonArray.h">
       <Filter>Source Files\Core\Prefab</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\Core\Interfaces\AnimatorListener.h">
-      <Filter>Source Files\Core\Interfaces</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\Core\Interfaces\Serializable.h">
       <Filter>Source Files\Core\Interfaces</Filter>
     </ClInclude>

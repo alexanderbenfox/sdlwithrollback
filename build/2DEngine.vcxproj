@@ -152,7 +152,6 @@
     <ClInclude Include="..\src\Core\Geometry2D\Rect.h" />
     <ClInclude Include="..\src\Core\Geometry2D\RectHelper.h" />
     <ClInclude Include="..\src\Core\InputState.h" />
-    <ClInclude Include="..\src\Core\Interfaces\AnimatorListener.h" />
     <ClInclude Include="..\src\Core\Interfaces\Serializable.h" />
     <ClInclude Include="..\src\Core\Math\Matrix.h" />
     <ClInclude Include="..\src\Core\Math\Matrix4.h" />

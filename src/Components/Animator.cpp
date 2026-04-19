@@ -9,10 +9,10 @@
 
 
 Animator::Animator() :
-  _listener(nullptr), playing(false), looping(false), accumulatedTime(0.0f), frame(0), reverse(false), currentAnimationName(""), IComponent()
+  playing(false), looping(false), accumulatedTime(0.0f), frame(0), reverse(false), currentAnimationName(""), animationComplete(false), IComponent()
 {}
 
-Animation* Animator::Play(const std::string& name, bool isLooped, float speed, bool forcePlay)
+IAnimation* Animator::Play(const std::string& name, bool isLooped, float speed, bool forcePlay)
 {
   AnimationCollection& collection = AnimationCollectionManager::Get().GetCollection(animCollectionID);
 
@@ -22,11 +22,12 @@ Animation* Animator::Play(const std::string& name, bool isLooped, float speed, b
     return collection.GetAnimation(currentAnimationName);
   }
 
-  auto animation = collection.GetAnimationIt(name);
-  if (collection.IsValid(animation))
+  IAnimation* animation = collection.GetAnimation(name);
+  if (animation)
   {
     currentAnimationName = name;
     playing = true;
+    animationComplete = false;
 
     // reset all parameters
     accumulatedTime = 0;
@@ -35,7 +36,7 @@ Animation* Animator::Play(const std::string& name, bool isLooped, float speed, b
     looping = isLooped;
     playSpeed = speed;
 
-    reverse = animation->second.playReverse;
+    reverse = animation->PlaysReverse();
   }
   return collection.GetAnimation(currentAnimationName);
 }
@@ -50,6 +51,7 @@ void Animator::Serialize(std::ostream& os) const
   Serializer<std::string>::Serialize(os, currentAnimationName);
   Serializer<float>::Serialize(os, playSpeed);
   Serializer<unsigned int>::Serialize(os, animCollectionID);
+  Serializer<bool>::Serialize(os, animationComplete);
 }
 
 void Animator::Deserialize(std::istream& is)
@@ -62,6 +64,7 @@ void Animator::Deserialize(std::istream& is)
   Serializer<std::string>::Deserialize(is, currentAnimationName);
   Serializer<float>::Deserialize(is, playSpeed);
   Serializer<unsigned int>::Deserialize(is, animCollectionID);
+  Serializer<bool>::Deserialize(is, animationComplete);
 }
 
 //______________________________________________________________________________

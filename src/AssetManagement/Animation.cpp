@@ -1,6 +1,7 @@
 #include "AssetManagement/Animation.h"
 #include "Components/Hitbox.h"
 #include "Components/Rigidbody.h"
+#include "Components/RenderComponent.h"
 #include "Managers/GameManagement.h"
 #include "Managers/ResourceManager.h"
 #include <math.h>
@@ -57,6 +58,25 @@ Vector2<double> Animation::GetRenderScaling() const
 }
 
 //______________________________________________________________________________
+void Animation::ApplyInitialFrame(RenderComponent<RenderType>& renderer, RenderProperties& properties) const
+{
+  auto anchor = GetAnchorForAnimFrame(0);
+  properties.anchor = anchor.first;
+  properties.offset = anchor.second;
+  properties.renderScaling = GetRenderScaling();
+  renderer.SetRenderResource(GetSheetTexture<RenderType>());
+  renderer.sourceRect = GetFrameSrcRect(0);
+}
+
+//______________________________________________________________________________
+void Animation::ApplyFrame(int animFrame, RenderComponent<RenderType>& renderer, RenderProperties& properties) const
+{
+  renderer.SetRenderResource(GetSheetTexture<RenderType>());
+  renderer.sourceRect = GetFrameSrcRect(animFrame);
+  properties.offset = GetAnchorForAnimFrame(animFrame).second;
+}
+
+//______________________________________________________________________________
 std::pair<AnchorPoint, Vector2<float>> Animation::GetAnchorForAnimFrame(int animFrame) const
 {
   int frame = _animFrameToSheetFrame[animFrame];
@@ -91,25 +111,18 @@ void AnimationCollection::RegisterAnimation(const std::string& animationName, co
 {
   if (_animations.find(animationName) == _animations.end())
   {
-    _animations.emplace(std::make_pair(animationName, Animation(animationData.sheetName, animationData.subSheetName, animationData.startIndexOnSheet, animationData.frames, animationData.anchor, animationData.GetAnchorPosition(0), animationData.reverse)));
+    _animations.emplace(animationName, std::make_unique<Animation>(animationData.sheetName, animationData.subSheetName, animationData.startIndexOnSheet, animationData.frames, animationData.anchor, animationData.GetAnchorPosition(0), animationData.reverse));
   }
 }
 
 //______________________________________________________________________________
 void AnimationCollection::SetAnimationEvents(const std::string& animationName, const std::vector<EventData>& eventData, const FrameData& frameData)
 {
-  if (_animations.find(animationName) != _animations.end())
+  Animation* animation = GetSpriteAnimation(animationName);
+  if (animation)
   {
-    Animation& animation = _animations.find(animationName)->second;
-    if (_events.find(animationName) == _events.end())
-    {
-      _events.emplace(std::make_pair(animationName, std::make_shared<EventList>(animation.GenerateEvents(eventData, frameData, animation.GetRenderScaling()))));
-    }
-    else
-    {
-      //for now just replace
-      _events[animationName] = std::make_shared<EventList>(animation.GenerateEvents(eventData, frameData, animation.GetRenderScaling()));
-    }
+    auto eventList = std::make_shared<EventList>(animation->GenerateEvents(eventData, frameData, animation->GetRenderScaling()));
+    _events[animationName] = std::move(eventList);
   }
 }
 

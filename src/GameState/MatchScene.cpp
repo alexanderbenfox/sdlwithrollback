@@ -142,10 +142,6 @@ void PostMatchScene::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2
   _p1->AddComponents<Animator, RenderComponent<RenderType>, RenderProperties, Rigidbody, DynamicCollider, Transform, CutsceneActor, TimerContainer>();
   _p2->AddComponents<Animator, RenderComponent<RenderType>, RenderProperties, Rigidbody, DynamicCollider, Transform, CutsceneActor, TimerContainer>();
 
-  // since game actor no long exists, remove the listener
-  _p1->GetComponent<Animator>()->ChangeListener(nullptr);
-  _p2->GetComponent<Animator>()->ChangeListener(nullptr);
-
   // reset rigidbody state
   _p1->GetComponent<Rigidbody>()->elasticCollisions = false;
   _p2->GetComponent<Rigidbody>()->elasticCollisions = false;

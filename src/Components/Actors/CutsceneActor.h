@@ -1,4 +1,5 @@
 #pragma once
+#include "Core/ECS/Entity.h"
 #include "Components/Animator.h"
 #include "Systems/TimerSystem/TimerContainer.h"
 
@@ -52,7 +53,7 @@ struct Wait : public CutsceneAction
   int condition;
 };
 
-struct PlayAnimation : public CutsceneAction, public IAnimatorListener
+struct PlayAnimation : public CutsceneAction
 {
   PlayAnimation(std::string animationName, float speed) : anim(animationName), speed(speed)
   {
@@ -60,18 +61,12 @@ struct PlayAnimation : public CutsceneAction, public IAnimatorListener
   }
   void Begin(EntityID actor) override;
   void OnComplete() override {}
-  virtual bool CheckEndConditions() override { return animFinished; }
+  virtual bool CheckEndConditions() override;
   virtual bool CheckEndConditions(CutsceneActor* other) override { return false; }
-
-  //! 
-  virtual void OnAnimationComplete(const std::string& completedAnimation) override
-  {
-    animFinished = true;
-  }
 
   std::string anim;
   float speed = 1.0f;
-  bool animFinished = false;
+  EntityID targetActor = 0;
 };
 
 struct AlphaFader : public CutsceneAction

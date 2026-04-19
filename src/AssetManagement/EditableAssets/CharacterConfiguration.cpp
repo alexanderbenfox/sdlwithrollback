@@ -129,7 +129,7 @@ void CharacterConfiguration::ReloadActionDebug(const std::string& actionName, Ac
 
   if (ImGui::Button("View/Edit Hitboxes"))
   {
-    hitboxEditor.OpenEditor(collection.GetAnimation(actionName), data, _animations.GetLibrary().at(actionName).sheetName, _animations.GetLibrary().at(actionName).subSheetName);
+    hitboxEditor.OpenEditor(collection.GetSpriteAnimation(actionName), data, _animations.GetLibrary().at(actionName).sheetName, _animations.GetLibrary().at(actionName).subSheetName);
   }
 
   if (ImGui::Button("Set Frame Data"))

@@ -1,18 +1,17 @@
 #pragma once
-#include "AssetManagement/Animation.h"
+#include "Core/ECS/IComponent.h"
+#include "Core/Interfaces/Serializable.h"
+#include "AssetManagement/IAnimation.h"
 
-#include "Core/Interfaces/AnimatorListener.h"
+class AnimationCollection;
 
 class Animator : public IComponent, public ISerializable
 {
 public:
   Animator();
-  // Setter function
-  Animation* Play(const std::string& name, bool isLooped, float speed = 1.0f, bool forcePlay = false);
-  //!
-  void ChangeListener(IAnimatorListener* listener) { _listener = listener; }
-  //!
-  IAnimatorListener* GetListener() { return _listener; }
+  // Setter function — returns abstract animation interface
+  IAnimation* Play(const std::string& name, bool isLooped, float speed = 1.0f, bool forcePlay = false);
+
   // STATE VARIABLES
   //! Is the animator playing an animation
   bool playing;
@@ -30,15 +29,13 @@ public:
   float playSpeed = 1.0f;
   //! Animation collection asset ID
   unsigned int animCollectionID;
-  
+  //! Set to true when a non-looping animation reaches its last frame
+  bool animationComplete = false;
+
   //! Override ISerializable functions
   void Serialize(std::ostream& os) const override;
   void Deserialize(std::istream& is) override;
   std::string Log() override;
-
-protected:
-  //! Things that need to know when an animation is done
-  IAnimatorListener* _listener;
 
 };
 
