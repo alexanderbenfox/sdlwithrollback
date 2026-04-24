@@ -5,7 +5,6 @@
 #include "Components/StateComponents/AttackStateComponent.h"
 #include "Components/StateComponents/HitStateComponent.h"
 #include "Components/ActionComponents.h"
-#include "Components/StaticComponents/AttackLinkMap.h"
 
 #include "Managers/GameManagement.h"
 #include "Managers/AnimationCollectionManager.h"
@@ -196,42 +195,30 @@ FighterStateID FighterFSMSystem::EvaluateTransitions(
 {
   const auto& stateDef = fsm.GetCurrentStateDef();
 
+  // Implicit hit/thrown resolution for hittable states (highest priority)
+  if (stateDef.isHittable)
+  {
+    if (flags.test(CF_HitThisFrame) || flags.test(CF_ThrownThisFrame))
+      return ResolveHitTarget(fsm, actor, state, rb);
+  }
+
   // Check transition rules (sorted by descending priority, first match wins)
   for (const auto& rule : stateDef.transitions)
   {
+    // Cancel transitions additionally require Hitting
+    if (rule.cancelType == CancelType::Cancel && !flags.test(CF_Hitting))
+      continue;
+
     if ((flags & rule.requiredFlags) != rule.requiredFlags)
       continue;
     if (rule.forbiddenFlags.any() && (flags & rule.forbiddenFlags).any())
       continue;
 
-    // Hit resolver sentinel
+    // Hit resolver sentinel (legacy support)
     if (rule.targetState == FighterStateID::COUNT)
       return ResolveHitTarget(fsm, actor, state, rb);
 
     return rule.targetState;
-  }
-
-  // Normal cancel via AttackLinkMap (target combo)
-  if ((stateDef.cancelFlags & StateDefinition::Cancel_Normal) && flags.test(CF_Hitting))
-  {
-    if (ComponentArray<AttackLinkMap>::Get().HasComponent(entity))
-    {
-      AttackLinkMap& linkMap = ComponentArray<AttackLinkMap>::Get().GetComponent(entity);
-      auto it = linkMap.links.find(state.actionState);
-      if (it != linkMap.links.end() && HasState(actor.input.normal, it->second))
-      {
-        // Determine the target attack state from the button
-        InputState cancelBtn = it->second;
-        bool crouching = (state.stanceState == StanceState::CROUCHING);
-
-        if (cancelBtn == InputState::BTN1)
-          return crouching ? FighterStateID::CrouchingLight : FighterStateID::StandingLight;
-        if (cancelBtn == InputState::BTN2)
-          return crouching ? FighterStateID::CrouchingMedium : FighterStateID::StandingMedium;
-        if (cancelBtn == InputState::BTN3)
-          return crouching ? FighterStateID::CrouchingHeavy : FighterStateID::StandingHeavy;
-      }
-    }
   }
 
   // If no transition matched but completion condition is met, use completionTarget
@@ -287,6 +274,7 @@ FighterStateID FighterFSMSystem::ResolveHitTarget(
     ? FighterStateID::CrouchingHitstun
     : FighterStateID::Hitstun;
 }
+
 
 //______________________________________________________________________________
 void FighterFSMSystem::EnactState(

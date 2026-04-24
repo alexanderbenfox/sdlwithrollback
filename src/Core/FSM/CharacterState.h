@@ -97,6 +97,11 @@ enum ConditionFlag : size_t
 constexpr size_t ConditionFlagCapacity = 64;
 using ConditionFlags = std::bitset<ConditionFlagCapacity>;
 
+//______________________________________________________________________________
+// Cancel type for transition rules.
+// When set, the transition auto-requires Hitting (attack must have connected).
+enum class CancelType : uint8_t { NotCancel, Cancel };
+
 // Build a ConditionFlags from a list of flag indices
 inline ConditionFlags MakeFlags(std::initializer_list<ConditionFlag> flags)
 {
@@ -112,6 +117,7 @@ struct TransitionRule
   ConditionFlags forbiddenFlags;      // if ANY of these are set, rule does NOT fire
   FighterStateID targetState;         // COUNT = use hit resolver
   int8_t priority = 0;                // higher = evaluated first
+  CancelType cancelType = CancelType::NotCancel;
 };
 
 //______________________________________________________________________________
@@ -144,15 +150,6 @@ struct StateDefinition
   enum EntryMovement : uint8_t { NoMovement, Stop, StopHorizontal, UseHitKnockback, UseHitKnockbackFull, Custom };
   EntryMovement entryMovement = NoMovement;
   bool horizontalOnly = false;
-
-  // Cancel types active in this state
-  enum CancelFlag : uint8_t {
-    Cancel_None      = 0,
-    Cancel_HitGround = 1 << 0,
-    Cancel_Special   = 1 << 1,
-    Cancel_Normal    = 1 << 2,
-  };
-  uint8_t cancelFlags = Cancel_None;
 
   // Damage-related (for hit/block states)
   bool appliesDamage = false;

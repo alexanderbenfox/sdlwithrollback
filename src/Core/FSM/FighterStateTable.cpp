@@ -32,6 +32,27 @@ const FighterStateTable::StateArray& FighterStateTable::GetTable(uint8_t charact
 }
 
 //______________________________________________________________________________
+const FighterStateTable::StateArray& FighterStateTable::GetTable(const std::string& characterName) const
+{
+  auto it = _tables.find(characterName);
+  if (it != _tables.end())
+    return it->second;
+  // Fallback to first loaded character
+  return _tables.begin()->second;
+}
+
+//______________________________________________________________________________
+int FighterStateTable::GetCharacterID(const std::string& characterName) const
+{
+  for (int i = 0; i < static_cast<int>(_characterOrder.size()); ++i)
+  {
+    if (_characterOrder[i] == characterName)
+      return i;
+  }
+  return -1;
+}
+
+//______________________________________________________________________________
 FighterStateTable::FighterStateTable()
 {
   DiscoverAndLoad();
@@ -225,16 +246,6 @@ void FighterStateTable::ApplyStateFields(
   if (json.isMember("horizontalOnly"))
     state.horizontalOnly = json["horizontalOnly"].asBool();
 
-  // Cancel flags
-  if (json.isMember("cancelFlags"))
-  {
-    uint8_t flags = StateDefinition::Cancel_None;
-    const Json::Value& arr = json["cancelFlags"];
-    for (const auto& f : arr)
-      flags |= CancelFlagFromString(f.asString());
-    state.cancelFlags = flags;
-  }
-
   // Damage-related
   if (json.isMember("appliesDamage"))
     state.appliesDamage = json["appliesDamage"].asBool();
@@ -301,6 +312,12 @@ TransitionRule FighterStateTable::ParseTransition(const Json::Value& json)
   // Priority
   if (json.isMember("priority"))
     rule.priority = static_cast<int8_t>(json["priority"].asInt());
+
+  // Cancel type
+  if (json.isMember("cancelType"))
+    rule.cancelType = CancelTypeFromString(json["cancelType"].asString());
+  else if (json.isMember("isCancel") && json["isCancel"].asBool())
+    rule.cancelType = CancelType::Cancel; // backwards compat
 
   return rule;
 }
@@ -409,16 +426,6 @@ void FighterStateTable::WriteStatesToJson(const std::string& characterName) cons
       sj["entryMovement"] = EntryMovementToString(state.entryMovement);
     if (state.horizontalOnly) sj["horizontalOnly"] = true;
 
-    // Cancel flags
-    if (state.cancelFlags != StateDefinition::Cancel_None)
-    {
-      Json::Value& cf = sj["cancelFlags"];
-      cf = Json::Value(Json::arrayValue);
-      if (state.cancelFlags & StateDefinition::Cancel_HitGround) cf.append("HitGround");
-      if (state.cancelFlags & StateDefinition::Cancel_Special) cf.append("Special");
-      if (state.cancelFlags & StateDefinition::Cancel_Normal) cf.append("Normal");
-    }
-
     // Damage-related
     if (state.appliesDamage) sj["appliesDamage"] = true;
     if (state.isBlocking) sj["isBlocking"] = true;
@@ -455,6 +462,8 @@ void FighterStateTable::WriteStatesToJson(const std::string& characterName) cons
           tj["target"] = FighterStateIDToString(rule.targetState);
 
         tj["priority"] = rule.priority;
+        if (rule.cancelType != CancelType::NotCancel)
+          tj["cancelType"] = CancelTypeToString(rule.cancelType);
         transArr.append(tj);
       }
     }
@@ -464,4 +473,149 @@ void FighterStateTable::WriteStatesToJson(const std::string& characterName) cons
   std::ofstream outFile(jsonPath);
   outFile << root.toStyledString();
   std::cout << "FighterStateTable: wrote " << jsonPath << "\n";
+}
+
+//______________________________________________________________________________
+bool FighterStateTable::CreateDefaultTable(const std::string& characterName)
+{
+  std::string jsonPath = GetJsonPath(characterName);
+
+  // Don't overwrite an existing file
+  if (fs::exists(jsonPath))
+  {
+    std::cerr << "FighterStateTable::CreateDefaultTable: file already exists: " << jsonPath << "\n";
+    // Still load it if it's not in memory
+    if (_tables.find(characterName) == _tables.end())
+    {
+      if (LoadCharacter(characterName, jsonPath))
+        _characterOrder.push_back(characterName);
+      return true;
+    }
+    return false;
+  }
+
+  // Create a default state array with Idle initialized
+  StateArray& states = _tables[characterName];
+  for (size_t i = 0; i < static_cast<size_t>(FighterStateID::COUNT); ++i)
+    states[i].id = static_cast<FighterStateID>(i);
+
+  // Set up Idle as the minimum viable state
+  StateDefinition& idle = states[static_cast<size_t>(FighterStateID::Idle)];
+  idle.animationName = "Idle";
+  idle.loopAnimation = true;
+  idle.stanceState = StanceState::STANDING;
+  idle.isHittable = true;
+  idle.canBlock = true;
+
+  // Hitstun — standing hit, timer-based recovery
+  StateDefinition& hitstun = states[static_cast<size_t>(FighterStateID::Hitstun)];
+  hitstun.animationName = "LightHitstun";
+  hitstun.forceAnimRestart = true;
+  hitstun.completionType = StateDefinition::Timer;
+  hitstun.timerFrames = 0; // driven by hit data at runtime
+  hitstun.completionTarget = FighterStateID::Idle;
+  hitstun.stanceState = StanceState::STANDING;
+  hitstun.actionState = ActionState::HITSTUN;
+  hitstun.isHittable = true;
+  hitstun.entryMovement = StateDefinition::UseHitKnockbackFull;
+  hitstun.appliesDamage = true;
+
+  // CrouchingHitstun — crouching hit, timer-based recovery
+  StateDefinition& crouchHit = states[static_cast<size_t>(FighterStateID::CrouchingHitstun)];
+  crouchHit.animationName = "CrouchingHitstun";
+  crouchHit.forceAnimRestart = true;
+  crouchHit.completionType = StateDefinition::Timer;
+  crouchHit.timerFrames = 0;
+  crouchHit.completionTarget = FighterStateID::Idle;
+  crouchHit.stanceState = StanceState::CROUCHING;
+  crouchHit.actionState = ActionState::HITSTUN;
+  crouchHit.isHittable = true;
+  crouchHit.entryMovement = StateDefinition::UseHitKnockbackFull;
+  crouchHit.appliesDamage = true;
+
+  // BlockstunStanding — standing block, timer-based recovery
+  StateDefinition& blockStand = states[static_cast<size_t>(FighterStateID::BlockstunStanding)];
+  blockStand.animationName = "BlockMid";
+  blockStand.forceAnimRestart = true;
+  blockStand.completionType = StateDefinition::Timer;
+  blockStand.timerFrames = 0;
+  blockStand.completionTarget = FighterStateID::Idle;
+  blockStand.stanceState = StanceState::STANDING;
+  blockStand.actionState = ActionState::BLOCKSTUN;
+  blockStand.isHittable = true;
+  blockStand.canBlock = true;
+  blockStand.entryMovement = StateDefinition::StopHorizontal;
+  blockStand.appliesDamage = true;
+  blockStand.isBlocking = true;
+
+  // BlockstunCrouching — crouching block, timer-based recovery
+  StateDefinition& blockCrouch = states[static_cast<size_t>(FighterStateID::BlockstunCrouching)];
+  blockCrouch.animationName = "BlockLow";
+  blockCrouch.forceAnimRestart = true;
+  blockCrouch.completionType = StateDefinition::Timer;
+  blockCrouch.timerFrames = 0;
+  blockCrouch.completionTarget = FighterStateID::Idle;
+  blockCrouch.stanceState = StanceState::CROUCHING;
+  blockCrouch.actionState = ActionState::BLOCKSTUN;
+  blockCrouch.isHittable = true;
+  blockCrouch.canBlock = true;
+  blockCrouch.entryMovement = StateDefinition::StopHorizontal;
+  blockCrouch.appliesDamage = true;
+  blockCrouch.isBlocking = true;
+
+  // KnockdownAirborne — airborne after knockdown hit, lands into KnockdownHitGround
+  StateDefinition& kdAir = states[static_cast<size_t>(FighterStateID::KnockdownAirborne)];
+  kdAir.animationName = "Knockdown_Air";
+  kdAir.forceAnimRestart = true;
+  kdAir.stanceState = StanceState::KNOCKDOWN;
+  kdAir.actionState = ActionState::HITSTUN;
+  kdAir.isHittable = true;
+  kdAir.inKnockdown = true;
+  kdAir.entryMovement = StateDefinition::UseHitKnockbackFull;
+  kdAir.appliesDamage = true;
+  kdAir.setsJuggleGravity = true;
+  {
+    TransitionRule onGrounded;
+    onGrounded.requiredFlags.set(CF_IsGrounded);
+    onGrounded.targetState = FighterStateID::KnockdownHitGround;
+    onGrounded.priority = 10;
+    kdAir.transitions.push_back(onGrounded);
+  }
+
+  // KnockdownHitGround — playing ground impact anim, transitions to KnockdownOnGround
+  StateDefinition& kdGround = states[static_cast<size_t>(FighterStateID::KnockdownHitGround)];
+  kdGround.animationName = "Knockdown_HitGround";
+  kdGround.completionType = StateDefinition::Animation;
+  kdGround.completionTarget = FighterStateID::KnockdownOnGround;
+  kdGround.stanceState = StanceState::KNOCKDOWN;
+  kdGround.actionState = ActionState::HITSTUN;
+  kdGround.isHittable = true;
+  kdGround.inKnockdown = true;
+  kdGround.entryMovement = StateDefinition::StopHorizontal;
+
+  // KnockdownOnGround — lying on ground, gets up to Idle (invincible)
+  StateDefinition& kdOnGround = states[static_cast<size_t>(FighterStateID::KnockdownOnGround)];
+  kdOnGround.animationName = "Knockdown_OnGround";
+  kdOnGround.completionType = StateDefinition::Animation;
+  kdOnGround.completionTarget = FighterStateID::Idle;
+  kdOnGround.stanceState = StanceState::KNOCKDOWN;
+  kdOnGround.entryMovement = StateDefinition::StopHorizontal;
+  kdOnGround.resetsJuggleGravity = true;
+
+  // Grappled — being thrown, timer expires into KnockdownAirborne
+  StateDefinition& grappled = states[static_cast<size_t>(FighterStateID::Grappled)];
+  grappled.animationName = "HeavyHitstun";
+  grappled.forceAnimRestart = true;
+  grappled.completionType = StateDefinition::Timer;
+  grappled.timerFrames = 0;
+  grappled.completionTarget = FighterStateID::KnockdownAirborne;
+  grappled.stanceState = StanceState::KNOCKDOWN;
+  grappled.isGrappleState = true;
+
+  _characterOrder.push_back(characterName);
+
+  // Write to disk
+  WriteStatesToJson(characterName);
+  std::cout << "FighterStateTable: created default table for " << characterName << "\n";
+  return true;
 }

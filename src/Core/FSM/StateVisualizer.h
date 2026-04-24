@@ -12,7 +12,9 @@ typedef unsigned int ImU32;
 class StateVisualizer
 {
 public:
-  void Display(const std::string& characterName);
+  void Display(const std::string& characterName,
+               const std::vector<std::string>& animationNames = {},
+               const std::vector<std::string>& actionNames = {});
 
 private:
   // --- Layout ---
@@ -34,6 +36,14 @@ private:
 
   bool _dirty = false;
 
+  // --- Add state / transition UI ---
+  int _addStateSelection = 0;
+  int _addTransitionTarget = 0;
+
+  // --- Available asset names (set each frame by Display) ---
+  std::vector<std::string> _animationNames;
+  std::vector<std::string> _actionNames;
+
   // --- Drawn arrows for hit testing ---
   struct DrawnArrow
   {
@@ -53,7 +63,9 @@ private:
   // --- Detail panel ---
   void DrawDetailPanel(FighterStateTable::StateArray& states,
                        const std::string& characterName);
-  void DrawStateProperties(StateDefinition& state);
+  void DrawStateProperties(StateDefinition& state,
+                           const std::vector<std::string>& animationNames,
+                           const std::vector<std::string>& actionNames);
   void DrawTransitionEditor(FighterStateTable::StateArray& states);
   void DrawFlagCheckboxes(const char* label, ConditionFlags& flags);
 

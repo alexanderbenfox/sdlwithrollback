@@ -281,6 +281,9 @@
     <ClCompile Include="..\src\AssetManagement\EditableAssets\Editor\AnimationEditor.cpp">
       <Filter>Source Files\AssetManagement\EditableAssets\Editor</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\AssetManagement\EditableAssets\Editor\SpriteDetector.cpp">
+      <Filter>Source Files\AssetManagement\EditableAssets\Editor</Filter>
+    </ClCompile>
     <ClCompile Include="..\src\AssetManagement\EditableAssets\AnimationAsset.cpp">
       <Filter>Source Files\AssetManagement\EditableAssets</Filter>
     </ClCompile>
@@ -598,9 +601,6 @@
     <ClInclude Include="..\src\Core\ECS\ECSCoordinator.h">
       <Filter>Source Files\Core\ECS</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\Components\StaticComponents\AttackLinkMap.h">
-      <Filter>Source Files\Components\StaticComponents</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\Managers\GGPOManager.h">
       <Filter>Source Files\Managers</Filter>
     </ClInclude>
@@ -638,6 +638,9 @@
       <Filter>Source Files\AssetManagement\EditableAssets</Filter>
     </ClInclude>
     <ClInclude Include="..\src\AssetManagement\EditableAssets\Editor\AnimationEditor.h">
+      <Filter>Source Files\AssetManagement\EditableAssets\Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\AssetManagement\EditableAssets\Editor\SpriteDetector.h">
       <Filter>Source Files\AssetManagement\EditableAssets\Editor</Filter>
     </ClInclude>
     <ClInclude Include="..\src\AssetManagement\EditableAssets\CharacterConfiguration.h">

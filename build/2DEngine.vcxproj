@@ -33,6 +33,7 @@
     <ClCompile Include="..\src\AssetManagement\EditableAssets\AnimationAsset.cpp" />
     <ClCompile Include="..\src\AssetManagement\EditableAssets\CharacterConfiguration.cpp" />
     <ClCompile Include="..\src\AssetManagement\EditableAssets\Editor\AnimationEditor.cpp" />
+    <ClCompile Include="..\src\AssetManagement\EditableAssets\Editor\SpriteDetector.cpp" />
     <ClCompile Include="..\src\AssetManagement\EditableAssets\FrameData.cpp" />
     <ClCompile Include="..\src\AssetManagement\EditableAssets\SpriteSheet.cpp" />
     <ClCompile Include="..\src\AssetManagement\LetterCase.cpp" />
@@ -107,6 +108,7 @@
     <ClInclude Include="..\src\AssetManagement\EditableAssets\AssetLibrary.h" />
     <ClInclude Include="..\src\AssetManagement\EditableAssets\CharacterConfiguration.h" />
     <ClInclude Include="..\src\AssetManagement\EditableAssets\Editor\AnimationEditor.h" />
+    <ClInclude Include="..\src\AssetManagement\EditableAssets\Editor\SpriteDetector.h" />
     <ClInclude Include="..\src\AssetManagement\EditableAssets\FrameData.h" />
     <ClInclude Include="..\src\AssetManagement\EditableAssets\IJsonLoadable.h" />
     <ClInclude Include="..\src\AssetManagement\EditableAssets\SpriteSheet.h" />
@@ -139,7 +141,6 @@
     <ClInclude Include="..\src\Components\StateComponent.h" />
     <ClInclude Include="..\src\Components\StateComponents\AttackStateComponent.h" />
     <ClInclude Include="..\src\Components\StateComponents\HitStateComponent.h" />
-    <ClInclude Include="..\src\Components\StaticComponents\AttackLinkMap.h" />
     <ClInclude Include="..\src\Components\Transform.h" />
     <ClInclude Include="..\src\Components\UIComponents.h" />
     <ClInclude Include="..\src\Core\ECS\ComponentArray.h" />

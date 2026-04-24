@@ -14,7 +14,6 @@
 
 // for wall push
 #include "Components/ActionComponents.h"
-#include "Components/StaticComponents/AttackLinkMap.h"
 
 #include "Systems/Physics.h"
 #include "Systems/AnimationSystem.h"
@@ -77,14 +76,18 @@ void BattleScene::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2)
   InitCharacter(Vector2<int>(100, 0), _p1, true);
   InitCharacter(Vector2<int>(400, 0), _p2, false);
 
-  // Initialize FSM components for both players
-  _p1->AddComponent<FighterFSMComponent>();
-  _p1->GetComponent<FighterFSMComponent>()->characterID = 0;
-  _p1->GetComponent<FighterFSMComponent>()->stateTable = &FighterStateTable::Get().GetTable(0);
-
-  _p2->AddComponent<FighterFSMComponent>();
-  _p2->GetComponent<FighterFSMComponent>()->characterID = 0;
-  _p2->GetComponent<FighterFSMComponent>()->stateTable = &FighterStateTable::Get().GetTable(0);
+  // Initialize FSM components for both players — use the selected character's state table
+  auto initFSM = [](std::shared_ptr<Entity> player)
+  {
+    player->AddComponent<FighterFSMComponent>();
+    auto* fsm = player->GetComponent<FighterFSMComponent>();
+    const std::string& charName = player->GetComponent<SelectedCharacterComponent>()->characterIdentifier;
+    int id = FighterStateTable::Get().GetCharacterID(charName);
+    fsm->characterID = (id >= 0) ? static_cast<uint8_t>(id) : 0;
+    fsm->stateTable = &FighterStateTable::Get().GetTable(charName);
+  };
+  initFSM(_p1);
+  initFSM(_p2);
 }
 
 void BattleScene::Update(float deltaTime)
@@ -191,16 +194,6 @@ void BattleScene::InitCharacter(Vector2<float> position, std::shared_ptr<Entity>
     _p2UIAnchor = CharacterConstructor::InitUIComponents(player);
     _p2UIAnchor->GetComponent<UITransform>()->position += p2UIOffset;
     _p2UIAnchor->GetComponent<UITransform>()->anchor = UIAnchor::TR;
-  }
-
-  // add this component for doing magic series
-  if (!player->GetComponent<AttackLinkMap>())
-  {
-    player->AddComponent<AttackLinkMap>();
-
-    auto magicSeriesMap = player->GetComponent<AttackLinkMap>();
-    magicSeriesMap->links[ActionState::LIGHT] = InputState::BTN2;
-    magicSeriesMap->links[ActionState::MEDIUM] = InputState::BTN3;
   }
 
   //! Janky loading

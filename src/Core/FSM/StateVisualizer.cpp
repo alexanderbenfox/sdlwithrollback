@@ -118,13 +118,26 @@ void StateVisualizer::DrawArrowHead(ImDrawList* dl, float tipX, float tipY,
 }
 
 //______________________________________________________________________________
-void StateVisualizer::Display(const std::string& characterName)
+void StateVisualizer::Display(const std::string& characterName,
+                              const std::vector<std::string>& animationNames,
+                              const std::vector<std::string>& actionNames)
 {
+  _animationNames = animationNames;
+  _actionNames = actionNames;
+
   FighterStateTable::StateArray* states = FighterStateTable::Get().GetMutableTable(characterName);
   if (!states)
   {
     ImGui::Text("No state table loaded for %s", characterName.c_str());
-    return;
+    ImGui::Spacing();
+    if (ImGui::Button("Create states.json"))
+    {
+      if (FighterStateTable::Get().CreateDefaultTable(characterName))
+        states = FighterStateTable::Get().GetMutableTable(characterName);
+    }
+    ImGui::TextWrapped("This will create a new states.json with a default Idle state. "
+                       "You can add more states after creation.");
+    if (!states) return;
   }
 
   float totalWidth = ImGui::GetContentRegionAvail().x;
@@ -405,17 +418,56 @@ void StateVisualizer::DrawDetailPanel(FighterStateTable::StateArray& states,
 
   ImGui::Separator();
 
+  // --- Add State (always visible) ---
+  {
+    std::vector<int> uninitStates;
+    for (size_t i = 0; i < static_cast<size_t>(FighterStateID::COUNT); ++i)
+    {
+      if (states[i].animationName.empty() && states[i].transitions.empty())
+        uninitStates.push_back(static_cast<int>(i));
+    }
+
+    if (!uninitStates.empty())
+    {
+      if (_addStateSelection >= static_cast<int>(uninitStates.size()))
+        _addStateSelection = 0;
+
+      ImGui::Text("Add State:");
+      ImGui::SameLine();
+      ImGui::SetNextItemWidth(140.0f);
+      const char* preview = FighterStateIDToString(static_cast<FighterStateID>(uninitStates[_addStateSelection]));
+      if (ImGui::BeginCombo("##AddState", preview))
+      {
+        for (int idx = 0; idx < static_cast<int>(uninitStates.size()); ++idx)
+        {
+          bool selected = (idx == _addStateSelection);
+          if (ImGui::Selectable(FighterStateIDToString(static_cast<FighterStateID>(uninitStates[idx])), selected))
+            _addStateSelection = idx;
+        }
+        ImGui::EndCombo();
+      }
+
+      ImGui::SameLine();
+      if (ImGui::Button("Add"))
+      {
+        int stateIdx = uninitStates[_addStateSelection];
+        StateDefinition& newState = states[stateIdx];
+        newState.animationName = FighterStateIDToString(static_cast<FighterStateID>(stateIdx));
+        newState.stanceState = StanceState::STANDING;
+        newState.isHittable = true;
+        _selectedState = stateIdx;
+        _dirty = true;
+        _addStateSelection = 0;
+      }
+    }
+  }
+
+  ImGui::Separator();
+
   if (_selectedState < 0)
   {
     ImGui::TextWrapped("Click a state node to view/edit properties.\n\n"
-                       "Right-drag to pan, scroll to zoom.\n\n"
-                       "Arrow colors:\n");
-    ImGui::TextColored(ImVec4(0.86f, 0.2f, 0.2f, 1), "  Red: hit/thrown/fall (90+)");
-    ImGui::TextColored(ImVec4(0.86f, 0.59f, 0.2f, 1), "  Orange: specials (70+)");
-    ImGui::TextColored(ImVec4(0.78f, 0.78f, 0.24f, 1), "  Yellow: dashes/throws (55+)");
-    ImGui::TextColored(ImVec4(0.24f, 0.59f, 0.86f, 1), "  Blue: movement (40+)");
-    ImGui::TextColored(ImVec4(0.24f, 0.71f, 0.31f, 1), "  Green: walk/return (20+)");
-    ImGui::TextColored(ImVec4(0.59f, 0.59f, 0.59f, 1), "  Gray: completion (<20)");
+                       "Right-drag to pan, scroll to zoom.");
     return;
   }
 
@@ -431,21 +483,43 @@ void StateVisualizer::DrawDetailPanel(FighterStateTable::StateArray& states,
   }
 
   // Otherwise show state properties
-  DrawStateProperties(state);
+  DrawStateProperties(state, _animationNames, _actionNames);
 }
 
 //______________________________________________________________________________
-void StateVisualizer::DrawStateProperties(StateDefinition& state)
+void StateVisualizer::DrawStateProperties(StateDefinition& state,
+                                           const std::vector<std::string>& animationNames,
+                                           const std::vector<std::string>& actionNames)
 {
   if (ImGui::CollapsingHeader("Animation", ImGuiTreeNodeFlags_DefaultOpen))
   {
-    char animBuf[128];
-    strncpy(animBuf, state.animationName.c_str(), sizeof(animBuf) - 1);
-    animBuf[sizeof(animBuf) - 1] = 0;
-    if (ImGui::InputText("Animation Name", animBuf, sizeof(animBuf)))
+    if (!animationNames.empty())
     {
-      state.animationName = animBuf;
-      _dirty = true;
+      const char* preview = state.animationName.empty() ? "(none)" : state.animationName.c_str();
+      if (ImGui::BeginCombo("##AnimName", preview))
+      {
+        for (const auto& name : animationNames)
+        {
+          bool selected = (name == state.animationName);
+          if (ImGui::Selectable(name.c_str(), selected))
+          {
+            state.animationName = name;
+            _dirty = true;
+          }
+        }
+        ImGui::EndCombo();
+      }
+    }
+    else
+    {
+      char animBuf[128];
+      strncpy(animBuf, state.animationName.c_str(), sizeof(animBuf) - 1);
+      animBuf[sizeof(animBuf) - 1] = 0;
+      if (ImGui::InputText("Animation", animBuf, sizeof(animBuf)))
+      {
+        state.animationName = animBuf;
+        _dirty = true;
+      }
     }
 
     if (ImGui::Checkbox("Loop", &state.loopAnimation)) _dirty = true;
@@ -457,14 +531,25 @@ void StateVisualizer::DrawStateProperties(StateDefinition& state)
   // Action linkage — action key is implicitly the animation name
   if (ImGui::CollapsingHeader("Action", ImGuiTreeNodeFlags_DefaultOpen))
   {
-    if (state.isAttackState)
+    if (state.isAttackState || state.isGrappleState)
     {
-      ImGui::TextColored(ImVec4(1.0f, 0.7f, 0.3f, 1.0f), "Action: %s", state.animationName.c_str());
-      ImGui::TextWrapped("Hitbox and frame data are loaded from the action with this animation name.");
-    }
-    else if (state.isGrappleState)
-    {
-      ImGui::TextColored(ImVec4(0.6f, 0.8f, 1.0f, 1.0f), "Grapple action: %s", state.animationName.c_str());
+      if (!actionNames.empty())
+      {
+        const char* preview = state.animationName.empty() ? "(none)" : state.animationName.c_str();
+        bool hasAction = false;
+        for (const auto& a : actionNames)
+          if (a == state.animationName) { hasAction = true; break; }
+
+        if (hasAction)
+          ImGui::TextColored(ImVec4(0.3f, 1.0f, 0.3f, 1.0f), "Action: %s", state.animationName.c_str());
+        else
+          ImGui::TextColored(ImVec4(1.0f, 0.5f, 0.0f, 1.0f), "No action '%s' found", state.animationName.c_str());
+      }
+      else
+      {
+        ImGui::TextColored(ImVec4(1.0f, 0.7f, 0.3f, 1.0f), "Action: %s", state.animationName.c_str());
+      }
+      ImGui::TextWrapped("Action is linked by animation name.");
     }
     else
     {
@@ -510,7 +595,7 @@ void StateVisualizer::DrawStateProperties(StateDefinition& state)
 
   if (ImGui::CollapsingHeader("Properties", ImGuiTreeNodeFlags_DefaultOpen))
   {
-    const char* stanceNames[] = {"Standing", "Crouching", "Jumping", "Knockdown"};
+    const char* stanceNames[] = {"Crouching", "Standing", "Jumping", "Knockdown"};
     int stanceIdx = static_cast<int>(state.stanceState);
     if (ImGui::Combo("Stance", &stanceIdx, stanceNames, 4))
     {
@@ -520,7 +605,7 @@ void StateVisualizer::DrawStateProperties(StateDefinition& state)
 
     const char* actionNames[] = {"None", "Blockstun", "Hitstun", "Dashing", "Light", "Medium", "Heavy"};
     int actionIdx = static_cast<int>(state.actionState);
-    if (ImGui::Combo("Action", &actionIdx, actionNames, 7))
+    if (ImGui::Combo("##ActionState", &actionIdx, actionNames, 7))
     {
       state.actionState = static_cast<ActionState>(actionIdx);
       _dirty = true;
@@ -549,30 +634,10 @@ void StateVisualizer::DrawStateProperties(StateDefinition& state)
     if (ImGui::Checkbox("Sets Juggle Gravity", &state.setsJuggleGravity)) _dirty = true;
     if (ImGui::Checkbox("Resets Juggle Gravity", &state.resetsJuggleGravity)) _dirty = true;
 
-    ImGui::Separator();
-    ImGui::Text("Cancel Flags:");
-    bool cHG = state.cancelFlags & StateDefinition::Cancel_HitGround;
-    bool cSp = state.cancelFlags & StateDefinition::Cancel_Special;
-    bool cNo = state.cancelFlags & StateDefinition::Cancel_Normal;
-    if (ImGui::Checkbox("HitGround", &cHG))
-    {
-      state.cancelFlags = (state.cancelFlags & ~StateDefinition::Cancel_HitGround) | (cHG ? StateDefinition::Cancel_HitGround : 0);
-      _dirty = true;
-    }
-    if (ImGui::Checkbox("Special", &cSp))
-    {
-      state.cancelFlags = (state.cancelFlags & ~StateDefinition::Cancel_Special) | (cSp ? StateDefinition::Cancel_Special : 0);
-      _dirty = true;
-    }
-    if (ImGui::Checkbox("Normal", &cNo))
-    {
-      state.cancelFlags = (state.cancelFlags & ~StateDefinition::Cancel_Normal) | (cNo ? StateDefinition::Cancel_Normal : 0);
-      _dirty = true;
-    }
   }
 
   // Transition summary — click to select arrow
-  if (ImGui::CollapsingHeader("Transitions"))
+  if (ImGui::CollapsingHeader("Transitions", ImGuiTreeNodeFlags_DefaultOpen))
   {
     for (size_t t = 0; t < state.transitions.size(); ++t)
     {
@@ -588,6 +653,38 @@ void StateVisualizer::DrawStateProperties(StateDefinition& state)
         _selectedRuleIdx = static_cast<int>(t);
       }
       ImGui::PopID();
+    }
+
+    ImGui::Spacing();
+
+    // Add new transition — target selector + button
+    ImGui::Text("New:");
+    ImGui::SameLine();
+    ImGui::SetNextItemWidth(140.0f);
+    const char* addPreview = (_addTransitionTarget == static_cast<int>(FighterStateID::COUNT))
+      ? "HitResolver" : FighterStateIDToString(static_cast<FighterStateID>(_addTransitionTarget));
+    if (ImGui::BeginCombo("##AddTransition", addPreview))
+    {
+      if (ImGui::Selectable("HitResolver", _addTransitionTarget == static_cast<int>(FighterStateID::COUNT)))
+        _addTransitionTarget = static_cast<int>(FighterStateID::COUNT);
+      for (int i = 0; i < static_cast<int>(FighterStateID::COUNT); ++i)
+      {
+        bool selected = (_addTransitionTarget == i);
+        if (ImGui::Selectable(FighterStateIDToString(static_cast<FighterStateID>(i)), selected))
+          _addTransitionTarget = i;
+      }
+      ImGui::EndCombo();
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("+ Add"))
+    {
+      TransitionRule newRule;
+      newRule.targetState = static_cast<FighterStateID>(_addTransitionTarget);
+      newRule.priority = 10;
+      state.transitions.push_back(newRule);
+      _selectedTarget = _addTransitionTarget;
+      _selectedRuleIdx = static_cast<int>(state.transitions.size()) - 1;
+      _dirty = true;
     }
   }
 }
@@ -676,6 +773,16 @@ void StateVisualizer::DrawTransitionEditor(FighterStateTable::StateArray& states
         }
         ImGui::EndCombo();
       }
+
+      // Cancel toggle
+      bool isCancel = (rule.cancelType == CancelType::Cancel);
+      if (ImGui::Checkbox("Is Cancel", &isCancel))
+      {
+        rule.cancelType = isCancel ? CancelType::Cancel : CancelType::NotCancel;
+        _dirty = true;
+      }
+      if (isCancel)
+        ImGui::TextWrapped("Auto-requires Hitting (attack must connect).");
 
       // Required flags
       ImGui::Text("Required:");

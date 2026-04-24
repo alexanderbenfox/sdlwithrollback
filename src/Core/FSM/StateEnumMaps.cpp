@@ -215,28 +215,28 @@ StateDefinition::EntryMovement EntryMovementFromString(const std::string& str)
 }
 
 //______________________________________________________________________________
-// CancelFlag
+// CancelType
 //______________________________________________________________________________
-struct CancelFlagEntry { StateDefinition::CancelFlag flag; const char* name; };
-static constexpr CancelFlagEntry kCancelFlagMap[] = {
-  ENTRY(StateDefinition::Cancel_HitGround, "HitGround"),
-  ENTRY(StateDefinition::Cancel_Special,   "Special"),
-  ENTRY(StateDefinition::Cancel_Normal,    "Normal"),
+struct CancelTypeEntry { CancelType type; const char* name; };
+static constexpr CancelTypeEntry kCancelTypeMap[] = {
+  ENTRY(CancelType::NotCancel, "None"),
+  ENTRY(CancelType::Cancel,   "Cancel"),
 };
 
-const char* CancelFlagToString(StateDefinition::CancelFlag f)
+const char* CancelTypeToString(CancelType t)
 {
-  for (const auto& e : kCancelFlagMap)
-    if (e.flag == f) return e.name;
-  return "Unknown";
+  for (const auto& e : kCancelTypeMap)
+    if (e.type == t) return e.name;
+  return "None";
 }
 
-StateDefinition::CancelFlag CancelFlagFromString(const std::string& str)
+CancelType CancelTypeFromString(const std::string& str)
 {
-  for (const auto& e : kCancelFlagMap)
-    if (str == e.name) return e.flag;
-  std::cerr << "Unknown CancelFlag: " << str << "\n";
-  return StateDefinition::Cancel_None;
+  for (const auto& e : kCancelTypeMap)
+    if (str == e.name) return e.type;
+  // Backwards compatibility
+  if (str == "true" || str == "Normal" || str == "Special") return CancelType::Cancel;
+  return CancelType::NotCancel;
 }
 
 #undef ENTRY

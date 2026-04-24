@@ -16,6 +16,10 @@ public:
   static FighterStateTable& Get();
 
   const StateArray& GetTable(uint8_t characterID) const;
+  const StateArray& GetTable(const std::string& characterName) const;
+
+  // Look up the numeric ID for a character name (-1 if not found)
+  int GetCharacterID(const std::string& characterName) const;
 
   // Mutable access for editor — pointer-stable since unordered_map doesn't move values
   StateArray* GetMutableTable(const std::string& characterName);
@@ -25,6 +29,10 @@ public:
 
   // Write the current state table back to its JSON file (fully expanded, no templates)
   void WriteStatesToJson(const std::string& characterName) const;
+
+  // Create a new default state table for a character that doesn't have one yet.
+  // Writes a minimal states.json and loads it into _tables.
+  bool CreateDefaultTable(const std::string& characterName);
 
   // Get the JSON path for a character
   std::string GetJsonPath(const std::string& characterName) const;

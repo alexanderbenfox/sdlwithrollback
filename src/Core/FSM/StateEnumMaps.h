@@ -23,5 +23,5 @@ StateDefinition::CompletionType CompletionTypeFromString(const std::string& str)
 const char* EntryMovementToString(StateDefinition::EntryMovement m);
 StateDefinition::EntryMovement EntryMovementFromString(const std::string& str);
 
-const char* CancelFlagToString(StateDefinition::CancelFlag f);
-StateDefinition::CancelFlag CancelFlagFromString(const std::string& str);
+const char* CancelTypeToString(CancelType t);
+CancelType CancelTypeFromString(const std::string& str);
