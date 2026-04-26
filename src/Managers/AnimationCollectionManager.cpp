@@ -23,36 +23,49 @@ void AnimationCollectionManager::AddNewCharacter(const std::string& characterNam
   FilePath path = _characterDir;
   path.Append(characterName.c_str());
   path.Create();
-  _characters.emplace(characterName, path.GetPath());
+  _characterNames.push_back(characterName);
+  LoadCharacterFromJson(characterName, path.GetPath());
 }
 
-void AnimationCollectionManager::ReloadAnimationCollection(const std::string& id, const CharacterConfiguration& configFiles)
+void AnimationCollectionManager::ReloadCharacter(const std::string& name)
 {
-  AnimationCollection& c = _collections[GetCollectionID(id)];
+  auto it = _idLookupTable.find(name);
+  if (it == _idLookupTable.end())
+    return;
 
-  // clear collection before assigning animations
+  AnimationCollection& c = _collections[it->second];
   c.Clear();
 
-  // register all animations and actions as events
-  for (const auto& animation : configFiles.GetAnimationConfig())
-  {
-    c.RegisterAnimation(animation.first, animation.second);
-  }
+  FilePath charDir = _characterDir;
+  charDir.Append(name.c_str());
 
-  for (const auto& action : configFiles.GetActionConfig())
-  {
+  // Re-load animations and actions from JSON
+  std::unordered_map<std::string, AnimationAsset> animations;
+  std::unordered_map<std::string, ActionAsset> actions;
+
+  JsonFile animFile(StringUtils::CorrectPath(charDir.GetPath() + "/animations.json"));
+  if (animFile.IsValid())
+    animFile.LoadContentsIntoMap(animations);
+
+  JsonFile actFile(StringUtils::CorrectPath(charDir.GetPath() + "/actions.json"));
+  if (actFile.IsValid())
+    actFile.LoadContentsIntoMap(actions);
+
+  for (const auto& animation : animations)
+    c.RegisterAnimation(animation.first, animation.second);
+
+  for (const auto& action : actions)
     c.SetAnimationEvents(action.first, action.second.eventData, action.second.frameData);
-  }
 }
 
-AnimationCollectionManager::AnimationCollectionManager() : _livingCollectionCount(0)
+AnimationCollectionManager::AnimationCollectionManager()
 {
   FilePath jsonDir(ResourceManager::Get().GetResourcePath() + "json");
 
   // Load general animations like sfx
   JsonFile gSpritesFile(StringUtils::CorrectPath(jsonDir.GetPath() + "/general/spritesheets.json"));
   ResourceManager::Get().gSpriteSheets.LoadJsonData(gSpritesFile);
-  
+
   JsonFile gAnimsFile(StringUtils::CorrectPath(jsonDir.GetPath() + "/general/animations.json"));
   gAnimsFile.LoadContentsIntoMap(_generalAnimations);
 
@@ -71,33 +84,39 @@ AnimationCollectionManager::AnimationCollectionManager() : _livingCollectionCoun
   for (const auto& path : characters)
   {
     std::string characterName = path.GetLast();
-    _characters.emplace(characterName, path.GetPath());
-    unsigned int id = RegisterCharacterCollection(characterName, _characters.at(characterName));
+    _characterNames.push_back(characterName);
+    LoadCharacterFromJson(characterName, path.GetPath());
   }
 }
 
-unsigned int AnimationCollectionManager::RegisterCharacterCollection(const std::string& lookUpString, const CharacterConfiguration& configFiles)
+void AnimationCollectionManager::LoadCharacterFromJson(const std::string& name, const std::string& charDir)
 {
-  assert(_livingCollectionCount < 10 && "Cannot load more animation collections. Max count exceeded");
+  // Load spritesheets into the global ResourceManager
+  JsonFile spritesFile(StringUtils::CorrectPath(charDir + "/spritesheets.json"));
+  if (spritesFile.IsValid())
+    ResourceManager::Get().gSpriteSheets.LoadJsonData(spritesFile);
 
-  unsigned int assignedID = RegisterNewCollection(lookUpString);
+  // Load animations and actions into local maps (discarded after registration)
+  std::unordered_map<std::string, AnimationAsset> animations;
+  std::unordered_map<std::string, ActionAsset> actions;
 
-  AnimationCollection& newCollection = _collections[assignedID];
+  JsonFile animFile(StringUtils::CorrectPath(charDir + "/animations.json"));
+  if (animFile.IsValid())
+    animFile.LoadContentsIntoMap(animations);
 
-  // clear collection before assigning animations
-  newCollection.Clear();
+  JsonFile actFile(StringUtils::CorrectPath(charDir + "/actions.json"));
+  if (actFile.IsValid())
+    actFile.LoadContentsIntoMap(actions);
 
-  // register all animations and actions as events
-  for (const auto& animation : configFiles.GetAnimationConfig())
-  {
-    newCollection.RegisterAnimation(animation.first, animation.second);
-  }
+  unsigned int assignedID = RegisterNewCollection(name);
+  AnimationCollection& collection = _collections[assignedID];
+  collection.Clear();
 
-  for (const auto& action : configFiles.GetActionConfig())
-  {
-    newCollection.SetAnimationEvents(action.first, action.second.eventData, action.second.frameData);
-  }
-  return assignedID;
+  for (const auto& animation : animations)
+    collection.RegisterAnimation(animation.first, animation.second);
+
+  for (const auto& action : actions)
+    collection.SetAnimationEvents(action.first, action.second.eventData, action.second.frameData);
 }
 
 unsigned int AnimationCollectionManager::RegisterNewCollection(const std::string& lookUpString)
@@ -105,9 +124,8 @@ unsigned int AnimationCollectionManager::RegisterNewCollection(const std::string
   if (_idLookupTable.find(lookUpString) != _idLookupTable.end())
     return _idLookupTable[lookUpString];
 
-  assert(_livingCollectionCount < 10 && "Cannot load more animation collections. Max count exceeded");
-
-  unsigned int assignedID = _livingCollectionCount++;
+  unsigned int assignedID = static_cast<unsigned int>(_collections.size());
+  _collections.emplace_back();
   _idLookupTable[lookUpString] = assignedID;
 
   return assignedID;

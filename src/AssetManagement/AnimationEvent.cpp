@@ -54,7 +54,12 @@ EventList AnimationEventHelper::BuildEventList(const Vector2<float>& textureScal
     // log some kind of error here and return
   }
 
-  animFrameToSheetFrame = animationData.realFrameToSheetFrame;
+  // Only overwrite the frame map when parsing produced a valid result.
+  // An empty map means no active event frames were found, so preserve
+  // the existing raw animation timing instead of zeroing it out.
+  if (!animationData.realFrameToSheetFrame.empty())
+    animFrameToSheetFrame = animationData.realFrameToSheetFrame;
+
   int animFrames = static_cast<int>(animEventData.size());
   int realFrames = static_cast<int>(animationData.realFrameToSheetFrame.size());
 

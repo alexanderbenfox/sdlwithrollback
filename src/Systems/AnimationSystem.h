@@ -26,7 +26,13 @@ public:
         int frame = animator.frame;
 
         // Checks if an event should be trigger this frame of animation and calls its callback if so
-        EventList& linkedEventList = *GAnimArchive.GetCollection(animator.animCollectionID).GetEventList(atkState.attackAnimation);
+        auto eventListPtr = GAnimArchive.GetCollection(animator.animCollectionID).GetEventList(atkState.attackAnimation);
+        if (!eventListPtr || frame >= static_cast<int>(eventListPtr->size()))
+        {
+          atkState.lastFrame = animator.frame;
+          continue;
+        }
+        EventList& linkedEventList = *eventListPtr;
         std::vector<AnimationEvent>& potentialEvents = linkedEventList[frame];
 
         if (!potentialEvents.empty())

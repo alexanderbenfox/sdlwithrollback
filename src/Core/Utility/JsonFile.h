@@ -89,6 +89,11 @@ public:
     data.Write(item);
 
     dataFile.open(_path, std::fstream::out);
+    if (!dataFile.is_open())
+    {
+      std::cerr << "JsonFile: failed to open " << _path << " for writing\n";
+      return;
+    }
     dataFile << fileObj.toStyledString() << std::endl;
     dataFile.close();
   }

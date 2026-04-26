@@ -7,6 +7,7 @@
 
 GUIController::~GUIController()
 {
+  _alive = false;
   if (_ownsWindow)
   {
     SDL_DestroyWindow(_window);

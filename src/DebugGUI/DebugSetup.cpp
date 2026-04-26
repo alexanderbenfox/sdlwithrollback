@@ -10,6 +10,10 @@
 #include "AssetManagement/EditableAssets/AssetLibraryImpl.h"
 
 #include "Core/FSM/FighterStateTable.h"
+#include "Core/FSM/StateEnumMaps.h"
+#include "Components/FighterFSMComponent.h"
+#include "Components/Actors/GameActor.h"
+#include "Components/Rigidbody.h"
 #include "Globals.h"
 
 //______________________________________________________________________________
@@ -285,7 +289,40 @@ void SetupDebugWindows(GameManager& gm, Timer& clock, AvgCounter& tracker)
     });
 #endif
 
-  CharacterEditor::Get().AddCreateNewCharacterButton();
+  GUIController::Get().AddImguiWindowFunction("Main Debug Window", "FSM State",
+    [&gm]()
+    {
+      auto showPlayerState = [](const char* label, std::shared_ptr<Entity> player)
+      {
+        if (!player) return;
+        auto* fsm = player->GetComponent<FighterFSMComponent>();
+        if (!fsm || !fsm->stateTable) return;
+        auto* actor = player->GetComponent<GameActor>();
+        auto* rb = player->GetComponent<Rigidbody>();
+        auto* state = player->GetComponent<StateComponent>();
+
+        const char* curName = FighterStateIDToString(fsm->currentState);
+        const char* prevName = FighterStateIDToString(fsm->previousState);
+        ImGui::Text("%s: %s", label, curName);
+        ImGui::SameLine();
+        ImGui::TextColored(ImVec4(0.6f, 0.6f, 0.6f, 1.0f), "(prev: %s, frame %d/%d)",
+                           prevName, fsm->stateFrame, fsm->stateTotalFrames);
+
+        if (actor && rb && state)
+        {
+          ImGui::Text("  Input: 0x%02X  Grounded: %s  Side: %s  NewInputs: %s",
+                       (unsigned char)actor->input.normal,
+                       rb->IsGrounded() ? "Y" : "N",
+                       state->onLeftSide ? "L" : "R",
+                       actor->newInputs ? "Y" : "N");
+        }
+      };
+
+      showPlayerState("P1", gm.GetP1());
+      showPlayerState("P2", gm.GetP2());
+    });
+
+  CharacterEditor::Get().Initialize();
 
   GUIController::Get().AddImguiWindowFunction("Assets", "Sprite Sheets", []()
   {

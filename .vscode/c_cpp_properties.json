@@ -5,12 +5,17 @@
       "includePath": [
         "${workspaceFolder}/src",
         "${workspaceFolder}/build/external/ggpo/include",
+        "${workspaceFolder}/imgui",
+        "${workspaceFolder}/imgui/impl",
         "/opt/homebrew/include",
         "/opt/homebrew/include/SDL2",
         "/opt/homebrew/opt/jsoncpp/include"
       ],
       "defines": [
         "GL_SILENCE_DEPRECATION"
+      ],
+      "forcedInclude": [
+        "${workspaceFolder}/src/pch.h"
       ],
       "macFrameworkPath": [
         "/Library/Frameworks",

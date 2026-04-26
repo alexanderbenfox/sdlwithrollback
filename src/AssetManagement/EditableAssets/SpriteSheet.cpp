@@ -4,6 +4,7 @@
 #include "DebugGUI/DisplayImage.h"
 #include "../imgui/imgui.h"
 #include "AssetLibraryImpl.h"
+#include "AssetManagement/EditableAssets/Editor/SpriteDetector.h"
 
 const ImU32 imColorWhite = IM_COL32(255, 255, 255, 255);
 
@@ -349,6 +350,22 @@ void SpriteSheet::Section::DisplayInEditor(SpriteSheet& srcSheet)
     {
       ImGui::SameLine();
       if (ImGui::Button("Copy Last Frame")) { frameRects.emplace_back(frameRects.back()); }
+    }
+
+    // Auto-detect sprites from the spritesheet image
+    if (ImGui::Button("Auto-Detect Sprites"))
+    {
+      GUIController::Get().CreatePopup("Sprite Auto-Detect",
+        [this, &srcSheet]()
+        {
+          static SpriteDetector detector;
+          if (detector.DisplayDetectionUI(srcSheet.src, frameRects))
+          {
+            // Applied — close popup
+            detector.hasResults = false;
+            detector.results.clear();
+          }
+        }, []() {});
     }
   }
 

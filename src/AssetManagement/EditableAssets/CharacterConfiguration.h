@@ -12,28 +12,45 @@
 
 class IAnimation;
 
-class HitboxEditor
+//______________________________________________________________________________
+//! Plays back an animation with startup/active/recovery phase display
+//! and inline hitbox editing on the preview frame.
+class ActionPreview
 {
 public:
-  void OpenEditor(IAnimation* anim, ActionAsset& data);
+  void Display(IAnimation* anim, ActionAsset& data);
+  void Reset() { _frame = 0; _accumTime = 0.0f; _playing = false; _lastEvtFrame = -1; }
+
+  // Commit the current frame's hitbox rect back to the ActionAsset (call before saving)
+  void CommitHitbox();
 
 private:
-  void ChangeDisplay(IAnimation* anim, int frame, ActionAsset& data);
-  void CommitRectChange(IAnimation* anim, int frame, ActionAsset& data);
-  void ShowHitboxEditor();
+  void LoadHitboxForFrame(IAnimation* anim, ActionAsset& data);
+  void CommitHitboxForFrame(IAnimation* anim, ActionAsset& data);
 
-  DisplayImage frameDisplay;
-  EditorRect displayRect;
+  bool _playing = false;
+  float _accumTime = 0.0f;
+  int _frame = 0;
+  int _lastEvtFrame = -1;
+  bool _editingHitboxes = false;
+
+  void EnsureEventDataSize(IAnimation* anim, ActionAsset& data);
+
+  // Hitbox editing state
+  DisplayImage _preview;
+  EditorRect _editRect;
+  Vector2<double> _loadedSrcSize;  // source size used when loading the current frame's hitbox
+  IAnimation* _boundAnim = nullptr;
+  ActionAsset* _boundData = nullptr;
 };
 
 class CharacterConfiguration
 {
 public:
   CharacterConfiguration(const std::string& pathToResourceFolder);
-  AssetLibrary<AnimationAsset>::LibType const& GetAnimationConfig() const { return _animations.GetLibrary(); }
-  AssetLibrary<ActionAsset>::LibType const& GetActionConfig() const { return _actions.GetLibrary(); }
 
-  void AddCharacterDisplay();
+  //! Called by CharacterEditor to render the tabbed editor UI
+  void DisplayEditorTabs();
 
 private:
   void DisplayAnimationsTab();
@@ -68,7 +85,8 @@ private:
 
   // Action editing state
   std::string _selectedAction;
-  HitboxEditor _hitboxEditor;
+  ActionPreview _actionPreview;
+  int _newActionSelection = 0;
 
   // State visualizer
   StateVisualizer _stateVisualizer;

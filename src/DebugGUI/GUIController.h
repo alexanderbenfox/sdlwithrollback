@@ -22,8 +22,11 @@ public:
   static GUIController& Get()
   {
     static GUIController instance;
+    _alive = true;
     return instance;
   }
+
+  static bool IsAlive() { return _alive; }
 
   ~GUIController();
 
@@ -107,6 +110,8 @@ private:
   GUIController() = default;
   GUIController(const GUIController&) = delete;
   GUIController operator=(GUIController&) = delete;
+
+  static inline bool _alive = false;
 
   SDL_Window* _window = nullptr;
   SDL_GLContext _glContext = nullptr;

@@ -11,7 +11,7 @@ IDebugComponent::IDebugComponent(const IDebugComponent& other)
 
 IDebugComponent::~IDebugComponent()
 {
-  if (debugID >= 0)
+  if (debugID >= 0 && GUIController::IsAlive())
     GUIController::Get().RemoveImguiWindowFunction("Debug Components", debugID);
 }
 

@@ -25,6 +25,7 @@ public:
   LibType const& GetLibrary() const { return _library; }
   T const& Get(const std::string& id) { return _library[id]; }
   T& GetModifiable(const std::string& id) { return _library[id]; }
+  void Remove(const std::string& id) { _library.erase(id); }
 
   // Called after an asset is renamed in the GUI (oldName, newName)
   void SetOnRenameCallback(std::function<void(const std::string&, const std::string&)> cb)

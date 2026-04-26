@@ -6,6 +6,7 @@
 #include <filesystem>
 #else
 #include <sys/types.h>
+#include <sys/stat.h>
 #include <dirent.h>
 #endif
 
@@ -72,7 +73,7 @@ public:
 #ifdef _WIN32
     return std::filesystem::create_directory(_path);
 #else
-    return false;
+    return mkdir(_path.c_str(), 0755) == 0;
 #endif
   }
 
