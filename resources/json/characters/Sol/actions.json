@@ -94,6 +94,134 @@
 			"startup" : 10
 		}
 	},
+	"GunflameStart" : 
+	{
+		"events" : 
+		[
+			{},
+			{},
+			{},
+			{
+				"hitbox" : 
+				{
+					"position" : 
+					{
+						"x" : 37.335028050490884,
+						"y" : 2.8832031250000001
+					},
+					"size" : 
+					{
+						"x" : 46.115182328190734,
+						"y" : 55.495703124999999
+					}
+				}
+			},
+			{
+				"hitbox" : 
+				{
+					"position" : 
+					{
+						"x" : 42.545261066969353,
+						"y" : 1.4535156249999999
+					},
+					"size" : 
+					{
+						"x" : 61.024545970488084,
+						"y" : 58.831640624999999
+					}
+				}
+			},
+			{
+				"createentity" : 
+				{
+					"Animator" : 
+					{
+						"anim" : "Gunflame_Projectile",
+						"collection" : "Sol",
+						"isLooped" : true
+					},
+					"DynamicCollider" : 
+					{
+						"sizex" : 100.0,
+						"sizey" : 400.0
+					},
+					"Hitbox" : 
+					{
+						"damage" : 100,
+						"destroyOnHit" : true,
+						"follow" : true,
+						"knockbackx" : 0.0,
+						"knockbacky" : 0.0,
+						"stunFramesBlock" : 0,
+						"stunFramesHit" : 0,
+						"x" : 100.0,
+						"y" : 400.0
+					},
+					"Hurtbox" : 
+					{
+						"x" : 100.0,
+						"y" : 400.0
+					},
+					"RenderComponent" : {},
+					"RenderProperties" : 
+					{
+						"color_a" : 255,
+						"color_b" : 255,
+						"color_g" : 255,
+						"color_r" : 255
+					},
+					"Rigidbody" : 
+					{
+						"initVelocityX" : 500.0,
+						"initVelocityY" : 0.0,
+						"useGravity" : true
+					},
+					"StateComponent" : {},
+					"Transform" : 
+					{
+						"entitysizex" : 100.0,
+						"entitysizey" : 400.0,
+						"relative" : true,
+						"scalex" : 1.0,
+						"scaley" : 1.0,
+						"x" : 0.0,
+						"y" : 0.0
+					}
+				},
+				"hitbox" : 
+				{
+					"position" : 
+					{
+						"x" : 34.918252595155714,
+						"y" : 0.14531250000000001
+					},
+					"size" : 
+					{
+						"x" : 69.718425605536311,
+						"y" : 60.885937499999997
+					}
+				}
+			},
+			{}
+		],
+		"framedata" : 
+		{
+			"active" : 8,
+			"damage" : 10,
+			"hitstop" : 2,
+			"hittype" : "Mid",
+			"knockback" : 
+			{
+				"x" : 300.0,
+				"y" : -100.0
+			},
+			"knockdown" : false,
+			"onblock" : -5,
+			"onhit" : -3,
+			"recovery" : 16,
+			"startup" : 7
+		}
+	},
 	"Kick" : 
 	{
 		"events" : 

@@ -1,434 +1,540 @@
 {
-	"states": {
-		"BlockstunCrouching": {
-			"actionState": "Blockstun",
-			"animationName": "BlockLow",
-			"appliesDamage": true,
-			"canBlock": true,
-			"completionTarget": "Idle",
-			"completionType": "Timer",
-			"entryMovement": "StopHorizontal",
-			"forceAnimRestart": true,
-			"isBlocking": true,
-			"isHittable": true,
-			"stanceState": "Crouching",
-			"timerFrames": 0
+	"states" : 
+	{
+		"BlockstunCrouching" : 
+		{
+			"actionState" : "Blockstun",
+			"animationName" : "BlockLow",
+			"appliesDamage" : true,
+			"canBlock" : true,
+			"completionTarget" : "Idle",
+			"completionType" : "Timer",
+			"entryMovement" : "StopHorizontal",
+			"forceAnimRestart" : true,
+			"isBlocking" : true,
+			"isHittable" : true,
+			"stanceState" : "Crouching",
+			"timerFrames" : 0
 		},
-		"BlockstunStanding": {
-			"actionState": "Blockstun",
-			"animationName": "BlockMid",
-			"appliesDamage": true,
-			"canBlock": true,
-			"completionTarget": "Idle",
-			"completionType": "Timer",
-			"entryMovement": "StopHorizontal",
-			"forceAnimRestart": true,
-			"isBlocking": true,
-			"isHittable": true,
-			"stanceState": "Standing",
-			"timerFrames": 0
+		"BlockstunStanding" : 
+		{
+			"actionState" : "Blockstun",
+			"animationName" : "BlockMid",
+			"appliesDamage" : true,
+			"canBlock" : true,
+			"completionTarget" : "Idle",
+			"completionType" : "Timer",
+			"entryMovement" : "StopHorizontal",
+			"forceAnimRestart" : true,
+			"isBlocking" : true,
+			"isHittable" : true,
+			"stanceState" : "Standing",
+			"timerFrames" : 0
 		},
-		"CrouchingHitstun": {
-			"actionState": "Hitstun",
-			"animationName": "LightHitstun",
-			"appliesDamage": true,
-			"completionTarget": "Idle",
-			"completionType": "Timer",
-			"entryMovement": "UseHitKnockbackFull",
-			"forceAnimRestart": true,
-			"isHittable": true,
-			"stanceState": "Crouching",
-			"timerFrames": 0
+		"CrouchingHitstun" : 
+		{
+			"actionState" : "Hitstun",
+			"animationName" : "LightHitstun",
+			"appliesDamage" : true,
+			"completionTarget" : "Idle",
+			"completionType" : "Timer",
+			"entryMovement" : "UseHitKnockbackFull",
+			"forceAnimRestart" : true,
+			"isHittable" : true,
+			"stanceState" : "Crouching",
+			"timerFrames" : 0
 		},
-		"Falling": {
-			"animationName": "Jump",
-			"entryMovement": "Custom",
-			"isHittable": true,
-			"stanceState": "Jumping",
-			"transitions": [
+		"Falling" : 
+		{
+			"animationName" : "Jump",
+			"entryMovement" : "Custom",
+			"isHittable" : true,
+			"stanceState" : "Jumping",
+			"transitions" : 
+			[
 				{
-					"priority": 10,
-					"required": [
+					"priority" : 10,
+					"required" : 
+					[
 						"IsGrounded"
 					],
-					"target": "Idle"
+					"target" : "Idle"
 				}
 			]
 		},
-		"Grappled": {
-			"animationName": "MedHitstun",
-			"completionTarget": "KnockdownAirborne",
-			"completionType": "Timer",
-			"forceAnimRestart": true,
-			"isGrappleState": true,
-			"stanceState": "Knockdown",
-			"timerFrames": 0
+		"Grappled" : 
+		{
+			"animationName" : "MedHitstun",
+			"completionTarget" : "KnockdownAirborne",
+			"completionType" : "Timer",
+			"forceAnimRestart" : true,
+			"isGrappleState" : true,
+			"stanceState" : "Knockdown",
+			"timerFrames" : 0
 		},
-		"Hitstun": {
-			"actionState": "Hitstun",
-			"animationName": "LightHitstun",
-			"appliesDamage": true,
-			"completionTarget": "Idle",
-			"completionType": "Timer",
-			"entryMovement": "UseHitKnockbackFull",
-			"forceAnimRestart": true,
-			"isHittable": true,
-			"stanceState": "Standing",
-			"timerFrames": 0
+		"Hitstun" : 
+		{
+			"actionState" : "Hitstun",
+			"animationName" : "LightHitstun",
+			"appliesDamage" : true,
+			"completionTarget" : "Idle",
+			"completionType" : "Timer",
+			"entryMovement" : "UseHitKnockbackFull",
+			"forceAnimRestart" : true,
+			"isHittable" : true,
+			"stanceState" : "Standing",
+			"timerFrames" : 0
 		},
-		"Idle": {
-			"animationName": "Idle",
-			"canBlock": true,
-			"entryMovement": "StopHorizontal",
-			"isHittable": true,
-			"loopAnimation": true,
-			"stanceState": "Standing",
-			"transitions": [
+		"Idle" : 
+		{
+			"animationName" : "Idle",
+			"canBlock" : true,
+			"entryMovement" : "StopHorizontal",
+			"isHittable" : true,
+			"loopAnimation" : true,
+			"stanceState" : "Standing",
+			"transitions" : 
+			[
 				{
-					"forbidden": [
-						"InputBackward"
-					],
-					"priority": 10,
-					"required": [
-						"InputForward",
-						"IsGrounded"
-					],
-					"target": "WalkForward"
-				},
-				{
-					"forbidden": [
-						"InputForward"
-					],
-					"priority": 10,
-					"required": [
-						"InputBackward",
-						"IsGrounded"
-					],
-					"target": "WalkBackward"
-				},
-				{
-					"forbidden": [
-						"InputDown"
-					],
-					"priority": 10,
-					"required": [
-						"InputUp",
-						"IsGrounded"
-					],
-					"target": "Jumping"
-				},
-				{
-					"priority": 10,
-					"required": [
-						"InputBtn1",
-						"IsGrounded"
-					],
-					"target": "StandingLight"
-				},
-				{
-					"priority": 10,
-					"required": [
-						"InputBtn2",
-						"IsGrounded"
-					],
-					"target": "StandingMedium"
-				},
-				{
-					"priority": 10,
-					"required": [
-						"InputBtn3",
-						"IsGrounded"
-					],
-					"target": "StandingHeavy"
-				},
-				{
-					"priority": 10,
-					"required": [
+					"priority" : 71,
+					"required" : 
+					[
 						"SpecialDPF",
 						"AnyAttackBtn"
 					],
-					"target": "SpecialMove1"
+					"target" : "SpecialMove1"
+				},
+				{
+					"priority" : 71,
+					"required" : 
+					[
+						"SpecialQCF",
+						"IsGrounded",
+						"AnyAttackBtn"
+					],
+					"target" : "SpecialMove2"
+				},
+				{
+					"priority" : 60,
+					"required" : 
+					[
+						"InputBtn1",
+						"IsGrounded"
+					],
+					"target" : "StandingLight"
+				},
+				{
+					"priority" : 60,
+					"required" : 
+					[
+						"InputBtn2",
+						"IsGrounded"
+					],
+					"target" : "StandingMedium"
+				},
+				{
+					"priority" : 60,
+					"required" : 
+					[
+						"InputBtn3",
+						"IsGrounded"
+					],
+					"target" : "StandingHeavy"
+				},
+				{
+					"forbidden" : 
+					[
+						"InputDown"
+					],
+					"priority" : 50,
+					"required" : 
+					[
+						"InputUp",
+						"IsGrounded"
+					],
+					"target" : "Jumping"
+				},
+				{
+					"forbidden" : 
+					[
+						"InputBackward"
+					],
+					"priority" : 30,
+					"required" : 
+					[
+						"InputForward",
+						"IsGrounded"
+					],
+					"target" : "WalkForward"
+				},
+				{
+					"forbidden" : 
+					[
+						"InputForward"
+					],
+					"priority" : 30,
+					"required" : 
+					[
+						"InputBackward",
+						"IsGrounded"
+					],
+					"target" : "WalkBackward"
 				}
 			]
 		},
-		"Jumping": {
-			"animationName": "Jump",
-			"entryMovement": "Custom",
-			"isHittable": true,
-			"playSpeed": 0.19999992847442627,
-			"stanceState": "Jumping",
-			"transitions": [
+		"Jumping" : 
+		{
+			"animationName" : "Jump",
+			"entryMovement" : "Custom",
+			"isHittable" : true,
+			"playSpeed" : 0.19999992847442627,
+			"stanceState" : "Jumping",
+			"transitions" : 
+			[
 				{
-					"priority": 10,
-					"required": [
+					"priority" : 10,
+					"required" : 
+					[
 						"IsGrounded"
 					],
-					"target": "Idle"
+					"target" : "Idle"
 				},
 				{
-					"priority": 10,
-					"required": [
+					"priority" : 10,
+					"required" : 
+					[
 						"SpecialDPF",
 						"IsAirborne",
 						"AnyAttackBtn"
 					],
-					"target": "SpecialMove1"
+					"target" : "SpecialMove1"
 				}
 			]
 		},
-		"KnockdownAirborne": {
-			"actionState": "Hitstun",
-			"animationName": "KnockDown",
-			"appliesDamage": true,
-			"entryMovement": "UseHitKnockbackFull",
-			"forceAnimRestart": true,
-			"inKnockdown": true,
-			"isHittable": true,
-			"setsJuggleGravity": true,
-			"stanceState": "Knockdown",
-			"transitions": [
+		"KnockdownAirborne" : 
+		{
+			"actionState" : "Hitstun",
+			"animationName" : "KnockDown",
+			"appliesDamage" : true,
+			"entryMovement" : "UseHitKnockbackFull",
+			"forceAnimRestart" : true,
+			"inKnockdown" : true,
+			"isHittable" : true,
+			"setsJuggleGravity" : true,
+			"stanceState" : "Knockdown",
+			"transitions" : 
+			[
 				{
-					"priority": 10,
-					"required": [
+					"priority" : 10,
+					"required" : 
+					[
 						"IsGrounded"
 					],
-					"target": "KnockdownHitGround"
+					"target" : "KnockdownHitGround"
 				}
 			]
 		},
-		"KnockdownHitGround": {
-			"actionState": "Hitstun",
-			"animationName": "KnockdownHitGround",
-			"completionTarget": "KnockdownOnGround",
-			"completionType": "Animation",
-			"entryMovement": "StopHorizontal",
-			"inKnockdown": true,
-			"isHittable": true,
-			"stanceState": "Knockdown"
+		"KnockdownHitGround" : 
+		{
+			"actionState" : "Hitstun",
+			"animationName" : "KnockdownHitGround",
+			"completionTarget" : "KnockdownOnGround",
+			"completionType" : "Animation",
+			"entryMovement" : "StopHorizontal",
+			"inKnockdown" : true,
+			"isHittable" : true,
+			"stanceState" : "Knockdown"
 		},
-		"KnockdownOnGround": {
-			"animationName": "KnockdownHitGround",
-			"completionTarget": "Idle",
-			"completionType": "Animation",
-			"entryMovement": "StopHorizontal",
-			"resetsJuggleGravity": true,
-			"stanceState": "Knockdown"
+		"KnockdownOnGround" : 
+		{
+			"animationName" : "KnockdownHitGround",
+			"completionTarget" : "Idle",
+			"completionType" : "Animation",
+			"entryMovement" : "StopHorizontal",
+			"resetsJuggleGravity" : true,
+			"stanceState" : "Knockdown"
 		},
-		"SpecialMove1": {
-			"actionState": "Heavy",
-			"animationName": "DragonPunch",
-			"completionTarget": "Idle",
-			"completionType": "Animation",
-			"entryMovement": "StopHorizontal",
-			"forceAnimRestart": true,
-			"isAttackState": true,
-			"isHittable": true,
-			"stanceState": "Standing",
-			"transitions": [
+		"SpecialMove1" : 
+		{
+			"actionState" : "Heavy",
+			"animationName" : "DragonPunch",
+			"completionTarget" : "Idle",
+			"completionType" : "Animation",
+			"entryMovement" : "StopHorizontal",
+			"forceAnimRestart" : true,
+			"isAttackState" : true,
+			"isHittable" : true,
+			"stanceState" : "Standing",
+			"transitions" : 
+			[
 				{
-					"priority": 20,
-					"required": [
+					"priority" : 20,
+					"required" : 
+					[
 						"IsGrounded",
 						"AnimComplete"
 					],
-					"target": "Idle"
+					"target" : "Idle"
 				},
 				{
-					"priority": 10,
-					"required": [
+					"priority" : 10,
+					"required" : 
+					[
 						"AnimComplete"
 					],
-					"target": "Falling"
+					"target" : "Falling"
 				}
 			]
 		},
-		"StandingHeavy": {
-			"actionState": "Heavy",
-			"animationName": "Slash",
-			"completionTarget": "Idle",
-			"completionType": "Animation",
-			"entryMovement": "StopHorizontal",
-			"forceAnimRestart": true,
-			"isAttackState": true,
-			"isHittable": true,
-			"stanceState": "Standing",
-			"transitions": [
+		"SpecialMove2" : 
+		{
+			"actionState" : "Heavy",
+			"animationName" : "GunflameStart",
+			"completionTarget" : "Idle",
+			"completionType" : "Animation",
+			"entryMovement" : "StopHorizontal",
+			"forceAnimRestart" : true,
+			"isAttackState" : true,
+			"isHittable" : true,
+			"stanceState" : "Standing",
+			"transitions" : 
+			[
 				{
-					"cancelType": "Cancel",
-					"priority": 71,
-					"required": [
-						"SpecialDPF",
-						"AnyAttackBtn"
+					"priority" : 10,
+					"required" : 
+					[
+						"AnimComplete"
 					],
-					"target": "SpecialMove1"
+					"target" : "Idle"
 				}
 			]
 		},
-		"StandingLight": {
-			"actionState": "Light",
-			"animationName": "Punch",
-			"completionTarget": "Idle",
-			"completionType": "Animation",
-			"entryMovement": "StopHorizontal",
-			"forceAnimRestart": true,
-			"isAttackState": true,
-			"isHittable": true,
-			"stanceState": "Standing",
-			"transitions": [
+		"StandingHeavy" : 
+		{
+			"actionState" : "Heavy",
+			"animationName" : "Slash",
+			"completionTarget" : "Idle",
+			"completionType" : "Animation",
+			"entryMovement" : "StopHorizontal",
+			"forceAnimRestart" : true,
+			"isAttackState" : true,
+			"isHittable" : true,
+			"stanceState" : "Standing",
+			"transitions" : 
+			[
 				{
-					"cancelType": "Cancel",
-					"priority": 71,
-					"required": [
+					"cancelType" : "Cancel",
+					"priority" : 71,
+					"required" : 
+					[
 						"SpecialDPF",
 						"AnyAttackBtn"
 					],
-					"target": "SpecialMove1"
+					"target" : "SpecialMove1"
+				}
+			]
+		},
+		"StandingLight" : 
+		{
+			"actionState" : "Light",
+			"animationName" : "Punch",
+			"completionTarget" : "Idle",
+			"completionType" : "Animation",
+			"entryMovement" : "StopHorizontal",
+			"forceAnimRestart" : true,
+			"isAttackState" : true,
+			"isHittable" : true,
+			"stanceState" : "Standing",
+			"transitions" : 
+			[
+				{
+					"cancelType" : "Cancel",
+					"priority" : 71,
+					"required" : 
+					[
+						"SpecialDPF",
+						"AnyAttackBtn"
+					],
+					"target" : "SpecialMove1"
 				},
 				{
-					"cancelType": "Cancel",
-					"priority": 20,
-					"required": [
+					"cancelType" : "Cancel",
+					"priority" : 20,
+					"required" : 
+					[
 						"InputBtn2"
 					],
-					"target": "StandingMedium"
+					"target" : "StandingMedium"
 				},
 				{
-					"cancelType": "Cancel",
-					"priority": 20,
-					"required": [
+					"cancelType" : "Cancel",
+					"priority" : 20,
+					"required" : 
+					[
 						"InputBtn3"
 					],
-					"target": "StandingHeavy"
+					"target" : "StandingHeavy"
 				}
 			]
 		},
-		"StandingMedium": {
-			"actionState": "Medium",
-			"animationName": "Kick",
-			"completionTarget": "Idle",
-			"completionType": "Animation",
-			"entryMovement": "StopHorizontal",
-			"forceAnimRestart": true,
-			"isAttackState": true,
-			"isHittable": true,
-			"stanceState": "Standing",
-			"transitions": [
+		"StandingMedium" : 
+		{
+			"actionState" : "Medium",
+			"animationName" : "Kick",
+			"completionTarget" : "Idle",
+			"completionType" : "Animation",
+			"entryMovement" : "StopHorizontal",
+			"forceAnimRestart" : true,
+			"isAttackState" : true,
+			"isHittable" : true,
+			"stanceState" : "Standing",
+			"transitions" : 
+			[
 				{
-					"cancelType": "Cancel",
-					"priority": 71,
-					"required": [
+					"cancelType" : "Cancel",
+					"priority" : 71,
+					"required" : 
+					[
 						"SpecialDPF",
 						"AnyAttackBtn"
 					],
-					"target": "SpecialMove1"
+					"target" : "SpecialMove1"
 				},
 				{
-					"cancelType": "Cancel",
-					"priority": 20,
-					"required": [
+					"cancelType" : "Cancel",
+					"priority" : 20,
+					"required" : 
+					[
 						"InputBtn3"
 					],
-					"target": "StandingHeavy"
+					"target" : "StandingHeavy"
 				}
 			]
 		},
-		"WalkBackward": {
-			"animationName": "Walk",
-			"canBlock": true,
-			"entryMovement": "Custom",
-			"horizontalOnly": true,
-			"isHittable": true,
-			"loopAnimation": true,
-			"stanceState": "Standing",
-			"transitions": [
+		"WalkBackward" : 
+		{
+			"animationName" : "Walk",
+			"canBlock" : true,
+			"entryMovement" : "Custom",
+			"horizontalOnly" : true,
+			"isHittable" : true,
+			"loopAnimation" : true,
+			"stanceState" : "Standing",
+			"transitions" : 
+			[
 				{
-					"forbidden": [
+					"forbidden" : 
+					[
 						"InputBackward"
 					],
-					"priority": 30,
-					"required": [
+					"priority" : 30,
+					"required" : 
+					[
 						"InputForward",
 						"IsGrounded"
 					],
-					"target": "WalkForward"
+					"target" : "WalkForward"
 				},
 				{
-					"forbidden": [
+					"forbidden" : 
+					[
 						"InputDown",
 						"InputForward",
 						"InputBackward"
 					],
-					"priority": 20,
-					"required": [
+					"priority" : 20,
+					"required" : 
+					[
 						"IsGrounded",
 						"NewInputs"
 					],
-					"target": "Idle"
+					"target" : "Idle"
 				},
 				{
-					"forbidden": [
+					"forbidden" : 
+					[
 						"InputDown"
 					],
-					"priority": 10,
-					"required": [
+					"priority" : 10,
+					"required" : 
+					[
 						"InputUp",
 						"IsGrounded"
 					],
-					"target": "Jumping"
+					"target" : "Jumping"
 				}
 			]
 		},
-		"WalkForward": {
-			"animationName": "Walk",
-			"canBlock": true,
-			"entryMovement": "Custom",
-			"horizontalOnly": true,
-			"isHittable": true,
-			"loopAnimation": true,
-			"stanceState": "Standing",
-			"transitions": [
+		"WalkForward" : 
+		{
+			"animationName" : "Walk",
+			"canBlock" : true,
+			"entryMovement" : "Custom",
+			"horizontalOnly" : true,
+			"isHittable" : true,
+			"loopAnimation" : true,
+			"stanceState" : "Standing",
+			"transitions" : 
+			[
 				{
-					"forbidden": [
+					"forbidden" : 
+					[
 						"InputForward"
 					],
-					"priority": 30,
-					"required": [
+					"priority" : 30,
+					"required" : 
+					[
 						"InputBackward",
 						"IsGrounded"
 					],
-					"target": "WalkBackward"
+					"target" : "WalkBackward"
 				},
 				{
-					"forbidden": [
+					"forbidden" : 
+					[
 						"InputDown",
 						"InputForward",
 						"InputBackward"
 					],
-					"priority": 20,
-					"required": [
+					"priority" : 20,
+					"required" : 
+					[
 						"IsGrounded",
 						"NewInputs"
 					],
-					"target": "Idle"
+					"target" : "Idle"
 				},
 				{
-					"forbidden": [
+					"forbidden" : 
+					[
 						"InputDown"
 					],
-					"priority": 10,
-					"required": [
+					"priority" : 10,
+					"required" : 
+					[
 						"InputUp",
 						"IsGrounded"
 					],
-					"target": "Jumping"
+					"target" : "Jumping"
 				},
 				{
-					"priority": 10,
-					"required": [
+					"priority" : 10,
+					"required" : 
+					[
 						"SpecialDPF",
 						"AnyAttackBtn"
 					],
-					"target": "SpecialMove1"
+					"target" : "SpecialMove1"
+				},
+				{
+					"priority" : 71,
+					"required" : 
+					[
+						"SpecialQCF",
+						"IsGrounded",
+						"AnyAttackBtn"
+					],
+					"target" : "SpecialMove2"
 				}
 			]
 		}

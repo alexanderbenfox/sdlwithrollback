@@ -52,6 +52,10 @@ ActionTimeline AnimationEventHelper::ResolveSpriteTimeline(
 
   int numSpriteEvents = static_cast<int>(spriteFrameEvents.size());
 
+  // Track which sheet frames have already had their spawn data copied —
+  // entity spawns are one-shot events, not per-frame like hitboxes/movement.
+  std::vector<bool> spawnCopied(numSpriteEvents, false);
+
   for (int gameFrame = 0; gameFrame < totalGameFrames; gameFrame++)
   {
     int sheetFrame = timeline.visualFrameMap[gameFrame];
@@ -66,8 +70,14 @@ ActionTimeline AnimationEventHelper::ResolveSpriteTimeline(
     dst.hitbox.end *= textureScalingFactor;
 
     dst.movement = src.movement;
-    dst.create = src.create;
     dst.isActive = src.isActive;
+
+    // Only copy entity spawn data to the first game frame per sheet frame
+    if (!src.create.IsEmpty() && !spawnCopied[sheetFrame])
+    {
+      dst.create = src.create;
+      spawnCopied[sheetFrame] = true;
+    }
   }
 
   return timeline;
