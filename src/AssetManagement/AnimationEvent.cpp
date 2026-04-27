@@ -222,10 +222,10 @@ EventList AnimationEventHelper::BuildEventList(const ActionTimeline& timeline)
   // Entity spawn events
   for (int i = 0; i < totalFrames; i++)
   {
-    const EntityCreationData& data = frames[i].create;
+    const ProjectileData& data = frames[i].create;
     auto DestroyCreatedEntity = [](EntityID){};
 
-    if (!data.instructions.empty())
+    if (!data.IsEmpty())
     {
       auto creationEvent = [data](EntityID entity, Transform* trans, StateComponent* state)
       {

@@ -57,7 +57,7 @@ struct GameFrameEvent
 {
   Rect<double> hitbox;         // in game space (already scaled)
   Vector2<float> movement;
-  EntityCreationData create;
+  ProjectileData create;
   bool isActive = false;
 };
 

@@ -63,7 +63,7 @@ void ActionPreview::CommitHitboxForFrame(IAnimation* anim, ActionAsset& data)
     data.eventData[evtFrame].hitbox = Rect<double>();
     // Only clear isActive if there's no other active data on this frame
     if (data.eventData[evtFrame].movement.x == 0 && data.eventData[evtFrame].movement.y == 0
-        && data.eventData[evtFrame].create.instructions.empty())
+        && data.eventData[evtFrame].create.IsEmpty())
       data.eventData[evtFrame].isActive = false;
   }
 }
@@ -453,7 +453,24 @@ void ActionPreview::Display(IAnimation* anim, ActionAsset& data)
     dl->AddLine(ImVec2(playheadX, barPos.y - 2), ImVec2(playheadX, barPos.y + barHeight + 2),
                  IM_COL32(255, 255, 255, 255), 2.0f);
 
-    ImGui::Dummy(ImVec2(barWidth, barHeight + 4));
+    // Event markers — dots below the phase bar for frames with data
+    float markerY = barPos.y + barHeight + 2.0f;
+    float markerR = 2.5f;
+    for (int i = 0; i < totalFrames; i++)
+    {
+      int evtIdx = anim->GetFrameIndexOffset(i);
+      if (evtIdx >= static_cast<int>(data.eventData.size()))
+        continue;
+      const EventData& evt = data.eventData[evtIdx];
+      float fx = barPos.x + barWidth * ((float)i / (float)totalFrames);
+
+      if (!evt.create.IsEmpty())
+        dl->AddCircleFilled(ImVec2(fx, markerY + markerR), markerR, IM_COL32(255, 140, 0, 255));
+      else if (evt.movement.x != 0 || evt.movement.y != 0)
+        dl->AddCircleFilled(ImVec2(fx, markerY + markerR), markerR, IM_COL32(0, 200, 255, 255));
+    }
+
+    ImGui::Dummy(ImVec2(barWidth, barHeight + markerR * 2 + 4));
   }
 
   // Show the frame preview (larger when editing hitboxes)
