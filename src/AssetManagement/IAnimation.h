@@ -45,4 +45,11 @@ public:
 
   // Maps animation frame index to a zero-based offset (for EventData indexing)
   virtual int GetFrameIndexOffset(int animFrame) const = 0;
+
+  // Override the animation's frame count (e.g. to match action timing).
+  // The animation remaps its internal frames to fit the new count.
+  virtual void SetPlaybackFrameCount(int totalGameFrames) = 0;
+
+  // Restore the animation's natural frame count (derived from its source data).
+  virtual void ClearPlaybackFrameCount() = 0;
 };

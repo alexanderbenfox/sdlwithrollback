@@ -52,9 +52,39 @@ struct EventBuilderDictionary
   std::vector<std::vector<int>> sheetFrameToRealFrame;
 };
 
+//! Game-frame-indexed event data in game space (format-agnostic)
+struct GameFrameEvent
+{
+  Rect<double> hitbox;         // in game space (already scaled)
+  Vector2<float> movement;
+  EntityCreationData create;
+  bool isActive = false;
+};
+
+//! Complete action timeline ready for BuildEventList (format-agnostic)
+struct ActionTimeline
+{
+  std::vector<GameFrameEvent> frames;  // one entry per game frame
+  FrameData frameData;
+  Vector2<float> hitboxOffset;         // offset from transform center (in game space)
+  std::vector<int> visualFrameMap;     // game frame → source frame (for animation sync)
+};
+
 struct AnimationEventHelper
 {
-  static EventList BuildEventList(const Vector2<float>& textureScalingFactor, const Vector2<float> texToCornerOffset, const std::vector<EventData>& animEventData, const FrameData& frameData, int totalSheetFrames, std::vector<int>& animFrameToSheetFrame, AnchorPoint animAnchorPt);
+  //! Build runtime EventList from a format-agnostic ActionTimeline
+  static EventList BuildEventList(const ActionTimeline& timeline);
+
+  //! Convert sprite-space EventData into a game-space ActionTimeline
+  static ActionTimeline ResolveSpriteTimeline(
+      const std::vector<EventData>& spriteFrameEvents,
+      const FrameData& frameData,
+      int totalSheetFrames,
+      const Vector2<float>& textureScalingFactor,
+      AnchorPoint anchorPt,
+      const Vector2<float>& scaledAnchorOffset);
+
+private:
   //! Translates the animation in sprite sheet to variable frame data values
   static EventBuilderDictionary ParseAnimationEventList(const std::vector<EventData>& animEventData, const FrameData& frameData, int totalSheetFrames);
 };

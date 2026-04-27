@@ -32,9 +32,53 @@ void AnimationEvent::EndEntitySpawnEvent(EntityID entity)
 }
 
 //______________________________________________________________________________
-EventList AnimationEventHelper::BuildEventList(const Vector2<float>& textureScalingFactor, const Vector2<float> texToCornerOffset, const std::vector<EventData>& animEventData, const FrameData& frameData, int totalSheetFrames, std::vector<int>& animFrameToSheetFrame, AnchorPoint animAnchorPt)
+ActionTimeline AnimationEventHelper::ResolveSpriteTimeline(
+    const std::vector<EventData>& spriteFrameEvents,
+    const FrameData& frameData,
+    int totalSheetFrames,
+    const Vector2<float>& textureScalingFactor,
+    AnchorPoint anchorPt,
+    const Vector2<float>& scaledAnchorOffset)
 {
-  Vector2<float> offset = -CalculateRenderOffset(animAnchorPt, texToCornerOffset, Vector2<float>(m_characterWidth, m_characterHeight));
+  ActionTimeline timeline;
+  timeline.frameData = frameData;
+  timeline.hitboxOffset = -CalculateRenderOffset(anchorPt, scaledAnchorOffset, Vector2<float>(m_characterWidth, m_characterHeight));
+
+  EventBuilderDictionary mapping = ParseAnimationEventList(spriteFrameEvents, frameData, totalSheetFrames);
+
+  int totalGameFrames = static_cast<int>(mapping.realFrameToSheetFrame.size());
+  timeline.frames.resize(totalGameFrames);
+  timeline.visualFrameMap = std::move(mapping.realFrameToSheetFrame);
+
+  int numSpriteEvents = static_cast<int>(spriteFrameEvents.size());
+
+  for (int gameFrame = 0; gameFrame < totalGameFrames; gameFrame++)
+  {
+    int sheetFrame = timeline.visualFrameMap[gameFrame];
+    if (sheetFrame >= numSpriteEvents)
+      continue;
+
+    const EventData& src = spriteFrameEvents[sheetFrame];
+    GameFrameEvent& dst = timeline.frames[gameFrame];
+
+    dst.hitbox = src.hitbox;
+    dst.hitbox.beg *= textureScalingFactor;
+    dst.hitbox.end *= textureScalingFactor;
+
+    dst.movement = src.movement;
+    dst.create = src.create;
+    dst.isActive = src.isActive;
+  }
+
+  return timeline;
+}
+
+//______________________________________________________________________________
+EventList AnimationEventHelper::BuildEventList(const ActionTimeline& timeline)
+{
+  const auto& frames = timeline.frames;
+  const auto& frameData = timeline.frameData;
+  const auto& offset = timeline.hitboxOffset;
 
   auto DespawnHitbox = [](EntityID entity) { GameManager::Get().GetEntityByID(entity)->RemoveComponent<Hitbox>(); };
   auto DespawnThrowStuff = [](EntityID entity)
@@ -47,24 +91,10 @@ EventList AnimationEventHelper::BuildEventList(const Vector2<float>& textureScal
   std::function<void(EntityID, Transform*, StateComponent*)> trigger;
   std::vector<std::function<void(EntityID, Transform*, StateComponent*)>> updates;
 
-  EventBuilderDictionary animationData = ParseAnimationEventList(animEventData, frameData, totalSheetFrames);
-
-  if (animationData.sheetFrameToRealFrame.size() != animEventData.size())
-  {
-    // log some kind of error here and return
-  }
-
-  // Only overwrite the frame map when parsing produced a valid result.
-  // An empty map means no active event frames were found, so preserve
-  // the existing raw animation timing instead of zeroing it out.
-  if (!animationData.realFrameToSheetFrame.empty())
-    animFrameToSheetFrame = animationData.realFrameToSheetFrame;
-
-  int animFrames = static_cast<int>(animEventData.size());
-  int realFrames = static_cast<int>(animationData.realFrameToSheetFrame.size());
+  int totalFrames = static_cast<int>(frames.size());
 
   EventList eventList;
-  eventList.resize(realFrames);
+  eventList.resize(totalFrames);
 
   int startFrame = 0;
   int counter = 0;
@@ -77,7 +107,7 @@ EventList AnimationEventHelper::BuildEventList(const Vector2<float>& textureScal
     startFrame = 0;
   };
 
-  auto eventCheck = [addEventToList, &startFrame, &counter, &eventList, &animationData, &trigger, &updates]
+  auto eventCheck = [addEventToList, &startFrame, &counter, &trigger, &updates]
   (int i, const std::function<void(EntityID)>& onComplete, const std::function<void(EntityID, Transform*, StateComponent*)>& callback, bool conditionMet, AnimationEvent::Type type,
     std::function<void(EntityID, Transform*, StateComponent*)>* onTrigger = nullptr)
   {
@@ -85,17 +115,7 @@ EventList AnimationEventHelper::BuildEventList(const Vector2<float>& textureScal
     {
       if (counter == 0)
       {
-        int finder = 0;
-        while (animationData.sheetFrameToRealFrame[i + finder].empty())
-        {
-          finder++;
-          if (i + finder == animationData.sheetFrameToRealFrame.size())
-          {
-            finder--;
-            break;
-          }
-        }
-        startFrame = animationData.sheetFrameToRealFrame[i + finder][0];
+        startFrame = i;
         if (onTrigger)
         {
           trigger = *onTrigger;
@@ -106,29 +126,16 @@ EventList AnimationEventHelper::BuildEventList(const Vector2<float>& textureScal
           trigger = callback;
       }
 
-
       bool isTrigger = counter == 0;
-      for (const int& realFrame : animationData.sheetFrameToRealFrame[i])
-      {
-        counter++;
-        //avoid adding one to update if this is a trigger frame
-        if (isTrigger && onTrigger)
-        {
-          if (counter == 1)
-            continue;
-          else
-            updates.push_back(*onTrigger);
-        }
-        else
-        {
-          if (isTrigger)
-          {
-            isTrigger = false;
-            continue;
-          }
-          updates.push_back(callback);
-        }
-      }
+      counter++;
+      if (isTrigger && onTrigger)
+        ; // trigger already set above, skip
+      else if (isTrigger)
+        ; // trigger frame, don't add to updates
+      else if (onTrigger)
+        updates.push_back(*onTrigger);
+      else
+        updates.push_back(callback);
     }
     else if (counter > 0)
     {
@@ -136,18 +143,14 @@ EventList AnimationEventHelper::BuildEventList(const Vector2<float>& textureScal
     }
   };
 
-
-  for (int i = 0; i < animFrames; i++)
+  // Hitbox / throwbox events
+  for (int i = 0; i < totalFrames; i++)
   {
-    Rect<double> hitbox = animEventData[i].hitbox;
-    hitbox.beg *= textureScalingFactor;
-    hitbox.end *= textureScalingFactor;
-
+    const Rect<double>& hitbox = frames[i].hitbox;
     bool hitboxCondition = hitbox.Area() != 0;
 
     if (frameData.isThrow)
     {
-      // add normal hitbox data
       std::function<void(EntityID, Transform*, StateComponent*)> throwInitiate = [hitbox, frameData, offset](EntityID entity, Transform* trans, StateComponent* state)
       {
         GameManager::Get().GetEntityByID(entity)->AddComponent<Throwbox>();
@@ -178,7 +181,6 @@ EventList AnimationEventHelper::BuildEventList(const Vector2<float>& textureScal
     }
     else
     {
-      // add normal hitbox data
       std::function<void(EntityID, Transform*, StateComponent*)> hitboxUpdateFunc = [hitbox, frameData, offset](EntityID entity, Transform* trans, StateComponent* state)
       {
         GameManager::Get().GetEntityByID(entity)->AddComponent<Hitbox>();
@@ -191,11 +193,13 @@ EventList AnimationEventHelper::BuildEventList(const Vector2<float>& textureScal
   }
 
   if (counter > 0)
-    addEventToList(DespawnHitbox, AnimationEvent::Type::Hitbox);
+    addEventToList(frameData.isThrow ? DespawnThrowStuff : DespawnHitbox,
+                   frameData.isThrow ? AnimationEvent::Type::Throwbox : AnimationEvent::Type::Hitbox);
 
-  for (int i = 0; i < animFrames; i++)
+  // Movement events
+  for (int i = 0; i < totalFrames; i++)
   {
-    const Vector2<float>& movement = animEventData[i].movement;
+    const Vector2<float>& movement = frames[i].movement;
     bool mvmtCondition = movement.x != 0 || movement.y != 0;
     auto movementEvent = [movement](EntityID entity, Transform* trans, StateComponent* state)
     {
@@ -215,10 +219,10 @@ EventList AnimationEventHelper::BuildEventList(const Vector2<float>& textureScal
   if (counter > 0)
     addEventToList(EndMovement, AnimationEvent::Type::Movement);
 
-  // create entity section
-  for (int i = 0; i < animFrames; i++)
+  // Entity spawn events
+  for (int i = 0; i < totalFrames; i++)
   {
-    const EntityCreationData& data = animEventData[i].create;
+    const EntityCreationData& data = frames[i].create;
     auto DestroyCreatedEntity = [](EntityID){};
 
     if (!data.instructions.empty())
@@ -230,12 +234,8 @@ EventList AnimationEventHelper::BuildEventList(const Vector2<float>& textureScal
         GameManager::Get().AddToNetworkedList(eventEntity->GetID());
       };
 
-      int finder = 0;
-      while (animationData.sheetFrameToRealFrame[i + finder].empty())
-        finder++;
-
-      startFrame = animationData.sheetFrameToRealFrame[i + finder][0];
-      eventList[startFrame].emplace_back(startFrame, 1, creationEvent, updates, DestroyCreatedEntity, AnimationEvent::Type::EntitySpawner);
+      std::vector<std::function<void(EntityID, Transform*, StateComponent*)>> emptyUpdates;
+      eventList[i].emplace_back(i, 1, creationEvent, emptyUpdates, DestroyCreatedEntity, AnimationEvent::Type::EntitySpawner);
     }
   }
 

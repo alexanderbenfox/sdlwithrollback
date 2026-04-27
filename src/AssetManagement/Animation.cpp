@@ -13,21 +13,38 @@
 Animation::Animation(const std::string& sheet, const std::string& subSheet, int startIndexOnSheet, int frames, AnchorPoint anchor, const Vector2<float>& anchorPt, bool reverse) : _startIdx(startIndexOnSheet), _frames(frames),
   _spriteSheetName(sheet), _subSheetName(subSheet), _anchorPoint(std::make_pair(anchor, anchorPt)), playReverse(reverse)
 {
-  // initialize animation to play each sprite sheet frame 
   int gameFrames = (int)std::ceil(frames * gameFramePerAnimationFrame);
+  RebuildFrameMap(gameFrames);
+  _defaultFrameMap = _animFrameToSheetFrame;
+}
+
+//______________________________________________________________________________
+void Animation::RebuildFrameMap(int gameFrames)
+{
   _animFrameToSheetFrame.resize(gameFrames);
   for (int i = 0; i < gameFrames; i++)
   {
-    _animFrameToSheetFrame[i] = static_cast<int>(std::floor((double)i * ((double)frames / (double)gameFrames)));
+    _animFrameToSheetFrame[i] = static_cast<int>(std::floor((double)i * ((double)_frames / (double)gameFrames)));
   }
 }
 
 //______________________________________________________________________________
-EventList Animation::GenerateEvents(const std::vector<EventData>& attackInfo, FrameData frameData, const Vector2<float>& textureScalingFactor)
+void Animation::SetPlaybackFrameCount(int totalGameFrames)
 {
-  animationEvents = attackInfo;
-  auto scaledOffset = static_cast<Vector2<float>>(_anchorPoint.second) * textureScalingFactor;
-  return AnimationEventHelper::BuildEventList(textureScalingFactor, scaledOffset, attackInfo, frameData, _frames, _animFrameToSheetFrame, _anchorPoint.first);
+  if (totalGameFrames > 0)
+    RebuildFrameMap(totalGameFrames);
+}
+
+//______________________________________________________________________________
+void Animation::SetPlaybackFrameMap(std::vector<int> map)
+{
+  _animFrameToSheetFrame = std::move(map);
+}
+
+//______________________________________________________________________________
+void Animation::ClearPlaybackFrameCount()
+{
+  _animFrameToSheetFrame = _defaultFrameMap;
 }
 
 //______________________________________________________________________________
@@ -128,8 +145,19 @@ void AnimationCollection::SetAnimationEvents(const std::string& animationName, c
   Animation* animation = GetSpriteAnimation(animationName);
   if (animation)
   {
-    auto eventList = std::make_shared<EventList>(animation->GenerateEvents(eventData, frameData, animation->GetRenderScaling()));
-    _events[animationName] = std::move(eventList);
+    auto scaling = static_cast<Vector2<float>>(animation->GetRenderScaling());
+    auto [anchorPt, anchorPos] = animation->GetAnchorForAnimFrame(0);
+    auto scaledOffset = anchorPos * scaling;
+
+    auto timeline = AnimationEventHelper::ResolveSpriteTimeline(
+        eventData, frameData, animation->GetSheetFrameCount(),
+        scaling, anchorPt, scaledOffset);
+
+    _events[animationName] = std::make_shared<EventList>(
+        AnimationEventHelper::BuildEventList(timeline));
+
+    if (!timeline.visualFrameMap.empty())
+      animation->SetPlaybackFrameMap(std::move(timeline.visualFrameMap));
   }
 }
 

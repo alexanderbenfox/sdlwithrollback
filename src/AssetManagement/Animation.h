@@ -24,8 +24,6 @@ class Animation : public IAnimation
 public:
   Animation(const std::string& sheet, const std::string& subSheet, int startIndexOnSheet, int frames, AnchorPoint anchor, const Vector2<float>& anchorPt, bool reverse);
 
-  EventList GenerateEvents(const std::vector<EventData>& attackInfo, FrameData frameData, const Vector2<float>& textureScalingFactor);
-
   // --- IAnimation interface ---
   int GetFrameCount() const override { return static_cast<int>(_animFrameToSheetFrame.size()); }
   bool PlaysReverse() const override { return playReverse; }
@@ -35,6 +33,9 @@ public:
   DisplayImage GetEditorPreview(int displayHeight, int animFrame) const override;
   Vector2<double> GetFrameSourceSize(int animFrame) const override;
   int GetFrameIndexOffset(int animFrame) const override { return _animFrameToSheetFrame[animFrame]; }
+  void SetPlaybackFrameCount(int totalGameFrames) override;
+  void SetPlaybackFrameMap(std::vector<int> map);
+  void ClearPlaybackFrameCount() override;
 
   // --- Spritesheet-specific methods (used by editor, event generation) ---
   DrawRect<float> GetFrameSrcRect(int animFrame) const;
@@ -42,8 +43,8 @@ public:
   template <typename Texture>
   Resource<Texture>& GetSheetTexture() const;
 
-  // NEED TO REMOVE THIS ASAP
-  std::vector<EventData> animationEvents;
+  //! Number of frames on the spritesheet (not the game frame count)
+  int GetSheetFrameCount() const { return _frames; }
 
   //! Gets index on spritesheet that corresponds to this frame of animation
   int AnimFrameToSheetIndex(int frame) const { return _startIdx + _animFrameToSheetFrame[frame]; }
@@ -57,13 +58,18 @@ public:
   void SetAnchorPoint(AnchorPoint pt, Vector2<float> pos) { _anchorPoint = { pt, pos }; }
 
 protected:
+  //! Rebuild _animFrameToSheetFrame to map gameFrames → spritesheet frames
+  void RebuildFrameMap(int gameFrames);
+
   //!
   std::string _spriteSheetName;
   std::string _subSheetName;
   //!
   int _frames, _startIdx;
-  //!
+  //! Active frame mapping (game frame → spritesheet frame offset)
   std::vector<int> _animFrameToSheetFrame;
+  //! Default frame mapping (derived from spritesheet data, saved for ClearPlaybackFrameCount)
+  std::vector<int> _defaultFrameMap;
 
   std::pair<AnchorPoint, Vector2<float>> _anchorPoint;
 
