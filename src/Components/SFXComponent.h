@@ -8,16 +8,14 @@
 class SFXComponent : public IComponent
 {
 public:
-  void OnAdd(const EntityID& entity) override;
-  void OnRemove(const EntityID& entity) override;
-
-  void ShowHitSparks(bool directionRight);
-  void ShowBlockSparks(bool directionRight);
-
   Vector2<float> showLocation;
+  EntityID sfxEntityID = 0;
+  bool needsInit = true;
 
-private:
-  std::shared_ptr<Entity> _sfxEntity;
-  std::shared_ptr<ActionTimer> _subroutine;
+  enum class Request { None, HitSparks, BlockSparks };
+  Request pending = Request::None;
+  bool pendingDirectionRight = false;
 
+  // Timer reference for cancellation — managed by SFXSystem
+  std::shared_ptr<ActionTimer> subroutine;
 };

@@ -234,22 +234,24 @@
 				}
 			]
 		},
-		"KnockdownHitGround" : 
+		"KnockdownHitGround" :
 		{
 			"actionState" : "Hitstun",
 			"animationName" : "KnockdownHitGround",
 			"completionTarget" : "KnockdownOnGround",
-			"completionType" : "Animation",
+			"completionType" : "Timer",
+			"timerFrames" : 20,
 			"entryMovement" : "StopHorizontal",
 			"inKnockdown" : true,
 			"isHittable" : true,
 			"stanceState" : "Knockdown"
 		},
-		"KnockdownOnGround" : 
+		"KnockdownOnGround" :
 		{
 			"animationName" : "KnockdownHitGround",
 			"completionTarget" : "Idle",
-			"completionType" : "Animation",
+			"completionType" : "Timer",
+			"timerFrames" : 30,
 			"entryMovement" : "StopHorizontal",
 			"resetsJuggleGravity" : true,
 			"stanceState" : "Knockdown"

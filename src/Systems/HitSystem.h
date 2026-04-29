@@ -83,8 +83,9 @@ public:
 
           sfx.showLocation = (Vector2<float>)hitbox.rect.GetIntersection(hurtbox.rect).GetCenter();
 
-          //! this will trigger self-destruction if this entity is intended to be destroyed on hit
-          hitbox.OnCollision(e2, &hurtbox);
+          // destroy projectile-type entities on hit
+          if (hitbox.destroyOnHit)
+            GameManager::Get().TriggerEndOfFrame([e2]() { GameManager::Get().DestroyEntity(e2); });
         }
       }
     }

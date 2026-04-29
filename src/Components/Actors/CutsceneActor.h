@@ -20,7 +20,6 @@ public:
 
   int actionStage = 0;
 
-protected:
   CutsceneAction** _actionQueue = nullptr;
   int _numActions = 0;
 

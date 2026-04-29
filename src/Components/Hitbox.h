@@ -43,8 +43,6 @@ public:
 
   bool destroyOnHit = false;
 
-  virtual void OnCollision(const EntityID& entity, ICollider* collider) override;
-
   virtual void Serialize(std::ostream& os) const override
   {
     TransferDataBox::Serialize(os);

@@ -26,13 +26,7 @@ public:
     _handler.reset();
   }
 
-  GameInputComponent& operator=(const GameInputComponent& other)
-  {
-    AssignHandler(other.GetAssignedHandler());
-    return *this;
-  }
-  //! Assign this component to use a certain handler type
-  void AssignHandler(InputType type);
+  GameInputComponent& operator=(const GameInputComponent& other);
   //! Handler interprets latest raw input and returns it
   //InputBuffer& QueryInput(const SDL_Event& local);
   InputState TranslateEvent(const SDL_Event& local)
@@ -72,7 +66,6 @@ public:
   void Deserialize(std::istream& is) override { _input.Deserialize(is); }
   std::string Log() override { return _input.Log(); }
 
-protected:
   std::unique_ptr<IInputHandler> _handler;
   InputType _assignedHandler;
   InputBuffer _input;

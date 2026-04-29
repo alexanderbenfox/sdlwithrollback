@@ -1,56 +1,12 @@
 #include "Components/Input.h"
-#include "Components/AIPrograms/Defend.h"
-#include "Core/ECS/Entity.h"
-
-#include "Managers/GameManagement.h"
+#include "Systems/InputHandlerSystem.h"
 #include "DebugGUI/GUIController.h"
 
 //______________________________________________________________________________
-void GameInputComponent::AssignHandler(InputType type)
+GameInputComponent& GameInputComponent::operator=(const GameInputComponent& other)
 {
-  _handler.reset();
-
-  if ((int)_assignedHandler >= (int)InputType::DefendAll)
-    GameManager::Get().GetEntityByID(entityID)->RemoveComponent<AIComponent>();
-  _assignedHandler = type;
-
-  AIInputHandler* ai = nullptr;
-
-  switch (type)
-  {
-  case InputType::Keyboard:
-    _handler = std::make_unique<KeyboardInputHandler>(_input);
-    break;
-  case InputType::Gamepad:
-    _handler = std::make_unique<GamepadInputHandler>(_input);
-    break;
-  case InputType::Joystick:
-    _handler = std::make_unique<JoystickInputHandler>(_input);
-    break;
-  case InputType::DefendAll:
-    GameManager::Get().GetEntityByID(entityID)->AddComponent<AIComponent>();
-    ai = new AIInputHandler(_input);
-    ai->SetAIProgram(GameManager::Get().GetEntityByID(entityID)->GetComponent<AIComponent>(), new DefendAI);
-    _handler.reset(ai);
-    break;
-  case InputType::DefendAfter:
-    GameManager::Get().GetEntityByID(entityID)->AddComponent<AIComponent>();
-    ai = new AIInputHandler(_input);
-    ai->SetAIProgram(GameManager::Get().GetEntityByID(entityID)->GetComponent<AIComponent>(), new DefendAfter);
-    _handler.reset(ai);
-    break;
-  case InputType::RepeatCM:
-    GameManager::Get().GetEntityByID(entityID)->AddComponent<AIComponent>();
-    ai = new AIInputHandler(_input);
-    ai->SetAIProgram(GameManager::Get().GetEntityByID(entityID)->GetComponent<AIComponent>(), new RepeatInputAI(InputState::DOWN | InputState::BTN2));
-    _handler.reset(ai);
-    break;
-  case InputType::NetworkCtrl:
-    _handler = std::make_unique<NetworkInputHandler>(_input);
-    break;
-  default:
-    break;
-  }
+  InputHandlerSystem::AssignHandler(entityID, *this, other.GetAssignedHandler());
+  return *this;
 }
 
 //______________________________________________________________________________
@@ -71,17 +27,17 @@ void GameInputComponent::OnDebug()
     auto func = [this](const std::string& i)
     {
       if (i == "Keyboard")
-        AssignHandler(InputType::Keyboard);
+        InputHandlerSystem::AssignHandler(entityID, *this, InputType::Keyboard);
       else if (i == "Joystick")
-        AssignHandler(InputType::Joystick);
+        InputHandlerSystem::AssignHandler(entityID, *this, InputType::Joystick);
       else if (i == "Gamepad")
-        AssignHandler(InputType::Gamepad);
+        InputHandlerSystem::AssignHandler(entityID, *this, InputType::Gamepad);
       else if (i == "DefendAll")
-        AssignHandler(InputType::DefendAll);
+        InputHandlerSystem::AssignHandler(entityID, *this, InputType::DefendAll);
       else if (i == "DefendAfter")
-        AssignHandler(InputType::DefendAfter);
+        InputHandlerSystem::AssignHandler(entityID, *this, InputType::DefendAfter);
       else if (i == "RepeatCM")
-        AssignHandler(InputType::RepeatCM);
+        InputHandlerSystem::AssignHandler(entityID, *this, InputType::RepeatCM);
     };
     DropDown::Show(currentItem, items, 6, func);
   }

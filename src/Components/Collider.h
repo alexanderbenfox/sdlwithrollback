@@ -6,8 +6,6 @@
 class ICollider : public IComponent
 {
 public:
-  virtual void OnCollision(const EntityID& entity, ICollider* other) = 0;
-
 };
 
 //!
@@ -16,7 +14,6 @@ class RectCollider : public ICollider, ISerializable
 {
 public:
   //!
-  virtual void OnCollision(const EntityID& entity, ICollider* other) override {}
   //!
   void Init(Vector2<T> beg, Vector2<T> end);
   void MoveToTransform(const Transform& transform) { rect.CenterOnPoint(transform.position); }

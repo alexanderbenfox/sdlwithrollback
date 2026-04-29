@@ -6,6 +6,7 @@
 
 #include "Components/Animator.h"
 #include "Components/RenderComponent.h"
+#include "Systems/TextRenderSystem.h"
 #include "Components/UIComponents.h"
 #include "Components/Rigidbody.h"
 #include "Components/Actors/GameActor.h"
@@ -122,7 +123,7 @@ std::shared_ptr<Entity> CharacterConstructor::InitUIComponents(std::shared_ptr<E
       entity->AddComponent<RenderProperties>();
 
       std::string comboText = "Combo: " + std::to_string(newState->comboCounter);
-      entity->GetComponent<TextRenderer>()->SetText(comboText, TextAlignment::Left);
+      TextRenderSystem::SetText(*entity->GetComponent<TextRenderer>(), comboText, TextAlignment::Left);
     }
   } });
 

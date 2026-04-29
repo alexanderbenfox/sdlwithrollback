@@ -305,14 +305,14 @@ void FighterFSMSystem::EnactState(
     if (state.hitData.framesInStunHit > 30) animName = "HeavyHitstun";
   }
 
-  // Dash: adjust animation play speed to fit dash duration
-  if (fsm.currentState == FighterStateID::ForwardDash || fsm.currentState == FighterStateID::BackDash)
+  // Timer-based states: scale animation speed to fit the timer duration
+  if (stateDef.completionType == StateDefinition::Timer && stateDef.timerFrames > 0)
   {
-    IAnimation* dashAnim = GAnimArchive.GetAnimationData(animator.animCollectionID, animName);
-    if (dashAnim)
+    IAnimation* timerAnim = GAnimArchive.GetAnimationData(animator.animCollectionID, animName);
+    if (timerAnim)
     {
-      int ssAnimFrames = dashAnim->GetFrameCount();
-      playSpeed = static_cast<float>(ssAnimFrames) / static_cast<float>(GlobalVars::nDashFrames);
+      int animFrames = timerAnim->GetFrameCount();
+      playSpeed = static_cast<float>(animFrames) / static_cast<float>(stateDef.timerFrames);
     }
   }
 
@@ -435,7 +435,8 @@ void FighterFSMSystem::EnactState(
       if (GlobalVars::ShowHitEffects)
       {
         SFXComponent& sfx = ComponentArray<SFXComponent>::Get().GetComponent(entity);
-        sfx.ShowBlockSparks(state.onLeftSide);
+        sfx.pending = SFXComponent::Request::BlockSparks;
+        sfx.pendingDirectionRight = state.onLeftSide;
       }
       if (!fromGrapple)
         GameManager::Get().ActivateHitStop(GlobalVars::HitStopFramesOnBlock);
@@ -448,7 +449,8 @@ void FighterFSMSystem::EnactState(
       if (GlobalVars::ShowHitEffects && !fromGrapple)
       {
         SFXComponent& sfx = ComponentArray<SFXComponent>::Get().GetComponent(entity);
-        sfx.ShowHitSparks(state.onLeftSide);
+        sfx.pending = SFXComponent::Request::HitSparks;
+        sfx.pendingDirectionRight = state.onLeftSide;
       }
       if (!fromGrapple)
         GameManager::Get().ActivateHitStop(GlobalVars::HitStopFramesOnHit);

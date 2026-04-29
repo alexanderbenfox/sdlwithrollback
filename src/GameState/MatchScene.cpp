@@ -11,6 +11,7 @@
 #include "Systems/TimerSystem/TimerContainer.h"
 
 #include "Systems/CutsceneSystem.h"
+#include "Systems/TextRenderSystem.h"
 #include "Systems/AnimationSystem.h"
 #include "Systems/Physics.h"
 #include "Systems/UISystem.h"
@@ -71,12 +72,12 @@ void PreMatchScene::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2)
   _roundText = GameManager::Get().CreateEntity<UITransform, TextRenderer, TimerContainer, DestroyOnSceneEnd>();
   _roundText->GetComponent<TextRenderer>()->SetFont(ResourceManager::Get().GetFontWriter("fonts/RUBBBB__.TTF", 36));
   std::string roundString = "ROUND " + std::to_string(_matchStatus.roundNo + 1);
-  _roundText->GetComponent<TextRenderer>()->SetText(roundString, TextAlignment::Centered);
+  TextRenderSystem::SetText(*_roundText->GetComponent<TextRenderer>(), roundString, TextAlignment::Centered);
   _roundText->GetComponent<UITransform>()->anchor = UIAnchor::Center;
 
   _fightText = GameManager::Get().CreateEntity<UITransform, TextRenderer, TimerContainer, DestroyOnSceneEnd>();
   _fightText->GetComponent<TextRenderer>()->SetFont(ResourceManager::Get().GetFontWriter("fonts/RUBBBB__.TTF", 52));
-  _fightText->GetComponent<TextRenderer>()->SetText("FIGHT", TextAlignment::Centered);
+  TextRenderSystem::SetText(*_fightText->GetComponent<TextRenderer>(), "FIGHT", TextAlignment::Centered);
   _fightText->GetComponent<UITransform>()->anchor = UIAnchor::Center;
 
   _fadeAction1.target = _roundText;
@@ -162,7 +163,7 @@ void PostMatchScene::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2
 
   _koText = GameManager::Get().CreateEntity<UITransform, TextRenderer, TimerContainer, DestroyOnSceneEnd>();
   _koText->GetComponent<TextRenderer>()->SetFont(ResourceManager::Get().GetFontWriter("fonts/Eurostile.ttf", 36));
-  _koText->GetComponent<TextRenderer>()->SetText("KO!", TextAlignment::Centered);
+  TextRenderSystem::SetText(*_koText->GetComponent<TextRenderer>(), "KO!", TextAlignment::Centered);
   _koText->GetComponent<UITransform>()->anchor = UIAnchor::Center;
 
   KODisplay.target = _koText;
@@ -202,7 +203,7 @@ void LoadingScene::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2)
   _loadingText = GameManager::Get().CreateEntity<UITransform, TextRenderer, RenderProperties>();
   _loadingText->GetComponent<UITransform>()->anchor = UIAnchor::Center;
   _loadingText->GetComponent<TextRenderer>()->SetFont(ResourceManager::Get().GetFontWriter("fonts/Eurostile.ttf", 36));
-  _loadingText->GetComponent<TextRenderer>()->SetText("LOADING...", TextAlignment::Centered);
+  TextRenderSystem::SetText(*_loadingText->GetComponent<TextRenderer>(), "LOADING...", TextAlignment::Centered);
 }
 
 void LoadingScene::Update(float deltaTime)

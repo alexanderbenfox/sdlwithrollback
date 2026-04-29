@@ -5,6 +5,7 @@
 #include "Components/RenderComponent.h"
 
 #include "Systems/MenuSystem.h"
+#include "Systems/TextRenderSystem.h"
 #include "Systems/DestroyEntitiesSystem.h"
 
 #include "Managers/GameManagement.h"
@@ -47,7 +48,7 @@ void MenuButtonArray::CreateMenuOption(const char* label, std::function<void(SDL
   labelText->GetComponent<UITransform>()->position = Vector2<float>::Zero;
 
   labelText->GetComponent<TextRenderer>()->SetFont(ResourceManager::Get().GetFontWriter("fonts/Eurostile.ttf", 36));
-  labelText->GetComponent<TextRenderer>()->SetText(label, TextAlignment::Centered, _cellSize.x - 2.0f * _margin.x);
+  TextRenderSystem::SetText(*labelText->GetComponent<TextRenderer>(), label, TextAlignment::Centered, _cellSize.x - 2.0f * _margin.x);
 
   // set id so things can be changed later
   int idx = position.y * _size.x + position.x;
@@ -57,5 +58,5 @@ void MenuButtonArray::CreateMenuOption(const char* label, std::function<void(SDL
 void MenuButtonArray::SetLabelText(int column, int row, const char* label) const
 {
   int idx = row * _size.x + column;
-  ComponentArray<TextRenderer>::Get().GetComponent(_btnIDs[idx]).SetText(label, TextAlignment::Centered, _cellSize.x - 2.0f * _margin.x);
+  TextRenderSystem::SetText(ComponentArray<TextRenderer>::Get().GetComponent(_btnIDs[idx]), label, TextAlignment::Centered, _cellSize.x - 2.0f * _margin.x);
 }

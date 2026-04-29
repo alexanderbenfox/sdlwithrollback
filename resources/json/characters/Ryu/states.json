@@ -112,7 +112,7 @@
 			"forceAnimRestart" : true,
 			"isHittable" : true,
 			"stanceState" : "Standing",
-			"timerFrames" : "$nDashFrames",
+			"timerFrames" : 23,
 			"transitions" : 
 			[
 				{
@@ -720,7 +720,7 @@
 			"forceAnimRestart" : true,
 			"isHittable" : true,
 			"stanceState" : "Standing",
-			"timerFrames" : "$nDashFrames",
+			"timerFrames" : 23,
 			"transitions" : 
 			[
 				{
@@ -1292,47 +1292,27 @@
 				}
 			]
 		},
-		"KnockdownHitGround" : 
+		"KnockdownHitGround" :
 		{
 			"actionState" : "Hitstun",
 			"animationName" : "Knockdown_HitGround",
 			"completionTarget" : "KnockdownOnGround",
-			"completionType" : "Animation",
+			"completionType" : "Timer",
+			"timerFrames" : 20,
 			"entryMovement" : "StopHorizontal",
 			"inKnockdown" : true,
 			"isHittable" : true,
-			"stanceState" : "Knockdown",
-			"transitions" : 
-			[
-				{
-					"priority" : 10,
-					"required" : 
-					[
-						"AnimComplete"
-					],
-					"target" : "Idle"
-				}
-			]
+			"stanceState" : "Knockdown"
 		},
-		"KnockdownOnGround" : 
+		"KnockdownOnGround" :
 		{
 			"animationName" : "Knockdown_OnGround",
 			"completionTarget" : "Idle",
-			"completionType" : "Animation",
+			"completionType" : "Timer",
+			"timerFrames" : 30,
 			"entryMovement" : "StopHorizontal",
 			"resetsJuggleGravity" : true,
-			"stanceState" : "Knockdown",
-			"transitions" : 
-			[
-				{
-					"priority" : 10,
-					"required" : 
-					[
-						"AnimComplete"
-					],
-					"target" : "Idle"
-				}
-			]
+			"stanceState" : "Knockdown"
 		},
 		"SpecialMove1" : 
 		{

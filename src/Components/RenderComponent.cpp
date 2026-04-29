@@ -1,47 +1,17 @@
 #include "Components/RenderComponent.h"
 #include "Components/UIComponents.h"
-#include "Rendering/RenderManager.h"
+#include "Systems/TextRenderSystem.h"
 
 TextRenderer::TextRenderer() : _resource(nullptr), _currentText(""), IComponent() {}
 
 void TextRenderer::OnRemove(const EntityID& entity)
 {
-  // make sure that the blit operations have been cleared
-  for (size_t i = 0; i < _string.size(); ++i)
-    RenderManager::Get().DeregisterDrawable<BlitOperation<RenderType>>(RenderLayer::UI);
+  TextRenderSystem::Cleanup(*this);
 }
 
 void TextRenderer::SetFont(LetterCase& resource)
 {
   _resource = &resource;
-}
-
-Vector2<float> TextRenderer::SetText(const std::string& text, TextAlignment alignment, int fieldWidth)
-{
-  Vector2<float> newSize;
-  if (_resource && text != _currentText)
-  {
-    // remove the operations from draw manager
-    for (size_t i = 0; i < _string.size(); ++i)
-      RenderManager::Get().DeregisterDrawable<BlitOperation<RenderType>>(RenderLayer::UI);
-
-    _currentText = text;
-    _string = _resource->CreateStringField(_currentText.c_str(), fieldWidth, alignment);
-
-    float width = 0;
-    float height = 0;
-
-    // for each letter, we will have to send a new blit op to the renderer manager
-    for (auto& letter : _string)
-    {
-      RenderManager::Get().RegisterDrawable<BlitOperation<RenderType>>(RenderLayer::UI);
-
-      width = std::max(letter.x + letter.texture->GetInfo().mWidth, width);
-      height = std::max(letter.y + letter.texture->GetInfo().mHeight, height);
-    }
-    newSize = Vector2<float>(width, height);
-  }
-  return newSize;
 }
 
 std::vector<TextDrawOp> TextRenderer::GetRenderOps()

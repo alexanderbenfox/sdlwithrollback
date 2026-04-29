@@ -1,4 +1,5 @@
 #include "Components/DebugComponent/DebugComponent.h"
+#include "Systems/DebugSystem.h"
 #include "DebugGUI/GUIController.h"
 
 IDebugComponent::IDebugComponent(const char* groupName) : debugGroup(groupName) {}
@@ -33,17 +34,10 @@ IDebugComponent& IDebugComponent::operator=(IDebugComponent&& other) noexcept
 
 void IDebugComponent::OnAdd(const EntityID& entity)
 {
-  entityID = entity;
-  if (debugID < 0)
-  {
-    std::function<void()> func = [this]() { OnDebug(); };
-    debugID = GUIController::Get().AddImguiWindowFunction("Debug Components", debugGroup, func);
-  }
+  DebugSystem::Register(*this, entity);
 }
 
 void IDebugComponent::OnRemove(const EntityID& entity)
 {
-  if (debugID >= 0)
-    GUIController::Get().RemoveImguiWindowFunction("Debug Components", debugID);
-  debugID = -1;
+  DebugSystem::Deregister(*this);
 }

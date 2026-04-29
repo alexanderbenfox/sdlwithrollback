@@ -400,14 +400,7 @@ void FighterStateTable::WriteStatesToJson(const std::string& characterName) cons
     {
       sj["completionType"] = CompletionTypeToString(state.completionType);
       sj["completionTarget"] = FighterStateIDToString(state.completionTarget);
-      if (state.completionType == StateDefinition::Timer && state.timerFrames > 0)
-      {
-        if (state.timerFrames == GlobalVars::nDashFrames)
-          sj["timerFrames"] = "$nDashFrames";
-        else
-          sj["timerFrames"] = state.timerFrames;
-      }
-      else if (state.completionType == StateDefinition::Timer)
+      if (state.completionType == StateDefinition::Timer)
         sj["timerFrames"] = state.timerFrames;
     }
 
@@ -582,10 +575,11 @@ bool FighterStateTable::CreateDefaultTable(const std::string& characterName)
     kdAir.transitions.push_back(onGrounded);
   }
 
-  // KnockdownHitGround — playing ground impact anim, transitions to KnockdownOnGround
+  // KnockdownHitGround — ground impact, timer-based so duration is consistent across characters
   StateDefinition& kdGround = states[static_cast<size_t>(FighterStateID::KnockdownHitGround)];
   kdGround.animationName = "Knockdown_HitGround";
-  kdGround.completionType = StateDefinition::Animation;
+  kdGround.completionType = StateDefinition::Timer;
+  kdGround.timerFrames = 20;
   kdGround.completionTarget = FighterStateID::KnockdownOnGround;
   kdGround.stanceState = StanceState::KNOCKDOWN;
   kdGround.actionState = ActionState::HITSTUN;
@@ -596,7 +590,8 @@ bool FighterStateTable::CreateDefaultTable(const std::string& characterName)
   // KnockdownOnGround — lying on ground, gets up to Idle (invincible)
   StateDefinition& kdOnGround = states[static_cast<size_t>(FighterStateID::KnockdownOnGround)];
   kdOnGround.animationName = "Knockdown_OnGround";
-  kdOnGround.completionType = StateDefinition::Animation;
+  kdOnGround.completionType = StateDefinition::Timer;
+  kdOnGround.timerFrames = 30;
   kdOnGround.completionTarget = FighterStateID::Idle;
   kdOnGround.stanceState = StanceState::KNOCKDOWN;
   kdOnGround.entryMovement = StateDefinition::StopHorizontal;

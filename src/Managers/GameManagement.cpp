@@ -12,6 +12,7 @@
 
 #include "Components/Actors/GameActor.h"
 #include "Components/Input.h"
+#include "Systems/InputHandlerSystem.h"
 #include "Components/Hitbox.h"
 #include "Components/Hurtbox.h"
 #include "Components/ActionComponents.h"
@@ -44,9 +45,9 @@ void GameManager::Initialize()
   AddToNetworkedList(_p2->GetID());
 
   //! Initialize them with keyboard handlers
-  _p1->GetComponent<GameInputComponent>()->AssignHandler(InputType::Keyboard);
+  InputHandlerSystem::AssignHandler(_p1->GetID(), *_p1->GetComponent<GameInputComponent>(), InputType::Keyboard);
   //! Initialize second player as defend all AI
-  _p2->GetComponent<GameInputComponent>()->AssignHandler(InputType::DefendAfter);
+  InputHandlerSystem::AssignHandler(_p2->GetID(), *_p2->GetComponent<GameInputComponent>(), InputType::DefendAfter);
 
   //! initialize the scene
   ChangeScene(SceneType::START);

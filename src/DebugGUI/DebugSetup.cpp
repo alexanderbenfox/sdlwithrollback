@@ -5,6 +5,7 @@
 #include "Managers/GGPOManager.h"
 
 #include "Components/Input.h"
+#include "Systems/InputHandlerSystem.h"
 #include "DebugGUI/GUIController.h"
 #include "AssetManagement/EditableAssets/Editor/AnimationEditor.h"
 #include "AssetManagement/EditableAssets/AssetLibraryImpl.h"
@@ -232,7 +233,7 @@ void SetupDebugWindows(GameManager& gm, Timer& clock, AvgCounter& tracker)
 
         if (ImGui::Button("Connect On Position 1"))
         {
-          gm.GetP2()->GetComponent<GameInputComponent>()->AssignHandler(InputType::NetworkCtrl);
+          InputHandlerSystem::AssignHandler(gm.GetP2()->GetID(), *gm.GetP2()->GetComponent<GameInputComponent>(), InputType::NetworkCtrl);
           localPlayerIndex = 0;
           std::string_view remoteIP = ip;
           unsigned short pport = (unsigned short)port;
@@ -246,7 +247,7 @@ void SetupDebugWindows(GameManager& gm, Timer& clock, AvgCounter& tracker)
 
         if (ImGui::Button("Connect On Position 2"))
         {
-          gm.GetP1()->GetComponent<GameInputComponent>()->AssignHandler(InputType::NetworkCtrl);
+          InputHandlerSystem::AssignHandler(gm.GetP1()->GetID(), *gm.GetP1()->GetComponent<GameInputComponent>(), InputType::NetworkCtrl);
           localPlayerIndex = 1;
           std::string_view remoteIP = ip;
           unsigned short pport = (unsigned short)port;

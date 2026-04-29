@@ -1,7 +1,4 @@
 #include "Components/Hitbox.h"
-#include "Components/Hurtbox.h"
-#include "Components/StateComponent.h"
-#include "Managers/GameManagement.h"
 
 void TransferDataBox::Init(const FrameData& frameData)
 {
@@ -34,14 +31,6 @@ void TransferDataBox::MoveDataBoxAroundTransform(const Transform* transform, con
 
   rect = Rect<double>(0, 0, transform->scale.x * box.Width(), transform->scale.y * box.Height());
   rect.CenterOnPoint((Vector2<double>)transform->position + transform->scale * relativeToTransformCenter);
-}
-
-void Hitbox::OnCollision(const EntityID& entity, ICollider* collider)
-{
-  if (destroyOnHit)
-  {
-    GameManager::Get().TriggerEndOfFrame([entity]() {GameManager::Get().DestroyEntity(entity); });
-  }
 }
 
 // Throwbox lifecycle is now handled by ThrowboxLifecycle in ActionComponentLifecycle.h

@@ -9,6 +9,7 @@
 #include "Systems/DestroyEntitiesSystem.h"
 
 #include "Components/RenderComponent.h"
+#include "Systems/TextRenderSystem.h"
 #include "Components/Transform.h"
 #include "Components/Camera.h"
 #include "Components/Input.h"
@@ -131,7 +132,7 @@ void CharacterSelect::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p
 
   _headerLabel = GameManager::Get().CreateEntity<TextRenderer, RenderProperties, UITransform, DestroyOnSceneEnd>();
   _headerLabel->GetComponent<TextRenderer>()->SetFont(ResourceManager::Get().GetFontWriter("fonts/Eurostile.ttf", 36));
-  const Vector2<float> headerSize = _headerLabel->GetComponent<TextRenderer>()->SetText("Player 1 Choose Character!", TextAlignment::Centered);
+  const Vector2<float> headerSize = TextRenderSystem::SetText(*_headerLabel->GetComponent<TextRenderer>(), "Player 1 Choose Character!", TextAlignment::Centered);
   _headerLabel->GetComponent<UITransform>()->anchor = UIAnchor::TL;
   //const Vector2<float> headerSize(100, 100);
   const Vector2<float> headerLocation = Vector2<float>((float)m_nativeWidth / 2.0f, (float)m_nativeHeight / 14.0f);
@@ -152,7 +153,7 @@ void CharacterSelect::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p
           _p1->AddComponent<SelectedCharacterComponent>();
           _p1->GetComponent<SelectedCharacterComponent>()->characterIdentifier = characterString[i];
           _firstCharacter = true;
-          _headerLabel->GetComponent<TextRenderer>()->SetText("Player 2 Choose Character!", TextAlignment::Centered);
+          TextRenderSystem::SetText(*_headerLabel->GetComponent<TextRenderer>(), "Player 2 Choose Character!", TextAlignment::Centered);
         }
         else if (!_secondCharacter)
         {
@@ -188,17 +189,17 @@ void ResultsScene::Init(std::shared_ptr<Entity> p1, std::shared_ptr<Entity> p2)
   
   if(_p1->GetComponent<LoserComponent>())
   {
-    _resultText->GetComponent<TextRenderer>()->SetText("PLAYER 2 WINS", TextAlignment::Centered);
+    TextRenderSystem::SetText(*_resultText->GetComponent<TextRenderer>(), "PLAYER 2 WINS", TextAlignment::Centered);
     _p1->RemoveComponent<LoserComponent>();
   }
   else if(_p2->GetComponent<LoserComponent>())
   {
-    _resultText->GetComponent<TextRenderer>()->SetText("PLAYER 1 WINS", TextAlignment::Centered);
+    TextRenderSystem::SetText(*_resultText->GetComponent<TextRenderer>(), "PLAYER 1 WINS", TextAlignment::Centered);
     _p2->RemoveComponent<LoserComponent>();
   }
   else
   {
-    _resultText->GetComponent<TextRenderer>()->SetText("NOBODY LOST. SOMETHING WENT HORRIBLY WRONG.", TextAlignment::Centered);
+    TextRenderSystem::SetText(*_resultText->GetComponent<TextRenderer>(), "NOBODY LOST. SOMETHING WENT HORRIBLY WRONG.", TextAlignment::Centered);
   }
 
   MenuButtonArray menu(3, 3, 0.1f);

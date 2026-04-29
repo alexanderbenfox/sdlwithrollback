@@ -28,6 +28,7 @@
 
 
 #include "Systems/FighterFSMSystem.h"
+#include "Systems/SFXSystem.h"
 #include "Systems/DebugSystems.h"
 #include "Components/FighterFSMComponent.h"
 #include "Core/FSM/FighterStateTable.h"
@@ -110,6 +111,7 @@ void BattleScene::Update(float deltaTime)
   ////++++ state machine section ++++////
   InputSystem::DoTick(deltaTime);
   FighterFSMSystem::DoTick(deltaTime);
+  SFXSystem::DoTick();
   ////++++ end state machine section ++++///
 
   AnimationSystem::DoTick(deltaTime);

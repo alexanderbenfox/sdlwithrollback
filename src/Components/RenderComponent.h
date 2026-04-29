@@ -56,19 +56,11 @@ public:
   void OnRemove(const EntityID& entity) override;
 
   void SetFont(LetterCase& resource);
-  //! Sets up GL calls for text rendering and returns the size of the new on screen text field
-  Vector2<float> SetText(const std::string& text, TextAlignment alignment, int fieldWidth = 600);
-
   std::vector<TextDrawOp> GetRenderOps();
 
-protected:
-  //!
   LetterCase* _resource;
-  //!
   std::vector<TextDrawOp> _string;
-  //!
   std::string _currentText;
-
 };
 
 class RenderProperties : public IComponent, ISerializable
