@@ -60,9 +60,10 @@ void FighterFSMSystem::DoTick(float dt)
 
     // 6. If a transition fires, execute it
     // Allow re-entry into the same state on hit/thrown (e.g., getting hit while in hitstun
-    // must reset the timer and re-apply damage)
+    // must reset the timer and re-apply damage) — only for hittable states
     bool shouldTransition = (target != fsm.currentState);
-    if (!shouldTransition && (flags.test(CF_HitThisFrame) || flags.test(CF_ThrownThisFrame)))
+    if (!shouldTransition && fsm.GetCurrentStateDef().isHittable &&
+        (flags.test(CF_HitThisFrame) || flags.test(CF_ThrownThisFrame)))
       shouldTransition = true;
 
     if (shouldTransition)
@@ -196,10 +197,14 @@ FighterStateID FighterFSMSystem::EvaluateTransitions(
   const auto& stateDef = fsm.GetCurrentStateDef();
 
   // Implicit hit/thrown resolution for hittable states (highest priority)
-  if (stateDef.isHittable)
+  if (flags.test(CF_HitThisFrame) || flags.test(CF_ThrownThisFrame))
   {
-    if (flags.test(CF_HitThisFrame) || flags.test(CF_ThrownThisFrame))
+    if (stateDef.isHittable)
       return ResolveHitTarget(fsm, actor, state, rb);
+
+    // Discard hits on non-hittable states so they don't carry over
+    state.hitThisFrame = false;
+    state.thrownThisFrame = false;
   }
 
   // Check transition rules (sorted by descending priority, first match wins)

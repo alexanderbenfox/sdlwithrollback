@@ -12,6 +12,14 @@ void SFXSystem::DoTick()
 {
   ComponentArray<SFXComponent>::Get().ForEach([](SFXComponent& sfx)
   {
+    // Check if the SFX child entity was destroyed (e.g. between rounds)
+    if (!sfx.needsInit && sfx.sfxEntityID != 0 && !GameManager::Get().GetEntityByID(sfx.sfxEntityID))
+    {
+      sfx.needsInit = true;
+      sfx.sfxEntityID = 0;
+      sfx.subroutine.reset();
+    }
+
     // Lazy-init: create the child SFX entity on first tick
     if (sfx.needsInit)
     {

@@ -49,7 +49,11 @@ public:
           // do hitbox stuff first
           hitbox.hitFlag = true;
           hitboxController.hitting = true;
-          int strikeDir = hitbox.rect.GetCenter().x > hitterHurtbox.rect.GetCenter().x ? 1 : -1;
+          // For melee attacks, direction is hitbox relative to attacker's body.
+          // For projectiles, the hitbox IS the entity, so use hitbox vs defender instead.
+          int strikeDir = hitbox.destroyOnHit
+            ? (hurtbox.rect.GetCenter().x > hitbox.rect.GetCenter().x ? 1 : -1)
+            : (hitbox.rect.GetCenter().x > hitterHurtbox.rect.GetCenter().x ? 1 : -1);
 
           // change the state variable that will be evaluated on the processing of inputs. probably a better way to do this...
           hurtboxController.hitThisFrame = true;

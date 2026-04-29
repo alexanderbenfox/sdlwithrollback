@@ -138,12 +138,8 @@ EventList AnimationEventHelper::BuildEventList(const ActionTimeline& timeline)
 
       bool isTrigger = counter == 0;
       counter++;
-      if (isTrigger && onTrigger)
-        ; // trigger already set above, skip
-      else if (isTrigger)
-        ; // trigger frame, don't add to updates
-      else if (onTrigger)
-        updates.push_back(*onTrigger);
+      if (isTrigger)
+        ; // trigger frame already handled above, don't add to updates
       else
         updates.push_back(callback);
     }
