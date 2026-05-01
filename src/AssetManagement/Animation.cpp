@@ -1,4 +1,5 @@
 #include "AssetManagement/Animation.h"
+#include "AssetManagement/AnimationEvent.h"
 #include "Components/Hitbox.h"
 #include "Components/Rigidbody.h"
 #include "Components/RenderComponent.h"
@@ -10,8 +11,8 @@
 #include <json/json.h>
 
 //______________________________________________________________________________
-Animation::Animation(const std::string& sheet, const std::string& subSheet, int startIndexOnSheet, int frames, AnchorPoint anchor, const Vector2<float>& anchorPt, bool reverse) : _startIdx(startIndexOnSheet), _frames(frames),
-  _spriteSheetName(sheet), _subSheetName(subSheet), _anchorPoint(std::make_pair(anchor, anchorPt)), playReverse(reverse)
+Animation::Animation(const std::string& sheet, const std::string& subSheet, int startIndexOnSheet, int frames, AnchorPoint anchor, const Vector2<float>& anchorPt, bool reverse, std::vector<Rect<double>> hurtboxes) : _startIdx(startIndexOnSheet), _frames(frames),
+  _spriteSheetName(sheet), _subSheetName(subSheet), _anchorPoint(std::make_pair(anchor, anchorPt)), playReverse(reverse), _hurtboxes(std::move(hurtboxes))
 {
   int gameFrames = (int)std::ceil(frames * gameFramePerAnimationFrame);
   RebuildFrameMap(gameFrames);
@@ -48,6 +49,53 @@ void Animation::ClearPlaybackFrameCount()
 }
 
 //______________________________________________________________________________
+ActionTimeline Animation::ResolveTimeline(const std::vector<EventData>& events, const FrameData& frameData)
+{
+  auto scaling = static_cast<Vector2<float>>(GetRenderScaling());
+
+  ActionTimeline timeline;
+  timeline.frameData = frameData;
+  timeline.hitboxOffset = GetDataOffset();
+
+  EventBuilderDictionary mapping = AnimationEventHelper::ParseAnimationEventList(events, frameData, _frames);
+
+  int totalGameFrames = static_cast<int>(mapping.realFrameToSheetFrame.size());
+  timeline.frames.resize(totalGameFrames);
+  timeline.visualFrameMap = std::move(mapping.realFrameToSheetFrame);
+
+  int numSpriteEvents = static_cast<int>(events.size());
+  std::vector<bool> spawnCopied(numSpriteEvents, false);
+
+  for (int gameFrame = 0; gameFrame < totalGameFrames; gameFrame++)
+  {
+    int sheetFrame = timeline.visualFrameMap[gameFrame];
+    if (sheetFrame >= numSpriteEvents)
+      continue;
+
+    const EventData& src = events[sheetFrame];
+    GameFrameEvent& dst = timeline.frames[gameFrame];
+
+    dst.hitbox = src.hitbox;
+    dst.hitbox.beg *= scaling;
+    dst.hitbox.end *= scaling;
+
+    dst.movement = src.movement;
+    dst.isActive = src.isActive;
+
+    if (!src.create.IsEmpty() && !spawnCopied[sheetFrame])
+    {
+      dst.create = src.create;
+      spawnCopied[sheetFrame] = true;
+    }
+  }
+
+  if (!timeline.visualFrameMap.empty())
+    SetPlaybackFrameMap(timeline.visualFrameMap);
+
+  return timeline;
+}
+
+//______________________________________________________________________________
 DrawRect<float> Animation::GetFrameSrcRect(int animFrame) const
 {
   int frame = _animFrameToSheetFrame[animFrame];
@@ -79,6 +127,29 @@ Vector2<double> Animation::GetRenderScaling() const
 {
   const SpriteSheet& ss = ResourceManager::Get().gSpriteSheets.Get(_spriteSheetName);
   return ss.renderScalingFactor;
+}
+
+//______________________________________________________________________________
+Rect<double> Animation::GetFrameHurtbox(int animFrame) const
+{
+  if (_hurtboxes.empty())
+    return Rect<double>(0, 0, 0, 0);
+
+  int sheetFrame = _animFrameToSheetFrame[animFrame];
+  // Clamp to last available hurtbox if the animation has fewer entries than frames
+  if (sheetFrame >= static_cast<int>(_hurtboxes.size()))
+    sheetFrame = static_cast<int>(_hurtboxes.size()) - 1;
+
+  return _hurtboxes[sheetFrame];
+}
+
+//______________________________________________________________________________
+Vector2<float> Animation::GetDataOffset() const
+{
+  auto scaling = static_cast<Vector2<float>>(GetRenderScaling());
+  auto [anchorPt, anchorPos] = GetAnchorForAnimFrame(0);
+  auto scaledOffset = anchorPos * scaling;
+  return -CalculateRenderOffset(anchorPt, scaledOffset, Vector2<float>(m_characterWidth, m_characterHeight));
 }
 
 //______________________________________________________________________________
@@ -131,33 +202,24 @@ std::pair<AnchorPoint, Vector2<float>> Animation::GetAnchorForAnimFrame(int anim
 }
 
 //______________________________________________________________________________
-void AnimationCollection::RegisterAnimation(const std::string& animationName, const AnimationAsset& animationData)
+void AnimationCollection::RegisterAnimation(const std::string& animationName, std::unique_ptr<IAnimation> animation)
 {
   if (_animations.find(animationName) == _animations.end())
   {
-    _animations.emplace(animationName, std::make_unique<Animation>(animationData.sheetName, animationData.subSheetName, animationData.startIndexOnSheet, animationData.frames, animationData.anchor, animationData.GetAnchorPosition(0), animationData.reverse));
+    _animations.emplace(animationName, std::move(animation));
   }
 }
 
 //______________________________________________________________________________
 void AnimationCollection::SetAnimationEvents(const std::string& animationName, const std::vector<EventData>& eventData, const FrameData& frameData)
 {
-  Animation* animation = GetSpriteAnimation(animationName);
+  IAnimation* animation = GetAnimation(animationName);
   if (animation)
   {
-    auto scaling = static_cast<Vector2<float>>(animation->GetRenderScaling());
-    auto [anchorPt, anchorPos] = animation->GetAnchorForAnimFrame(0);
-    auto scaledOffset = anchorPos * scaling;
-
-    auto timeline = AnimationEventHelper::ResolveSpriteTimeline(
-        eventData, frameData, animation->GetSheetFrameCount(),
-        scaling, anchorPt, scaledOffset);
+    auto timeline = animation->ResolveTimeline(eventData, frameData);
 
     _events[animationName] = std::make_shared<EventList>(
         AnimationEventHelper::BuildEventList(timeline));
-
-    if (!timeline.visualFrameMap.empty())
-      animation->SetPlaybackFrameMap(std::move(timeline.visualFrameMap));
   }
 }
 

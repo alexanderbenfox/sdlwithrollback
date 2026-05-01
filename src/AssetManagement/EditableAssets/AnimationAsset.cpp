@@ -111,6 +111,15 @@ void AnimationAsset::Load(const Json::Value& json)
   {
     reverse = json["reverse"].asBool();
   }
+  if (json.isMember("hurtboxes") && json["hurtboxes"].isArray())
+  {
+    for (const auto& hb : json["hurtboxes"])
+    {
+      Vector2<double> pos(hb["position"]["x"].asDouble(), hb["position"]["y"].asDouble());
+      Vector2<double> sz(hb["size"]["x"].asDouble(), hb["size"]["y"].asDouble());
+      hurtboxes.emplace_back(pos.x, pos.y, pos.x + sz.x, pos.y + sz.y);
+    }
+  }
 }
 
 //______________________________________________________________________________
@@ -131,6 +140,20 @@ void AnimationAsset::Write(Json::Value& json) const
   anchorPoints[(int)AnchorPoint::Center].Write(ap["Center"]);
 
   json["reverse"] = reverse;
+
+  if (!hurtboxes.empty())
+  {
+    Json::Value& hbArray = json["hurtboxes"] = Json::Value(Json::arrayValue);
+    for (const auto& hb : hurtboxes)
+    {
+      Json::Value entry(Json::objectValue);
+      entry["position"]["x"] = hb.beg.x;
+      entry["position"]["y"] = hb.beg.y;
+      entry["size"]["x"] = hb.Width();
+      entry["size"]["y"] = hb.Height();
+      hbArray.append(entry);
+    }
+  }
 }
 
 //______________________________________________________________________________
@@ -183,10 +206,13 @@ void AnimationAsset::DisplayInEditor()
     // Clamp frame to valid range
     if (_previewFrame >= frames) _previewFrame = 0;
 
-    // Show single frame
-    int sheetIdx = reverse ? (startIndexOnSheet + frames - 1 - _previewFrame)
-                           : (startIndexOnSheet + _previewFrame);
-    ssSection.ShowSpriteAtIndex(animSpriteSheet, sheetIdx, 64);
+    if (!_editingHurtboxes)
+    {
+      // Small preview when not editing
+      int sheetIdx = reverse ? (startIndexOnSheet + frames - 1 - _previewFrame)
+                             : (startIndexOnSheet + _previewFrame);
+      ssSection.ShowSpriteAtIndex(animSpriteSheet, sheetIdx, 64);
+    }
 
     // Playback controls
     ImGui::Text("Frame %d / %d", _previewFrame + 1, frames);
@@ -214,6 +240,67 @@ void AnimationAsset::DisplayInEditor()
       ImGui::SameLine();
       if (ImGui::ArrowButton("##next", ImGuiDir_Right))
         _previewFrame = (_previewFrame + 1) % frames;
+    }
+
+    // Hurtbox editing section
+    ImGui::Checkbox("Edit Hurtboxes", &_editingHurtboxes);
+    if (_editingHurtboxes)
+    {
+      ImGui::SameLine();
+      if (ImGui::Button("Clear Hurtbox"))
+        _hurtboxEditRect.ClearGeometry();
+
+      ImGui::SameLine();
+      if (ImGui::Button("Copy to All Frames"))
+      {
+        CommitHurtboxForFrame();
+        if (_hurtboxLastFrame >= 0 && _hurtboxLastFrame < static_cast<int>(hurtboxes.size()))
+        {
+          Rect<double> current = hurtboxes[_hurtboxLastFrame];
+          hurtboxes.resize(frames);
+          for (auto& hb : hurtboxes)
+            hb = current;
+        }
+      }
+
+      // Detect frame change — commit old data, load new
+      bool frameChanged = (_previewFrame != _hurtboxLastFrame);
+      if (frameChanged)
+      {
+        CommitHurtboxForFrame();
+        LoadHurtboxForFrame(_previewFrame);
+      }
+
+      // Hurtbox status
+      if (_previewFrame < static_cast<int>(hurtboxes.size()) && hurtboxes[_previewFrame].Area() > 0)
+        ImGui::TextColored(ImVec4(0.3f, 1.0f, 0.3f, 1.0f), "Hurtbox set");
+      else
+        ImGui::TextColored(ImVec4(0.5f, 0.5f, 0.5f, 1.0f), "No hurtbox (left-click to place, right-click to clear)");
+
+      // Large preview with hurtbox overlay
+      int sheetIdx = reverse ? (startIndexOnSheet + frames - 1 - _previewFrame)
+                             : (startIndexOnSheet + _previewFrame);
+      DrawRect<float> frameRect = ssSection.GetFrame(sheetIdx);
+      DisplayImage preview(animSpriteSheet.src,
+        Rect<float>(frameRect.x, frameRect.y, frameRect.x + frameRect.w, frameRect.y + frameRect.h), 512);
+
+      _hurtboxEditRect.SetCanvasSize(preview.displaySize);
+
+      int previewW = std::max(preview.displaySize.x + 20, 100);
+      int previewH = std::max(preview.displaySize.y + 20, 100);
+      ImGui::BeginChild("HurtboxPreview", ImVec2((float)previewW, (float)previewH), true);
+      Vector2<float> imgPos = preview.Show();
+      _hurtboxEditRect.DisplayAtPosition(imgPos);
+      ImGui::EndChild();
+    }
+    else
+    {
+      // Reset hurtbox editor state when toggled off
+      if (_hurtboxLastFrame >= 0)
+      {
+        CommitHurtboxForFrame();
+        _hurtboxLastFrame = -1;
+      }
     }
   }
 
@@ -283,5 +370,38 @@ Vector2<float> AnimationAsset::GetAnchorPosition(int animationFrame) const
 
   Vector2<double> const& anchPos = anchorPoints[(int)anchor].Export(Vector2<double>(rect.w, rect.h));
   return static_cast<Vector2<float>>(anchPos);
+}
+
+//______________________________________________________________________________
+void AnimationAsset::LoadHurtboxForFrame(int sheetFrame)
+{
+  const SpriteSheet& animSpriteSheet = ResourceManager::Get().gSpriteSheets.Get(sheetName);
+  const SpriteSheet::Section& ssSection = animSpriteSheet.GetSubSection(subSheetName);
+  DrawRect<float> frameRect = ssSection.GetFrame(startIndexOnSheet + sheetFrame);
+
+  _hurtboxSrcSize = Vector2<double>(frameRect.w, frameRect.h);
+  _hurtboxLastFrame = sheetFrame;
+
+  // Import existing hurtbox data if available
+  if (sheetFrame < static_cast<int>(hurtboxes.size()) && hurtboxes[sheetFrame].Area() > 0)
+    _hurtboxEditRect.Import(hurtboxes[sheetFrame], _hurtboxSrcSize);
+  else
+    _hurtboxEditRect.ClearGeometry();
+}
+
+//______________________________________________________________________________
+void AnimationAsset::CommitHurtboxForFrame()
+{
+  if (_hurtboxLastFrame < 0)
+    return;
+
+  // Ensure vector is large enough
+  if (_hurtboxLastFrame >= static_cast<int>(hurtboxes.size()))
+    hurtboxes.resize(_hurtboxLastFrame + 1);
+
+  if (_hurtboxEditRect.UserDataExists())
+    hurtboxes[_hurtboxLastFrame] = _hurtboxEditRect.Export(_hurtboxSrcSize);
+  else
+    hurtboxes[_hurtboxLastFrame] = Rect<double>();
 }
 

@@ -1249,7 +1249,7 @@
 				"y" : -100.0
 			},
 			"knockdown" : false,
-			"onblock" : -2,
+			"onblock" : -3,
 			"onhit" : 4,
 			"recovery" : 10,
 			"startup" : 5

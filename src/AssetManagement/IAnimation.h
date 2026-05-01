@@ -1,10 +1,14 @@
 #pragma once
 #include "Globals.h"
+#include "Core/Geometry2D/Rect.h"
 
 // Forward declarations — avoid pulling in full component headers
 template <typename T> class RenderComponent;
 class RenderProperties;
 struct DisplayImage;
+struct ActionTimeline;
+struct EventData;
+struct FrameData;
 
 //
 // Abstract animation interface.
@@ -45,6 +49,24 @@ public:
 
   // Maps animation frame index to a zero-based offset (for EventData indexing)
   virtual int GetFrameIndexOffset(int animFrame) const = 0;
+
+  // Returns the hurtbox rect for this game frame (in source-pixel space, pre-scaling).
+  // Returns a zero-area rect if no hurtbox data exists for this frame.
+  virtual Rect<double> GetFrameHurtbox(int animFrame) const = 0;
+
+  // Returns the offset from transform position to the sprite frame origin (in game space).
+  // Used to position hitboxes and hurtboxes relative to the character's transform.
+  virtual Vector2<float> GetDataOffset() const = 0;
+
+  // Whether this animation has any per-frame hurtbox data
+  virtual bool HasHurtboxData() const = 0;
+
+  // Convert source-space EventData into a game-space ActionTimeline.
+  // This is format-specific: sprites need texture scaling + anchor offsets,
+  // 3D would need model-space transforms. Also sets the internal frame map.
+  virtual ActionTimeline ResolveTimeline(
+      const std::vector<EventData>& events,
+      const FrameData& frameData) = 0;
 
   // Override the animation's frame count (e.g. to match action timing).
   // The animation remaps its internal frames to fit the new count.

@@ -1,5 +1,6 @@
 #pragma once
 #include "IJsonLoadable.h"
+#include "Core/Geometry2D/Rect.h"
 #include "DebugGUI/EditorString.h"
 #include "DebugGUI/EditorRect.h"
 #include "DebugGUI/DisplayImage.h"
@@ -32,6 +33,9 @@ public:
   EditorPoint anchorPoints[(const int)AnchorPoint::Size];
   bool reverse = false;
 
+  //! Per-frame hurtbox rects (one per sheet frame, may be empty for default)
+  std::vector<Rect<double>> hurtboxes;
+
   virtual void Load(const Json::Value& json) override;
 
   virtual void Write(Json::Value& json) const override;
@@ -58,5 +62,14 @@ private:
   float _playbackAccumulator = 0.0f;
   bool _playing = false;
   bool _looping = false;
+
+  // Hurtbox editor state (editor-only, not serialized)
+  bool _editingHurtboxes = false;
+  EditorRect _hurtboxEditRect;
+  int _hurtboxLastFrame = -1;
+  Vector2<double> _hurtboxSrcSize;
+
+  void LoadHurtboxForFrame(int sheetFrame);
+  void CommitHurtboxForFrame();
 
 };

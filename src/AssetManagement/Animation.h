@@ -22,17 +22,21 @@ const float gameFramePerAnimationFrame = (1.0f / secPerFrame) / animation_fps;
 class Animation : public IAnimation
 {
 public:
-  Animation(const std::string& sheet, const std::string& subSheet, int startIndexOnSheet, int frames, AnchorPoint anchor, const Vector2<float>& anchorPt, bool reverse);
+  Animation(const std::string& sheet, const std::string& subSheet, int startIndexOnSheet, int frames, AnchorPoint anchor, const Vector2<float>& anchorPt, bool reverse, std::vector<Rect<double>> hurtboxes = {});
 
   // --- IAnimation interface ---
   int GetFrameCount() const override { return static_cast<int>(_animFrameToSheetFrame.size()); }
   bool PlaysReverse() const override { return playReverse; }
   Vector2<double> GetRenderScaling() const override;
+  Rect<double> GetFrameHurtbox(int animFrame) const override;
+  bool HasHurtboxData() const override { return !_hurtboxes.empty(); }
+  Vector2<float> GetDataOffset() const override;
   void ApplyInitialFrame(RenderComponent<RenderType>& renderer, RenderProperties& properties) const override;
   void ApplyFrame(int animFrame, RenderComponent<RenderType>& renderer, RenderProperties& properties) const override;
   DisplayImage GetEditorPreview(int displayHeight, int animFrame) const override;
   Vector2<double> GetFrameSourceSize(int animFrame) const override;
   int GetFrameIndexOffset(int animFrame) const override { return _animFrameToSheetFrame[animFrame]; }
+  ActionTimeline ResolveTimeline(const std::vector<EventData>& events, const FrameData& frameData) override;
   void SetPlaybackFrameCount(int totalGameFrames) override;
   void SetPlaybackFrameMap(std::vector<int> map);
   void ClearPlaybackFrameCount() override;
@@ -73,6 +77,9 @@ protected:
 
   std::pair<AnchorPoint, Vector2<float>> _anchorPoint;
 
+  //! Per-sheet-frame hurtbox rects (source-pixel space, may be empty)
+  std::vector<Rect<double>> _hurtboxes;
+
 };
 
 //______________________________________________________________________________
@@ -88,7 +95,7 @@ class AnimationCollection
 {
 public:
   AnimationCollection() = default;
-  void RegisterAnimation(const std::string& animationName, const AnimationAsset& animationData);
+  void RegisterAnimation(const std::string& animationName, std::unique_ptr<IAnimation> animation);
   void SetAnimationEvents(const std::string& animationName, const std::vector<EventData>& eventData, const FrameData& frameData);
 
   //! Returns the abstract animation interface (used by systems)

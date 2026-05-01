@@ -1,4 +1,5 @@
 #include "Managers/AnimationCollectionManager.h"
+#include "AssetManagement/Animation.h"
 #include "AssetManagement/EditableAssets/AssetLibraryImpl.h"
 #include "Core/Utility/FilePath.h"
 #include "Core/Utility/JsonFile.h"
@@ -52,7 +53,10 @@ void AnimationCollectionManager::ReloadCharacter(const std::string& name)
     actFile.LoadContentsIntoMap(actions);
 
   for (const auto& animation : animations)
-    c.RegisterAnimation(animation.first, animation.second);
+  {
+    const auto& a = animation.second;
+    c.RegisterAnimation(animation.first, std::make_unique<Animation>(a.sheetName, a.subSheetName, a.startIndexOnSheet, a.frames, a.anchor, a.GetAnchorPosition(0), a.reverse, a.hurtboxes));
+  }
 
   for (const auto& action : actions)
     c.SetAnimationEvents(action.first, action.second.eventData, action.second.frameData);
@@ -72,7 +76,8 @@ AnimationCollectionManager::AnimationCollectionManager()
   unsigned int generalID = RegisterNewCollection("General");
   for (const auto& animation : _generalAnimations)
   {
-    _collections[generalID].RegisterAnimation(animation.first, animation.second);
+    const auto& a = animation.second;
+    _collections[generalID].RegisterAnimation(animation.first, std::make_unique<Animation>(a.sheetName, a.subSheetName, a.startIndexOnSheet, a.frames, a.anchor, a.GetAnchorPosition(0), a.reverse, a.hurtboxes));
   }
 
   //! load more complex character collections
@@ -113,7 +118,10 @@ void AnimationCollectionManager::LoadCharacterFromJson(const std::string& name, 
   collection.Clear();
 
   for (const auto& animation : animations)
-    collection.RegisterAnimation(animation.first, animation.second);
+  {
+    const auto& a = animation.second;
+    collection.RegisterAnimation(animation.first, std::make_unique<Animation>(a.sheetName, a.subSheetName, a.startIndexOnSheet, a.frames, a.anchor, a.GetAnchorPosition(0), a.reverse, a.hurtboxes));
+  }
 
   for (const auto& action : actions)
     collection.SetAnimationEvents(action.first, action.second.eventData, action.second.frameData);

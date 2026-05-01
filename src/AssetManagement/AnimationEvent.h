@@ -75,16 +75,6 @@ struct AnimationEventHelper
   //! Build runtime EventList from a format-agnostic ActionTimeline
   static EventList BuildEventList(const ActionTimeline& timeline);
 
-  //! Convert sprite-space EventData into a game-space ActionTimeline
-  static ActionTimeline ResolveSpriteTimeline(
-      const std::vector<EventData>& spriteFrameEvents,
-      const FrameData& frameData,
-      int totalSheetFrames,
-      const Vector2<float>& textureScalingFactor,
-      AnchorPoint anchorPt,
-      const Vector2<float>& scaledAnchorOffset);
-
-private:
   //! Translates the animation in sprite sheet to variable frame data values
   static EventBuilderDictionary ParseAnimationEventList(const std::vector<EventData>& animEventData, const FrameData& frameData, int totalSheetFrames);
 };

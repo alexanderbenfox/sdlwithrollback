@@ -17,6 +17,7 @@
 
 #include "Systems/ActionSystems/ActionComponentLifecycle.h"
 #include "Systems/FighterFSMSystem.h"
+#include "Systems/HurtboxUpdateSystem.h"
 #include "Systems/DebugSystems.h"
 
 //______________________________________________________________________________
@@ -50,6 +51,7 @@ void CheckAgainstAllSystems(Entity* entity)
 
 
   MoveSystem::Check(entity);
+  HurtboxUpdateSystem::Check(entity);
 
   // Fighter FSM system
   FighterFSMSystem::Check(entity);

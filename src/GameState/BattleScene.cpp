@@ -29,6 +29,7 @@
 
 #include "Systems/FighterFSMSystem.h"
 #include "Systems/SFXSystem.h"
+#include "Systems/HurtboxUpdateSystem.h"
 #include "Systems/DebugSystems.h"
 #include "Components/FighterFSMComponent.h"
 #include "Core/FSM/FighterStateTable.h"
@@ -125,6 +126,8 @@ void BattleScene::Update(float deltaTime)
   MoveSystem::DoTick(deltaTime);
   // move walls according to camera position
   MoveWallSystem::DoTick(deltaTime);
+  // update hurtbox shapes from animation data (overrides MoveSystemHurtbox centering)
+  HurtboxUpdateSystem::DoTick(deltaTime);
 
   ////++++ section for state dependent auxilliary info systems ++++////
 

@@ -32,58 +32,6 @@ void AnimationEvent::EndEntitySpawnEvent(EntityID entity)
 }
 
 //______________________________________________________________________________
-ActionTimeline AnimationEventHelper::ResolveSpriteTimeline(
-    const std::vector<EventData>& spriteFrameEvents,
-    const FrameData& frameData,
-    int totalSheetFrames,
-    const Vector2<float>& textureScalingFactor,
-    AnchorPoint anchorPt,
-    const Vector2<float>& scaledAnchorOffset)
-{
-  ActionTimeline timeline;
-  timeline.frameData = frameData;
-  timeline.hitboxOffset = -CalculateRenderOffset(anchorPt, scaledAnchorOffset, Vector2<float>(m_characterWidth, m_characterHeight));
-
-  EventBuilderDictionary mapping = ParseAnimationEventList(spriteFrameEvents, frameData, totalSheetFrames);
-
-  int totalGameFrames = static_cast<int>(mapping.realFrameToSheetFrame.size());
-  timeline.frames.resize(totalGameFrames);
-  timeline.visualFrameMap = std::move(mapping.realFrameToSheetFrame);
-
-  int numSpriteEvents = static_cast<int>(spriteFrameEvents.size());
-
-  // Track which sheet frames have already had their spawn data copied —
-  // entity spawns are one-shot events, not per-frame like hitboxes/movement.
-  std::vector<bool> spawnCopied(numSpriteEvents, false);
-
-  for (int gameFrame = 0; gameFrame < totalGameFrames; gameFrame++)
-  {
-    int sheetFrame = timeline.visualFrameMap[gameFrame];
-    if (sheetFrame >= numSpriteEvents)
-      continue;
-
-    const EventData& src = spriteFrameEvents[sheetFrame];
-    GameFrameEvent& dst = timeline.frames[gameFrame];
-
-    dst.hitbox = src.hitbox;
-    dst.hitbox.beg *= textureScalingFactor;
-    dst.hitbox.end *= textureScalingFactor;
-
-    dst.movement = src.movement;
-    dst.isActive = src.isActive;
-
-    // Only copy entity spawn data to the first game frame per sheet frame
-    if (!src.create.IsEmpty() && !spawnCopied[sheetFrame])
-    {
-      dst.create = src.create;
-      spawnCopied[sheetFrame] = true;
-    }
-  }
-
-  return timeline;
-}
-
-//______________________________________________________________________________
 EventList AnimationEventHelper::BuildEventList(const ActionTimeline& timeline)
 {
   const auto& frames = timeline.frames;
