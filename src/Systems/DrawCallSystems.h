@@ -75,7 +75,7 @@ public:
 
       Vector2<float> displayPosition = transform.screenPosition;
 
-      for (TextDrawOp& drawOp : renderer.GetRenderOps())
+      for (TextDrawOp& drawOp : renderer._string)
       {
         // get a display op to set draw parameters
         auto displayOp = RenderManager::Get().GetAvailableOp<BlitOperation<RenderType>>(RenderLayer::UI);

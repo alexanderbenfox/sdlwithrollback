@@ -20,7 +20,12 @@ public:
   //!
   void DeregisterOp();
   //! Used by drawn objects to pass their drawing parameters to the resource manager
-  Drawable* GetAvailableOp() { return &_drawableOperations[_opIndex++]; }
+  Drawable* GetAvailableOp()
+  {
+    if (_opIndex >= static_cast<int>(_drawableOperations.size()))
+      _drawableOperations.emplace_back();
+    return &_drawableOperations[_opIndex++];
+  }
   //!
   void PerformDraw(Camera* camera);
   //!

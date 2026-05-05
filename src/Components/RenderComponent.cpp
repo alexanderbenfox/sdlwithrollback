@@ -1,23 +1,5 @@
 #include "Components/RenderComponent.h"
 #include "Components/UIComponents.h"
-#include "Systems/TextRenderSystem.h"
-
-TextRenderer::TextRenderer() : _resource(nullptr), _currentText(""), IComponent() {}
-
-void TextRenderer::OnRemove(const EntityID& entity)
-{
-  TextRenderSystem::Cleanup(*this);
-}
-
-void TextRenderer::SetFont(LetterCase& resource)
-{
-  _resource = &resource;
-}
-
-std::vector<TextDrawOp> TextRenderer::GetRenderOps()
-{
-  return _string;
-}
 
 RenderProperties::RenderProperties() :
   rectTransform(0, 0),

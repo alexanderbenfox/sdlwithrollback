@@ -52,11 +52,9 @@ protected:
 class TextRenderer : public IComponent
 {
 public:
-  TextRenderer();
-  void OnRemove(const EntityID& entity) override;
+  TextRenderer() : _resource(nullptr) {}
 
-  void SetFont(LetterCase& resource);
-  std::vector<TextDrawOp> GetRenderOps();
+  void SetFont(LetterCase& resource) { _resource = &resource; }
 
   LetterCase* _resource;
   std::vector<TextDrawOp> _string;
