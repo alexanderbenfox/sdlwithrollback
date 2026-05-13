@@ -8,43 +8,7 @@
 GUIController::~GUIController()
 {
   _alive = false;
-  if (_ownsWindow)
-  {
-    SDL_DestroyWindow(_window);
-    SDL_GL_DeleteContext(_glContext);
-  }
-
   _window = nullptr;
-  _glContext = nullptr;
-}
-
-bool GUIController::InitSDLWindow()
-{
-  if (_ownsWindow)
-  {
-    SDL_DestroyWindow(_window);
-    SDL_GL_DeleteContext(_glContext);
-
-    _window = nullptr;
-    _glContext = nullptr;
-  }
-
-  SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-  SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-  SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
-  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
-  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
-  SDL_WindowFlags window_flags = (SDL_WindowFlags)(SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
-
-  _window = SDL_CreateWindow("Dear ImGui SDL2+OpenGL example", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1280, 720, window_flags);
-  _glContext = SDL_GL_CreateContext(_window);
-  SDL_GL_MakeCurrent(_window, _glContext);
-
-  // Enable vsync
-  SDL_GL_SetSwapInterval(1); 
-  _ownsWindow = true;
-
-  return true;
 }
 
 bool GUIController::InitImGUI()
@@ -58,22 +22,16 @@ bool GUIController::InitImGUI()
   ImGui::StyleColorsDark();
 
   // Setup Platform/Renderer bindings
-  ImGui_ImplSDL2_InitForOpenGL(_window, _glContext);
-  ImGui_ImplOpenGL2_Init();
+  _window = RenderManager::Get().GetWindow();
+  ImGui_ImplSDL2_InitForMetal(_window);
+  ImGui_ImplBgfx_Init(VIEW_IMGUI);
+  _ownsWindow = false;
+
   return true;
 }
 
-bool GUIController::InitImGUI(SDL_Window* existingWindow, SDL_GLContext existingContext)
+bool GUIController::InitImGUI(SDL_Window* existingWindow)
 {
-  if (_ownsWindow)
-  {
-    SDL_DestroyWindow(_window);
-    SDL_GL_DeleteContext(_glContext);
-
-    _window = nullptr;
-    _glContext = nullptr;
-  }
-
   // Setup Dear ImGui context
   IMGUI_CHECKVERSION();
   ImGui::CreateContext();
@@ -84,8 +42,8 @@ bool GUIController::InitImGUI(SDL_Window* existingWindow, SDL_GLContext existing
   ImGui::StyleColorsDark();
 
   // Setup Platform/Renderer bindings
-  ImGui_ImplSDL2_InitForOpenGL(existingWindow, existingContext);
-  ImGui_ImplOpenGL2_Init();
+  ImGui_ImplSDL2_InitForMetal(existingWindow);
+  ImGui_ImplBgfx_Init(VIEW_IMGUI);
   _window = existingWindow;
 
   _ownsWindow = false;
@@ -101,11 +59,8 @@ void GUIController::UpdateLogic(const SDL_Event& event)
 
 void GUIController::MainLoop()
 {
-  ImGuiIO& io = ImGui::GetIO();
-  ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
-
   // Start the Dear ImGui frame
-  ImGui_ImplOpenGL2_NewFrame();
+  ImGui_ImplBgfx_NewFrame();
   ImGui_ImplSDL2_NewFrame(_window);
   ImGui::NewFrame();
 
@@ -183,7 +138,7 @@ void GUIController::MainLoop()
 void GUIController::CleanUp()
 {
   // Cleanup
-  ImGui_ImplOpenGL2_Shutdown();
+  ImGui_ImplBgfx_Shutdown();
   ImGui_ImplSDL2_Shutdown();
   ImGui::DestroyContext();
 }
@@ -241,22 +196,9 @@ void GUIController::RenderFrame()
     GameManager::Get().DebugDraws();
   }
 
-  ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
-  ImGuiIO& io = ImGui::GetIO();
-
   // Rendering
   ImGui::Render();
-  glViewport(0, 0, (int)io.DisplaySize.x, (int)io.DisplaySize.y);
-  if (_ownsWindow)
-  {
-    glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
-    glClear(GL_COLOR_BUFFER_BIT);
-  }
-
-  ImGui_ImplOpenGL2_RenderDrawData(ImGui::GetDrawData());
-
-  if(_ownsWindow)
-    SDL_GL_SwapWindow(_window);
+  ImGui_ImplBgfx_RenderDrawData(ImGui::GetDrawData());
 }
 
 //! Init to 0

@@ -38,6 +38,7 @@ public:
   template <class ... Args>
   std::shared_ptr<Entity> CreateEntity();
   std::shared_ptr<Entity> GetEntityByID(int id) { return _gameEntities[id]; }
+  const std::unordered_map<EntityID, std::shared_ptr<Entity>>& GetAllEntities() const { return _gameEntities; }
   void DestroyEntity(std::shared_ptr<Entity> entity);
   void DestroyEntity(const EntityID& entity);
   void AddToNetworkedList(const EntityID& entity) { _networkedEntities.push_back(entity); }

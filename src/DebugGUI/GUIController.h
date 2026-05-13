@@ -1,9 +1,8 @@
 #pragma once
-#include "Rendering/GLTexture.h"
+#include "Rendering/BgfxTexture.h"
 #include "../imgui/impl/imgui_impl_sdl.h"
-#include "../imgui/impl/imgui_impl_opengl2.h"
+#include "../imgui/impl/imgui_impl_bgfx.h"
 #include <SDL2/SDL.h>
-#include <SDL2/SDL_opengl.h>
 
 #include <string>
 #include <thread>
@@ -12,8 +11,6 @@
 #include <unordered_map>
 
 #include "Window.h"
-
-class GLTexture;
 
 // nano gui singleton
 class GUIController
@@ -30,9 +27,8 @@ public:
 
   ~GUIController();
 
-  bool InitSDLWindow();
   bool InitImGUI();
-  bool InitImGUI(SDL_Window* existingWindow, SDL_GLContext existingContext);
+  bool InitImGUI(SDL_Window* existingWindow);
 
   void UpdateLogic(const SDL_Event& event);
   void MainLoop();
@@ -114,7 +110,6 @@ private:
   static inline bool _alive = false;
 
   SDL_Window* _window = nullptr;
-  SDL_GLContext _glContext = nullptr;
 
   bool _ownsWindow = false;
   bool _drawComponentDebug = true;

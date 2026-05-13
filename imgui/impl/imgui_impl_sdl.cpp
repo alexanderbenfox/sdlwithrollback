@@ -351,7 +351,10 @@ void ImGui_ImplSDL2_NewFrame(SDL_Window* window)
     SDL_GetWindowSize(window, &w, &h);
     if (SDL_GetWindowFlags(window) & SDL_WINDOW_MINIMIZED)
         w = h = 0;
-    SDL_GL_GetDrawableSize(window, &display_w, &display_h);
+    // Use window size as display size — bgfx manages the GPU context,
+    // so SDL_GL_GetDrawableSize is not valid (no GL context).
+    display_w = w;
+    display_h = h;
     io.DisplaySize = ImVec2((float)w, (float)h);
     if (w > 0 && h > 0)
         io.DisplayFramebufferScale = ImVec2((float)display_w / w, (float)display_h / h);

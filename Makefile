@@ -1,16 +1,19 @@
 # Compiler
 CXX = clang++
-CXXFLAGS = -std=c++17 -g -DGL_SILENCE_DEPRECATION
+CXXFLAGS = -std=c++20 -g -DBX_CONFIG_DEBUG=1
 
 # Include paths
 INCLUDE_PATHS = -Isrc \
                 -Ibuild/external/ggpo/include \
+                -Ibuild/external/bgfx/include \
+                -Ibuild/external/bgfx/include/compat/osx \
                 $(shell pkg-config --cflags sdl2 sdl2_image SDL2_ttf jsoncpp) \
                 -Iimgui -Iimgui/impl
 
 # Library paths and linker flags
 LIBRARY_FLAGS = $(shell pkg-config --libs sdl2 sdl2_image SDL2_ttf jsoncpp)
-FRAMEWORK_FLAGS = -framework OpenGL
+BGFX_LIBS = -Lbuild/external/bgfx/lib -lbgfx -lbimg_decode -lbimg -lbx
+FRAMEWORK_FLAGS = -framework Metal -framework MetalKit -framework QuartzCore -framework Cocoa -framework IOKit -framework CoreFoundation
 
 # Output binary
 OBJ_NAME = game
@@ -23,9 +26,9 @@ PCH_SRC = src/pch.h
 PCH_OUT = $(BUILD_DIR)/pch.h.pch
 
 # Source files
-SRC_FILES = $(shell find src -name '*.cpp')
+SRC_FILES = $(shell find src -name '*.cpp' -not -path '*/_deprecated/*')
 IMGUI_FILES = imgui/imgui.cpp imgui/imgui_draw.cpp imgui/imgui_widgets.cpp \
-              imgui/impl/imgui_impl_sdl.cpp imgui/impl/imgui_impl_opengl2.cpp
+              imgui/impl/imgui_impl_sdl.cpp imgui/impl/imgui_impl_bgfx.cpp
 
 # Object files: src/Foo/Bar.cpp -> build/obj/src/Foo/Bar.o
 SRC_OBJS = $(patsubst %.cpp,$(BUILD_DIR)/%.o,$(SRC_FILES))
@@ -40,7 +43,7 @@ all: $(OBJ_NAME)
 
 # Link
 $(OBJ_NAME): $(ALL_OBJS)
-	$(CXX) $(ALL_OBJS) $(LIBRARY_FLAGS) $(FRAMEWORK_FLAGS) -o $(OBJ_NAME)
+	$(CXX) $(ALL_OBJS) $(LIBRARY_FLAGS) $(BGFX_LIBS) $(FRAMEWORK_FLAGS) -o $(OBJ_NAME)
 
 # Compile PCH
 $(PCH_OUT): $(PCH_SRC)

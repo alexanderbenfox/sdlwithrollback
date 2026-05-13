@@ -22,15 +22,18 @@ template <> void Resource<TTF_Font>::Load()
 }
 
 
-template <> void Resource<GLTexture>::Load()
+template <> void Resource<BgfxTexture>::Load()
 {
   if (_loaded) return;
-  _resource = std::shared_ptr<GLTexture>(new GLTexture);
+  _resource = std::shared_ptr<BgfxTexture>(new BgfxTexture);
   if (_resource)
   {
     _resource->LoadFromFile(_pathToResource);
-    if (_resource->ID())
+    if (bgfx::isValid(_resource->Handle()))
     {
+      _info.mWidth = _resource->w();
+      _info.mHeight = _resource->h();
+      _info.mPitch = _resource->w() * 4;
       _loaded = true;
     }
   }

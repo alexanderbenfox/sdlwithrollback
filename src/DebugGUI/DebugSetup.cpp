@@ -12,6 +12,7 @@
 
 #include "Core/FSM/FighterStateTable.h"
 #include "Core/FSM/StateEnumMaps.h"
+#include "Core/ECS/ECSCoordinator.h"
 #include "Components/FighterFSMComponent.h"
 #include "Components/Actors/GameActor.h"
 #include "Components/Rigidbody.h"
@@ -100,6 +101,46 @@ void SetupDebugWindows(GameManager& gm, Timer& clock, AvgCounter& tracker)
   GUIController::Get().AddImguiWindowFunction("ECS Status", "Registered Components", []() {
     ImGui::Text("Components = %d", ECSGlobalStatus::NRegisteredComponents);
   });
+
+  GUIController::Get().AddImguiWindowFunction("Entity Inspector", "Entities", [&gm]()
+    {
+      const auto& entities = gm.GetAllEntities();
+      ImGui::Text("Active entities: %d", (int)entities.size());
+      ImGui::Separator();
+
+      for (const auto& [id, entity] : entities)
+      {
+        if (!entity) continue;
+
+        std::string entityLabel = "Entity " + std::to_string(id);
+        if (entity == gm.GetP1())
+          entityLabel += " (P1)";
+        else if (entity == gm.GetP2())
+          entityLabel += " (P2)";
+
+        if (ImGui::TreeNode(entityLabel.c_str()))
+        {
+          const ComponentBitFlag& signature = entity->GetSignature();
+          for (size_t compIndex = 0; compIndex < ECSGlobalStatus::NRegisteredComponents; compIndex++)
+          {
+            if (!signature.test(compIndex))
+              continue;
+
+            std::string_view compName = ECSCoordinator::Get().GetComponentName((int)compIndex);
+            if (ImGui::TreeNode(compName.data()))
+            {
+              std::string logText = ECSCoordinator::Get().LogData(id, (int)compIndex);
+              if (!logText.empty())
+                ImGui::TextUnformatted(logText.c_str());
+              else
+                ImGui::TextDisabled("(no log data)");
+              ImGui::TreePop();
+            }
+          }
+          ImGui::TreePop();
+        }
+      }
+    });
 
   GUIController::Get().AddImguiWindowFunction("ECS Status", "Entity Snapshots",
     [&gm]()

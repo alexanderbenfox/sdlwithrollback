@@ -1,8 +1,17 @@
 #pragma once
+#include "Globals.h"
 #include "AssetManagement/BlitOperation.h"
 #include "Core/Math/Vector2.h"
+#include "Rendering/SpriteRenderer.h"
+#include "Rendering/StageRenderer.h"
 
 class Camera;
+
+// bgfx view IDs
+static constexpr uint16_t VIEW_3D_STAGE = 0;
+static constexpr uint16_t VIEW_WORLD    = 1;
+static constexpr uint16_t VIEW_UI       = 2;
+static constexpr uint16_t VIEW_IMGUI    = 3;
 
 //! order in the rendering order
 enum class RenderLayer : int
@@ -26,23 +35,18 @@ public:
       _drawableOperations.emplace_back();
     return &_drawableOperations[_opIndex++];
   }
-  //!
-  void PerformDraw(Camera* camera);
-  //!
-  void PerformDraw(Drawable& operation, Camera* camera);
 
+  //! Returns current ops for iteration
+  const std::vector<Drawable>& GetOps() const { return _drawableOperations; }
+  int GetOpCount() const { return _opIndex; }
+
+  //! Resets op index for next frame
+  void ResetOps() { _opIndex = 0; }
 
 private:
-  //!
-  static void DoDraw(Drawable& operation);
-  //!
-  static void SetupCamera(Camera* camera);
-  //!
-  static void UndoCamera(Camera* camera);
   //! Index of the latest available op spot
   int _opIndex = 0;
-  //! All registered blit ops. Trying to use spatial loading to make drawing faster when there are a lot of object on screen
-  //! texture types are sdl textures or gl textures
+  //! All registered blit ops
   std::vector<Drawable> _drawableOperations;
 
 };
@@ -63,52 +67,23 @@ inline void DrawOperator<Drawable>::DeregisterOp()
 }
 
 //______________________________________________________________________________
-template <typename Drawable>
-inline void DrawOperator<Drawable>::PerformDraw(Camera* camera)
-{
-  SetupCamera(camera);
-  // only draw sprites that have been registered for this draw cycle
-  for (int i = 0; i < _opIndex; i++)
-    DoDraw(_drawableOperations[i]);
-  UndoCamera(camera);
-
-  // reset available ops for next draw cycle
-  _opIndex = 0;
-}
-
-//______________________________________________________________________________
-template <typename Drawable>
-inline void DrawOperator<Drawable>::PerformDraw(Drawable& operation, Camera* camera)
-{
-  SetupCamera(camera);
-  DoDraw(operation);
-  UndoCamera(camera);
-}
-
-//______________________________________________________________________________
 class RenderManager
 {
 public:
   //! Singleton getter
   static RenderManager& Get() { static RenderManager rm; return rm; }
-  //! Inits SDL for GL and regular SDL rendering
+  //! Inits SDL and bgfx for Metal rendering
   void Init();
   //! Destroys renderer and window
   void Destroy();
   //!
   SDL_Window* GetWindow() const { return _window; }
-  //!
-  void* GetGLContext() const { return _glContext; }
-
-  void SwitchTo2D();
-
-  void SwitchTo3D();
 
   //! Adds a new blit op to the list. Only objects registered here will be drawn
   template <typename Drawable>
   void RegisterDrawable(RenderLayer layer)
   {
-    if constexpr (std::is_same_v<Drawable, BlitOperation<GLTexture>>)
+    if constexpr (std::is_same_v<Drawable, BlitOperation<RenderType>>)
       _drawers[(int)layer].textureDrawer.RegisterOp();
     else
       _drawers[(int)layer].primitiveDrawer.RegisterOp();
@@ -117,7 +92,7 @@ public:
   template <typename Drawable>
   void DeregisterDrawable(RenderLayer layer)
   {
-    if constexpr (std::is_same_v<Drawable, BlitOperation<GLTexture>>)
+    if constexpr (std::is_same_v<Drawable, BlitOperation<RenderType>>)
       _drawers[(int)layer].textureDrawer.DeregisterOp();
     else
       _drawers[(int)layer].primitiveDrawer.DeregisterOp();
@@ -126,7 +101,7 @@ public:
   template <typename Drawable>
   Drawable* GetAvailableOp(RenderLayer layer)
   {
-    if constexpr (std::is_same_v<Drawable, BlitOperation<GLTexture>>)
+    if constexpr (std::is_same_v<Drawable, BlitOperation<RenderType>>)
       return _drawers[(int)layer].textureDrawer.GetAvailableOp();
     else
       return _drawers[(int)layer].primitiveDrawer.GetAvailableOp();
@@ -138,27 +113,27 @@ public:
   }
 
   //! Preps all the sprites to be presented on screen
-  //! For SDL Textures, this will use render copy from the SDL Library and custom render copy for GL Textures
   void Draw();
   void Clear();
   void Present();
 
   Uint32 GetWindowFormat() const { return _sdlWindowFormat; }
 
-  void Draw3DBackground();
-
-  //! Intended just for debug drawing and helpers SHOULD NOT BE USED BY ENTITIES
-  void DrawPrimitiveDebug(DrawPrimitive<GLTexture>& prim, RenderLayer layer)
+  //! Intended just for debug drawing
+  void DrawPrimitiveDebug(DrawPrimitive<RenderType>& prim, RenderLayer layer)
   {
-    _drawers[(int)layer].primitiveDrawer.PerformDraw(prim, _drawers[(int)layer].camera);
+    uint16_t viewId = (layer == RenderLayer::World) ? VIEW_WORLD : VIEW_UI;
+    _spriteRenderer.SubmitRect(viewId, prim.targetRect, prim.displayColor, prim.filled);
   }
+
+  SpriteRenderer& GetSpriteRenderer() { return _spriteRenderer; }
 
 private:
 
   struct LayerDrawers
   {
-    DrawOperator<BlitOperation<GLTexture>> textureDrawer;
-    DrawOperator<DrawPrimitive<GLTexture>> primitiveDrawer;
+    DrawOperator<BlitOperation<RenderType>> textureDrawer;
+    DrawOperator<DrawPrimitive<RenderType>> primitiveDrawer;
     Camera* camera = nullptr;
   };
 
@@ -166,10 +141,15 @@ private:
 
   //! Window object pointer
   SDL_Window* _window;
-  //! SDL Gl Context pointer - only used for gl texture rendering. SDL_GLContext is just an alias for void*
-  void* _glContext;
   //!
   Uint32 _sdlWindowFormat;
+
+  SpriteRenderer _spriteRenderer;
+  StageRenderer _stageRenderer;
+
+  //! Current bgfx backbuffer dimensions (updated on window resize via bgfx::reset)
+  uint32_t _bgfxWidth = 0;
+  uint32_t _bgfxHeight = 0;
 
   //! Initialize all sdl pointers to null and set the render scale to 1 (native size)
   RenderManager();

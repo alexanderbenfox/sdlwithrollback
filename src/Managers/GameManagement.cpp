@@ -72,16 +72,8 @@ void GameManager::Destroy()
 //______________________________________________________________________________
 void GameManager::BeginGameLoop()
 {
-  if constexpr (std::is_same_v<RenderType, SDL_Texture>)
-  {
-    GUIController::Get().InitSDLWindow();
-    GUIController::Get().InitImGUI();
-  }
-  else
-  {
-    // if we're using gl to render our window, just render imgui in our window
-    GUIController::Get().InitImGUI(GRenderer.GetWindow(), GRenderer.GetGLContext());
-  }
+  // Init ImGui using the game window (bgfx manages the rendering context)
+  GUIController::Get().InitImGUI(GRenderer.GetWindow());
 
   AvgCounter tracker;
   SetupDebugWindows(*this, _clock, tracker);

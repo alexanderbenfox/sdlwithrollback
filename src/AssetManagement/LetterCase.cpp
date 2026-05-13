@@ -1,5 +1,5 @@
 #include "AssetManagement/LetterCase.h"
-#include "Rendering/GLTexture.h" // needed for GLTexture constructor in LetterCase(TTF_Font*)
+#include "Rendering/BgfxTexture.h"
 
 LetterCase::LetterCase() : _fontSize(0)
 {
@@ -22,7 +22,7 @@ LetterCase::LetterCase(TTF_Font* font, size_t size) : _fontSize(size)
     s[0] = i + ' ';
     surf = TTF_RenderText_Blended(font, s, SDL_Color{ 255, 255, 255, 255 });
     surf->refcount++; // SDL2: prevent segfault on free
-    glyphs[i] = Resource<RenderType>(std::shared_ptr<GLTexture>(new GLTexture));
+    glyphs[i] = Resource<RenderType>(std::shared_ptr<BgfxTexture>(new BgfxTexture));
     glyphs[i].Get()->LoadFromSurface(surf);
     SDL_FreeSurface(surf);
   }

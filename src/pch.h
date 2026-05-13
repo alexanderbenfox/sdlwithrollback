@@ -21,5 +21,10 @@
 #include <SDL.h>
 #include <SDL_image.h>
 
+// bgfx
+#include <bgfx/bgfx.h>
+#include <bx/bx.h>
+#include <bx/math.h>
+
 // ImGui
 #include "imgui.h"

@@ -1,7 +1,7 @@
 #pragma once
 #include "Core/Geometry2D/Rect.h"
 #include "AssetManagement/Resource.h"
-#include "Rendering/GLTexture.h"
+#include "Rendering/BgfxTexture.h"
 
 struct DisplayImage
 {

@@ -85,8 +85,8 @@ const float third_strike_fps = 16.0f;
 const float animation_fps = third_strike_fps;
 
 //! Set our preferred type (SDL or GL) to be rendered by the system
-class GLTexture;
-typedef GLTexture RenderType;
+class BgfxTexture;
+typedef BgfxTexture RenderType;
 
 
 // THESE JUST NEED TO GO TBH!

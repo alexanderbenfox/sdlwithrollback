@@ -4,14 +4,15 @@
 
 DisplayImage::DisplayImage(const std::string& imgPath, Rect<float> imgSubRect, int targetDisplayHeight)
 {
-  Resource<GLTexture>& resource = ResourceManager::Get().GetAsset<GLTexture>(imgPath);
+  Resource<BgfxTexture>& resource = ResourceManager::Get().GetAsset<BgfxTexture>(imgPath);
   Vector2<float> textureSize = ResourceManager::Get().GetTextureWidthAndHeight(imgPath);
 
   Rect<float> uvRect(imgSubRect.beg / textureSize, imgSubRect.end / textureSize);
 
   int displayWidth = imgSubRect.Width() / imgSubRect.Height() * targetDisplayHeight;
 
-  ptr = (void*)(intptr_t)resource.GetConst()->ID();
+  // Store bgfx texture handle as ImTextureID
+  ptr = (void*)(intptr_t)resource.GetConst()->Handle().idx;
   displaySize = Vector2<int>(displayWidth, targetDisplayHeight);
   uv0 = uvRect.beg;
   uv1 = uvRect.end;

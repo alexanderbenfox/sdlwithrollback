@@ -3,7 +3,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
-#include "Rendering/GLTexture.h"
+#include "Rendering/BgfxTexture.h"
 
 #include <string>
 #include <memory>
@@ -13,7 +13,7 @@ struct ResourceTraits {};
 
 template <typename T> class Resource;
 
-template <> struct ResourceTraits<GLTexture>
+template <> struct ResourceTraits<BgfxTexture>
 {
   ResourceTraits() : mPitch(0), mWidth(0), mHeight(0) {}
   int mPitch, mWidth, mHeight;
